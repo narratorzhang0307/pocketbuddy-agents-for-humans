@@ -11,7 +11,7 @@ import {
   type RoutePoint,
   type RunRouteSession,
 } from '../lib/runRouteSkill';
-import { completeRunWithTaskmaster } from '../lib/frostHealthTaskmaster';
+import { completeRunWithTaskmaster } from '../lib/healthTaskmasterRuntime';
 
 interface Props {
   map: CityMapRuntime | null;

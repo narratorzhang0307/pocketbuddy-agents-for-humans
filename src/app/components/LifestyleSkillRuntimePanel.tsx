@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Activity, Camera, ChefHat, CloudSun, Dumbbell, ExternalLink, FileJson, Moon, Search, Utensils } from 'lucide-react';
 import { searchCnFoods } from '../../../frost-agent/skills/health/cnFoodLibrary';
-import { recordMealWithTaskmaster } from '../lib/frostHealthTaskmaster';
+import { recordMealWithTaskmaster } from '../lib/healthTaskmasterRuntime';
 
 interface Props {
   skillId: string;

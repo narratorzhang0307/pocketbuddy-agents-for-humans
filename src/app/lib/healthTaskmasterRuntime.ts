@@ -23,6 +23,22 @@ export interface FrostHealthRuntime {
   skills: HealthSkillRegistry;
 }
 
+type TaskSignalResumer = (signal: JsonObject) => Promise<void>;
+
+let taskSignalResumer: TaskSignalResumer | null = null;
+
+/**
+ * The Fitness Agent owns conversation resumption. Registering the callback here
+ * keeps the Health Taskmaster independent from the agent runtime and removes a
+ * circular module dependency.
+ */
+export function registerTaskSignalResumer(resumer: TaskSignalResumer): () => void {
+  taskSignalResumer = resumer;
+  return () => {
+    if (taskSignalResumer === resumer) taskSignalResumer = null;
+  };
+}
+
 /**
  * PWA 的单例入口。真实 Qwen/SAM、Her Motion 与自然识别能力通过 providers 注入；
  * 未注入的能力会进入 waiting_external，不会返回假成功。
@@ -79,9 +95,8 @@ export async function submitTaskSignal(input: {
     payload: structuredClone(input.payload),
     ...(input.events ? { events: structuredClone(input.events) } : {}),
   });
-  if (typeof window !== 'undefined') {
-    const { resumeFrostAgentFromTaskSignal } = await import('./frostAgentRuntime');
-    await resumeFrostAgentFromTaskSignal({
+  if (typeof window !== 'undefined' && taskSignalResumer) {
+    await taskSignalResumer({
       signal_id: input.signalId,
       task_id: completed.task_id,
       run_id: completed.run_id,

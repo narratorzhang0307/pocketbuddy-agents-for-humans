@@ -1,4 +1,4 @@
-import { getEdgeRuntimeStatus, runEdgeChatEvidence, runEdgeVisionEvidence } from '../../../../frost-agent/edge/httpEdge';
+import { getEdgeRuntimeStatus, runEdgeChat, runEdgeVision } from '../../../../frost-agent/edge/httpEdge';
 import type { EdgeResponse } from '../../../../frost-agent/edge/types';
 import { onDeviceCoverage } from './onDeviceCoverage';
 import type { SkillManifest } from './types';
@@ -114,7 +114,7 @@ export async function checkSkillOnDevice(manifest: SkillManifest): Promise<Skill
   // Use the same chat route as the actual Skill. The legacy runtime_probe has a
   // stricter literal marker gate and can report a false negative even when a
   // real Qwen/MNN decode just succeeded.
-  const probe = await runEdgeChatEvidence('只回复 POCKET_MNN_READY', {
+  const probe = await runEdgeChat('只回复 POCKET_MNN_READY', {
     system: '你只能输出 POCKET_MNN_READY，不要解释。',
     adapter: !skillNeedsVision(manifest) ? manifest.entry.adapter : undefined,
     maxTokens: 16,
@@ -127,7 +127,7 @@ export async function checkSkillOnDevice(manifest: SkillManifest): Promise<Skill
   if (skillNeedsVision(manifest)) {
     const fixture = await loadVisionSmokeFixture();
     const adapter = manifest.entry.adapter?.replace(/-lora$/, '');
-    const vision = await runEdgeVisionEvidence(fixture, '只回复 VISION_READY', { adapter, detail: 'fast', maxTokens: 16 });
+    const vision = await runEdgeVision(fixture, '只回复 VISION_READY', { adapter, detail: 'fast', maxTokens: 16 });
     if (vision.backend !== 'mnn' || !(vision.text || '').trim()) {
       return failed(manifest, 'Qwen-VL/MNN 视觉实际解码失败', status, Math.round(performance.now() - started));
     }

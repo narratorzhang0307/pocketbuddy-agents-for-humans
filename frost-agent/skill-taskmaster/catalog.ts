@@ -154,8 +154,6 @@ export const CAPABILITY_CATALOG: Record<SkillBlockCapability, CapabilityContract
   },
 };
 
-export const CAPABILITY_DEFINITIONS = CAPABILITY_CATALOG;
-
 export function capabilityContract(capability: SkillBlockCapability): CapabilityContract {
   return CAPABILITY_CATALOG[capability];
 }

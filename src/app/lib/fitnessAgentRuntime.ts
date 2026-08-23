@@ -19,7 +19,7 @@ import {
   type FrostAgentSession,
 } from '../../../frost-agent/runtime';
 import type { FrostTaskSession, JsonObject } from '../../../frost-agent/taskmaster';
-import { getFrostHealthRuntime } from './frostHealthTaskmaster';
+import { getFrostHealthRuntime, registerTaskSignalResumer } from './healthTaskmasterRuntime';
 
 const ACTIVE_SESSION_KEY = 'pe.frost.agent.active-session.v1';
 const SESSION_PREFIX = 'frost:local-user:';
@@ -144,6 +144,8 @@ export async function resumeFrostAgentFromTaskSignal(signal: JsonObject): Promis
   await client.loop.steer(structuredClone(signal), 'skill');
   await client.loop.whenIdle();
 }
+
+registerTaskSignalResumer(resumeFrostAgentFromTaskSignal);
 
 export async function readFrostAgentEvents(afterSeq = 0): Promise<FrostAgentEvent[]> {
   const client = await activeClient();

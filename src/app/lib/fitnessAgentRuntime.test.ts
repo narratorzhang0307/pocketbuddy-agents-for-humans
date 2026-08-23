@@ -5,7 +5,7 @@ vi.mock('../../../frost-agent/edge/contract', () => ({
   edgeSafe: { async chat() { return ''; } },
 }));
 
-import { getFrostHealthRuntime } from './frostHealthTaskmaster';
+import { getFrostHealthRuntime } from './healthTaskmasterRuntime';
 import { getActiveRunRouteSessionId, readRunRouteSession } from './runRouteSkill';
 import {
   readFrostAgentEvents,
@@ -13,7 +13,7 @@ import {
   runFrostGoalDriverOnce,
   scheduleFrostAgentGoal,
   sendFrostAgentMessage,
-} from './frostAgentRuntime';
+} from './fitnessAgentRuntime';
 
 function memoryStorage(): Storage {
   const values = new Map<string, string>();

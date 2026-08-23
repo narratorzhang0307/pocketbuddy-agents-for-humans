@@ -9,11 +9,11 @@ import { deletePlazaWorldDraft, readPlazaWorldDraft, writePlazaWorldDraft, type 
 import { createWorldSuggestionPrompt, parseWorldSuggestion, suggestWorldLocally, type WorldSuggestionAgent, type WorldSuggestionSkill } from '../lib/plaza/worldSuggestion';
 import { getAgentWorldPocketBuddyBlueprint } from '../lib/pocket-buddy';
 import { isNativeMnnPlatform } from '../../../frost-agent/edge/capacitorMnnEdge';
-import { runEdgeChatEvidence } from '../../../frost-agent/edge/httpEdge';
+import { runEdgeChat } from '../../../frost-agent/edge/httpEdge';
 import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 import { listCanvasSkills, subscribeCanvasSkills } from '../../../frost-agent/skill-taskmaster';
 
-const MusicAgentsTab = lazy(() => import('./MusicAgentsTab'));
+const MySkillsTab = lazy(() => import('./MySkillsTab'));
 const PocketBuddyForge = lazy(() => import('./PocketBuddyForge'));
 const SkillCanvasTab = lazy(() => import('./SkillCanvasTab'));
 const VISIBLE_SKILL_COUNT = BUILTIN_SKILLS.filter((skill) => resolveSkillRunTarget(skill.entry.target)).length;
@@ -211,7 +211,7 @@ function WorldDraftBuilder({ draft, onChange, onBack, onSave, onDelete, saved, s
     });
     try {
       if (isNativeMnnPlatform()) {
-        const response = await runEdgeChatEvidence(createWorldSuggestionPrompt(description, WORLD_TONES, agentOptions, skillOptions), {
+        const response = await runEdgeChat(createWorldSuggestionPrompt(description, WORLD_TONES, agentOptions, skillOptions), {
           system: '你是 Frost 的端侧世界编排器。只能从用户给定的白名单选择，严格输出 JSON。',
           json: true,
           maxTokens: 128,
@@ -284,7 +284,7 @@ function WorldDraftBuilder({ draft, onChange, onBack, onSave, onDelete, saved, s
   );
 }
 
-export default function PlazaTab({ initialMode = 'worlds', externalSkillTarget, externalSkillBackLabel, onExternalSkillTargetHandled, onReturnFromExternalSkill }: Props) {
+export default function AgentsTab({ initialMode = 'worlds', externalSkillTarget, externalSkillBackLabel, onExternalSkillTargetHandled, onReturnFromExternalSkill }: Props) {
   const [mode, setMode] = useState<NetworkMode | 'marketplace'>(initialMode);
   const [selectedWorld, setSelectedWorld] = useState<PlazaWorld | null>(null);
   const [selectedSkillId, setSelectedSkillId] = useState<string | null>(null);
@@ -309,7 +309,7 @@ export default function PlazaTab({ initialMode = 'worlds', externalSkillTarget, 
     <div className="flex h-full flex-col overflow-hidden bg-[#EAEAEA] font-sans">
       {!skillRunning && <NetworkHeader active={mode} canvasSkillCount={canvasSkillCount} onChange={(value) => { setSelectedWorld(null); setSelectedSkillId(null); setRequestedSkillTarget(null); setSkillOpenOrigin(null); setBuildingWorld(false); setCanvasSkillId(null); setMode(value); }} />}
       {mode === 'skills'
-        ? <div className="min-h-0 flex-1 overflow-hidden"><Suspense fallback={<div className="grid h-full place-items-center bg-[#EAEAEA] font-pixel text-[8px]">LOADING SKILLS...</div>}><MusicAgentsTab embedded openTarget={externalSkillTarget ?? requestedSkillTarget} openTargetBackLabel={externalSkillTarget ? externalSkillBackLabel : skillOpenOrigin === 'myagent' ? '返回 My Agent' : '返回 Plaza'} onRunningChange={setSkillRunning} onOpenCanvasSkill={(id) => { setCanvasSkillId(id); setMode('canvas'); }} onOpenTargetHandled={() => { if (externalSkillTarget) { setSkillOpenOrigin('external'); onExternalSkillTargetHandled?.(); } else { if (!skillOpenOrigin) setSkillOpenOrigin('plaza'); setRequestedSkillTarget(null); } }} onReturnFromExternalTarget={() => { if (skillOpenOrigin === 'external') onReturnFromExternalSkill?.(); else setMode(skillOpenOrigin === 'myagent' ? 'myagent' : 'worlds'); setSkillOpenOrigin(null); }} /></Suspense></div>
+        ? <div className="min-h-0 flex-1 overflow-hidden"><Suspense fallback={<div className="grid h-full place-items-center bg-[#EAEAEA] font-pixel text-[8px]">LOADING SKILLS...</div>}><MySkillsTab embedded openTarget={externalSkillTarget ?? requestedSkillTarget} openTargetBackLabel={externalSkillTarget ? externalSkillBackLabel : skillOpenOrigin === 'myagent' ? '返回 My Agent' : '返回智能体世界'} onRunningChange={setSkillRunning} onOpenCanvasSkill={(id) => { setCanvasSkillId(id); setMode('canvas'); }} onOpenTargetHandled={() => { if (externalSkillTarget) { setSkillOpenOrigin('external'); onExternalSkillTargetHandled?.(); } else { if (!skillOpenOrigin) setSkillOpenOrigin('plaza'); setRequestedSkillTarget(null); } }} onReturnFromExternalTarget={() => { if (skillOpenOrigin === 'external') onReturnFromExternalSkill?.(); else setMode(skillOpenOrigin === 'myagent' ? 'myagent' : 'worlds'); setSkillOpenOrigin(null); }} /></Suspense></div>
         : mode === 'canvas'
         ? <div className="min-h-0 flex-1 overflow-hidden"><Suspense fallback={<div className="grid h-full place-items-center bg-[#EAEAEA] font-pixel text-[8px]">LOADING CANVAS...</div>}><SkillCanvasTab key={mode} skillId={canvasSkillId} /></Suspense></div>
         : mode === 'myagent'

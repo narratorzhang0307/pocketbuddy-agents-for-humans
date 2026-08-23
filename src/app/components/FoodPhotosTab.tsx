@@ -3,7 +3,7 @@ import {
   Barcode, Camera, Check, ChevronRight, CircleHelp, Droplets, Eye, ImagePlus,
   Leaf, Pencil, Plus, ScanLine, Sparkles, UtensilsCrossed, X,
 } from 'lucide-react';
-import { recordMealWithTaskmaster } from '../lib/frostHealthTaskmaster';
+import { recordMealWithTaskmaster } from '../lib/healthTaskmasterRuntime';
 
 type FoodItem = {
   name: string;

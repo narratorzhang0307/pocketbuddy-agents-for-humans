@@ -40,12 +40,12 @@ describe('Pocket Earth 中间 Tab', () => {
   });
 
   it('中间地球 Tab 与右侧 Agents Tab 保持隔离', () => {
-    expect(appSource).toContain("import('./components/PlazaTab')");
+    expect(appSource).toContain("import('./components/AgentsTab')");
     expect(appSource).toContain("activeTab === 'skills'");
-    expect(appSource).toContain('<PlazaTab');
-    expect(entrySource).not.toContain('PlazaTab');
+    expect(appSource).toContain('<AgentsTab');
+    expect(entrySource).not.toContain('AgentsTab');
     expect(entrySource).not.toContain('SkillCanvasTab');
-    expect(overlaySource).not.toContain('PlazaTab');
+    expect(overlaySource).not.toContain('AgentsTab');
     expect(overlaySource).not.toContain('SkillCanvasTab');
   });
 });

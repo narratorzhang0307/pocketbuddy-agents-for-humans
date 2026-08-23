@@ -11,7 +11,7 @@ import {
   subscribeHerMotionSessions,
   type HerMotionSkillSession,
 } from '../lib/health/herMotionSession';
-import { completeHerMotionTask, startHerMotionTask } from '../lib/frostHealthTaskmaster';
+import { completeHerMotionTask, startHerMotionTask } from '../lib/healthTaskmasterRuntime';
 
 interface Props {
   launchUrl: string;

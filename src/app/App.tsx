@@ -20,7 +20,7 @@ function lazyRetry<T extends ComponentType<any>>(factory: () => Promise<{ defaul
 
 // 三个 tab 懒加载：首屏只下载当前 tab 的 chunk（地球默认），Photos/Skills 按需加载。
 const PhotosTab = lazyRetry(() => import('./components/FoodPhotosTab'));
-const PlazaTab = lazyRetry(() => import('./components/PlazaTab'));
+const AgentsTab = lazyRetry(() => import('./components/AgentsTab'));
 const EarthTab = lazyRetry(() => import('./components/EarthSoundWalkTab'));
 
 type Tab = 'photos' | 'earth' | 'skills';
@@ -146,7 +146,7 @@ export default function App() {
             {activeTab === 'photos' && <PhotosTab />}
             {activeTab === 'earth' && <EarthTab />}
             {activeTab === 'skills' && (
-              <PlazaTab
+              <AgentsTab
                 initialMode="skills"
               />
             )}

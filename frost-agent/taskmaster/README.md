@@ -1,6 +1,6 @@
 # Frost Health Taskmaster
 
-入口在 `index.ts`，PWA 单例装配在 `src/app/lib/frostHealthTaskmaster.ts`。
+入口在 `index.ts`，PWA 单例装配在 `src/app/lib/healthTaskmasterRuntime.ts`。
 
 ```ts
 const runtime = getFrostHealthRuntime({

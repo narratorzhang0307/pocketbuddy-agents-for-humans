@@ -4,7 +4,7 @@ import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 import { getAgentWorldPocketBuddyBlueprint } from '../lib/pocket-buddy';
 
 const forgeSource = readFileSync(new URL('./PocketBuddyForge.tsx', import.meta.url), 'utf8');
-const plazaSource = readFileSync(new URL('./PlazaTab.tsx', import.meta.url), 'utf8');
+const plazaSource = readFileSync(new URL('./AgentsTab.tsx', import.meta.url), 'utf8');
 
 describe('Frost 主 Agent 与领域专家路由', () => {
   it('把焦糖设为主 Agent，并为三个子 Agent 定义清楚的专家领域', () => {

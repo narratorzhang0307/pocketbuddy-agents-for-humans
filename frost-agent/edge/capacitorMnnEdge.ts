@@ -1,6 +1,5 @@
 import { Capacitor, registerPlugin, type PluginListenerHandle } from '@capacitor/core';
 import type { EdgeRequest, EdgeResponse } from './types';
-import { recordSme2Inference } from '../../src/app/lib/deviceEvidence';
 
 interface PocketMnnPlugin {
   run(options: { request: EdgeRequest }): Promise<EdgeResponse>;
@@ -36,12 +35,9 @@ export function isNativeMnnPlatform(): boolean {
 
 export async function callNativeMnn(request: EdgeRequest): Promise<EdgeResponse> {
   if (!isNativeMnnPlatform()) return { backend: 'stub', error: 'not_android_native' };
-  const started = performance.now();
   try {
     const response = await PocketMnn.run({ request });
-    const normalized = normalizeNativeMnnResponse(request, response);
-    await recordSme2Inference(request, normalized, performance.now() - started).catch(() => {});
-    return normalized;
+    return normalizeNativeMnnResponse(request, response);
   } catch (error) {
     return { backend: 'stub', error: `native_bridge_failed:${String(error)}` };
   }

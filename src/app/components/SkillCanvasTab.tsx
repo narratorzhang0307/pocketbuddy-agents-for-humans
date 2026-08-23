@@ -5,7 +5,7 @@ import {
   Volume2, WandSparkles, X,
 } from 'lucide-react';
 import {
-  CAPABILITY_CATALOG, CAPABILITY_DEFINITIONS, compileSkillDraft, createBrowserSkillRuntimeDependencies,
+  CAPABILITY_CATALOG, compileSkillDraft, createBrowserSkillRuntimeDependencies,
   executeStoredSkillGraph, getCanvasSkill, persistCompiledGraph, preflightBrowserSkillRuntime, saveCanvasSkill,
   SkillRuntimeError,
   type CompiledSkillGraph, type SkillBlockCapability, type SkillCanvasDraft,
@@ -174,7 +174,7 @@ function MiniAbilityCard({
 
 function AbilityCardDialog({ block, onClose, onAdd }: { block: AbilityBlock; onClose: () => void; onAdd: () => void }) {
   const [flipped, setFlipped] = useState(false);
-  const definition = CAPABILITY_DEFINITIONS[block.capability];
+  const definition = CAPABILITY_CATALOG[block.capability];
   const runtimeSignals = [
     { key: '响应', value: block.stats.instant >= 4 ? '实时' : '队列', score: block.stats.instant },
     { key: '隐私', value: block.stats.privacy >= 4 ? '本机' : '受控授权', score: block.stats.privacy },
@@ -293,8 +293,8 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
   const goalReady = !!draft.title.trim() && !!draft.prompt.trim();
   const buildChecks = [
     { label: '目标已定义', ok: goalReady },
-    { label: '包含启动条件', ok: draft.nodes.some((node) => CAPABILITY_DEFINITIONS[node.capability].stage === 'trigger') },
-    { label: '包含动作或状态输出', ok: draft.nodes.some((node) => ['act', 'remember'].includes(CAPABILITY_DEFINITIONS[node.capability].stage)) },
+    { label: '包含启动条件', ok: draft.nodes.some((node) => CAPABILITY_CATALOG[node.capability].stage === 'trigger') },
+    { label: '包含动作或状态输出', ok: draft.nodes.some((node) => ['act', 'remember'].includes(CAPABILITY_CATALOG[node.capability].stage)) },
   ];
   const updateDraft = (next: SkillCanvasDraft) => {
     setDraft({ ...next, updated_at: new Date().toISOString() }); setSaved(false); setCompiled(null); setTrace(null); setRuntimeIssues([]);

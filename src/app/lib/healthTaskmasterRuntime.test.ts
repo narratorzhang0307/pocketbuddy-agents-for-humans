@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { completeHerMotionTask, getFrostHealthRuntime, recordMealWithTaskmaster, startHerMotionTask, startMealTask, startRunRouteTask } from './frostHealthTaskmaster';
+import { completeHerMotionTask, getFrostHealthRuntime, recordMealWithTaskmaster, startHerMotionTask, startMealTask, startRunRouteTask } from './healthTaskmasterRuntime';
 import { getActiveRunRouteSessionId, readRunRouteSession } from './runRouteSkill';
 
 describe('local Frost Taskmaster runtime', () => {

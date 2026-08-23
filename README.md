@@ -111,7 +111,7 @@ Frost 作为 Agent Taskmaster 的主 Agent，通过混合 Skill 路由和 Harnes
 | 类型 | 适合的能力 | 运行方式 | 当前阶段 |
 | --- | --- | --- | --- |
 | **原生专属 Skill** | 摄像头、GPS、地图、持续动画、端侧模型 | 由可信宿主或原生模块执行 | 核心链路已接入 |
-| **声明式 Skill** | 由能力积木组成的多步骤、分支、数据处理和 Agent 协作流程 | 运行时读取 Skill 图，解析输入、输出、权限、积木节点和 UI schema | 协议、注册与发布原型已建立；Canvas 编辑器与编译器待实现 |
+| **声明式 Skill** | 由能力积木组成的多步骤、分支、数据处理和 Agent 协作流程 | 运行时读取 Skill 图，解析输入、输出、权限、积木节点和 UI schema | Canvas、编译器、能力锁、浏览器运行时和服务端同步已接入 |
 | **Web 沙箱 Skill** | 第三方开发者提供的复杂交互工具 | 在隔离 WebView 中运行，只能通过授权能力桥访问宿主 | 规划能力，尚非当前 MVP 依赖 |
 
 高频、强设备协同的能力可以原生化；可组合流程保存为声明式 Skill；只有需要运行第三方复杂代码时，才进入更严格的 Web 沙箱。一个 Canvas Skill 也可以通过权限桥调用原生能力积木，因此创作方式不等于运行容器。
@@ -144,6 +144,7 @@ Frost 作为 Agent Taskmaster 的主 Agent，通过混合 Skill 路由和 Harnes
 
 - Frost Session Log、Inbox、Agent Loop、Tool Runtime、Goal Driver 与 Qwen 决策适配
 - Agent Taskmaster / Frost Harness 基线、Skill Router、确认门、任务交接、Effect Ledger 和执行 Trace
+- Skill Canvas、能力合同目录、图结构修复与校验、编译产物锁定、浏览器运行时和服务端 Skill API 同步
 - 原生 Skill 注册协议、权限声明与设备能力检查
 - Action Map、跑步路线会话和 GPS 轨迹逻辑
 - Her Motion 私有会话与本地摄像头兜底
@@ -153,7 +154,7 @@ Frost 作为 Agent Taskmaster 的主 Agent，通过混合 Skill 路由和 Harnes
 ### 正在验证
 
 - 真实设备上的健康数据连接器与最小权限流程
-- Qwen3-4B 在服务器和端侧条件下对全部健康 Skill 的稳定路由
+- Qwen 服务端对全部健康 Skill 的稳定路由；端侧 MNN 仅保留为可选兼容层，不是当前 Demo 前提
 - Her Motion 完整姿态运行时与宿主 App 的标准化交接
 - 识动物、识植物、识鸟和证据型虚拟种树重新接回 Action Map 与统一事件协议
 - App 刷新或进程中断后的 Goal、外部 Signal、待审批动作与已提交 Effect 恢复
@@ -232,7 +233,7 @@ npm run health:verify-connectors
 
 ```text
 src/app/                  产品界面、地图、Her Motion 与 Skill 页面
-frost-agent/              Frost 运行时、双层 Taskmaster、路由、记忆与健康 Skill
+frost-agent/              Frost 运行时、双层 Taskmaster、路由、记忆与健康 Skill（详见 frost-agent/README.md）
 server/                   服务端 Qwen 与健康连接器桥接
 scripts/health/           健康连接器安装和 Qwen Skill 链路验证
 deploy/qwen3-4b-server/   Qwen3-4B 服务器部署与检查脚本

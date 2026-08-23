@@ -17,7 +17,7 @@ createRoot(document.getElementById("root")!).render(<App />);
 
 // 持久 Goal Driver 只在有到期目标时唤醒 Frost；无目标时不调用模型。
 setTimeout(() => {
-  void import('./app/lib/frostAgentRuntime').then(({ startFrostGoalDriver }) => startFrostGoalDriver()).catch(() => {});
+  void import('./app/lib/fitnessAgentRuntime').then(({ startFrostGoalDriver }) => startFrostGoalDriver()).catch(() => {});
 }, 5000);
 
 // 注册 Service Worker —— PWA 可安装 + 离线打开应用壳。

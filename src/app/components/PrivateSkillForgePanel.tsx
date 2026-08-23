@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Check, ChevronDown, Cpu, LoaderCircle, LockKeyhole, PackageCheck, Sparkles, Trash2 } from 'lucide-react';
 import { ALLOWED_TARGETS, getLearnedSkills, installSkill, removeLearnedSkill, subscribeSkills, type LearnedSkill } from '../../../frost-agent/harness/skillForge';
 import { isNativeMnnPlatform } from '../../../frost-agent/edge/capacitorMnnEdge';
-import { runEdgeChatEvidence } from '../../../frost-agent/edge/httpEdge';
+import { runEdgeChat } from '../../../frost-agent/edge/httpEdge';
 import { createPrivateSkillPrompt, parsePrivateSkillDraft, suggestPrivateSkillLocally, type PrivateSkillDraft } from '../lib/plaza/privateSkillForge';
 
 interface Props { initiallyOpen?: boolean }
@@ -23,7 +23,7 @@ export default function PrivateSkillForgePanel({ initiallyOpen = false }: Props)
     setBusy(true); setDraft(null); setSource(null); setNote('');
     try {
       if (isNativeMnnPlatform()) {
-        const response = await runEdgeChatEvidence(createPrivateSkillPrompt(description), {
+        const response = await runEdgeChat(createPrivateSkillPrompt(description), {
           system: '你是 Frost 的端侧 Skill 架构器。只能返回白名单内的声明式快捷 Skill JSON。', json: true, maxTokens: 160,
         });
         const parsed = response.backend === 'mnn' ? parsePrivateSkillDraft(response.text || '') : null;

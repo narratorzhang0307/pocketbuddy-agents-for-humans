@@ -2,8 +2,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const native = vi.hoisted(() => ({
   getEdgeRuntimeStatus: vi.fn(),
-  runEdgeChatEvidence: vi.fn(),
-  runEdgeVisionEvidence: vi.fn(),
+  runEdgeChat: vi.fn(),
+  runEdgeVision: vi.fn(),
 }));
 
 vi.mock('../../../../frost-agent/edge/httpEdge', () => native);
@@ -57,11 +57,11 @@ describe('Plaza 真机自检', () => {
       backend: 'mnn',
       runtime: { nativeBridge: true, mnnEnabled: true, textReady: true, visionReady: true, device: { appVersionName: '1.0.47' }, version: 'MNN test' },
     });
-    native.runEdgeChatEvidence.mockResolvedValue({ backend: 'mnn', text: 'POCKET_MNN_READY' });
+    native.runEdgeChat.mockResolvedValue({ backend: 'mnn', text: 'POCKET_MNN_READY' });
     const fixture = nativeMnnFixture();
     const result = await checkSkillOnDevice(fixture);
     expect(result).toMatchObject({ state: 'passed', appVersion: '1.0.47' });
-    expect(native.runEdgeChatEvidence).toHaveBeenCalledOnce();
+    expect(native.runEdgeChat).toHaveBeenCalledOnce();
     expect(getSkillDeviceCheck(fixture)).toEqual(result);
   });
 
@@ -70,6 +70,6 @@ describe('Plaza 真机自检', () => {
     await expect(checkSkillOnDevice(nativeMnnFixture())).resolves.toMatchObject({
       state: 'failed', detail: expect.stringContaining('未连接 Android MNN 原生桥'),
     });
-    expect(native.runEdgeChatEvidence).not.toHaveBeenCalled();
+    expect(native.runEdgeChat).not.toHaveBeenCalled();
   });
 });

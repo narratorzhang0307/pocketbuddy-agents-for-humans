@@ -16,7 +16,7 @@ import {
   type SkillRepairAction,
 } from './contracts';
 
-export { CAPABILITY_CATALOG, CAPABILITY_DEFINITIONS } from './catalog';
+export { CAPABILITY_CATALOG } from './catalog';
 
 const STAGE_ORDER: Record<SkillBlockStage, number> = {
   trigger: 0,

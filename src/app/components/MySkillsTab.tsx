@@ -1,4 +1,4 @@
-// Skills tab —— Frost Agent 的能力控制台（Skill / harness / pipeline）
+// “我的技能”子页 —— Frost Agent 的能力控制台（Skill / harness / pipeline）
 // 内容静态提炼自 frost-agent/ARCHITECTURE.md 与各 contract.md
 import { lazy, Suspense, useState, useEffect, useMemo } from 'react';
 import { Trash2, WandSparkles } from 'lucide-react';
@@ -121,7 +121,7 @@ const MANIFEST_ID_BY_AGENT: Record<string, string> = {
 };
 type Running = SkillRunTarget | null;
 
-interface MusicAgentsTabProps {
+interface MySkillsTabProps {
   embedded?: boolean;
   openTarget?: string | null;
   openTargetBackLabel?: string;
@@ -131,7 +131,7 @@ interface MusicAgentsTabProps {
   onOpenCanvasSkill?: (skillId: string) => void;
 }
 
-export default function MusicAgentsTab({ embedded = false, openTarget, openTargetBackLabel, onOpenTargetHandled, onReturnFromExternalTarget, onRunningChange, onOpenCanvasSkill }: MusicAgentsTabProps) {
+export default function MySkillsTab({ embedded = false, openTarget, openTargetBackLabel, onOpenTargetHandled, onReturnFromExternalTarget, onRunningChange, onOpenCanvasSkill }: MySkillsTabProps) {
   const [running, setRunning] = useState<Running>(null);
   const [installProgress, setInstallProgress] = useState<Record<string, number>>({});
   const [installErrors, setInstallErrors] = useState<Record<string, string>>({});

@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('Skills 顶部 MY AGENT 子页', () => {
-  const plazaSource = readFileSync(new URL('./PlazaTab.tsx', import.meta.url), 'utf8');
+  const plazaSource = readFileSync(new URL('./AgentsTab.tsx', import.meta.url), 'utf8');
   const forgeSource = readFileSync(new URL('./PocketBuddyForge.tsx', import.meta.url), 'utf8');
   const portraitSource = readFileSync(
     new URL('./AgentWorldPocketBuddyPortrait.tsx', import.meta.url),

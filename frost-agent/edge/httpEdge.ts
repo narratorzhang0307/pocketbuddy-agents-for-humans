@@ -63,47 +63,22 @@ export const httpEdge: EdgeModel = {
   },
 };
 
-/** @deprecated Retained only so archived, non-health screens still typecheck outside the published app. */
-export async function matteExhibitPhoto(image: string): Promise<EdgeResponse> {
-  return callEdgeRequest({ task: 'exhibit_matting', image });
-}
-
-/** @deprecated Retained only so archived, non-health screens still typecheck outside the published app. */
-export async function restoreHeritageImage(image: string, mask: string): Promise<EdgeResponse> {
-  return callEdgeRequest({ task: 'heritage_restore', image, mask });
-}
-
 export async function getEdgeRuntimeStatus(): Promise<EdgeResponse> {
   return callEdgeRequest({ task: 'runtime_status' });
 }
 
-export async function probeEdgeRuntime(): Promise<EdgeResponse> {
-  return callEdgeRequest({ task: 'runtime_probe' });
-}
-
-/** Full response is intentionally exposed for the acceptance ledger (metrics, backend and hashes). */
-export async function runEdgeChatEvidence(prompt: string, opts?: { system?: string; json?: boolean; adapter?: string; maxTokens?: number; model?: 'default' | 'health-qwen3-4b' }): Promise<EdgeResponse> {
+/** Full response for callers that need backend/model provenance in addition to text. */
+export async function runEdgeChat(prompt: string, opts?: { system?: string; json?: boolean; adapter?: string; maxTokens?: number; model?: 'default' | 'health-qwen3-4b' }): Promise<EdgeResponse> {
   return callEdgeRequest({ task: 'chat', prompt, system: opts?.system, json: opts?.json, adapter: opts?.adapter, maxTokens: opts?.maxTokens, model: opts?.model });
 }
 
-/** Full VL response for the bundled, fixed offline fixture used by the MNN acceptance ledger. */
-export async function runEdgeVisionEvidence(image: string, prompt: string, opts?: { adapter?: string; detail?: 'fast' | 'high' | 'ocr'; maxTokens?: number }): Promise<EdgeResponse> {
+/** Full vision response for callers that need backend/model provenance in addition to text. */
+export async function runEdgeVision(image: string, prompt: string, opts?: { adapter?: string; detail?: 'fast' | 'high' | 'ocr'; maxTokens?: number }): Promise<EdgeResponse> {
   return callEdgeRequest({ task: 'vision', image, prompt, adapter: opts?.adapter, detail: opts?.detail, maxTokens: opts?.maxTokens });
 }
 
 export async function configureEdgeRuntime(mnnEnabled: boolean, sme2Enabled: boolean): Promise<EdgeResponse> {
   return callEdgeRequest({ task: 'runtime_configure', mnnEnabled, sme2Enabled });
-}
-
-export async function getEdgeEvidenceArtifacts(): Promise<EdgeResponse['evidenceArtifacts']> {
-  const response = await callEdgeRequest({ task: 'runtime_evidence_artifacts' });
-  return response.evidenceArtifacts;
-}
-
-/** Explicit and potentially expensive; only called by the acceptance ledger/export. */
-export async function getEdgeApkEvidence(): Promise<EdgeResponse['apkEvidence']> {
-  const response = await callEdgeRequest({ task: 'runtime_apk_evidence' });
-  return response.apkEvidence;
 }
 
 export async function getEdgeAssets(): Promise<EdgeAssetStatus[]> {

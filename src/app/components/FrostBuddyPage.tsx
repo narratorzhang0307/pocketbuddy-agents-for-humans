@@ -8,8 +8,8 @@ import { getSuggestion, subscribeHeartbeat, adoptSuggestion } from '../../../fro
 import { derive, STATE_LABEL, type FrostState } from '../../../frost-agent/buddy/poses';
 import { themeFor, THEME_LABEL, type FrostTheme } from '../../../frost-agent/buddy/themes';
 import FrostMemoryPanel from './FrostMemoryPanel';
-import { startHerMotionTask, startMealTask } from '../lib/frostHealthTaskmaster';
-import { hasActiveFrostAgentSession, readFrostAgentEvents, scheduleFrostAgentGoal, sendFrostAgentMessage, type FrostAgentRunResult } from '../lib/frostAgentRuntime';
+import { startHerMotionTask, startMealTask } from '../lib/healthTaskmasterRuntime';
+import { hasActiveFrostAgentSession, readFrostAgentEvents, scheduleFrostAgentGoal, sendFrostAgentMessage, type FrostAgentRunResult } from '../lib/fitnessAgentRuntime';
 import './FrostBuddyPage.css';
 
 // FROST · 总编排入口。

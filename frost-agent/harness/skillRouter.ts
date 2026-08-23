@@ -11,7 +11,7 @@ import { formatHistory } from './memory';
 import { getFrostBrain } from './brain';
 import type { AgentResult, FrostContext } from './types';
 import { isNativeMnnPlatform } from '../edge/capacitorMnnEdge';
-import { runEdgeChatEvidence } from '../edge/httpEdge';
+import { runEdgeChat } from '../edge/httpEdge';
 import {
   BUILTIN_SKILLS,
   getEquippedSkill,
@@ -319,7 +319,7 @@ async function mnnPlan(ctx: FrostContext, catalog: RoutableSkill[]): Promise<{ p
   if (!isNativeMnnPlatform()) return { plan: null, detail: '非 Android 原生环境' };
   const text = (ctx.userText || '').trim();
   try {
-    const response = await runEdgeChatEvidence(plannerPrompt(text, formatHistory(ctx.history), catalog), {
+    const response = await runEdgeChat(plannerPrompt(text, formatHistory(ctx.history), catalog), {
       json: true,
       maxTokens: 384,
       system: '你是手机端 Frost Skill Router。只返回契约要求的 JSON，不执行任务。',

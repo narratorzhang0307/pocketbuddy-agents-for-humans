@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 
-const agentsSource = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
+const agentsSource = readFileSync(new URL('./MySkillsTab.tsx', import.meta.url), 'utf8');
 const routesSource = readFileSync(new URL('../lib/plaza/skillRoutes.ts', import.meta.url), 'utf8');
 
-describe('Agents 服务端 Demo 运行边界', () => {
+describe('MySkillsTab 服务端 Demo 运行边界', () => {
   it('不再暴露 SME2 端侧加速与证据账本入口', () => {
     expect(agentsSource).not.toContain('OnDeviceBrainPanel');
     expect(agentsSource).not.toContain('DeviceEvidenceLedgerPage');
