@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { SoundWalkCanvas } from '../integrations/soundWalk';
 import RunRouteOverlay from './RunRouteOverlay';
 import { getActiveRunRouteSessionId, subscribeRunRouteOpen } from '../lib/runRouteSkill';
+import './EarthSoundWalkTab.css';
 
 /**
  * Pocket Earth 中间 Tab 的唯一入口。
@@ -17,12 +18,19 @@ export default function EarthSoundWalkTab() {
   );
 
   return (
-    <SoundWalkCanvas
-      workspace="city"
-      journalContent="nature-deck"
-      renderMapOverlay={(map) => routeSessionId
-        ? <RunRouteOverlay map={map} sessionId={routeSessionId} />
-        : null}
-    />
+    <div className="pocket-earth-soundwalk-host flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="flex h-[30px] shrink-0 items-center justify-center border-b-2 border-black bg-[#EAEAEA] px-4">
+        <div className="truncate font-pixel text-[9px] uppercase leading-none tracking-[0.14em]">POCKET EARTH · CITY MAP</div>
+      </div>
+      <div className="min-h-0 flex-1">
+        <SoundWalkCanvas
+          workspace="city"
+          journalContent="nature-deck"
+          renderMapOverlay={(map) => routeSessionId
+            ? <RunRouteOverlay map={map} sessionId={routeSessionId} />
+            : null}
+        />
+      </div>
+    </div>
   );
 }

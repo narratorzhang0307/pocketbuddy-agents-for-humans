@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const appSource = readFileSync(new URL('../App.tsx', import.meta.url), 'utf8');
 const entrySource = readFileSync(new URL('./EarthSoundWalkTab.tsx', import.meta.url), 'utf8');
+const entryStyles = readFileSync(new URL('./EarthSoundWalkTab.css', import.meta.url), 'utf8');
 const overlaySource = readFileSync(new URL('./RunRouteOverlay.tsx', import.meta.url), 'utf8');
 const integrationSource = readFileSync(new URL('../integrations/soundWalk.ts', import.meta.url), 'utf8');
 
@@ -18,6 +19,14 @@ describe('Pocket Earth 中间 Tab', () => {
   it('跑步路线只作为原地图上的覆盖层', () => {
     expect(entrySource).toContain('renderMapOverlay');
     expect(entrySource).toContain('<RunRouteOverlay');
+  });
+
+  it('使用 Pocket Earth 统一抬头并约束工作区标签溢出', () => {
+    expect(entrySource).toContain('POCKET EARTH · CITY MAP');
+    expect(entrySource).toContain('pocket-earth-soundwalk-host');
+    expect(entryStyles).toContain('[data-workspace-primary-grid] > button');
+    expect(entryStyles).toContain('text-overflow: ellipsis');
+    expect(entryStyles).toContain('white-space: nowrap');
   });
 
   it('跨项目依赖只经过 integration boundary，路线开关只有一个状态源', () => {

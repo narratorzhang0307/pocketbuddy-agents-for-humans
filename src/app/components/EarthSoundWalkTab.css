@@ -1,0 +1,96 @@
+.pocket-earth-soundwalk-host .soundwalk-workspace-hero {
+  min-height: 70px;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom-width: 2px;
+  background: #fff;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-hero > div:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-hero > div:first-child > small {
+  display: none;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-hero h1 {
+  overflow: hidden;
+  margin: 0;
+  font-size: 18px;
+  line-height: 1;
+  letter-spacing: .06em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-hero p {
+  overflow: hidden;
+  margin-top: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-progress {
+  min-width: 64px;
+  flex: 0 0 auto;
+  padding: 8px 7px;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-progress strong {
+  font-size: 15px;
+}
+
+.pocket-earth-soundwalk-host .workspace-primary-tabs {
+  min-width: 0;
+  padding: 8px 12px;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] {
+  width: 100%;
+  min-width: 0;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] > button {
+  min-width: 0;
+  overflow: hidden;
+  gap: clamp(3px, 1.5vw, 8px);
+  padding-inline: clamp(3px, 1.5vw, 8px);
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > span {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] strong,
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] small {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] strong {
+  font-size: clamp(8px, 2.4vw, 10px);
+  line-height: 1;
+}
+
+.pocket-earth-soundwalk-host [data-workspace-primary-grid] small {
+  margin-top: 4px;
+  font-size: clamp(4px, 1.2vw, 5px);
+  line-height: 1;
+}
