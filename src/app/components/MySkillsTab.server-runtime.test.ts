@@ -6,6 +6,9 @@ const networkSource = readFileSync(new URL('./AgentsTab.tsx', import.meta.url), 
 const privateForgeSource = readFileSync(new URL('./PrivateSkillForgePanel.tsx', import.meta.url), 'utf8');
 const plazaSource = readFileSync(new URL('./AgentPlazaPage.tsx', import.meta.url), 'utf8');
 const routesSource = readFileSync(new URL('../lib/plaza/skillRoutes.ts', import.meta.url), 'utf8');
+const sharedBrainSource = readFileSync(new URL('../../../frost-agent/harness/httpBrain.ts', import.meta.url), 'utf8');
+const buddyBrainSource = readFileSync(new URL('../lib/pocket-buddy/brain.ts', import.meta.url), 'utf8');
+const viteSource = readFileSync(new URL('../../../vite.pocketbuddy.config.ts', import.meta.url), 'utf8');
 
 describe('MySkillsTab 服务端 Demo 运行边界', () => {
   it('不再暴露 SME2 端侧加速与证据账本入口', () => {
@@ -45,5 +48,15 @@ describe('MySkillsTab 服务端 Demo 运行边界', () => {
     expect(plazaSource).not.toContain('MNN');
     expect(existsSync(new URL('../lib/skill/deviceCheck.ts', import.meta.url))).toBe(false);
     expect(existsSync(new URL('../lib/skill/onDeviceCoverage.ts', import.meta.url))).toBe(false);
+  });
+
+  it('所有文本模型调用只走鉴权的 pocketbuddy-api', () => {
+    for (const source of [sharedBrainSource, buddyBrainSource, viteSource]) {
+      expect(source).not.toContain('/api/frost-llm');
+    }
+    expect(sharedBrainSource).toContain('createDefaultPocketBuddyApiClient');
+    expect(buddyBrainSource).toContain('createDefaultPocketBuddyApiClient');
+    expect(viteSource).not.toContain('qwenChatDev');
+    expect(existsSync(new URL('../../../server/qwen-health-provider.mjs', import.meta.url))).toBe(false);
   });
 });

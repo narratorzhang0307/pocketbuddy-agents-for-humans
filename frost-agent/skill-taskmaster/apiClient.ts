@@ -100,3 +100,11 @@ export async function getDefaultSkillApiToken(): Promise<string> {
 export function defaultSkillApiBaseUrl(): string {
   return String(import.meta.env.VITE_POCKETBUDDY_API_BASE || '');
 }
+
+export function createDefaultPocketBuddyApiClient(signal?: AbortSignal) {
+  return createPocketBuddyApiClient({
+    baseUrl: defaultSkillApiBaseUrl(),
+    getIdToken: getDefaultSkillApiToken,
+    signal,
+  });
+}
