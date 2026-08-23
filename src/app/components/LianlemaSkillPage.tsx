@@ -55,10 +55,10 @@ export default function LianlemaSkillPage({ launchUrl, onBack, backLabel = '返�
         </button>
         <div className="min-w-0 flex-1">
           <div className="font-pixel text-[8px] tracking-wider">练了吗 · FROST SKILL</div>
-          <p className="mt-0.5 truncate text-[8px] text-black/45">AI 实时姿势矫正 · 本机模型服务</p>
+          <p className="mt-0.5 truncate text-[8px] text-black/45">AI 实时姿势矫正 · 服务端模型</p>
         </div>
         <span className="flex items-center gap-1 border border-black bg-[#e8f8ef] px-2 py-1 font-pixel text-[6px] text-[#087c49]">
-          <Activity className="h-3 w-3" />LOCAL VISION
+          <Activity className="h-3 w-3" />VISION API
         </span>
       </header>
       <div className="shrink-0 border-b border-black bg-[#fff0b5] px-3 py-1.5 text-[8px] leading-relaxed">
@@ -82,7 +82,7 @@ export default function LianlemaSkillPage({ launchUrl, onBack, backLabel = '返�
           <div className="absolute inset-0 z-10 grid place-items-center bg-[#e9ecf1] px-6 text-center">
             <div>
               <Activity className="mx-auto h-6 w-6 animate-pulse text-[#02a85d]" />
-              <p className="mt-3 font-pixel text-[8px]">正在连接本机训练教练…</p>
+              <p className="mt-3 font-pixel text-[8px]">正在连接训练教练服务…</p>
               <p className="mt-2 text-[10px] leading-relaxed text-black/50">如果长时间未打开，请双击便携包里的 start.command。</p>
             </div>
           </div>
@@ -92,7 +92,7 @@ export default function LianlemaSkillPage({ launchUrl, onBack, backLabel = '返�
             <section className="w-full max-w-sm border-2 border-black bg-white p-4 text-center shadow-[4px_4px_0_#02c56e]">
               <Activity className="mx-auto h-7 w-7 text-black/35" />
               <h2 className="mt-3 font-pixel text-[9px]">训练服务暂未连接</h2>
-              <p className="mt-2 text-[10px] leading-relaxed text-black/55">请确认本机练了吗服务正在运行，然后重新连接。</p>
+              <p className="mt-2 text-[10px] leading-relaxed text-black/55">请确认训练教练服务可用，然后重新连接。</p>
               <button type="button" onClick={() => setRetryCount((value) => value + 1)} className="mt-4 w-full border-2 border-black bg-[#02c56e] px-3 py-2.5 font-pixel text-[7px] text-white">重新连接</button>
             </section>
           </div>

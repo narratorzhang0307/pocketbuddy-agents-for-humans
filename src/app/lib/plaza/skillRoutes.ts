@@ -1,6 +1,5 @@
 export type SkillRunTarget =
   | 'frost'
-  | 'deviceevidence'
   | 'hermotion'
   | 'lianlema'
   | 'healthsync'

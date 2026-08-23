@@ -2,7 +2,6 @@
 // 内容静态提炼自 frost-agent/ARCHITECTURE.md 与各 contract.md
 import { lazy, Suspense, useState, useEffect, useMemo } from 'react';
 import { Trash2, WandSparkles } from 'lucide-react';
-import OnDeviceBrainPanel from './OnDeviceBrainPanel';
 import { getLearnedSkills, subscribeSkills, type LearnedSkill } from '../../../frost-agent/harness/skillForge';
 import { startHeartbeat } from '../../../frost-agent/harness/heartbeat';
 import {
@@ -13,7 +12,6 @@ import {
   prepareAndEquipSkill,
   subscribeSkillsRegistry,
 } from '../lib/skill';
-import { onDeviceCoverage } from '../lib/skill/onDeviceCoverage';
 import { skillPublisherForAgent, type SkillPublisher } from '../data/skillPublishers';
 import { PLAZA_WORLDS } from '../data/plazaWorlds';
 import { resolveSkillRunTarget, type SkillRunTarget } from '../lib/plaza/skillRoutes';
@@ -25,7 +23,6 @@ const POCKET_BUDDY_ASSET = `${import.meta.env.BASE_URL}assets/pocket-buddy/pet-m
 
 // Skill 运行页不属于控制台首屏；用户打开时再按需加载。
 const FrostBuddyPage = lazy(() => import('./FrostBuddyPage'));
-const DeviceEvidenceLedgerPage = lazy(() => import('./DeviceEvidenceLedgerPage'));
 const HerMotionSkillPage = lazy(() => import('./HerMotionSkillPage'));
 const LianlemaSkillPage = lazy(() => import('./LianlemaSkillPage'));
 const HealthFoundationSkillPage = lazy(() => import('./HealthFoundationSkillPage'));
@@ -63,7 +60,7 @@ const HER_MOTION_SKILL: AgentItem = {
   zhLabel: '女性运动',
   launchUrl: HER_MOTION_WORLD.launchUrl,
   publisher: HER_MOTION_WORLD.publisher,
-  runtimeBadge: 'LOCAL VISION',
+  runtimeBadge: 'VISION API',
   role: `${HER_MOTION_WORLD.climate}；${HER_MOTION_WORLD.temperament}`,
   status: '已加载',
   kind: '组合',
@@ -75,10 +72,10 @@ const LIANLEMA_SKILL: AgentItem = {
   label: '练了吗',
   launchUrl: LIANLEMA_LAUNCH_URL,
   publisherRole: 'AI 动作教练',
-  runtimeBadge: 'RTMPOSE · ST-GCN',
-  role: '实时姿势矫正、动作计数和本地文字教练；使用便携包的摄像头与模型服务',
+  role: '实时姿势矫正、动作计数和服务端文字教练；使用便携包的摄像头与模型服务',
   status: '已加载',
   kind: '组合',
+  runtimeBadge: 'POSE API · ST-GCN',
   background: '#e8f8ef',
 };
 const RUN_ROUTE_SKILL: AgentItem = {
@@ -97,12 +94,12 @@ const MEALIE_SKILL: AgentItem = {
   status: '待连接', kind: '组合', runtimeBadge: 'OSS · SELF HOSTED', background: '#fff1df',
 };
 const HEALTH_FOUNDATION_SKILL_ITEMS: AgentItem[] = [
-  { name: 'frost-healthsync', label: 'HEALTHSYNC', zhLabel: '健康同步', publisherRole: '健康数据员', role: 'Apple Health 本地导入、去重、睡眠/步数/HRV/跑步指标只读查询', status: '等待连接器', kind: '组合', runtimeBadge: 'LOCAL BRIDGE', background: '#eef5ff' },
-  { name: 'frost-motion-vision', label: 'MEDIAPIPE MOTION', zhLabel: '动作信号', publisherRole: '动作信号员', role: '姿态关键点、视频节流、置信度与连续帧确认；已接入 Her Motion', status: '已封装', kind: '组合', runtimeBadge: 'LOCAL VISION', background: '#ecfff5' },
+  { name: 'frost-healthsync', label: 'HEALTHSYNC', zhLabel: '健康同步', publisherRole: '健康数据员', role: 'Apple Health 受控上传、去重、睡眠/步数/HRV/跑步指标只读查询', status: '等待连接器', kind: '组合', runtimeBadge: 'HEALTH API', background: '#eef5ff' },
+  { name: 'frost-motion-vision', label: 'MEDIAPIPE MOTION', zhLabel: '动作信号', publisherRole: '动作信号员', role: '姿态关键点、视频节流、置信度与连续帧确认；已接入 Her Motion', status: '已封装', kind: '组合', runtimeBadge: 'VISION API', background: '#ecfff5' },
   { name: 'frost-openfoodfacts', label: 'OPEN FOOD FACTS', zhLabel: '包装食品', publisherRole: '包装食品员', role: '条码食品、品牌、每 100g 营养值与数据完整度', status: '已封装', kind: 'Markdown', runtimeBadge: 'PUBLIC DATA', background: '#fff0e6' },
-  { name: 'frost-cn-health-library', label: 'CN HEALTH LIBRARY', zhLabel: '中国健康库', publisherRole: '中国食品员', role: '中国食品库、Apple Health 字段解析和证据绑定周报模板', status: '已封装', kind: 'Markdown', runtimeBadge: 'LOCAL DATA', background: '#f7f1ff' },
+  { name: 'frost-cn-health-library', label: 'CN HEALTH LIBRARY', zhLabel: '中国健康库', publisherRole: '中国食品员', role: '中国食品库、Apple Health 字段解析和证据绑定周报模板', status: '已封装', kind: 'Markdown', runtimeBadge: 'SERVER DATA', background: '#f7f1ff' },
   { name: 'frost-outdoor-window', label: 'OUTDOOR WINDOW', zhLabel: '户外窗口', publisherRole: '户外条件员', role: '实时天气、AQI、UV 与雷暴风险；选择跑步、散步或室内训练窗口', status: '已封装', kind: '组合', runtimeBadge: 'LIVE PUBLIC DATA', background: '#e8f7ff' },
-  { name: 'frost-sleep-detective', label: 'SLEEP DETECTIVE', zhLabel: '睡眠侦探', publisherRole: '睡眠观察员', role: '比较睡眠与咖啡、饮酒、晚间训练标签；明确区分相关性与因果', status: '已封装', kind: 'Markdown', runtimeBadge: 'LOCAL TRENDS', background: '#eef0ff' },
+  { name: 'frost-sleep-detective', label: 'SLEEP DETECTIVE', zhLabel: '睡眠侦探', publisherRole: '睡眠观察员', role: '比较睡眠与咖啡、饮酒、晚间训练标签；明确区分相关性与因果', status: '已封装', kind: 'Markdown', runtimeBadge: 'SERVER ANALYTICS', background: '#eef0ff' },
   { name: 'frost-meal-lens', label: 'MEAL LENS', zhLabel: '饮食镜头', publisherRole: '中国饮食镜头', role: '本地照片预览、菜名确认和中国食品营养范围；确认前不写入', status: '已封装', kind: '组合', runtimeBadge: 'CONFIRM FIRST', background: '#fff5cc' },
 ];
 const HEALTH_SKILL_ITEMS = [RUN_ROUTE_SKILL, HER_MOTION_SKILL, LIANLEMA_SKILL, WGER_SKILL, MEALIE_SKILL, ...HEALTH_FOUNDATION_SKILL_ITEMS];
@@ -243,7 +240,6 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
   if (running === 'hermotion') return <Suspense fallback={<SkillPageLoader label="HER MOTION" />}><HerMotionSkillPage launchUrl={HER_MOTION_LAUNCH_URL} onBack={closeRunning} backLabel={herMotionReturnToFrost ? '返回 Frost' : returnToExternalTarget ? externalBackLabel : '返回 Skills'} /></Suspense>;
   if (running === 'lianlema') return <Suspense fallback={<SkillPageLoader label="练了吗" />}><LianlemaSkillPage launchUrl={LIANLEMA_LAUNCH_URL} onBack={closeRunning} backLabel={lianlemaReturnToFrost ? '返回 Frost' : returnToExternalTarget ? externalBackLabel : '返回 Skills'} /></Suspense>;
   if (running === 'runroute') return <Suspense fallback={<SkillPageLoader label="RUN ROUTE" />}><RunRouteSkillPage onBack={closeRunning} /></Suspense>;
-  if (running === 'deviceevidence') return <Suspense fallback={<SkillPageLoader label="本机验收账本" />}><DeviceEvidenceLedgerPage onBack={closeRunning} /></Suspense>;
   const foundationSkillId = running === 'healthsync' ? 'frost.healthsync'
       : running === 'openfoodfacts' ? 'frost.openfoodfacts'
           : running === 'cnhealthlibrary' ? 'frost.cn-health-library'
@@ -258,7 +254,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
     <div className="h-full flex flex-col bg-[#EAEAEA] font-sans">
       {/* 顶栏状态 */}
       {!embedded && <div className="flex justify-center items-center h-[30px] px-4 border-b-2 border-black bg-[#EAEAEA] shrink-0">
-        <div className="font-pixel text-[9px] uppercase tracking-[0.14em] leading-none">POCKET EARTH · QWEN + MNN</div>
+        <div className="font-pixel text-[9px] uppercase tracking-[0.14em] leading-none">POCKET EARTH · AGENT NETWORK</div>
       </div>}
 
       {/* 标题 */}
@@ -274,9 +270,6 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
 
       {/* agent 分组列表（可滚动） */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        {/* 决赛验收入口：Agents 内容区第一位，默认展开，真实控制 Android MNN / SME2 并保存可导出证据。 */}
-        <OnDeviceBrainPanel onOpenLedger={() => setRunning('deviceevidence')} />
-
         {/* Frost Agent 总编排入口：理解任务后路由到已登记 Skill。 */}
         <button
           onClick={() => setRunning('frost')}
@@ -290,7 +283,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
           <div className="min-w-0 flex-1">
             <div className="font-pixel text-[11px] tracking-wider text-black">FITNESS AGENT</div>
             <div className="mt-0.5 text-[10.5px] leading-snug text-black/60">理解今天的饮食、训练与恢复状态，调度已装备的健康 Skills。</div>
-            <div className="mt-1 font-pixel text-[6px] text-[#326B55]">LOCAL PERSONA · NOT AN IDENTITY CREDENTIAL</div>
+            <div className="mt-1 font-pixel text-[6px] text-[#326B55]">SERVER ORCHESTRATED · AUDITABLE RUN</div>
           </div>
           <span className="grid min-h-11 w-[76px] shrink-0 place-items-center border-2 border-black bg-[#ffd65a] px-1 text-center font-pixel text-[6px] leading-relaxed text-black shadow-[2px_2px_0_#000]">▶ RUN</span>
         </button>
@@ -298,7 +291,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
         {canvasSkills.length > 0 && (
           <section>
             <div className="mb-2 flex items-end justify-between border-b-2 border-black pb-1.5">
-              <span><h2 className="font-pixel text-[10px] tracking-widest">MADE BY YOU</h2><small className="mt-1 block text-[8px] font-bold text-black/45">从 Skill Canvas 编译并保存在本机</small></span>
+              <span><h2 className="font-pixel text-[10px] tracking-widest">MADE BY YOU</h2><small className="mt-1 block text-[8px] font-bold text-black/45">从技能画布编译并同步到技能服务</small></span>
               <span className="border border-black bg-[#ffd34e] px-1.5 py-1 font-pixel text-[6px]">{canvasSkills.length}</span>
             </div>
             <div className="space-y-2">
@@ -335,7 +328,6 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
                 const publisher = a.publisher ?? skillPublisherForAgent(a.name);
                 const manifestId = MANIFEST_ID_BY_AGENT[a.name];
                 const manifest = manifestId ? BUILTIN_SKILLS.find((item) => item.identity.id === manifestId) : undefined;
-                const edgeCoverage = manifestId ? onDeviceCoverage(manifestId) : undefined;
                 const skillKey = manifest ? `${manifest.identity.id}@${manifest.identity.version}` : '';
                 const installed = skillKey ? getInstalledSkill(skillKey) : undefined;
                 const equipped = manifestId ? !!getEquippedSkill(manifestId) : true;
@@ -365,7 +357,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
                           <span className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
                             <span className="min-w-0 flex-1 truncate text-[8.5px] font-bold text-[#18784b]">{getBuiltinSkillAvatar(a.name)?.name ?? publisher.name} · {publisher.name} 发布</span>
                             {a.kind && <span className={`shrink-0 border border-black px-1 py-0.5 font-pixel text-[5px] ${a.kind === 'Markdown' ? 'bg-[#eef3df] text-[#326B55]' : a.kind === 'LoRA' ? loraPaused ? 'bg-[#d1d1d1] text-black/45' : 'bg-[#b388ff] text-black' : 'bg-black text-[#b388ff]'}`}>{a.kind}</span>}
-                            {edgeCoverage && <span title={edgeCoverage.proof} className="shrink-0 border border-[#087c49] bg-[#e8f8ef] px-1 py-0.5 font-pixel text-[5px] text-[#087c49]">{edgeCoverage.semanticRuntime === 'qwen3-4b-health-mnn' ? 'QWEN4B·MNN' : 'LOCAL RULES'}</span>}
+                            <span className="shrink-0 border border-[#087c49] bg-[#e8f8ef] px-1 py-0.5 font-pixel text-[5px] text-[#087c49]">SERVER</span>
                             {a.runtimeBadge && <span className="shrink-0 border border-[#665ec7] bg-white px-1 py-0.5 font-pixel text-[5px] text-[#5148b5]">{a.runtimeBadge}</span>}
                             {manifest && <span className={`shrink-0 border px-1 py-0.5 font-pixel text-[5px] ${loraPaused ? 'border-black/35 bg-[#eeeeee] text-black/45' : equipped ? 'border-[#087c49] bg-[#e8f8ef] text-[#087c49]' : preparing ? 'border-[#9a6411] bg-[#fff3cd] text-[#7a4a00]' : installError ? 'border-[#b3261e] bg-[#fff0ed] text-[#b3261e]' : 'border-[#9a6411] bg-[#fff3cd] text-[#7a4a00]'}`}>{loraPaused ? 'BASE 可用 · LoRA 待兼容' : equipped ? '已加载' : preparing ? '加载中' : installError ? '加载失败' : '待安装'}</span>}
                           </span>
@@ -416,7 +408,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
         )}
 
         <div className="text-center text-[8px] font-pixel text-black/30 py-2 tracking-widest">
-          HEALTH {equippedHealthCount}/{REGISTERED_SKILL_COUNT} 已装备 · 运动与健康数据默认留在本机
+          HEALTH {equippedHealthCount}/{REGISTERED_SKILL_COUNT} 已装备 · 服务端执行并保留可审计 Evidence
         </div>
       </div>
     </div>

@@ -62,7 +62,7 @@ type NetworkMode = 'worlds' | 'skills' | 'myagent' | 'canvas';
 function NetworkHeader({ active, canvasSkillCount, onChange }: { active: NetworkMode; canvasSkillCount: number; onChange: (value: NetworkMode) => void }) {
   const title = active === 'skills' ? '我的技能' : active === 'canvas' ? '技能画布' : active === 'myagent' ? '我的智能体' : '智能体世界';
   const subtitle = active === 'skills'
-    ? '已加载到这台设备的 Skills · 随时装备与运行'
+    ? '已由技能服务登记的 Skills · 随时装配与运行'
     : active === 'canvas'
       ? '定义目标、组合能力模块，再由 Skill Taskmaster 编译为真正的任务'
     : active === 'myagent'
