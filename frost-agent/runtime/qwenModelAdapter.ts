@@ -5,6 +5,7 @@ import {
   type FrostAgentEvent,
   type FrostAgentModelAdapter,
   type FrostAgentModelContext,
+  validateFrostAgentDecision,
 } from './contracts';
 import type { FrostSkillProvider } from './skillCatalog';
 import type { FrostAgentToolRegistry } from './toolRegistry';
@@ -122,7 +123,12 @@ export class FrostStructuredModelAdapter implements FrostAgentModelAdapter {
     const text = await this.completion.complete(prompt, context.signal);
     if (!text.trim()) return this.options.fallback?.decide(context)
       ?? safeDecision('服务端模型暂不可用。请稍后重试。', 'server_model_unavailable');
-    try { return JSON.parse(stripModelEnvelope(text)); }
+    try {
+      const decision = validateFrostAgentDecision(JSON.parse(stripModelEnvelope(text)));
+      if (decision.ok) return decision.value;
+      return this.options.fallback?.decide(context)
+        ?? safeDecision('这次服务端决策不符合智能体协议，请重试。', 'invalid_server_decision_contract');
+    }
     catch { return this.options.fallback?.decide(context)
       ?? safeDecision('这次服务端决策没有通过结构校验，请重试。', 'invalid_server_decision_json'); }
   }

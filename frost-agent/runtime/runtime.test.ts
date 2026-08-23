@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { HEALTH_EVENT_PROTOCOL, TASK_SIGNAL_PROTOCOL, type FrostTaskRequest, type HealthEvent, type JsonObject } from '../taskmaster/contracts';
 import { FrostHealthTaskmaster } from '../taskmaster/orchestrator';
 import { InMemoryTaskmasterStore } from '../taskmaster/store';
@@ -312,6 +312,32 @@ describe('Frost Skill disclosure and Qwen decision boundary', () => {
       protocol: FROST_AGENT_DECISION_PROTOCOL,
       next_action: { type: 'load_skill', skill_id: 'frost.her-motion-warmup' },
     }));
+  });
+
+  it('falls back before Taskmaster when server JSON violates the agent decision contract', async () => {
+    const provider = new TaskmasterSkillProvider();
+    const tools = new FrostAgentToolRegistry();
+    const session = FrostAgentLoop.createSession('invalid-contract-session', 'user-1', new Date(at));
+    const context = { session, events: [], turn: 1, step: 1, signal: new AbortController().signal };
+    const fallbackDecision = {
+      protocol: FROST_AGENT_DECISION_PROTOCOL,
+      goal: '询问用户',
+      observations: ['服务端决策不完整'],
+      next_action: { type: 'ask_user' as const, question: '请再描述一次你的目标。', reason: '需要完整目标' },
+      confidence: 1,
+      risk: 'low' as const,
+      success_condition: '用户补充目标。',
+    };
+    const fallback = { decide: vi.fn(async () => fallbackDecision) };
+    const model = new QwenFrostModelAdapter(
+      { async complete() { return '{"protocol":"frost-agent-decision/v1"}'; } },
+      tools,
+      provider,
+      { fallback },
+    );
+
+    await expect(model.decide(context)).resolves.toEqual(fallbackDecision);
+    expect(fallback.decide).toHaveBeenCalledOnce();
   });
 
   it('preserves a tool call and its result as one context unit during compaction', () => {
