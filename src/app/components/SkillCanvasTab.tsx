@@ -244,9 +244,11 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
   const [running, setRunning] = useState(false);
   const [runtimeIssues, setRuntimeIssues] = useState<RuntimeNotice[]>([]);
   const [saved, setSaved] = useState(false);
+  const [compileAttempted, setCompileAttempted] = useState(false);
   const [deckEdges, setDeckEdges] = useState({ left: true, right: false });
   const [comboExpanded, setComboExpanded] = useState(false);
   const runAbortRef = useRef<AbortController | null>(null);
+  const compileIssuesRef = useRef<HTMLDivElement>(null);
 
   const updateDeckEdges = () => {
     const deck = deckScrollRef.current;
@@ -336,6 +338,12 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     setDragSource(null);
   };
   const showStructure = () => {
+    if (!compileResult.ok) {
+      setCompileAttempted(true);
+      window.requestAnimationFrame(() => compileIssuesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }));
+      return;
+    }
+    setCompileAttempted(false);
     setDraft({
       ...compileResult.structured,
       avatar_id: compileResult.structured.avatar_id || recommendedAvatar.id,
@@ -454,7 +462,7 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
             {compileResult.repairs.map((repair, index) => <p key={`${repair.code}-${index}`} className="mt-1 text-[7px] leading-relaxed text-[#245335]">· {repair.message}</p>)}
             <small className="mt-1.5 block text-[6px] leading-relaxed text-[#245335]/70">只修复 ID、参数范围和连线；不会自动增加权限或副作用。</small>
           </div>}
-          {compileResult.issues.length > 0 && <div role="alert" className="mt-2 rounded-[14px] border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">
+          {compileAttempted && compileResult.issues.length > 0 && <div ref={compileIssuesRef} role="alert" className="mt-2 rounded-[14px] border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">
             <b className="text-[9px] text-[#8b1c16]">编译已阻断 · 需要你确认</b>
             {compileResult.issues.map((issue, index) => <div key={`${issue.code}-${issue.node_id || index}`} className="mt-2 border-t border-[#b3261e]/20 pt-2 first:mt-1 first:border-0 first:pt-0">
               <p className="text-[7px] font-black leading-relaxed text-[#8b1c16]">· {issue.message}</p>
@@ -520,8 +528,8 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     </div>
 
     <div className="shrink-0 border-t-[3px] border-black bg-white p-2.5">
-      {stage === 'sketch' && <button type="button" disabled={!goalReady || !compileResult.ok} onClick={showStructure} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-3 py-3 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-30"><WandSparkles className="h-4 w-4" />编译为技能图 <ArrowRight className="h-4 w-4" /></button>}
-      {stage === 'structure' && <div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" onClick={() => setStage('sketch')} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-3 font-pixel text-[6px]"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={!compileResult.ok || running} onClick={() => void startRun()} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-3 font-pixel text-[7px] disabled:bg-black/20"><Play className="h-4 w-4" fill="currentColor" />真实运行这张技能图</button></div>}
+      {stage === 'sketch' && <button type="button" onClick={showStructure} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-3 py-3 font-pixel text-[7px] text-[#7CFF6B]"><WandSparkles className="h-4 w-4" />编译为技能图 <ArrowRight className="h-4 w-4" /></button>}
+      {stage === 'structure' && <div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" onClick={() => { setCompileAttempted(false); setStage('sketch'); }} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-3 font-pixel text-[6px]"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={!compileResult.ok || running} onClick={() => void startRun()} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-3 font-pixel text-[7px] disabled:bg-black/20"><Play className="h-4 w-4" fill="currentColor" />真实运行这张技能图</button></div>}
       {stage === 'run' && <button type="button" onClick={() => { runAbortRef.current?.abort(); setRunning(false); setStage('structure'); }} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px]"><ArrowLeft className="h-4 w-4" />{running ? '取消并返回结构' : '返回检查结构'}</button>}
     </div>
     {selectedBlock && <AbilityCardDialog
