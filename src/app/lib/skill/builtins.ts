@@ -7,7 +7,7 @@ const herMotionSkill = (): SkillManifest => ({
   protocol: 'pocket-skill/v1',
   identity: {
     id: 'pocket.her-motion', name: 'Her Motion', version: '1.0.0', author: 'Her Motion × Frost',
-    description: '由 Frost 创建私有动作会话并嵌入 Her Motion 本地视觉运行时；记录动作、时长、姿态确认与停止状态，完成后写入 health_event/v1。',
+    description: '由 Frost 创建私有动作会话并调度 Her Motion 姿态服务；记录动作、时长、姿态确认与停止状态，完成后写入 health_event/v1。',
   },
   kind: 'markdown',
   entry: { target: 'her-motion' },
@@ -28,14 +28,14 @@ const herMotionSkill = (): SkillManifest => ({
   evaluation: { suite: 'her-motion-frost-bridge-v1', passed: true, score: 1, threshold: 1, tested_at: RELEASED_AT },
   distribution: { channel: 'builtin', manifest_url: '', uninstall_policy: 'remove-skill-assets-keep-private-data' },
   assets: [],
-  provenance: { source: 'Her Motion local vision runtime + Frost bridge', license: 'private-demo', released_at: RELEASED_AT },
+  provenance: { source: 'Her Motion pose service + Frost server bridge', license: 'private-demo', released_at: RELEASED_AT },
 });
 
 const lianlemaSkill = (): SkillManifest => ({
   protocol: 'pocket-skill/v1',
   identity: {
     id: 'pocket.lianlema', name: '练了吗', version: '1.0.0', author: '练了吗 × Frost',
-    description: '由 Frost 嵌入本机「练了吗」运动教练，使用摄像头、RTMPose 与 ST-GCN 进行实时动作识别、计数和纠正反馈。',
+    description: '由 Frost 调度「练了吗」运动教练，通过受控摄像头输入与服务端 RTMPose / ST-GCN 姿态服务进行动作识别、计数和纠正反馈。',
   },
   kind: 'markdown',
   entry: { target: 'lianlema-coach' },
@@ -43,7 +43,7 @@ const lianlemaSkill = (): SkillManifest => ({
   permissions: {
     scopes: ['camera', 'audio', 'network'],
     tools: ['pose'],
-    network_hosts: ['localhost'],
+    network_hosts: [],
   },
   data: { schemas: ['frost-pose-signal/v1', 'health_event/v1'] },
   quality_gate: {
@@ -51,16 +51,16 @@ const lianlemaSkill = (): SkillManifest => ({
     checks: [
       '摄像头必须由用户明确开启并持续显示运行状态',
       '姿态低置信度或无人入镜时不得伪造动作计数',
-      '原始视频帧只发往本机模型服务，不写入健康事件',
+      '原始视频帧只在用户明确开启后发送至受控姿态服务，不写入健康事件',
       '出现锐痛、眩晕或明显不适时必须立即停止',
       '训练结果只作运动反馈，不构成医疗诊断',
     ],
   },
   fallback: { order: ['rules', 'user-confirmation', 'stop'] },
-  evaluation: { suite: 'lianlema-local-coach-contract-v1', passed: true, score: 1, threshold: 1, tested_at: RELEASED_AT },
+  evaluation: { suite: 'lianlema-server-coach-contract-v1', passed: true, score: 1, threshold: 1, tested_at: RELEASED_AT },
   distribution: { channel: 'private', manifest_url: '', uninstall_policy: 'remove-skill-assets-keep-private-data' },
   assets: [],
-  provenance: { source: 'lianlema-portable local runtime', license: 'private-demo', released_at: RELEASED_AT },
+  provenance: { source: 'Lianlema pose service + Frost server orchestration', license: 'private-demo', released_at: RELEASED_AT },
 });
 
 const runRouteSkill = (): SkillManifest => ({

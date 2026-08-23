@@ -137,7 +137,7 @@ export function markSkillAssetsVerified(key: string): void {
   persist();
 }
 
-/** Keep the Skill manifest/private data, but make a removed MNN asset impossible to appear equipped. */
+/** Keep the Skill manifest/private data, but prevent a missing downloaded asset from appearing equipped. */
 export function markSkillAssetsMissing(key: string): void {
   const skill = getInstalledSkill(key);
   if (!skill) return;

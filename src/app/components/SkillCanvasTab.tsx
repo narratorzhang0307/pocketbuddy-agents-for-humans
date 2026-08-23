@@ -57,7 +57,7 @@ const FAMILY_FILTERS: Array<'全部' | CardFamily> = ['全部', '启动条件', 
 const STAGE_LABEL = { trigger: '启动条件', sense: '数据输入', think: '处理与模型', guard: '流程控制', act: '动作输出', remember: '状态与证据' } as const;
 
 const PERMISSION_LABEL: Record<string, string> = {
-  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': 'Gemma / 本机模型',
+  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': 'Gemma / 服务端模型',
   'capture:camera': '摄像头', 'notify:user': '语音提醒', 'write:health_events': '本机证据 + 完成事实同步',
 };
 

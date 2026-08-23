@@ -3,7 +3,6 @@ import path from 'node:path';
 import { createReadStream, existsSync, readFileSync, stat } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
-import { frostEdge } from './frost-agent/edge/viteEdge';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { createHealthSkillBridge } from './server/health-skill-bridge.mjs';
 
@@ -165,7 +164,7 @@ export default defineConfig(({ mode }) => {
         '/v1': { target: env.POCKETBUDDY_API_DEV_URL || 'http://127.0.0.1:8787', changeOrigin: true },
       },
     },
-    plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), frostEdge(env), pocketEarthPublicIntegration(sharedPublicRoots)],
+    plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), pocketEarthPublicIntegration(sharedPublicRoots)],
     resolve: {
       alias: [
         { find: '@', replacement: path.resolve(__dirname, './src') },

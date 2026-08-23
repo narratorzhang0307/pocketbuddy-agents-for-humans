@@ -380,7 +380,7 @@ export async function recallFrostMemories(query: string, limit = 6): Promise<Fro
 
 const MEMORY_RECALL_INTENT = /(长期记忆|记忆记录|你还记得|记得什么|回忆一下|上次.*(?:交给|接手|用了)|谁.*(?:接手|负责))/;
 
-/** Explicit local recall command. It never calls Qwen/MNN and never exposes hidden reasoning. */
+/** Explicit local recall command. It never calls a model and never exposes hidden reasoning. */
 export function isFrostMemoryRecallRequest(text: string): boolean {
   return MEMORY_RECALL_INTENT.test(compact(text, 200));
 }

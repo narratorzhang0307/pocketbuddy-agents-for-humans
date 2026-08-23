@@ -5,7 +5,7 @@
 // 边界（关键）：只清【本应用自己】的数据：
 //   · localStorage：所有 `pe.` / `pe-` 前缀的 key（userMarks / profile / 自建 agent / 各偏好…）
 //   · IndexedDB：所有 `pe-` 前缀的库（pe-photos / pe-movies / pe-books）
-// 绝不碰 Qwen/MNN 端侧模型缓存与 Mapbox 地图瓦片——
+// 绝不碰浏览器 CacheStorage 与地图瓦片——
 // 否则每次刷新都要重下模型 / 瓦片。静态演示标记（MAP_MARKERS 等）写在代码里、不在存储中，刷新本就保留。
 //
 // 用法：URL 带 `?reset` / `?demoReset` 才清零；普通访问与 PWA 重开都保留数据。

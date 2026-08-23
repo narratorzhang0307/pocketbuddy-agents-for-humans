@@ -15,6 +15,7 @@ const healthModelSource = readFileSync(new URL('../../../frost-agent/skills/heal
 const healthBuiltinsSource = readFileSync(new URL('../lib/skill/externalHealthBuiltins.ts', import.meta.url), 'utf8');
 const taskmasterHealthSource = readFileSync(new URL('../../../frost-agent/taskmaster/externalSkills.ts', import.meta.url), 'utf8');
 const viteSource = readFileSync(new URL('../../../vite.pocketbuddy.config.ts', import.meta.url), 'utf8');
+const skillAssetsSource = readFileSync(new URL('../lib/skill/assets.ts', import.meta.url), 'utf8');
 
 describe('MySkillsTab 服务端 Demo 运行边界', () => {
   it('不再暴露 SME2 端侧加速与证据账本入口', () => {
@@ -80,5 +81,13 @@ describe('MySkillsTab 服务端 Demo 运行边界', () => {
     expect(existsSync(new URL('../../../frost-agent/skills/health/qwenControl.ts', import.meta.url))).toBe(false);
     expect(viteSource).not.toContain('qwenChatDev');
     expect(existsSync(new URL('../../../server/qwen-health-provider.mjs', import.meta.url))).toBe(false);
+  });
+
+  it('生产入口不再注册或打包端侧 MNN 运行时', () => {
+    expect(viteSource).not.toContain('frostEdge');
+    expect(viteSource).not.toContain('frost-agent/edge');
+    expect(skillAssetsSource).not.toContain('frost-agent/edge');
+    expect(skillAssetsSource).not.toContain('installEdgeAsset');
+    expect(skillAssetsSource).not.toContain('MNN 资产管理器');
   });
 });
