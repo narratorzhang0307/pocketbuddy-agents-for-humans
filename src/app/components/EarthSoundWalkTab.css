@@ -49,25 +49,29 @@
 
 .pocket-earth-soundwalk-host .workspace-primary-tabs {
   min-width: 0;
-  padding: 8px 12px;
+  padding: 10px 16px;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] {
+  height: 64px;
   width: 100%;
   min-width: 0;
+  gap: 4px;
+  padding: 4px;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button {
   min-width: 0;
+  min-height: 54px;
   overflow: hidden;
-  gap: clamp(3px, 1.5vw, 8px);
-  padding-inline: clamp(3px, 1.5vw, 8px);
+  gap: clamp(5px, 2vw, 12px);
+  padding-inline: clamp(4px, 2vw, 12px);
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > svg {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 15px;
+  width: clamp(17px, 4.6vw, 22px);
+  height: clamp(17px, 4.6vw, 22px);
+  flex: 0 0 clamp(17px, 4.6vw, 22px);
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > span {
@@ -85,12 +89,18 @@
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] strong {
-  font-size: clamp(8px, 2.4vw, 10px);
+  font-size: clamp(10px, 3.1vw, 14px);
   line-height: 1;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] small {
-  margin-top: 4px;
-  font-size: clamp(4px, 1.2vw, 5px);
+  margin-top: 6px;
+  font-size: clamp(5px, 1.6vw, 7px);
   line-height: 1;
+}
+
+@media (max-width: 360px) {
+  .pocket-earth-soundwalk-host .workspace-primary-tabs {
+    padding-inline: 10px;
+  }
 }
