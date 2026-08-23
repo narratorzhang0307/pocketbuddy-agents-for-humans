@@ -25,7 +25,8 @@ describe('Pocket Earth 中间 Tab', () => {
     expect(entrySource).toContain('POCKET EARTH · CITY MAP');
     expect(entrySource).toContain('pocket-earth-soundwalk-host');
     expect(entryStyles).toContain('[data-workspace-primary-grid] > button');
-    expect(entryStyles).toContain('height: 64px');
+    expect(entryStyles).toContain('height: 24.5px');
+    expect(entryStyles).toContain('font-family: var(--font-pixel)');
     expect(entryStyles).toContain('text-overflow: ellipsis');
     expect(entryStyles).toContain('white-space: nowrap');
   });

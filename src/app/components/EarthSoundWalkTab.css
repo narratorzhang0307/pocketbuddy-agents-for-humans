@@ -1,8 +1,8 @@
 .pocket-earth-soundwalk-host .soundwalk-workspace-hero {
-  min-height: 70px;
+  min-height: 79px;
   align-items: center;
   gap: 12px;
-  padding: 12px 16px;
+  padding: 14px 16px;
   border-bottom-width: 2px;
   background: #fff;
 }
@@ -19,9 +19,10 @@
 .pocket-earth-soundwalk-host .soundwalk-workspace-hero h1 {
   overflow: hidden;
   margin: 0;
-  font-size: 18px;
-  line-height: 1;
-  letter-spacing: .06em;
+  font-family: var(--font-pixel);
+  font-size: 20px;
+  line-height: 1.4;
+  letter-spacing: .05em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -29,49 +30,68 @@
 .pocket-earth-soundwalk-host .soundwalk-workspace-hero p {
   overflow: hidden;
   margin-top: 6px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 500;
-  line-height: 1.2;
+  line-height: 1.5;
   letter-spacing: .04em;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .pocket-earth-soundwalk-host .soundwalk-workspace-progress {
-  min-width: 64px;
+  display: flex;
+  min-width: 0;
   flex: 0 0 auto;
-  padding: 8px 7px;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 8px;
+  border-width: 2px;
 }
 
 .pocket-earth-soundwalk-host .soundwalk-workspace-progress strong {
-  font-size: 15px;
+  font-family: var(--font-pixel);
+  font-size: 7px;
+  line-height: 1;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-progress strong i {
+  margin-inline: 2px;
+  font-size: 7px;
+}
+
+.pocket-earth-soundwalk-host .soundwalk-workspace-progress span {
+  margin-top: 0;
+  font-size: 7px;
+  line-height: 1;
 }
 
 .pocket-earth-soundwalk-host .workspace-primary-tabs {
   min-width: 0;
-  padding: 10px 16px;
+  padding: 8px 12px;
+  background: #000;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] {
-  height: 64px;
+  height: 24.5px;
   width: 100%;
   min-width: 0;
-  gap: 4px;
-  padding: 4px;
+  gap: 6px;
+  padding: 0;
+  border: 0;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button {
   min-width: 0;
-  min-height: 54px;
+  min-height: 24.5px;
   overflow: hidden;
-  gap: clamp(5px, 2vw, 12px);
-  padding-inline: clamp(4px, 2vw, 12px);
+  gap: 6px;
+  padding-inline: 8px;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > svg {
-  width: clamp(17px, 4.6vw, 22px);
-  height: clamp(17px, 4.6vw, 22px);
-  flex: 0 0 clamp(17px, 4.6vw, 22px);
+  width: 15px;
+  height: 15px;
+  flex: 0 0 15px;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button > span {
@@ -89,18 +109,24 @@
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] strong {
-  font-size: clamp(10px, 3.1vw, 14px);
+  font-family: var(--font-pixel);
+  font-size: 7px;
   line-height: 1;
 }
 
 .pocket-earth-soundwalk-host [data-workspace-primary-grid] small {
-  margin-top: 6px;
-  font-size: clamp(5px, 1.6vw, 7px);
+  margin-top: 4px;
+  font-size: 5px;
   line-height: 1;
 }
 
 @media (max-width: 360px) {
   .pocket-earth-soundwalk-host .workspace-primary-tabs {
-    padding-inline: 10px;
+    padding-inline: 12px;
+  }
+
+  .pocket-earth-soundwalk-host [data-workspace-primary-grid] > button {
+    gap: 4px;
+    padding-inline: 5px;
   }
 }
