@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Check, ChevronDown, Cpu, LoaderCircle, LockKeyhole, PackageCheck, Sparkles, Trash2 } from 'lucide-react';
 import { ALLOWED_TARGETS, getLearnedSkills, installSkill, removeLearnedSkill, subscribeSkills, type LearnedSkill } from '../../../frost-agent/harness/skillForge';
-import { isNativeMnnPlatform } from '../../../frost-agent/edge/capacitorMnnEdge';
-import { runEdgeChat } from '../../../frost-agent/edge/httpEdge';
+import { getFrostBrain } from '../../../frost-agent/harness/brain';
 import { createPrivateSkillPrompt, parsePrivateSkillDraft, suggestPrivateSkillLocally, type PrivateSkillDraft } from '../lib/plaza/privateSkillForge';
 
 interface Props { initiallyOpen?: boolean }
@@ -11,7 +10,7 @@ export default function PrivateSkillForgePanel({ initiallyOpen = false }: Props)
   const [open, setOpen] = useState(initiallyOpen);
   const [idea, setIdea] = useState('');
   const [draft, setDraft] = useState<PrivateSkillDraft | null>(null);
-  const [source, setSource] = useState<'mnn' | 'rules' | null>(null);
+  const [source, setSource] = useState<'qwen' | 'rules' | null>(null);
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
   const [installed, setInstalled] = useState<LearnedSkill[]>(getLearnedSkills());
@@ -22,24 +21,23 @@ export default function PrivateSkillForgePanel({ initiallyOpen = false }: Props)
     if (!description || busy) return;
     setBusy(true); setDraft(null); setSource(null); setNote('');
     try {
-      if (isNativeMnnPlatform()) {
-        const response = await runEdgeChat(createPrivateSkillPrompt(description), {
-          system: '你是 Frost 的端侧 Skill 架构器。只能返回白名单内的声明式快捷 Skill JSON。', json: true, maxTokens: 160,
-        });
-        const parsed = response.backend === 'mnn' ? parsePrivateSkillDraft(response.text || '') : null;
-        if (parsed) {
-          setDraft(parsed); setSource('mnn'); setNote('Qwen3-VL-2B · MNN 已生成待审声明；尚未安装。'); return;
-        }
+      const response = await getFrostBrain().complete(createPrivateSkillPrompt(description), {
+        json: true,
+        task: 'private-skill-draft',
+      });
+      const parsed = response ? parsePrivateSkillDraft(response) : null;
+      if (parsed) {
+        setDraft(parsed); setSource('qwen'); setNote('服务端 Qwen 已生成待审声明；尚未安装。'); return;
       }
       const localDraft = suggestPrivateSkillLocally(description);
       setDraft(localDraft); setSource(localDraft ? 'rules' : null);
       setNote(localDraft
-        ? isNativeMnnPlatform() ? 'MNN 未返回合格白名单 JSON，已明确降级为本地规则草案；未上云。' : '网页只生成本地规则草案；没有冒充 Qwen/MNN。'
+        ? '服务端未返回合格的白名单 JSON，已明确降级为本地规则草案。'
         : '未匹配已审核的运动健康目标，因此没有生成或安装 Skill。');
     } catch {
       const localDraft = suggestPrivateSkillLocally(description);
       setDraft(localDraft); setSource(localDraft ? 'rules' : null);
-      setNote(localDraft ? 'MNN 本轮调用失败，已明确降级为本地规则草案；未上云。' : 'MNN 调用失败，且本地规则没有匹配已审核的运动健康目标。');
+      setNote(localDraft ? '服务端本轮不可用，已明确降级为本地规则草案。' : '服务端本轮不可用，且本地规则没有匹配已审核的运动健康目标。');
     } finally { setBusy(false); }
   };
 
@@ -60,9 +58,10 @@ export default function PrivateSkillForgePanel({ initiallyOpen = false }: Props)
       {open && <div className="space-y-2 border-t-2 border-black p-2.5">
         <p className="text-[9px] leading-relaxed text-black/60">只生成“触发词 → 已有 Skill 页面”的声明，不生成代码，不扩大权限，不自动发布。</p>
         <textarea value={idea} maxLength={140} onChange={(event) => { setIdea(event.target.value.slice(0, 140)); setDraft(null); setSource(null); setNote(''); }} placeholder="例如：以后我说跑步复盘，就打开跑步决策教练" className="min-h-[68px] w-full resize-none border-2 border-black bg-white px-2.5 py-2 text-[10px] leading-relaxed outline-none" />
-        <button type="button" onClick={() => void propose()} disabled={!idea.trim() || busy} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-2 py-2.5 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-35">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}{busy ? '生成与审查中' : isNativeMnnPlatform() ? 'QWEN + MNN 生成草案' : '本地规则预览'}</button>
+        <button type="button" onClick={() => void propose()} disabled={!idea.trim() || busy} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-2 py-2.5 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-35">{busy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />}{busy ? '生成与审查中' : 'QWEN 服务端生成草案'}</button>
+        <p className="text-[7.5px] leading-relaxed text-black/40">描述会临时发送到服务端 Qwen；结果通过本机白名单安全闸后，仍需你确认才会安装。</p>
         {draft && <div className="border-2 border-black bg-white">
-          <div className="flex items-center justify-between border-b-2 border-black px-2.5 py-2"><b className="text-[11px]">{draft.name}</b><span className={`border border-black px-1.5 py-0.5 font-pixel text-[5px] ${source === 'mnn' ? 'bg-[#dff5e9] text-[#18784b]' : 'bg-[#fff3cd] text-[#8a5a00]'}`}>{source === 'mnn' ? 'MNN 草案' : '规则草案'}</span></div>
+          <div className="flex items-center justify-between border-b-2 border-black px-2.5 py-2"><b className="text-[11px]">{draft.name}</b><span className={`border border-black px-1.5 py-0.5 font-pixel text-[5px] ${source === 'qwen' ? 'bg-[#dff5e9] text-[#18784b]' : 'bg-[#fff3cd] text-[#8a5a00]'}`}>{source === 'qwen' ? 'QWEN 草案' : '规则草案'}</span></div>
           <div className="space-y-2 p-2.5 text-[9px]"><p>{draft.desc}</p><p className="text-black/50">触发：{draft.keywords.join(' / ')}</p><div className="flex items-center gap-1.5 text-[#18784b]"><LockKeyhole className="h-3.5 w-3.5" />目标白名单：{ALLOWED_TARGETS[draft.target]}</div></div>
           <button type="button" onClick={confirmInstall} className="flex w-full items-center justify-center gap-2 border-t-2 border-black bg-[#00ff88] px-2 py-2.5 font-pixel text-[7px]"><PackageCheck className="h-4 w-4" />确认安装到私人 Skills</button>
         </div>}

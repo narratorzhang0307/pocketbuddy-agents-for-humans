@@ -8,8 +8,7 @@ import { PLAZA_NETWORK_LABEL, PLAZA_SKILL_IDS, PLAZA_WORLDS, type PlazaWorld } f
 import { deletePlazaWorldDraft, readPlazaWorldDraft, writePlazaWorldDraft, type PlazaWorldDraft } from '../lib/plaza/worldDraft';
 import { createWorldSuggestionPrompt, parseWorldSuggestion, suggestWorldLocally, type WorldSuggestionAgent, type WorldSuggestionSkill } from '../lib/plaza/worldSuggestion';
 import { getAgentWorldPocketBuddyBlueprint } from '../lib/pocket-buddy';
-import { isNativeMnnPlatform } from '../../../frost-agent/edge/capacitorMnnEdge';
-import { runEdgeChat } from '../../../frost-agent/edge/httpEdge';
+import { getFrostBrain } from '../../../frost-agent/harness/brain';
 import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 import { listCanvasSkills, subscribeCanvasSkills } from '../../../frost-agent/skill-taskmaster';
 
@@ -182,7 +181,7 @@ function WorldDetail({ world, onBack, onOpenSkill, onOpenAll }: { world: PlazaWo
           {manifests.map((manifest) => { const publisher = skillPublisherForManifest(manifest.identity.id); const equipped = !!getEquippedSkill(manifest.identity.id); return <button key={manifest.identity.id} type="button" onClick={() => onOpenSkill(manifest.identity.id)} className="grid w-full grid-cols-[38px_1fr_auto] items-center gap-2 border-b border-black/20 p-2 text-left last:border-b-0 active:bg-[#00ff88]/10"><span className="h-9 w-9 overflow-hidden rounded-full border-2 border-black bg-[#f5efdf]"><img src={publisher.avatar} alt="" className="h-full w-full object-contain" /></span><span className="min-w-0"><b className="block truncate text-[10px]">{manifest.identity.name}</b><small className="mt-0.5 block truncate text-[8px] text-black/45">{manifest.kind.toUpperCase()} · {publisher.name} 发布</small></span><span className={`border border-black px-1.5 py-1 font-pixel text-[5px] ${equipped ? 'bg-[#dff5e9] text-[#18784b]' : 'bg-[#fff3cd] text-[#8a5a00]'}`}>{equipped ? '私人库' : '查看'}</span></button>; })}
         </section>
         <button type="button" onClick={onOpenAll} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-3 py-3 font-pixel text-[7px] text-[#7CFF6B]"><PackageCheck className="h-4 w-4" />查看这个世界的全部 Skills</button>
-        <div className="flex items-center justify-center gap-1.5 pb-2 text-[8px] text-black/35"><ShieldCheck className="h-3.5 w-3.5" />安装前核对声明、权限、Qwen/MNN 基座与资产哈希</div>
+        <div className="flex items-center justify-center gap-1.5 pb-2 text-[8px] text-black/35"><ShieldCheck className="h-3.5 w-3.5" />安装前核对声明、权限、服务端 Qwen 能力与资产哈希</div>
       </div>
     </div>
   );
@@ -210,28 +209,23 @@ function WorldDraftBuilder({ draft, onChange, onBack, onSave, onDelete, saved, s
       return [{ id, name: item.identity.name, description: item.identity.description, publisher: publisher.name, role: publisher.role }];
     });
     try {
-      if (isNativeMnnPlatform()) {
-        const response = await runEdgeChat(createWorldSuggestionPrompt(description, WORLD_TONES, agentOptions, skillOptions), {
-          system: '你是 Frost 的端侧世界编排器。只能从用户给定的白名单选择，严格输出 JSON。',
-          json: true,
-          maxTokens: 128,
-        });
-        const parsed = response.backend === 'mnn'
-          ? parseWorldSuggestion(response.text || '', fallback, WORLD_TONES.map((item) => item.id), WORLD_AGENT_IDS, PLAZA_SKILL_IDS)
-          : null;
-        if (parsed) {
-          onChange({ ...draft, ...parsed });
-          setSuggestionNote('Qwen3-VL-2B · MNN 端侧建议已填入；尚未保存或发布。');
-          return;
-        }
+      const response = await getFrostBrain().complete(
+        createWorldSuggestionPrompt(description, WORLD_TONES, agentOptions, skillOptions),
+        { json: true, task: 'agent-world-draft' },
+      );
+      const parsed = response
+        ? parseWorldSuggestion(response, fallback, WORLD_TONES.map((item) => item.id), WORLD_AGENT_IDS, PLAZA_SKILL_IDS)
+        : null;
+      if (parsed) {
+        onChange({ ...draft, ...parsed });
+        setSuggestionNote('服务端 Qwen 建议已填入；仍需你确认后才会保存。');
+        return;
       }
       onChange({ ...draft, ...suggestWorldLocally(description, fallback, PLAZA_SKILL_IDS) });
-      setSuggestionNote(isNativeMnnPlatform()
-        ? 'MNN 本轮未返回合格 JSON，已明确降级为本地规则建议；未上云。'
-        : '网页预览使用本地规则建议；没有冒充 Qwen/MNN。');
+      setSuggestionNote('服务端未返回合格的白名单 JSON，已明确降级为本地规则建议。');
     } catch {
       onChange({ ...draft, ...suggestWorldLocally(description, fallback, PLAZA_SKILL_IDS) });
-      setSuggestionNote('MNN 本轮调用失败，已明确降级为本地规则建议；未上云。');
+      setSuggestionNote('服务端本轮不可用，已明确降级为本地规则建议。');
     } finally {
       setSuggesting(false);
     }
@@ -243,8 +237,8 @@ function WorldDraftBuilder({ draft, onChange, onBack, onSave, onDelete, saved, s
       <section className="mb-3 border-2 border-black bg-[#f7f1df] p-2.5">
         <div className="flex items-center gap-2"><span className="grid h-8 w-8 place-items-center border-2 border-black bg-[#00ff88]"><Cpu className="h-4 w-4" /></span><span><b className="block font-pixel text-[7px]">00 · 让 FROST 编排</b><small className="mt-0.5 block text-[8px] text-black/50">一句话推荐气质、常驻子 Agent 与研究 Skill</small></span></div>
         <textarea value={idea} maxLength={120} onChange={(event) => { setIdea(event.target.value.slice(0, 120)); setSuggestionNote(''); }} className="mt-2 min-h-[64px] w-full resize-none border-2 border-black bg-white px-2.5 py-2 text-[10px] leading-relaxed outline-none" placeholder="例如：我想做一个收集城市深夜声音、只在手机里保存的世界" />
-        <button type="button" disabled={!idea.trim() || suggesting} onClick={() => void suggest()} className="mt-2 flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-2 py-2.5 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-35">{suggesting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}{suggesting ? '端侧编排中' : isNativeMnnPlatform() ? 'QWEN + MNN 端侧建议' : '本地规则预览'}</button>
-        <p className="mt-1.5 text-[7.5px] leading-relaxed text-black/45">{isNativeMnnPlatform() ? '只有原生桥返回 MNN 才标记为模型建议；失败只回退本地规则。' : '安装到 Android 后由 Qwen3-VL-2B + MNN 执行；网页不冒充端侧模型。'}</p>
+        <button type="button" disabled={!idea.trim() || suggesting} onClick={() => void suggest()} className="mt-2 flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-2 py-2.5 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-35">{suggesting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}{suggesting ? '服务端编排中' : 'QWEN 服务端建议'}</button>
+        <p className="mt-1.5 text-[7.5px] leading-relaxed text-black/45">这段描述只用于本次服务端建议；返回内容必须通过本机白名单校验，草稿仍由你确认后保存。</p>
         {suggestionNote && <div role="status" className="mt-2 border border-black bg-white px-2 py-1.5 text-[8px] leading-relaxed text-[#18784b]">{suggestionNote}</div>}
       </section>
 

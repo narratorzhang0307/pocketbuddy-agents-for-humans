@@ -2,6 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { existsSync, readFileSync } from 'node:fs';
 
 const agentsSource = readFileSync(new URL('./MySkillsTab.tsx', import.meta.url), 'utf8');
+const networkSource = readFileSync(new URL('./AgentsTab.tsx', import.meta.url), 'utf8');
+const privateForgeSource = readFileSync(new URL('./PrivateSkillForgePanel.tsx', import.meta.url), 'utf8');
+const plazaSource = readFileSync(new URL('./AgentPlazaPage.tsx', import.meta.url), 'utf8');
 const routesSource = readFileSync(new URL('../lib/plaza/skillRoutes.ts', import.meta.url), 'utf8');
 
 describe('MySkillsTab 服务端 Demo 运行边界', () => {
@@ -21,5 +24,26 @@ describe('MySkillsTab 服务端 Demo 运行边界', () => {
     expect(agentsSource).not.toContain('LOCAL RULES');
     expect(agentsSource).not.toContain("runtimeBadge: 'LOCAL VISION'");
     expect(agentsSource).not.toContain('默认留在本机');
+  });
+
+  it('世界建议与私人 Skill 草案统一调用服务端 Qwen', () => {
+    for (const source of [networkSource, privateForgeSource]) {
+      expect(source).toContain('getFrostBrain().complete');
+      expect(source).not.toContain('isNativeMnnPlatform');
+      expect(source).not.toContain('runEdgeChat');
+      expect(source).not.toContain('MNN');
+    }
+    expect(networkSource).toContain("task: 'agent-world-draft'");
+    expect(privateForgeSource).toContain("task: 'private-skill-draft'");
+  });
+
+  it('智能体广场只展示服务端运行与验收语义', () => {
+    expect(plazaSource).toContain('服务端运行契约');
+    expect(plazaSource).toContain('服务端契约已验');
+    expect(plazaSource).not.toContain('checkSkillOnDevice');
+    expect(plazaSource).not.toContain('真机自检');
+    expect(plazaSource).not.toContain('MNN');
+    expect(existsSync(new URL('../lib/skill/deviceCheck.ts', import.meta.url))).toBe(false);
+    expect(existsSync(new URL('../lib/skill/onDeviceCoverage.ts', import.meta.url))).toBe(false);
   });
 });
