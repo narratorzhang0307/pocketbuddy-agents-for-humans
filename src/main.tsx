@@ -10,7 +10,7 @@ if (Capacitor.isNativePlatform()) {
   document.documentElement.dataset.pocketPlatform = Capacitor.getPlatform();
 }
 
-// 接入阿里云百炼 Qwen 云脑；无 key 时 Skill 自动走确定性规则 fallback。
+// 接入受控服务端模型；服务不可用时 Skill 自动走确定性规则 fallback。
 setFrostBrain(httpBrain);
 
 createRoot(document.getElementById("root")!).render(<App />);

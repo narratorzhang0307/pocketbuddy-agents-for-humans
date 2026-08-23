@@ -1,5 +1,6 @@
 import type { LlmGenerateInput } from '../schemas/llm.js';
 import { ServiceError } from '../lib/errors.js';
+import { deterministicFitnessAgentDecision } from './deterministicFitnessAgent.js';
 
 export interface LlmResult { text: string; model_version: string }
 export interface LlmService {
@@ -18,6 +19,8 @@ export function configuredLlmService(env: NodeJS.ProcessEnv = process.env): LlmS
     return {
       readiness: () => ({ ready: true, provider: 'dev-deterministic' }),
       async generate(input) {
+        const structured = deterministicFitnessAgentDecision(input);
+        if (structured) return { text: structured, model_version: 'dev-deterministic/fitness-agent-v1' };
         const location = input.prompt.match(/\u4f4d\u7f6e\uff1a([^\n]+)/)?.[1];
         return {
           text: location ? `已读取位置 ${location}。请按照你定义的目标安全开始。` : '请按照你定义的目标安全开始。',

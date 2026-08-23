@@ -55,7 +55,7 @@ export interface AgentResult<T = unknown> {
   trace?: string[];       // Agent Trace（路由/思考步骤，UI 展示用）
 }
 
-/** 可插拔的 Qwen 云脑。需云推理的 Skill 通过它调用，前端不直接持密钥。 */
+/** 可插拔的服务端模型。需模型推理的 Skill 通过它调用，前端不直接持密钥。 */
 export interface FrostBrain {
   complete(prompt: string, opts?: { json?: boolean; task?: string }): Promise<string>;
 }

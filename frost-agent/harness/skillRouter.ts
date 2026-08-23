@@ -3,15 +3,13 @@
  *
  * 设计边界：
  * - 常驻层只读取 Manifest 的名称/description 与精简语义指纹；不会把模型、Data Pack 或参考资料塞进 Prompt。
- * - 确定性高置信路由先行；只有长尾、组合任务才调用 Qwen 规划。
+ * - 确定性高置信路由先行；只有长尾、组合任务才调用服务端模型规划。
  * - 规划只产生“建议打开哪个已登记 Skill”，不直接写地图、相册或用户数据。
  * - 任何模型返回都经过严格字段、目标白名单、可用状态与数量上限校验。
  */
 import { formatHistory } from './memory';
 import { getFrostBrain } from './brain';
 import type { AgentResult, FrostContext } from './types';
-import { isNativeMnnPlatform } from '../edge/capacitorMnnEdge';
-import { runEdgeChat } from '../edge/httpEdge';
 import {
   BUILTIN_SKILLS,
   getEquippedSkill,
@@ -25,7 +23,7 @@ import { getLearnedSkills } from './skillForge';
 
 export type SkillAvailability = 'equipped' | 'installed' | 'not-installed';
 export type FrostPlanMode = 'single' | 'sequence' | 'parallel';
-export type FrostPlanSource = 'local-rule' | 'mnn' | 'qwen' | 'local-fallback';
+export type FrostPlanSource = 'local-rule' | 'server-model' | 'local-fallback';
 
 export interface RoutableSkill {
   id: string;
@@ -212,8 +210,7 @@ function createPlan(text: string, skills: RoutableSkill[], source: FrostPlanSour
   const steps = skills.slice(0, MAX_STEPS).map((skill, index) => stepFor(
     skill,
     text,
-    source === 'qwen' ? '云端 Qwen 依据 Skill 语义指纹匹配'
-      : source === 'mnn' ? '端侧 Qwen/MNN 依据 Skill 语义指纹匹配' : '本地语义指纹命中',
+    source === 'server-model' ? '服务端模型依据 Skill 语义指纹匹配' : '本地语义指纹命中',
     index,
   ));
   return {
@@ -299,7 +296,7 @@ function plannerPrompt(text: string, history: string, catalog: RoutableSkill[]):
     `{"mode":"single|sequence|parallel","summary":"一句计划摘要","steps":[{"skillId":"目录中的精确 id","objective":"交给该 Skill 的明确任务","reason":"为什么必须用它"}]}`;
 }
 
-function planFromModel(raw: string, text: string, catalog: RoutableSkill[], source: 'mnn' | 'qwen'): FrostPlan | null {
+function planFromModel(raw: string, text: string, catalog: RoutableSkill[]): FrostPlan | null {
   const parsed = parseCloudPlan(raw, catalog);
   if (!parsed) return null;
   const byId = new Map(catalog.map((skill) => [skill.id, skill]));
@@ -310,38 +307,19 @@ function planFromModel(raw: string, text: string, catalog: RoutableSkill[], sour
   if (steps.some((step) => !step)) return null;
   const validSteps = steps as FrostPlanStep[];
   return {
-    id: planId(text), mode: parsed.mode, source, summary: parsed.summary,
+    id: planId(text), mode: parsed.mode, source: 'server-model', summary: parsed.summary,
     steps: validSteps, ready: validSteps.every((step) => step.availability === 'equipped'), createdAt: new Date().toISOString(),
   };
 }
 
-async function mnnPlan(ctx: FrostContext, catalog: RoutableSkill[]): Promise<{ plan: FrostPlan | null; detail: string }> {
-  if (!isNativeMnnPlatform()) return { plan: null, detail: '非 Android 原生环境' };
-  const text = (ctx.userText || '').trim();
-  try {
-    const response = await runEdgeChat(plannerPrompt(text, formatHistory(ctx.history), catalog), {
-      json: true,
-      maxTokens: 384,
-      system: '你是手机端 Frost Skill Router。只返回契约要求的 JSON，不执行任务。',
-    });
-    const plan = response.backend === 'mnn' && typeof response.text === 'string'
-      ? planFromModel(response.text.trim(), text, catalog, 'mnn') : null;
-    const elapsedMs = response.stats?.elapsedMs;
-    const metric = typeof elapsedMs === 'number' ? ` · native ${Math.round(elapsedMs)}ms` : '';
-    return { plan, detail: `${response.backend}${metric}${response.error ? ` · ${response.error}` : ''}` };
-  } catch (error) {
-    return { plan: null, detail: `native error · ${String(error)}` };
-  }
-}
-
-async function qwenPlan(ctx: FrostContext, catalog: RoutableSkill[]): Promise<FrostPlan | null> {
+async function serverPlan(ctx: FrostContext, catalog: RoutableSkill[]): Promise<FrostPlan | null> {
   const text = (ctx.userText || '').trim();
   try {
     const raw = (await getFrostBrain().complete(
       plannerPrompt(text, formatHistory(ctx.history), catalog),
       { json: true, task: 'taskmaster' },
     )).trim();
-    return raw ? planFromModel(raw, text, catalog, 'qwen') : null;
+    return raw ? planFromModel(raw, text, catalog) : null;
   } catch {
     return null;
   }
@@ -366,32 +344,22 @@ export async function planFrostTask(ctx: FrostContext): Promise<{ plan: FrostPla
     return { plan: local.plan, trace };
   }
 
-  const mnnStart = nowMs();
-  const native = await mnnPlan(ctx, catalog);
-  const mnnMs = elapsed(mnnStart);
-  if (native.plan) {
-    trace.push(`MNN 规划 · 端侧严格 JSON 契约通过 · ${mnnMs}ms · ${native.detail}`);
-    trace.push(`Boundary · ${native.plan.steps.length} 个目标均在当前 Skill 目录 · ${elapsed(started)}ms`);
-    return { plan: native.plan, trace };
-  }
-  trace.push(`MNN 规划 · 未采用 · ${mnnMs}ms · ${native.detail}`);
-
   if (PRIVATE_MARKERS.test(text)) {
     trace.push('隐私门 · 命中敏感输入，原文全程留在本机');
-    trace.push('端侧门 · MNN 未形成合法计划，敏感原文不发送到 Qwen 云端');
+    trace.push('服务端门 · 敏感原文不发送到模型服务');
     if (local.plan) trace.push(`Boundary · 任务已安全收口 · ${elapsed(started)}ms`);
     return { plan: local.plan ? { ...local.plan, source: 'local-fallback' } : null, trace };
   }
 
-  const qwenStart = nowMs();
-  const cloud = await qwenPlan(ctx, catalog);
-  const qwenMs = elapsed(qwenStart);
+  const modelStart = nowMs();
+  const cloud = await serverPlan(ctx, catalog);
+  const modelMs = elapsed(modelStart);
   if (cloud) {
-    trace.push(`Qwen 规划 · qwen3.7-max 严格 JSON 契约通过 · ${qwenMs}ms`);
+    trace.push(`服务端模型规划 · 严格 JSON 契约通过 · ${modelMs}ms`);
     trace.push(`Boundary · ${cloud.steps.length} 个目标均在当前 Skill 目录 · ${elapsed(started)}ms`);
     return { plan: cloud, trace };
   }
-  trace.push(`Qwen 规划 · 未形成合法计划，回退本地规则 · ${qwenMs}ms`);
+  trace.push(`服务端模型规划 · 未形成合法计划，回退本地规则 · ${modelMs}ms`);
   if (local.plan) trace.push(`Boundary · 任务已安全收口 · ${elapsed(started)}ms`);
   return { plan: local.plan ? { ...local.plan, source: 'local-fallback' } : null, trace };
 }

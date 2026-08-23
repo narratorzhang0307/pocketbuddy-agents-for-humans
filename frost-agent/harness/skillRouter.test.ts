@@ -70,7 +70,7 @@ describe('Frost cross-skill router', () => {
     const { plan, trace } = await planFrostTask({ now: new Date(), surface: 'frost', userText: '帮我审慎评估这个选择' });
     expect(calls).toBe(1);
     expect(plan).toBeNull();
-    expect(trace.join('\n')).toContain('Qwen 规划 · 未形成合法计划');
+    expect(trace.join('\n')).toContain('服务端模型规划 · 未形成合法计划');
   });
 
   it('rejects unknown fields, invented skills and duplicated targets', () => {

@@ -356,7 +356,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                             <Workflow className="h-4 w-4 shrink-0" strokeWidth={2.5} />
                             <div>
                               <div className="frost-encounter__plan-title">SKILL PLAN · {turn.plan.mode.toUpperCase()}</div>
-                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '服务端模型语义规划' : turn.plan.source === 'mnn' ? '服务端兼容规划' : 'Frost 确定性恢复编排'} · {turn.plan.steps.length} 步</div>
+                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'server-model' ? '服务端模型语义规划' : 'Frost 确定性恢复编排'} · {turn.plan.steps.length} 步</div>
                             </div>
                             <span className="frost-encounter__plan-status">{turn.plan.ready ? '可运行' : '待装备'}</span>
                           </header>

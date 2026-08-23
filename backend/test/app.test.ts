@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createPocketBuddyApi } from '../src/app.js';
 import { InMemoryHealthEventRepository } from '../src/services/healthEvents.js';
-import type { LlmService } from '../src/services/llm.js';
+import { configuredLlmService, type LlmService } from '../src/services/llm.js';
 
 const llm: LlmService = { generate: vi.fn(async () => ({ text: '请安全开始。', model_version: 'gemma-test' })) };
 const verifyToken = vi.fn(async (token: string) => {
@@ -56,6 +56,52 @@ describe('pocketbuddy-api Skill Taskmaster slice', () => {
     const response = await app.inject({ method: 'POST', url: '/v1/llm/generate', headers: headers(), payload: { prompt: '根据位置给出下一步', task: 'skill-canvas' } });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ text: '请安全开始。' });
+  });
+
+  it('drives the Fitness Agent through structured server decisions in deterministic development mode', async () => {
+    const deterministicApp = createPocketBuddyApi({
+      verifyToken,
+      healthEvents: repository,
+      llm: configuredLlmService({ NODE_ENV: 'development', SKILL_DEV_LLM_MODE: 'deterministic' }),
+    });
+    const prompt = (events: unknown[]) => [
+      '你是 Frost 的 Taskmaster 决策器。',
+      '当前可见状态：',
+      JSON.stringify({
+        session: { session_id: 'fitness-test' },
+        skill_catalog: [],
+        events,
+      }),
+    ].join('\n');
+    const initial = await deterministicApp.inject({
+      method: 'POST', url: '/v1/llm/generate', headers: headers(),
+      payload: {
+        prompt: prompt([{ seq: 1, type: 'user.message', data: { content: { text: '带我做 10 分钟瑜伽' } } }]),
+        json: true,
+        task: 'fitness-agent-decision',
+      },
+    });
+    expect(initial.statusCode).toBe(200);
+    expect(JSON.parse(initial.json().text).next_action).toEqual({ type: 'load_skill', skill_id: 'frost.her-motion-warmup' });
+
+    const afterLoad = await deterministicApp.inject({
+      method: 'POST', url: '/v1/llm/generate', headers: headers(),
+      payload: {
+        prompt: prompt([
+          { seq: 1, type: 'user.message', data: { content: { text: '带我做 10 分钟瑜伽' } } },
+          { seq: 3, type: 'tool.result', data: { tool: 'skill.load', result: { status: 'success', data: { skill: { skill_id: 'frost.her-motion-warmup' } } } } },
+        ]),
+        json: true,
+        task: 'fitness-agent-decision',
+      },
+    });
+    expect(afterLoad.statusCode).toBe(200);
+    expect(JSON.parse(afterLoad.json().text).next_action).toEqual({
+      type: 'start_task',
+      task_kind: 'start_workout',
+      input: { exercise: '瑜伽', duration_sec: 600 },
+    });
+    await deterministicApp.close();
   });
 
   it('forces Firebase uid and applies per-event idempotency', async () => {
