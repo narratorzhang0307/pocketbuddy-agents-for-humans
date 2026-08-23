@@ -1,5 +1,4 @@
 import type { JsonObject } from '../taskmaster/contracts';
-import type { EdgeModel } from '../edge/types';
 import {
   FROST_AGENT_DECISION_PROTOCOL,
   type FrostAgentDecision,
@@ -15,11 +14,11 @@ const VISIBLE_EVENT_TYPES = new Set<FrostAgentEvent['type']>([
   'decision.recorded', 'decision.invalid', 'tool.called', 'tool.result', 'session.status_changed',
 ]);
 
-export interface FrostQwenCompletion {
+export interface FrostStructuredCompletion {
   complete(prompt: string, signal: AbortSignal): Promise<string>;
 }
 
-export interface FrostQwenModelOptions {
+export interface FrostStructuredModelOptions {
   max_events?: number;
   max_context_chars?: number;
   fallback?: FrostAgentModelAdapter;
@@ -28,12 +27,12 @@ export interface FrostQwenModelOptions {
 function safeDecision(question: string, reason: string): FrostAgentDecision {
   return {
     protocol: FROST_AGENT_DECISION_PROTOCOL,
-    goal: '等待可靠的本地决策',
+    goal: '等待可靠的服务端决策',
     observations: [reason],
     next_action: { type: 'ask_user', question, reason },
     confidence: 1,
     risk: 'low',
-    success_condition: '本地 Qwen 恢复后重试，或用户给出更明确的任务。',
+    success_condition: '服务端模型恢复后重试，或用户给出更明确的任务。',
   };
 }
 
@@ -74,7 +73,7 @@ export function buildFrostDecisionPrompt(
   context: FrostAgentModelContext,
   tools: FrostAgentToolRegistry,
   skills: FrostSkillProvider,
-  options: FrostQwenModelOptions = {},
+  options: FrostStructuredModelOptions = {},
 ): string {
   const eventLimit = options.max_events ?? 48;
   const maxChars = options.max_context_chars ?? 18_000;
@@ -87,7 +86,7 @@ export function buildFrostDecisionPrompt(
     events: visibleEvents(context.events, eventLimit, maxChars),
   };
   return [
-    '你是 Frost 的本地 Taskmaster 决策器。你只决定下一个可验证动作，不直接执行副作用。',
+    '你是 Frost 的 Taskmaster 决策器。你只决定下一个可验证动作，不直接执行副作用。',
     '规则：',
     '1. 先根据 skill_catalog 选择能力；需要该 Skill 正文时先返回 load_skill。',
     '2. 健康任务通过 start_task 交给 Taskmaster；你只填 task_kind 和事实 input，不生成 ID、时间或 user_id。',
@@ -110,30 +109,26 @@ export function buildFrostDecisionPrompt(
   ].join('\n');
 }
 
-export class QwenFrostModelAdapter implements FrostAgentModelAdapter {
+export class FrostStructuredModelAdapter implements FrostAgentModelAdapter {
   constructor(
-    private readonly qwen: FrostQwenCompletion,
+    private readonly completion: FrostStructuredCompletion,
     private readonly tools: FrostAgentToolRegistry,
     private readonly skills: FrostSkillProvider,
-    private readonly options: FrostQwenModelOptions = {},
+    private readonly options: FrostStructuredModelOptions = {},
   ) {}
 
   async decide(context: FrostAgentModelContext): Promise<unknown> {
     const prompt = buildFrostDecisionPrompt(context, this.tools, this.skills, this.options);
-    const text = await this.qwen.complete(prompt, context.signal);
+    const text = await this.completion.complete(prompt, context.signal);
     if (!text.trim()) return this.options.fallback?.decide(context)
-      ?? safeDecision('本地 Qwen 尚未就绪。请稍后重试。', 'local_qwen_unavailable');
+      ?? safeDecision('服务端模型暂不可用。请稍后重试。', 'server_model_unavailable');
     try { return JSON.parse(stripModelEnvelope(text)); }
     catch { return this.options.fallback?.decide(context)
-      ?? safeDecision('这次本地决策没有通过结构校验，请重试。', 'invalid_qwen_decision_json'); }
+      ?? safeDecision('这次服务端决策没有通过结构校验，请重试。', 'invalid_server_decision_json'); }
   }
 }
 
-export function edgeQwenCompletion(edge: EdgeModel): FrostQwenCompletion {
-  return {
-    async complete(prompt, signal) {
-      if (signal.aborted) return '';
-      return edge.chat(prompt, { json: true, maxTokens: 768, model: 'health-qwen3-4b' });
-    },
-  };
-}
+/** Compatibility export for integrations that still import the former provider-specific name. */
+export { FrostStructuredModelAdapter as QwenFrostModelAdapter };
+export type FrostQwenCompletion = FrostStructuredCompletion;
+export type FrostQwenModelOptions = FrostStructuredModelOptions;

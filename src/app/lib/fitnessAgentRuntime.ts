@@ -1,4 +1,3 @@
-import { edgeSafe } from '../../../frost-agent/edge/contract';
 import {
   FrostAgentLoop,
   FrostAgentToolRegistry,
@@ -6,11 +5,10 @@ import {
   IndexedDbFrostGoalStore,
   InMemoryFrostApprovalStore,
   LocalHealthFallbackModel,
-  QwenFrostModelAdapter,
+  FrostStructuredModelAdapter,
   TaskmasterSkillProvider,
   createSkillAgentTools,
   createTaskmasterAgentTools,
-  edgeQwenCompletion,
   issueFrostApproval,
   ReceiptApprovalGate,
   FrostGoalDriver,
@@ -19,6 +17,7 @@ import {
   type FrostAgentSession,
 } from '../../../frost-agent/runtime';
 import type { FrostTaskSession, JsonObject } from '../../../frost-agent/taskmaster';
+import { createDefaultPocketBuddyApiClient } from '../../../frost-agent/skill-taskmaster/apiClient';
 import { getFrostHealthRuntime, registerTaskSignalResumer } from './healthTaskmasterRuntime';
 
 const ACTIVE_SESSION_KEY = 'pe.frost.agent.active-session.v1';
@@ -41,6 +40,22 @@ interface Client {
 }
 
 let clientPromise: Promise<Client> | null = null;
+
+export const serverFrostCompletion = {
+  async complete(prompt: string, signal: AbortSignal): Promise<string> {
+    if (signal.aborted) return '';
+    try {
+      const result = await createDefaultPocketBuddyApiClient(signal).generate({
+        prompt,
+        json: true,
+        task: 'fitness-agent-decision',
+      });
+      return result.text;
+    } catch {
+      return '';
+    }
+  },
+};
 
 function existingSessionId(): string | null {
   try {
@@ -83,8 +98,8 @@ async function createClient(sessionId: string): Promise<Client> {
   const skills = new TaskmasterSkillProvider(health.skills);
   for (const tool of createSkillAgentTools(skills)) tools.register(tool);
   for (const tool of createTaskmasterAgentTools(health.taskmaster)) tools.register(tool);
-  const model = new QwenFrostModelAdapter(
-    edgeQwenCompletion(edgeSafe),
+  const model = new FrostStructuredModelAdapter(
+    serverFrostCompletion,
     tools,
     skills,
     { fallback: new LocalHealthFallbackModel(skills), max_events: 48, max_context_chars: 18_000 },

@@ -22,7 +22,8 @@ describe('pocket-skill/v1', () => {
     const healthSkills = ids.map((id) => BUILTIN_SKILLS.find((item) => item.identity.id === id));
     expect(healthSkills.every(Boolean)).toBe(true);
     expect(healthSkills.every((item) => item?.runtime.execution === 'declarative')).toBe(true);
-    expect(healthSkills.every((item) => item?.data.schemas.includes('frost-qwen-control/v1'))).toBe(true);
+    expect(healthSkills.every((item) => item?.data.schemas.includes('frost-server-control/v1'))).toBe(true);
+    expect(healthSkills.every((item) => item?.runtime.base === undefined && item?.assets.length === 0)).toBe(true);
     expect(healthSkills.every((item) => item?.provenance.source.includes('https://github.com/'))).toBe(true);
     expect(BUILTIN_SKILLS.find((item) => item.identity.id === 'frost.garmin-readonly')?.quality_gate.checks.join(' ')).toContain('delete');
   });

@@ -75,6 +75,7 @@ export class FrostAgentLoop {
     if (this.initialized) return;
     const existing = await this.log.list(this.session.session_id);
     if (existing.length > 0) {
+      this.inbox.resumeSequence(existing.length);
       const created = existing.find((event) => event.type === 'session.created');
       if (created && typeof created.data.user_id === 'string' && created.data.user_id !== this.session.user_id) {
         throw new Error('agent_session_user_mismatch');
@@ -189,6 +190,7 @@ export class FrostAgentLoop {
     await this.setStatus('running');
     await this.log.append({ session_id: this.session.session_id, type: 'turn.started', data: { turn } });
     await this.recordInputs(initialInput);
+    const turnBudget = { toolCalls: 0 };
 
     for (let localStep = 1; localStep <= this.maxSteps; localStep += 1) {
       if (this.cancelledReason) return this.endCancelledTurn(turn, this.cancelledReason);
@@ -236,20 +238,26 @@ export class FrostAgentLoop {
         data: asJsonObject({ turn, step, decision }),
       });
 
-      const outcome = await this.applyDecision(turn, step, decision);
+      const outcome = await this.applyDecision(turn, step, decision, turnBudget);
       if (outcome !== 'continue') return;
     }
     await this.failTurn(turn, 'max_steps_exceeded');
   }
 
-  private async applyDecision(turn: number, step: number, decision: FrostAgentDecision): Promise<'continue' | 'ended'> {
+  private async applyDecision(
+    turn: number,
+    step: number,
+    decision: FrostAgentDecision,
+    turnBudget: { toolCalls: number },
+  ): Promise<'continue' | 'ended'> {
     const action = decision.next_action;
     const call = actionToolCall(action);
     if (call) {
-      if (this.session.counters.tool_calls >= this.maxToolCalls) {
+      if (turnBudget.toolCalls >= this.maxToolCalls) {
         await this.failTurn(turn, 'max_tool_calls_exceeded');
         return 'ended';
       }
+      turnBudget.toolCalls += 1;
       this.session.counters.tool_calls += 1;
       const callId = `${this.session.session_id}:tool:${this.session.counters.tool_calls}`;
       await this.log.append({

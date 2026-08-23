@@ -124,6 +124,14 @@ function route(text: string): { kind: FrostTaskKind; skill: string; input: JsonO
     else { input.goal_type = 'distance'; input.distance_m = 5000; }
     return { kind: 'plan_run_route', skill: 'frost.run-route', input, goal: '生成跑步路线并打开行动地图' };
   }
+  if (/(轻松跑|恢复跑|跑步处方|安全强度|训练强度|今天.*(?:能不能|适不适合).*跑|安排.*跑)/.test(text)) {
+    return {
+      kind: 'run_skill',
+      skill: 'frost.running-coach',
+      input: { skill_id: 'frost.running-coach', user_text: text.slice(0, 240) },
+      goal: '评估恢复状态并生成有安全上限的跑步处方',
+    };
+  }
   if (/(瑜伽|普拉提|热身|健身|训练|运动)/.test(text)) {
     const exercise = text.includes('普拉提') ? '普拉提' : text.includes('瑜伽') ? '瑜伽' : '热身';
     return { kind: 'start_workout', skill: 'frost.her-motion-warmup', input: { exercise, duration_sec: Math.max(60, Math.min(minutes, 120) * 60) }, goal: `完成${exercise}` };

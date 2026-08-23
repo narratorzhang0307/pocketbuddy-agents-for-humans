@@ -8,6 +8,12 @@ const plazaSource = readFileSync(new URL('./AgentPlazaPage.tsx', import.meta.url
 const routesSource = readFileSync(new URL('../lib/plaza/skillRoutes.ts', import.meta.url), 'utf8');
 const sharedBrainSource = readFileSync(new URL('../../../frost-agent/harness/httpBrain.ts', import.meta.url), 'utf8');
 const buddyBrainSource = readFileSync(new URL('../lib/pocket-buddy/brain.ts', import.meta.url), 'utf8');
+const fitnessAgentSource = readFileSync(new URL('../lib/fitnessAgentRuntime.ts', import.meta.url), 'utf8');
+const healthPageSource = readFileSync(new URL('./HealthFoundationSkillPage.tsx', import.meta.url), 'utf8');
+const healthRuntimeSource = readFileSync(new URL('./HealthSkillRuntimePanel.tsx', import.meta.url), 'utf8');
+const healthModelSource = readFileSync(new URL('../../../frost-agent/skills/health/serverModelControl.ts', import.meta.url), 'utf8');
+const healthBuiltinsSource = readFileSync(new URL('../lib/skill/externalHealthBuiltins.ts', import.meta.url), 'utf8');
+const taskmasterHealthSource = readFileSync(new URL('../../../frost-agent/taskmaster/externalSkills.ts', import.meta.url), 'utf8');
 const viteSource = readFileSync(new URL('../../../vite.pocketbuddy.config.ts', import.meta.url), 'utf8');
 
 describe('MySkillsTab 服务端 Demo 运行边界', () => {
@@ -51,11 +57,27 @@ describe('MySkillsTab 服务端 Demo 运行边界', () => {
   });
 
   it('所有文本模型调用只走鉴权的 pocketbuddy-api', () => {
-    for (const source of [sharedBrainSource, buddyBrainSource, viteSource]) {
+    for (const source of [sharedBrainSource, buddyBrainSource, fitnessAgentSource, healthModelSource, viteSource]) {
       expect(source).not.toContain('/api/frost-llm');
     }
     expect(sharedBrainSource).toContain('createDefaultPocketBuddyApiClient');
     expect(buddyBrainSource).toContain('createDefaultPocketBuddyApiClient');
+    expect(fitnessAgentSource).toContain('createDefaultPocketBuddyApiClient');
+    expect(fitnessAgentSource).not.toContain('edgeQwenCompletion');
+    expect(fitnessAgentSource).not.toContain('edgeSafe');
+    expect(healthModelSource).toContain('createDefaultPocketBuddyApiClient');
+    expect(healthModelSource).not.toContain('callEdgeRequest');
+    expect(healthBuiltinsSource).toContain('frost-server-control/v1');
+    expect(healthBuiltinsSource).not.toContain('QWEN4B_HEALTH_ASSET');
+    expect(healthBuiltinsSource).not.toContain('Qwen3-4B');
+    expect(taskmasterHealthSource).not.toContain('Qwen3-4B');
+    expect(healthPageSource).toContain('SERVER MODEL CONTROL PLANE');
+    expect(healthPageSource).not.toContain('HealthQwenMnnCard');
+    expect(healthPageSource).not.toContain('MNN 4B');
+    expect(healthRuntimeSource).toContain('explainHealthDecisionWithServerModel');
+    expect(healthRuntimeSource).not.toContain('Qwen3-4B');
+    expect(existsSync(new URL('./HealthQwenMnnCard.tsx', import.meta.url))).toBe(false);
+    expect(existsSync(new URL('../../../frost-agent/skills/health/qwenControl.ts', import.meta.url))).toBe(false);
     expect(viteSource).not.toContain('qwenChatDev');
     expect(existsSync(new URL('../../../server/qwen-health-provider.mjs', import.meta.url))).toBe(false);
   });

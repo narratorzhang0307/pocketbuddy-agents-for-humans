@@ -247,7 +247,8 @@ export default function MySkillsTab({ embedded = false, openTarget, openTargetBa
                 : running === 'sleepdetective' ? 'frost.sleep-detective'
                   : running === 'meallens' ? 'frost.meal-lens'
                     : running === 'wgerplanner' ? 'frost.wger-planner'
-                      : running === 'mealiekitchen' ? 'frost.mealie-kitchen' : null;
+                      : running === 'mealiekitchen' ? 'frost.mealie-kitchen'
+                        : running === 'runningcoach' ? 'frost.running-coach' : null;
   if (foundationSkillId) return <Suspense fallback={<SkillPageLoader label="HEALTH FOUNDATION" />}><HealthFoundationSkillPage skillId={foundationSkillId} onBack={closeRunning} /></Suspense>;
 
   return (

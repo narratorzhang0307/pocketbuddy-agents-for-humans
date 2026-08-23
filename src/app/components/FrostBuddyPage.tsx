@@ -43,7 +43,7 @@ const QUICK: { label: string; target: string }[] = [
   { label: '饮食镜头', target: 'frost-meal-lens' },
 ];
 
-// 两个本机视觉 Skill 打开工作区本身没有外部副作用；摄像头权限仍由目标 Skill 向用户申请。
+// 这些 Skill 打开工作区本身没有外部副作用；摄像头等权限仍由目标 Skill 向用户申请。
 const AUTO_DISPATCH_TARGETS = new Set([
   'her-motion',
   'lianlema-coach',
@@ -55,6 +55,7 @@ const AUTO_DISPATCH_TARGETS = new Set([
 const FROST_DACHSHUND_AVATAR = '/assets/pocket-buddy/packages/holiday-christmas-dachshund/portrait-frost-no-hat-v2.png';
 const FROST_OPENING_LINE = '我是 Frost。你说目标，我会先在已装备的 Skills 里选择能力、列出计划和权限，再把任务交到正确入口；没有把握时，我不会擅自执行。';
 const TASK_SKILL_UI: Record<string, { id: string; name: string; target: string }> = {
+  'frost.running-coach': { id: 'frost.running-coach', name: '跑步决策教练', target: 'frost-running-coach' },
   'frost.run-route': { id: 'frost.run-route', name: '跑步路线规划', target: 'frost-run-route' },
   'frost.her-motion-warmup': { id: 'pocket.her-motion', name: 'Her Motion 热身', target: 'her-motion' },
   'frost.nutrition-log': { id: 'frost.meal-lens', name: '饮食镜头', target: 'frost-meal-lens' },
@@ -214,7 +215,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
         setTurns((t) => [...t, {
           role: 'frost',
           text: memoryReply,
-          trace: ['本机长期记忆检索 · 未调用 Qwen/MNN', '只读取已确认交接摘要 · 不含聊天、图片与 OCR 正文'],
+          trace: ['本机长期记忆检索 · 未调用模型服务', '只读取已确认交接摘要 · 不含聊天、图片与 OCR 正文'],
         }]);
         pulse('celebrate', 1200);
         return;
@@ -246,8 +247,14 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
         stageTaskHandoff(plan!, step, text, result.task.task_id);
         onRun(step.target);
       }
-    } catch {
-      setTurns((t) => [...t, { role: 'frost', text: '我这边断了一下，再说一遍？' }]);
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : String(cause || 'unknown_error');
+      console.error('[Frost Agent] taskmaster turn failed', cause);
+      setTurns((t) => [...t, {
+        role: 'frost',
+        text: '我这边断了一下，再说一遍？',
+        trace: [`ERROR · ${message.slice(0, 160)}`],
+      }]);
       pulse('dizzy', 1500);
     } finally {
       setBusy(false);
@@ -349,7 +356,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                             <Workflow className="h-4 w-4 shrink-0" strokeWidth={2.5} />
                             <div>
                               <div className="frost-encounter__plan-title">SKILL PLAN · {turn.plan.mode.toUpperCase()}</div>
-                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '云端 Qwen 语义规划' : turn.plan.source === 'mnn' ? '端侧 Qwen / MNN 规划' : 'Frost 端侧编排'} · {turn.plan.steps.length} 步</div>
+                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '服务端模型语义规划' : turn.plan.source === 'mnn' ? '服务端兼容规划' : 'Frost 确定性恢复编排'} · {turn.plan.steps.length} 步</div>
                             </div>
                             <span className="frost-encounter__plan-status">{turn.plan.ready ? '可运行' : '待装备'}</span>
                           </header>

@@ -9,7 +9,7 @@ import {
 } from '../../../frost-agent/skills/health/foundation';
 import { CN_FOOD_LIBRARY, searchCnFoods } from '../../../frost-agent/skills/health/cnFoodLibrary';
 import { APPLE_HEALTH_FIELD_MAP } from '../../../frost-agent/skills/health/evidenceReport';
-import { explainHealthDecisionWithQwen4B } from '../../../frost-agent/skills/health/qwenControl';
+import { explainHealthDecisionWithServerModel } from '../../../frost-agent/skills/health/serverModelControl';
 import {
   getHealthSkillBridgeStatus,
   getHealthsyncImportStatus,
@@ -24,7 +24,6 @@ import {
 interface Props {
   skillId: string;
   readiness: ReadinessDecision;
-  healthQwenReady?: boolean;
 }
 
 const HEALTHSYNC_METRICS = ['sleep', 'steps', 'hrv', 'resting-heart-rate', 'heart-rate', 'workouts', 'vo2max', 'running-speed', 'running-power'];
@@ -44,7 +43,7 @@ function ConnectorBadge({ status }: { status?: { available: boolean; reason?: st
   return <span className="border border-black bg-white px-2 py-1 font-pixel text-[5px]">{status?.available ? 'LOCAL READY' : status?.reason === 'not_installed' ? 'CLI 未安装' : 'LOCAL OFF'}</span>;
 }
 
-export default function HealthSkillRuntimePanel({ skillId, readiness, healthQwenReady = false }: Props) {
+export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
   const needsConnector = skillId === 'frost.healthsync' || skillId === 'frost.garmin-readonly';
   const [bridge, setBridge] = useState<HealthSkillBridgeStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -61,8 +60,8 @@ export default function HealthSkillRuntimePanel({ skillId, readiness, healthQwen
   const [cnQuery, setCnQuery] = useState('');
   const [intensity, setIntensity] = useState<TrainingIntensity>('moderate');
   const [duration, setDuration] = useState(45);
-  const [qwenBusy, setQwenBusy] = useState(false);
-  const [qwenExplanation, setQwenExplanation] = useState('');
+  const [modelBusy, setModelBusy] = useState(false);
+  const [modelExplanation, setModelExplanation] = useState('');
 
   useEffect(() => {
     if (!needsConnector) return;
@@ -100,15 +99,15 @@ export default function HealthSkillRuntimePanel({ skillId, readiness, healthQwen
 
   const explain = async () => {
     if (skillId !== 'frost.running-coach' && skillId !== 'frost.endurance-guard') return;
-    setQwenBusy(true); setError(''); setQwenExplanation('');
+    setModelBusy(true); setError(''); setModelExplanation('');
     try {
-      const response = await explainHealthDecisionWithQwen4B({ skillId, readiness, validation: prescription });
-      if (response.backend !== 'mnn') throw new Error(response.error || 'health_qwen3_4b_unavailable');
-      setQwenExplanation(response.text);
+      const response = await explainHealthDecisionWithServerModel({ skillId, readiness, validation: prescription });
+      if (response.backend !== 'server') throw new Error(response.error || 'server_model_unavailable');
+      setModelExplanation(response.text);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
-      setQwenBusy(false);
+      setModelBusy(false);
     }
   };
 
@@ -124,11 +123,11 @@ export default function HealthSkillRuntimePanel({ skillId, readiness, healthQwen
         {!prescription.ok && <div className="mt-1 text-[8px]">{prescription.errors.join(' · ')}</div>}
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <ActionButton disabled={!healthQwenReady || qwenBusy} onClick={() => void explain()}>{qwenBusy ? '正在切换 4B…' : '用 Qwen3-4B 解释已校验结果'}</ActionButton>
-        <span className="text-[7px] text-black/45">4B 只解释，PASS / DOWNGRADE 由上方规则确定。</span>
+        <ActionButton disabled={modelBusy} onClick={() => void explain()}>{modelBusy ? '服务端生成中…' : '用服务端模型解释已校验结果'}</ActionButton>
+        <span className="text-[7px] text-black/45">模型只解释，PASS / DOWNGRADE 由上方规则确定。</span>
       </div>
       {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}
-      {qwenExplanation && <div className="mt-2 whitespace-pre-wrap border-2 border-black bg-[#111] p-2 text-[8px] leading-relaxed text-[#7dffb8]">{qwenExplanation}</div>}
+      {modelExplanation && <div className="mt-2 whitespace-pre-wrap border-2 border-black bg-[#111] p-2 text-[8px] leading-relaxed text-[#7dffb8]">{modelExplanation}</div>}
     </section>;
   }
 

@@ -1,9 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { HEALTH_EVENT_PROTOCOL, TASK_SIGNAL_PROTOCOL, type HealthEvent } from '../../../frost-agent/taskmaster';
-
-vi.mock('../../../frost-agent/edge/contract', () => ({
-  edgeSafe: { async chat() { return ''; } },
-}));
 
 import { getFrostHealthRuntime } from './healthTaskmasterRuntime';
 import { getActiveRunRouteSessionId, readRunRouteSession } from './runRouteSkill';
@@ -13,6 +9,7 @@ import {
   runFrostGoalDriverOnce,
   scheduleFrostAgentGoal,
   sendFrostAgentMessage,
+  serverFrostCompletion,
 } from './fitnessAgentRuntime';
 
 function memoryStorage(): Storage {
@@ -29,6 +26,25 @@ function memoryStorage(): Storage {
 
 describe('PWA Frost Agent Runtime', () => {
   beforeEach(() => { vi.stubGlobal('localStorage', memoryStorage()); });
+  afterEach(() => { vi.unstubAllGlobals(); });
+
+  it('sends structured decisions through the authenticated server API', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ text: '{"next_action":{"type":"ask_user"}}' }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    vi.stubGlobal('window', { __POCKET_BUDDY_GET_ID_TOKEN__: async () => 'fitness-token' });
+    const signal = new AbortController().signal;
+
+    await expect(serverFrostCompletion.complete('decide next', signal)).resolves.toContain('next_action');
+    expect(fetchMock).toHaveBeenCalledWith('/v1/llm/generate', expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ authorization: 'Bearer fitness-token' }),
+      body: JSON.stringify({ prompt: 'decide next', json: true, task: 'fitness-agent-decision' }),
+      signal,
+    }));
+  });
 
   it('autonomously loads Her Motion, starts Taskmaster, and resumes from its completion signal', async () => {
     const started = await sendFrostAgentMessage('带我做 10 分钟瑜伽');

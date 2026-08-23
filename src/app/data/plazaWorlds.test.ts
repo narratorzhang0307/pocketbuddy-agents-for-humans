@@ -35,7 +35,8 @@ describe('Plaza world registry', () => {
     const worldCopy = JSON.stringify(PLAZA_WORLDS);
 
     expect(serialized).not.toMatch(/Qwen3-VL-4B/i);
-    expect(serialized).toMatch(/qwen3-4b-health-mnn/i);
+    expect(serialized).not.toMatch(/qwen3-4b-health-mnn/i);
+    expect(serialized).toMatch(/frost-server-control\/v1/i);
     expect(worldCopy).not.toMatch(/Injective|wallet|blockchain|代币|区块链/i);
   });
 

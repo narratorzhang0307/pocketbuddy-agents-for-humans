@@ -19,6 +19,7 @@ describe('Frost 主 Agent 与领域专家路由', () => {
   it('三个领域专家只连接当前运动健康运行页', () => {
     expect(resolveSkillRunTarget('frost-run-route')).toBe('runroute');
     expect(resolveSkillRunTarget('frost-sleep-detective')).toBe('sleepdetective');
+    expect(resolveSkillRunTarget('frost-running-coach')).toBe('runningcoach');
     expect(resolveSkillRunTarget('her-motion')).toBe('hermotion');
     expect(resolveSkillRunTarget('unknown-skill')).toBeNull();
   });

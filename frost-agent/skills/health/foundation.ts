@@ -6,13 +6,12 @@ export {
 } from '../../../server/health-skill-policy.mjs';
 export type { GarminReadOperation, GarminReadQuery, HealthsyncQuery } from '../../../server/health-skill-policy.mjs';
 
-export const QWEN4B_HEALTH_CONTROL_PLANE = {
-  protocol: 'frost-qwen-control/v1' as const,
-  model: 'Qwen/Qwen3-4B',
-  license: 'Apache-2.0',
+export const SERVER_HEALTH_CONTROL_PLANE = {
+  protocol: 'frost-server-control/v1' as const,
+  provider: 'pocketbuddy-api',
+  model: 'configured-server-model',
   role: 'intent-routing-and-evidence-synthesis' as const,
-  runtime: 'MNN-compatible-contract' as const,
-  assetStatus: 'installable-device-validation-required' as const,
+  runtime: 'authenticated-server-api' as const,
   allowed: ['route-skill', 'summarize-tool-results', 'draft-prescription', 'explain-uncertainty'] as const,
   forbidden: ['invent-health-facts', 'read-raw-video', 'execute-provider-writes', 'override-safety-gate'] as const,
 };

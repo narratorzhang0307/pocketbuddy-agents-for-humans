@@ -12,7 +12,7 @@ export const EXTERNAL_HEALTH_SKILL_DEFINITIONS: HealthSkillDefinition[] = [
     permissions: ['read:health_events', 'read:wearable', 'run:model', 'notify:user'],
     steps: [
       { id: 'baseline', tool: 'coach.assess-readiness', purpose: '计算个人基线偏离与 readiness 上限', requires_confirmation: false },
-      { id: 'draft', tool: 'coach.draft-prescription', purpose: '由 Qwen3-4B 生成结构化处方草案', requires_confirmation: false },
+      { id: 'draft', tool: 'coach.draft-prescription', purpose: '由已配置的服务端模型生成结构化处方草案', requires_confirmation: false },
       { id: 'validate', tool: 'coach.validate-prescription', purpose: '用确定性规则校验并必要时降级', requires_confirmation: false },
     ],
     stop_rules: ['胸痛、晕厥、异常呼吸或影响步态的疼痛立即 SAFE_STOP', 'red/yellow 上限不得被模型升级'],
@@ -20,7 +20,7 @@ export const EXTERNAL_HEALTH_SKILL_DEFINITIONS: HealthSkillDefinition[] = [
     provenance: {
       version: '1.0.0', owner: 'Frost Health', license: 'MIT',
       source_url: 'https://github.com/liumy-qd/running-coach-skill', source_commit: 'bae32cf1d7b33156cd074f449044d61668f0bcb2',
-      adaptation: 'Qwen3-4B control plane + deterministic readiness and prescription gates',
+      adaptation: 'Authenticated server model control plane + deterministic readiness and prescription gates',
     },
   },
   {
