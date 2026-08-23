@@ -13,6 +13,7 @@ import {
   type ExternalHealthProviders,
   type TaskSignal,
 } from '../../../frost-agent/taskmaster';
+import { CanvasAwareHealthSkillRegistry, registerCanvasTaskmasterTool } from '../../../frost-agent/skill-taskmaster';
 import { createRunRouteSessionFromTaskmaster, runRouteTaskInput, type RunRouteInput } from './runRouteSkill';
 
 export interface FrostHealthRuntime {
@@ -32,7 +33,7 @@ export function getFrostHealthRuntime(providers: ExternalHealthProviders = {}): 
   if (runtime) return runtime;
   const store = new IndexedDbTaskmasterStore();
   const traces = new PersistentTraceSink(store);
-  const skills = new HealthSkillRegistry();
+  const skills = new CanvasAwareHealthSkillRegistry();
   const tools = createDefaultTools({
     planRoute: async (input, context) => {
       const session = createRunRouteSessionFromTaskmaster({ ...input, source_task_id: context.request.task_id });
@@ -44,6 +45,7 @@ export function getFrostHealthRuntime(providers: ExternalHealthProviders = {}): 
     },
     ...providers,
   });
+  registerCanvasTaskmasterTool(tools);
   runtime = { store, traces, skills, taskmaster: new FrostHealthTaskmaster(store, tools, traces, skills) };
   return runtime;
 }

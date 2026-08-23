@@ -77,6 +77,7 @@ export class TaskmasterToolRegistry {
     this.tools.set(tool.name, tool);
   }
   get(name: string): TaskmasterTool | null { return this.tools.get(name) || null; }
+  has(name: string): boolean { return this.tools.has(name); }
   list(): Array<{ name: string; permission: SkillPermission }> { return [...this.tools.values()].map(({ name, permission }) => ({ name, permission })); }
 }
 

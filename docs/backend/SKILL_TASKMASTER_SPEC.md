@@ -1,6 +1,6 @@
 # Pocket Buddy Skill Taskmaster 统一协议与前后端协同规范
 
-> **版本**：v1.2 · 2026-08-23
+> **版本**：v1.3 · 2026-08-23
 > **用途**：定义 Skill Taskmaster 如何把可视化能力卡牌编译为可真实执行、可恢复、可审计的 Skill Graph，并约束它与 Pocket Buddy 现有前端、端侧 Runtime 和云端 API 的协作方式。  
 > **适用对象**：产品、前端、端侧 Runtime、后端、测试，以及协助生成代码的 LLM。
 
@@ -34,6 +34,7 @@ Skill Taskmaster 的成功标准不是拼出一个 UI，而是让非程序员在
 
 ### 0.3 当前架构结论
 
+- Fitness Agent、Skill Registry、Taskmaster 与 Canvas Runtime 已使用同一条执行链；Canvas Skill 不再是前端旁路。
 - 端侧 Canvas、Compiler 和 Runtime 使用同一份不可变 Skill Graph。
 - 能力模块使用 `pocket-capability/v1` 合同，Graph 使用 `pocket-skill-graph/v1`。
 - 草稿、Graph、Run、Trace、Evidence 与 Effect Ledger 存 IndexedDB。
@@ -65,7 +66,8 @@ Skill Taskmaster 的成功标准不是拼出一个 UI，而是让非程序员在
 | 能力 | 当前已具备 | 仍需补齐 |
 |---|---|---|
 | Skill Canvas | 目标、能力卡、拖拽组合、结构检查、保存和 dry-run | 节点端口与配置还需完全合同化；preview 不得伪装真实 GPS/健康/模型调用 |
-| Health Taskmaster | 确认、权限、Signal、Effect Ledger、checkpoint、SAFE_STOP、IndexedDB | 从固定 `toolsForTask` 映射升级为直接执行用户 Graph |
+| Health Taskmaster | 确认、权限、Signal、Effect Ledger、checkpoint、SAFE_STOP、IndexedDB；通用 `run_skill` 已可执行用户 Graph | 分支、并行与逐节点异步 Signal 仍需继续扩展 |
+| Fitness Agent | 通过语义目录选 Skill，按需加载正文，统一调用 Taskmaster，支持 Provider 恢复重试 | 生产 Qwen 质量评测与更广泛的语义匹配 |
 | Skill Manifest | `pocket-skill/v1` 校验、签名、本机安装/装备/回滚 | 云端 Skill 商店与签章分发不在本期 |
 | Provider/工具 | Gemma API、MNN、Her Motion、AMap、自然观察适配面 | 统一命名、I/O Schema、错误、执行位置与数据去向 |
 
@@ -275,6 +277,10 @@ Broker 是统一协议与真实 SDK/API 的边界。它读取 Capability Contrac
 
 ### 6.3 复用现有 Taskmaster 能力
 
+- 用单一通用 `run_skill` 任务类型承载所有非内置 Skill；新 Skill 不再新增专属 TaskKind 或 orchestrator 分支。
+- `CanvasAwareHealthSkillRegistry` 合并内置/外部健康 Skill 与用户 Canvas Skill；目录只暴露语义摘要，选中后才加载权限、步骤和停止规则。
+- Taskmaster 创建任务时把完整 `CompiledSkillGraph` 快照、`graph_id` 与 `graph_hash` 锁入不可变请求；后续编辑不改变已开始的 Run。
+- 缺 Provider、身份或网络时进入 `waiting_external`并保留 checkpoint；用户确认条件恢复后，Agent 通过 `taskmaster.resume` 重试当前动作。
 - 保留 `task_signal/v1` 作为外部模型、设备和子 Agent 的唯一异步恢复入口；重复 `signal_id` 不重做。
 - 保留 `effect_record/v1` 的 `proposed → approved → committed`；同一幂等键只提交一次写入、通知或发布。
 - 保留 `beforeToolUse`、`afterToolUse`、`beforeTaskComplete`，但输入从固定步骤改为 `CompiledSkillNode`。
@@ -444,6 +450,7 @@ flowchart LR
 4. 浏览器 Runtime 已接入真实 Geolocation、Speech Synthesis 和 API Client。位置权限拒绝或超时会在对应节点 `blocked`，下游节点 `skipped`；不会把 preview、旧缓存或静态文本冒充成功。
 5. `backend/` 实现 Node 20 + TypeScript + Fastify 服务。生产认证使用 Firebase ID Token，健康事件按 uid 写入 Firestore，Gemma 密钥只存在服务端；开发模式的固定 Token、内存仓库和确定性模型必须显式开启且禁止在 `NODE_ENV=production` 使用。
 6. 完成节点先在本机写入完整 Evidence，再同步一条规范允许的 `skill_completed` HealthEvent。服务端覆盖客户端 uid，按 `event_id + sync.revision` 幂等处理，冲突返回结构化结果。
+7. Fitness Agent 的所有任务对话都进入同一 `FrostAgentLoop`；它先查语义目录、再加载精确 Skill，最后由 Taskmaster 执行。旧 `runFrostOrchestrator/runGeneral` 不再作为 Fitness Agent 任务旁路。
 
 当前验证结果：
 
@@ -465,7 +472,7 @@ Skill Taskmaster 不以“尽量跑下去”为容错目标，而以“只在证
 | 缺启动条件 | 阻断编译，提供“添加手动启动” | 用户一键确认 | 不擅自创建运行入口 |
 | 缺动作或状态输出 | 阻断编译，让用户在通知与证据间选择 | 否 | 两者副作用、权限和数据去向不同 |
 | 多启动器、未知 Capability、合同不匹配 | 阻断编译并定位到 Node/Contract | 否 | 存在多个可能意图，不可猜测 |
-| 缺宿主 Provider、Firebase 身份或 API | 运行前 Preflight 阻断，返回 Node、原因和操作建议 | 否 | 不使用 preview、伪数据或旧缓存冒充 Provider |
+| 缺宿主 Provider、Firebase 身份或 API | Preflight 进入 `waiting_external`，返回 Node、原因和操作建议；恢复后从 Task checkpoint 重试 | 用户确认后重试 | 不使用 preview、伪数据或旧缓存冒充 Provider |
 | 无副作用的短暂读取/模型故障 | 最多自动重试 1 次，Trace 记录 attempts | 是 | 读取与候选生成可安全重放 |
 | 通知、事实写入等副作用失败 | 默认不自动重放；本地 Evidence 保留并显示恢复建议 | 否 | 防止重复播报、写入或外部动作 |
 | 用户取消或 Safety Gate 阻断 | 完结 Trace 为 `cancelled` / `safe_stopped`，下游全部 `skipped` | 否 | 终止优先，不得自动续跑 |

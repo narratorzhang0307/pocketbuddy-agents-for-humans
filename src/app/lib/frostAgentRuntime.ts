@@ -87,7 +87,7 @@ async function createClient(sessionId: string): Promise<Client> {
     edgeQwenCompletion(edgeSafe),
     tools,
     skills,
-    { fallback: new LocalHealthFallbackModel(), max_events: 48, max_context_chars: 18_000 },
+    { fallback: new LocalHealthFallbackModel(skills), max_events: 48, max_context_chars: 18_000 },
   );
   const log = new IndexedDbFrostSessionLog();
   const loop = new FrostAgentLoop(

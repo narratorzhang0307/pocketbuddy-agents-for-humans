@@ -23,7 +23,7 @@ export interface TaskmasterOptions {
   timeout_ms?: number;
 }
 
-const toolsForTask: Record<FrostTaskRequest['kind'], string[]> = {
+const toolsForTask: Record<Exclude<FrostTaskRequest['kind'], 'run_skill'>, string[]> = {
   log_meal: ['meal.observe', 'meal.commit'],
   start_workout: ['motion.guide'],
   plan_run_route: ['route.plan'],
@@ -46,6 +46,14 @@ function effectfulPermission(permission: FrostTaskAction['permission']): boolean
   return permission.startsWith('write:') || permission.startsWith('publish:') || permission.startsWith('notify:');
 }
 
+function actionPermissions(action: FrostTaskAction): FrostTaskAction['permission'][] {
+  return action.permissions?.length ? action.permissions : [action.permission];
+}
+
+function actionEffectPermission(action: FrostTaskAction): FrostTaskAction['permission'] | null {
+  return actionPermissions(action).find(effectfulPermission) || null;
+}
+
 export class FrostHealthTaskmaster {
   private readonly maxSteps: number;
   private readonly maxToolCalls: number;
@@ -63,14 +71,16 @@ export class FrostHealthTaskmaster {
     this.timeoutMs = options.timeout_ms ?? 5 * 60 * 1000;
   }
 
-  async start(request: FrostTaskRequest): Promise<FrostTaskSession> {
-    if (!requestValid(request)) throw new Error('invalid_task_request');
+  async start(candidate: FrostTaskRequest): Promise<FrostTaskSession> {
+    if (!requestValid(candidate)) throw new Error('invalid_task_request');
+    const resolved = this.skills.resolveRequest(candidate);
+    const request = resolved.request;
+    const skill = resolved.skill;
     const existing = await this.store.getTask(request.task_id);
     if (existing) {
       if (canonical(existing.request) !== canonical(request)) throw new Error(`task_request_conflict:${request.task_id}`);
       return existing;
     }
-    const skill = this.skills.forTask(request.kind);
     const actions = this.planActions(request, skill);
     const now = new Date().toISOString();
     const session: FrostTaskSession = {
@@ -116,7 +126,7 @@ export class FrostHealthTaskmaster {
     if (!action || action.status !== 'waiting_confirmation') throw new Error('action_not_waiting_confirmation');
     if (!session.confirmed_action_ids.includes(actionId)) session.confirmed_action_ids.push(actionId);
     action.status = 'pending';
-    const skill = this.requireSkill(session.skill_id);
+    const skill = this.requireSkill(session);
     return this.advance(session, skill);
   }
 
@@ -125,7 +135,7 @@ export class FrostHealthTaskmaster {
     if (!['waiting_external', 'planned', 'running'].includes(session.status)) return session;
     const action = session.actions[session.next_action_index];
     if (action?.status === 'waiting_external') action.status = 'pending';
-    return this.advance(session, this.requireSkill(session.skill_id));
+    return this.advance(session, this.requireSkill(session));
   }
 
   /** Skill、设备和子 Agent 的唯一异步回传入口。重复 signal_id 只返回当前 checkpoint。 */
@@ -163,23 +173,32 @@ export class FrostHealthTaskmaster {
       return this.fail(session, message);
     }
     await this.completeAction(session, action, { status: 'success', data: signal.payload, events: signal.events }, {});
-    return this.advance(session, this.requireSkill(session.skill_id));
+    return this.advance(session, this.requireSkill(session));
   }
 
   async get(taskId: string): Promise<FrostTaskSession | null> { return this.store.getTask(taskId); }
 
   private planActions(request: FrostTaskRequest, skill: HealthSkillDefinition): FrostTaskAction[] {
-    return toolsForTask[request.kind].map((name, index) => {
+    const names = request.kind === 'run_skill'
+      ? skill.steps.map((step) => step.tool)
+      : toolsForTask[request.kind];
+    if (names.length === 0) throw new Error(`taskmaster_skill_has_no_steps:${skill.skill_id}`);
+    return names.map((name, index) => {
       const step = skill.steps.find((item) => item.tool === name);
       const tool = this.tools.get(name);
-      if (!step || !tool) throw new Error(`taskmaster_dependency_missing:${name}`);
+      if (!step) throw new Error(`taskmaster_step_missing:${name}`);
+      const permissions = step.permissions?.length
+        ? [...new Set(step.permissions)]
+        : tool ? [tool.permission] : [...new Set(skill.permissions)];
+      if (permissions.length === 0) throw new Error(`taskmaster_permission_missing:${name}`);
       return {
         action_id: `${request.task_id}:action:${index + 1}`,
         correlation_id: `${request.task_id}:action:${index + 1}:correlation:v1`,
         tool: name,
         purpose: step.purpose,
         input: structuredClone(request.input),
-        permission: tool.permission,
+        permission: permissions[0],
+        permissions,
         requires_confirmation: step.requires_confirmation,
         status: 'pending',
       };
@@ -188,7 +207,9 @@ export class FrostHealthTaskmaster {
 
   private async advance(session: FrostTaskSession, skill: HealthSkillDefinition): Promise<FrostTaskSession> {
     const priorResults: Record<string, JsonObject> = {};
-    for (const action of session.actions) if (action.result) priorResults[action.tool] = action.result;
+    for (const action of session.actions) {
+      if (action.status === 'completed' && action.result) priorResults[action.tool] = action.result;
+    }
     session.status = 'running';
     await this.persist(session);
 
@@ -198,6 +219,22 @@ export class FrostHealthTaskmaster {
       if (session.counters.tool_calls >= session.limits.max_tool_calls) return this.fail(session, 'max_tool_calls_exceeded');
 
       const action = session.actions[session.next_action_index];
+      const tool = this.tools.get(action.tool);
+      if (!tool) {
+        action.status = 'waiting_external';
+        action.result = {
+          waiting_reason: 'provider_not_registered',
+          missing_provider: action.tool,
+        };
+        session.status = 'waiting_external';
+        await this.persist(session);
+        await this.trace(session, 'task.waiting', 'tool', `缺少 ${action.tool} Provider，已保留 checkpoint`, {
+          action_id: action.action_id,
+          tool: action.tool,
+          reason: 'provider_not_registered',
+        });
+        return session;
+      }
       const confirmed = session.confirmed_action_ids.includes(action.action_id);
       const hook = beforeToolUse(skill, action, confirmed);
       if (hook.outcome === 'block') {
@@ -215,14 +252,16 @@ export class FrostHealthTaskmaster {
 
       if (await this.recoverCommittedEffect(session, action, priorResults)) continue;
 
-      const tool = this.tools.get(action.tool);
-      if (!tool) return this.fail(session, `tool_not_found:${action.tool}`);
-      const effect = await this.prepareEffect(session, action);
+      const effect = await this.prepareEffect(session, action, tool.permission);
       action.status = 'running';
       session.counters.steps += 1;
       session.counters.tool_calls += 1;
       await this.persist(session);
-      await this.trace(session, 'tool.requested', 'taskmaster', `调用 ${action.tool}`, { action_id: action.action_id, permission: action.permission });
+      await this.trace(session, 'tool.requested', 'taskmaster', `调用 ${action.tool}`, {
+        action_id: action.action_id,
+        permission: action.permission,
+        permissions: actionPermissions(action),
+      });
       try {
         const result = await tool.execute(action.input, {
           request: session.request,
@@ -232,6 +271,10 @@ export class FrostHealthTaskmaster {
         });
         if (result.status === 'waiting_external') {
           action.status = 'waiting_external';
+          action.result = structuredClone({
+            ...result.data,
+            waiting_reason: result.message || 'external_dependency_unavailable',
+          });
           session.status = 'waiting_external';
           await this.persist(session);
           await this.trace(session, 'task.waiting', 'tool', result.message || '等待外部适配器', { action_id: action.action_id, tool: action.tool });
@@ -260,8 +303,16 @@ export class FrostHealthTaskmaster {
 
   private effectId(action: FrostTaskAction): string { return `effect:${action.action_id}`; }
 
-  private async prepareEffect(session: FrostTaskSession, action: FrostTaskAction): Promise<EffectRecord | null> {
-    if (!effectfulPermission(action.permission)) return null;
+  private async prepareEffect(
+    session: FrostTaskSession,
+    action: FrostTaskAction,
+    providerPermission: FrostTaskAction['permission'],
+  ): Promise<EffectRecord | null> {
+    // 普通 Provider 以自身合同为准；canvas.execute 是复合 Provider，副作用来自节点权限集。
+    const permission = providerPermission === 'run:skill'
+      ? actionEffectPermission(action)
+      : effectfulPermission(providerPermission) ? providerPermission : null;
+    if (!permission) return null;
     const id = this.effectId(action);
     const existing = await this.store.getEffect(id);
     if (existing) return existing;
@@ -273,7 +324,7 @@ export class FrostHealthTaskmaster {
       task_id: session.task_id,
       run_id: session.run_id,
       action_id: action.action_id,
-      permission: action.permission,
+      permission,
       status: 'proposed',
       input: structuredClone(action.input),
       event_ids: [],
@@ -281,7 +332,7 @@ export class FrostHealthTaskmaster {
       updated_at: now,
     };
     await this.store.saveEffect(effect);
-    await this.trace(session, 'effect.proposed', 'taskmaster', `登记副作用 ${action.tool}`, { effect_id: id, action_id: action.action_id, permission: action.permission });
+    await this.trace(session, 'effect.proposed', 'taskmaster', `登记副作用 ${action.tool}`, { effect_id: id, action_id: action.action_id, permission });
     effect.status = 'approved';
     effect.updated_at = new Date().toISOString();
     await this.store.saveEffect(effect);
@@ -372,10 +423,10 @@ export class FrostHealthTaskmaster {
     return task;
   }
 
-  private requireSkill(skillId: string): HealthSkillDefinition {
-    const skill = this.skills.load(skillId);
-    if (!skill) throw new Error(`skill_not_found:${skillId}`);
-    return skill;
+  private requireSkill(session: FrostTaskSession): HealthSkillDefinition {
+    const resolved = this.skills.resolveRequest(session.request);
+    if (resolved.skill.skill_id !== session.skill_id) throw new Error(`task_skill_mismatch:${session.skill_id}`);
+    return resolved.skill;
   }
 
   private async trace(session: FrostTaskSession, type: Parameters<typeof createTraceEvent>[0]['type'], actor: Parameters<typeof createTraceEvent>[0]['actor'], detail: string, data: JsonObject): Promise<void> {

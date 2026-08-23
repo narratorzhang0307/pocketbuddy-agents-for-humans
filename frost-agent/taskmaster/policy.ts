@@ -18,12 +18,14 @@ export function evaluateSafety(input: JsonObject): { safe: boolean; reason?: str
 }
 
 export function authorizeAction(skill: HealthSkillDefinition, action: FrostTaskAction): PolicyDecision {
-  if (!skill.permissions.includes(action.permission)) {
-    return { allowed: false, requires_confirmation: false, reason: `permission_not_declared:${action.permission}` };
+  const permissions = action.permissions?.length ? action.permissions : [action.permission];
+  const undeclared = permissions.find((permission) => !skill.permissions.includes(permission));
+  if (undeclared) {
+    return { allowed: false, requires_confirmation: false, reason: `permission_not_declared:${undeclared}` };
   }
   return {
     allowed: true,
-    requires_confirmation: action.requires_confirmation || ALWAYS_CONFIRM.has(action.permission),
+    requires_confirmation: action.requires_confirmation || permissions.some((permission) => ALWAYS_CONFIRM.has(permission)),
     reason: 'allowed_by_skill_manifest',
   };
 }

@@ -168,7 +168,7 @@ function validateNextAction(value: unknown, errors: string[]): value is NextActi
       break;
     case 'start_task':
       exactKeys(value, ['type', 'task_kind', 'input'], errors, 'next_action');
-      if (!['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review'].includes(String(value.task_kind))) {
+      if (!['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review', 'run_skill'].includes(String(value.task_kind))) {
         errors.push('task_kind 不受 Taskmaster 支持');
       }
       if (!isJsonObject(value.input)) errors.push('input 必须是 JSON 对象');

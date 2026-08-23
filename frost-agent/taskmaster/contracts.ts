@@ -59,6 +59,7 @@ export interface DeviceEvent {
 }
 
 export type SkillPermission =
+  | 'run:skill'
   | 'read:health_events'
   | 'write:health_events'
   | 'read:local_files'
@@ -77,6 +78,8 @@ export interface HealthSkillStep {
   tool: string;
   purpose: string;
   requires_confirmation: boolean;
+  /** 复合 Skill 可声明单个执行步骤涉及的全部权限。 */
+  permissions?: SkillPermission[];
 }
 
 export interface HealthSkillDefinition {
@@ -107,7 +110,8 @@ export type FrostTaskKind =
   | 'plan_run_route'
   | 'complete_run'
   | 'capture_nature'
-  | 'daily_review';
+  | 'daily_review'
+  | 'run_skill';
 
 export type FrostTaskStatus =
   | 'created'
@@ -135,6 +139,8 @@ export interface FrostTaskAction {
   purpose: string;
   input: JsonObject;
   permission: SkillPermission;
+  /** 旧 checkpoint 只有 permission；新的复合 Skill 同时保留完整权限集。 */
+  permissions?: SkillPermission[];
   requires_confirmation: boolean;
   status: 'pending' | 'waiting_confirmation' | 'waiting_external' | 'running' | 'completed' | 'failed' | 'skipped';
   result?: JsonObject;

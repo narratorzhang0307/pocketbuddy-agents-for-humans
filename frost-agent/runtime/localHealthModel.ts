@@ -7,6 +7,7 @@ import {
   type FrostAgentModelContext,
   type NextAction,
 } from './contracts';
+import type { FrostSkillCatalogItem, FrostSkillProvider } from './skillCatalog';
 
 function record(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -139,11 +140,46 @@ function route(text: string): { kind: FrostTaskKind; skill: string; input: JsonO
   return null;
 }
 
+function compact(value: string): string {
+  return value.toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu, '');
+}
+
+function catalogMatchScore(text: string, item: FrostSkillCatalogItem): number {
+  const candidate = compact(text);
+  const title = compact(item.title);
+  if (!candidate || !title) return 0;
+  let score = candidate.includes(title) ? 12 : title.includes(candidate) && candidate.length >= 4 ? 7 : 0;
+  for (const phrase of item.when_to_use) {
+    const normalized = compact(phrase);
+    if (normalized.length >= 3 && candidate.includes(normalized)) score = Math.max(score, 10);
+  }
+  if (candidate.includes(item.skill_id.toLocaleLowerCase())) score = Math.max(score, 12);
+  return score;
+}
+
+function routeCatalogSkill(text: string, provider?: FrostSkillProvider): ReturnType<typeof route> {
+  if (!provider) return null;
+  const ranked = provider.catalog()
+    .filter((item) => item.task_kind === 'run_skill')
+    .map((item) => ({ item, score: catalogMatchScore(text, item) }))
+    .sort((left, right) => right.score - left.score || left.item.skill_id.localeCompare(right.item.skill_id));
+  const match = ranked[0];
+  if (!match || match.score < 7) return null;
+  return {
+    kind: 'run_skill',
+    skill: match.item.skill_id,
+    input: { skill_id: match.item.skill_id, user_text: text.slice(0, 240) },
+    goal: `运行${match.item.title}`,
+  };
+}
+
 /** Deterministic offline control plane. It never invents observations and only emits Taskmaster-safe actions. */
 export class LocalHealthFallbackModel implements FrostAgentModelAdapter {
+  constructor(private readonly skills?: FrostSkillProvider) {}
+
   async decide(context: FrostAgentModelContext): Promise<FrostAgentDecision> {
     const text = userText(context.events);
-    const routed = route(text);
+    const routed = route(text) || routeCatalogSkill(text, this.skills);
     if (routed?.goal === 'safe_stop') return decision({ type: 'safe_stop', reason: '检测到危险身体信号，不开始运动。' }, '安全停止', ['用户文本包含危险信号']);
 
     const task = relevantTask(context.events, text);
@@ -162,6 +198,9 @@ export class LocalHealthFallbackModel implements FrostAgentModelAdapter {
       }
       if (task.status === 'waiting_external') {
         if (hasSignalAfterTask(context.events)) return decision({ type: 'call_tool', tool: 'taskmaster.get', arguments: { task_id: id } }, routed?.goal || '恢复任务', ['收到外部 Skill 完成信号']);
+        if (/(重试|恢复|继续|已连接|已授权|好了|可以了)/.test(text)) {
+          return decision({ type: 'call_tool', tool: 'taskmaster.resume', arguments: { task_id: id } }, routed?.goal || '恢复任务', ['用户确认外部条件已恢复']);
+        }
         return decision({ type: 'wait_external', reason: 'Taskmaster 正在等待 Skill 或设备结果。' }, routed?.goal || '等待外部结果', ['Taskmaster waiting_external']);
       }
       if (task.status === 'failed' || task.status === 'safe_stopped') {

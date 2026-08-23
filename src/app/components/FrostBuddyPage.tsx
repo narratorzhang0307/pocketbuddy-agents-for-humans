@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, Check, PackageOpen, Play, Workflow } from 'lucide-react';
-import { runGeneral } from '../../../frost-agent/agents/general';
-import { runFrostOrchestrator, type FrostPlan, type FrostPlanStep } from '../../../frost-agent/harness/skillRouter';
+import type { FrostPlan, FrostPlanStep } from '../../../frost-agent/harness/skillRouter';
 import { stageTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
 import { expertForSkill } from '../../../frost-agent/harness/expertRouter';
 import { answerFrostMemoryRecallRequest } from '../../../frost-agent/harness/longTermMemory';
@@ -55,8 +54,6 @@ const AUTO_DISPATCH_TARGETS = new Set([
 
 const FROST_DACHSHUND_AVATAR = '/assets/pocket-buddy/packages/holiday-christmas-dachshund/portrait-frost-no-hat-v2.png';
 const FROST_OPENING_LINE = '我是 Frost。你说目标，我会先在已装备的 Skills 里选择能力、列出计划和权限，再把任务交到正确入口；没有把握时，我不会擅自执行。';
-const HARNESS_HEALTH_TASK = /(瑜伽|普拉提|热身|健身|训练|运动|跑步|餐食|饮食|热量|营养|自然时刻|健康总结)/;
-
 const TASK_SKILL_UI: Record<string, { id: string; name: string; target: string }> = {
   'frost.run-route': { id: 'frost.run-route', name: '跑步路线规划', target: 'frost-run-route' },
   'frost.her-motion-warmup': { id: 'pocket.her-motion', name: 'Her Motion 热身', target: 'her-motion' },
@@ -86,7 +83,7 @@ function harnessPlan(result: FrostAgentRunResult, userText: string): FrostPlan |
     id: `${result.task.task_id}:step`, skillId: ui.id, skillName: ui.name, target: ui.target,
     objective: userText.slice(0, 240), reason: `Taskmaster 已选择 ${result.task.skill_id}`,
     availability: 'equipped',
-    permissions: result.task.actions.map((action) => action.permission),
+    permissions: [...new Set(result.task.actions.flatMap((action) => action.permissions?.length ? action.permissions : [action.permission]))],
     requiresConfirmation: result.task.status === 'waiting_confirmation',
   };
   return {
@@ -97,12 +94,21 @@ function harnessPlan(result: FrostAgentRunResult, userText: string): FrostPlan |
 
 function harnessReply(result: FrostAgentRunResult): string {
   const assistant = [...result.events].reverse().find((event) => event.type === 'assistant.message' && typeof event.data.text === 'string');
-  if (assistant && typeof assistant.data.text === 'string') return assistant.data.text;
-  if (!result.task) return result.session.status === 'failed' ? 'Taskmaster 没有安全完成这次决策。' : 'Frost 已处理这次目标。';
+  if (!result.task) {
+    if (assistant && typeof assistant.data.text === 'string') return assistant.data.text;
+    return result.session.status === 'failed' ? 'Taskmaster 没有安全完成这次决策。' : 'Frost 已处理这次目标。';
+  }
   if (result.task.status === 'waiting_confirmation') return 'Taskmaster 已准备好任务，需要你明确确认后继续。';
-  if (result.task.status === 'waiting_external') return `Taskmaster 已启动 ${TASK_SKILL_UI[result.task.skill_id]?.name || result.task.skill_id}，正在等待 Skill 返回真实结果。`;
+  if (result.task.status === 'waiting_external') {
+    const action = result.task.actions[result.task.next_action_index];
+    const reason = typeof action?.result?.waiting_reason === 'string'
+      ? action.result.waiting_reason
+      : `正在等待 ${action?.tool || '外部 Provider'} 返回真实结果`;
+    return `Taskmaster 已暂停在「${action?.purpose || action?.tool || '当前步骤'}」：${reason}。恢复后对我说“继续”。`;
+  }
   if (result.task.status === 'completed') return 'Taskmaster 已完成任务，并只写入了经过校验的事实。';
   if (result.task.status === 'failed' || result.task.status === 'safe_stopped') return `Taskmaster 已停止：${result.task.error || result.task.status}`;
+  if (assistant && typeof assistant.data.text === 'string') return assistant.data.text;
   return `Taskmaster 正在处理 ${TASK_SKILL_UI[result.task.skill_id]?.name || result.task.skill_id}。`;
 }
 
@@ -200,7 +206,6 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
     const text = (preset ?? input).trim();
     if (!text || busy) return;
     setInput('');
-    const history = turns.map((t) => ({ role: t.role, text: t.text }));
     setTurns((t) => [...t, { role: 'user', text }]);
     setBusy(true);
     try {
@@ -214,50 +219,32 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
         pulse('celebrate', 1200);
         return;
       }
-      if (HARNESS_HEALTH_TASK.test(text)) {
-        const runAt = dailyGoalRunAt(text);
-        if (runAt) {
-          const goalId = await scheduleFrostAgentGoal({
-            objective: text.replace(/^每天(?:早上|上午|中午|下午|晚上)?\s*\d{0,2}\s*点?/, '').trim() || text,
-            run_at: runAt,
-            interval_ms: 24 * 60 * 60 * 1000,
-            max_rounds: 30,
-          });
-          setTurns((t) => [...t, {
-            role: 'frost',
-            text: `已创建本地自主目标。Frost 会在 ${new Date(runAt).toLocaleString()} 由 Goal Driver 唤醒，最多执行 30 轮。`,
-            trace: [`GOAL · ${goalId}`, 'SCHEDULE · 24H', 'BUDGET · 30 ROUNDS'],
-          }]);
-          pulse('celebrate', 1600);
-          return;
-        }
-        const result = await sendFrostAgentMessage(text);
-        const plan = harnessPlan(result, text);
-        setTurns((t) => [...t, { role: 'frost', text: harnessReply(result), trace: harnessTrace(result), plan, userText: text }]);
-        setTheme(themeFor(text, 'general'));
-        pulse(result.session.status === 'failed' ? 'dizzy' : 'celebrate', 1600);
-        const step = plan?.steps[0];
-        if (result.task?.status === 'waiting_external' && step && AUTO_DISPATCH_TARGETS.has(step.target) && onRun) {
-          stageTaskHandoff(plan!, step, text, result.task.task_id);
-          onRun(step.target);
-        }
+      const runAt = dailyGoalRunAt(text);
+      if (runAt) {
+        const goalId = await scheduleFrostAgentGoal({
+          objective: text.replace(/^每天(?:早上|上午|中午|下午|晚上)?\s*\d{0,2}\s*点?/, '').trim() || text,
+          run_at: runAt,
+          interval_ms: 24 * 60 * 60 * 1000,
+          max_rounds: 30,
+        });
+        setTurns((t) => [...t, {
+          role: 'frost',
+          text: `已创建本地自主目标。Frost 会在 ${new Date(runAt).toLocaleString()} 由 Goal Driver 唤醒，最多执行 30 轮。`,
+          trace: [`GOAL · ${goalId}`, 'SCHEDULE · 24H', 'BUDGET · 30 ROUNDS'],
+        }]);
+        pulse('celebrate', 1600);
         return;
       }
-      const routed = await runFrostOrchestrator({ now: new Date(), surface: 'frost', userText: text, history });
-      if (routed.plan) {
-        setTurns((t) => [...t, { role: 'frost', text: routed.reply, trace: routed.trace, plan: routed.plan!, userText: text }]);
-        setTheme(themeFor(text, 'general'));
-        pulse('celebrate', 1800);
-        const autoStep = routed.plan.mode === 'single'
-          ? routed.plan.steps.find((step) => step.availability === 'equipped' && AUTO_DISPATCH_TARGETS.has(step.target))
-          : undefined;
-        if (autoStep && onRun) {
-          await handoffStep(routed.plan, autoStep, text);
-        }
-      } else {
-        const answered = await runGeneral({ now: new Date(), surface: 'frost', userText: text, history });
-        setTurns((t) => [...t, { role: 'frost', text: answered.reply, trace: [...(routed.trace || []), ...(answered.trace || [])] }]);
-        setTheme(themeFor(text, 'general'));
+
+      const result = await sendFrostAgentMessage(text);
+      const plan = harnessPlan(result, text);
+      setTurns((t) => [...t, { role: 'frost', text: harnessReply(result), trace: harnessTrace(result), plan, userText: text }]);
+      setTheme(themeFor(text, 'general'));
+      pulse(result.session.status === 'failed' ? 'dizzy' : 'celebrate', 1600);
+      const step = plan?.steps[0];
+      if (result.task?.status === 'waiting_external' && step && AUTO_DISPATCH_TARGETS.has(step.target) && onRun) {
+        stageTaskHandoff(plan!, step, text, result.task.task_id);
+        onRun(step.target);
       }
     } catch {
       setTurns((t) => [...t, { role: 'frost', text: '我这边断了一下，再说一遍？' }]);

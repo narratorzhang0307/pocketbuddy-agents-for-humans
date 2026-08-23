@@ -27,7 +27,7 @@ function taskRequest(value: unknown): FrostTaskRequest {
   return structuredClone(request);
 }
 
-const TASK_KINDS = new Set<FrostTaskKind>(['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review']);
+const TASK_KINDS = new Set<FrostTaskKind>(['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review', 'run_skill']);
 
 function taskKind(value: unknown): FrostTaskKind {
   if (typeof value !== 'string' || !TASK_KINDS.has(value as FrostTaskKind)) throw new Error('invalid_taskmaster_kind');
@@ -54,6 +54,7 @@ function hasExecutionConsent(events: FrostAgentEvent[], kind: FrostTaskKind): bo
   if (!text) return false;
   const explicitAction = /(打开|开始|带我|直接|帮我|给我|记录|拍|运行|执行|做\s*\d*|来一组)/i.test(text);
   if (!explicitAction) return false;
+  if (kind === 'run_skill') return true;
   if (kind === 'start_workout') return /(瑜伽|普拉提|热身|运动|健身|训练)/i.test(text);
   if (kind === 'plan_run_route') return /(跑步|慢跑|路线|导航|公里|分钟)/i.test(text);
   if (kind === 'log_meal') return /(饭|餐|食物|饮食|热量|营养)/i.test(text);
@@ -109,6 +110,16 @@ export function createTaskmasterAgentTools(taskmaster: FrostHealthTaskmaster): F
         const session = await taskmaster.get(input.task_id);
         if (session) return { status: 'success', data: { task: taskData(session) } };
         return { status: 'error', data: { task_id: input.task_id }, message: 'task_not_found' };
+      },
+    },
+    {
+      name: 'taskmaster.resume',
+      description: '在 Provider、网络或权限恢复后，从原 Taskmaster checkpoint 重试当前动作。',
+      read_only: false,
+      risk: 'medium',
+      async execute(input): Promise<FrostAgentToolResult> {
+        if (typeof input.task_id !== 'string' || !input.task_id) throw new Error('task_id_required');
+        return resultFor(await taskmaster.resume(input.task_id));
       },
     },
     {
