@@ -42,7 +42,7 @@ describe('PWA Frost Agent Runtime', () => {
       method: 'POST',
       headers: expect.objectContaining({ authorization: 'Bearer fitness-token' }),
       body: JSON.stringify({ prompt: 'decide next', json: true, task: 'fitness-agent-decision' }),
-      signal,
+      signal: expect.any(AbortSignal),
     }));
   });
 

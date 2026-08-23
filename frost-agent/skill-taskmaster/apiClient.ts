@@ -29,6 +29,7 @@ export interface PocketBuddyApiClientOptions {
   getIdToken: () => Promise<string>;
   fetchImpl?: typeof fetch;
   signal?: AbortSignal;
+  timeoutMs?: number;
 }
 
 export class SkillApiError extends Error {
@@ -42,16 +43,30 @@ function trimBaseUrl(value: string): string {
   return value.replace(/\/+$/, '');
 }
 
+const DEFAULT_TIMEOUT_MS = 65_000;
+
 export function createPocketBuddyApiClient(options: PocketBuddyApiClientOptions) {
   const fetchImpl = options.fetchImpl || fetch;
   const baseUrl = trimBaseUrl(options.baseUrl || '');
 
+  async function fetchWithDeadline(input: RequestInfo | URL, init: RequestInit = {}): Promise<Response> {
+    const callerSignal = init.signal || options.signal;
+    const timeoutSignal = AbortSignal.timeout(options.timeoutMs ?? DEFAULT_TIMEOUT_MS);
+    const signal = callerSignal ? AbortSignal.any([callerSignal, timeoutSignal]) : timeoutSignal;
+    try {
+      return await fetchImpl(input, { ...init, signal });
+    } catch (error) {
+      if (callerSignal?.aborted) throw new SkillApiError('request_cancelled', '技能请求已取消。', 499);
+      if (timeoutSignal.aborted) throw new SkillApiError('request_timeout', '技能服务响应超时，请稍后重试。', 408);
+      throw error;
+    }
+  }
+
   async function request<T>(path: string, init: RequestInit): Promise<T> {
     const token = await options.getIdToken();
     if (!token) throw new SkillApiError('unauthenticated', '还没有可用的 Firebase 身份，技能已暂停。', 401);
-    const response = await fetchImpl(`${baseUrl}${path}`, {
+    const response = await fetchWithDeadline(`${baseUrl}${path}`, {
       ...init,
-      signal: init.signal || options.signal,
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${token}`,
@@ -71,7 +86,7 @@ export function createPocketBuddyApiClient(options: PocketBuddyApiClientOptions)
 
   return {
     async health(): Promise<PocketBuddyHealthResponse> {
-      const response = await fetchImpl(`${baseUrl}/v1/healthz`, { signal: options.signal });
+      const response = await fetchWithDeadline(`${baseUrl}/v1/healthz`);
       if (!response.ok) throw new SkillApiError('backend_unavailable', '技能后端尚未就绪。', response.status);
       return response.json() as Promise<PocketBuddyHealthResponse>;
     },

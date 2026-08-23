@@ -41,7 +41,7 @@ describe('服务端健康解释控制面', () => {
       method: 'POST',
       headers: expect.objectContaining({ authorization: 'Bearer health-token' }),
       body: expect.stringContaining('"task":"health-decision-explanation"'),
-      signal,
+      signal: expect.any(AbortSignal),
     }));
   });
 
