@@ -41,7 +41,12 @@ afterEach(async () => { await app.close(); });
 
 describe('pocketbuddy-api Skill Taskmaster slice', () => {
   it('keeps healthz public and protects business routes', async () => {
-    expect((await app.inject({ method: 'GET', url: '/v1/healthz' })).statusCode).toBe(200);
+    const health = await app.inject({ method: 'GET', url: '/v1/healthz' });
+    expect(health.statusCode).toBe(200);
+    expect(health.json().capabilities).toEqual({
+      llm_generate: { ready: true, provider: 'injected' },
+      health_event_sync: { ready: true, provider: 'repository' },
+    });
     const denied = await app.inject({ method: 'POST', url: '/v1/llm/generate', payload: { prompt: 'hello' } });
     expect(denied.statusCode).toBe(401);
     expect(denied.json().error.code).toBe('unauthenticated');

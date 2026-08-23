@@ -15,7 +15,15 @@ export interface PocketBuddyApiDependencies {
 
 export function createPocketBuddyApi(dependencies: PocketBuddyApiDependencies): FastifyInstance {
   const app = Fastify({ logger: dependencies.logger ?? false, bodyLimit: 1_000_000 });
-  app.get('/v1/healthz', async () => ({ ok: true, service: 'pocketbuddy-api', version: '0.1.0' }));
+  app.get('/v1/healthz', async () => ({
+    ok: true,
+    service: 'pocketbuddy-api',
+    version: '0.1.0',
+    capabilities: {
+      llm_generate: dependencies.llm.readiness?.() || { ready: true, provider: 'injected' },
+      health_event_sync: { ready: true, provider: 'repository' },
+    },
+  }));
   registerLlmRoute(app, dependencies.verifyToken, dependencies.llm);
   registerHealthEventRoutes(app, dependencies.verifyToken, dependencies.healthEvents);
   app.setNotFoundHandler((_request, reply) => sendError(reply, 404, 'not_found', 'route not found'));

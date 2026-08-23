@@ -28,12 +28,36 @@ export interface SkillRuntimeDependencies {
   createId?: (prefix: string) => string;
   onTrace?: (trace: SkillRunTrace) => void | Promise<void>;
   signal?: AbortSignal;
+  retryDelayMs?: number;
+}
+
+interface SkillRuntimeErrorOptions {
+  retryable?: boolean;
+  suggestedAction?: string;
+  attempts?: number;
+}
+
+function defaultRuntimeAction(code: string): string {
+  if (code === 'permission_denied') return '在宿主权限设置中允许该能力，再由用户重新启动。';
+  if (code === 'capability_unavailable') return '安装或连接该能力的 Provider，或从技能图中移除该模块。';
+  if (code === 'cancelled') return '若需继续，请从结构检查页重新开始一次新运行。';
+  if (code === 'safety_stop') return '先处理安全信号；系统不会自动越过安全门。';
+  if (code.startsWith('health_event_')) return '本地 Evidence 已保留；网络或冲突解决后重试事实同步。';
+  if (code === 'graph_hash_mismatch') return '返回技能画布重新编译，不要继续运行被改动的 Graph。';
+  return '检查模块配置与 Provider 状态后重试；若仍失败，替换该能力模块。';
 }
 
 export class SkillRuntimeError extends Error {
-  constructor(readonly code: string, message: string) {
+  readonly retryable: boolean;
+  readonly suggestedAction: string;
+  readonly attempts: number;
+
+  constructor(readonly code: string, message: string, options: SkillRuntimeErrorOptions = {}) {
     super(message);
     this.name = 'SkillRuntimeError';
+    this.retryable = options.retryable === true;
+    this.suggestedAction = options.suggestedAction || defaultRuntimeAction(code);
+    this.attempts = options.attempts || 1;
   }
 }
 
@@ -86,12 +110,84 @@ function initialTrace(graph: CompiledSkillGraph, runId: string, now: Date, mode:
       provider: CAPABILITY_CATALOG[node.capability].provider,
       evidence: mode === 'preview' ? 'PREVIEW ONLY · 已检查合同、端口、权限和 Provider Binding，未读取真实数据' : '等待上一步',
       started_at: now.toISOString(),
+      attempts: 0,
       ...(mode === 'preview' ? { completed_at: now.toISOString() } : {}),
     })),
     note: mode === 'preview'
       ? '结构检查已完成，未把 preview 冒充为真实运行。'
       : `正在执行用户刚编译的 Graph ${graph.graph_hash.slice(0, 20)}…`,
   };
+}
+
+const RETRYABLE_CAPABILITIES = new Set<CompiledSkillNode['capability']>([
+  'sensor.health',
+  'model.gemma',
+  'model.pose',
+]);
+
+function normalizeRuntimeError(error: unknown, node: CompiledSkillNode): SkillRuntimeError {
+  if (error instanceof SkillRuntimeError) return error;
+  const candidate = error as { code?: unknown; status?: unknown; message?: unknown } | null;
+  const code = typeof candidate?.code === 'string' ? candidate.code : 'provider_failed';
+  const status = typeof candidate?.status === 'number' ? candidate.status : 0;
+  const message = error instanceof Error ? error.message : '能力执行失败';
+  const transientStatus = status === 408 || status === 429 || status >= 500;
+  const retryable = RETRYABLE_CAPABILITIES.has(node.capability)
+    && (transientStatus || status === 0)
+    && code !== 'unauthenticated';
+  return new SkillRuntimeError(code, message, {
+    retryable,
+    suggestedAction: retryable
+      ? '系统已尝试自动重试；仍失败时请检查 Provider 或网络后再运行。'
+      : defaultRuntimeAction(code),
+  });
+}
+
+async function retryDelay(milliseconds: number, signal?: AbortSignal): Promise<void> {
+  if (milliseconds <= 0) {
+    throwIfCancelled(signal);
+    return;
+  }
+  await new Promise<void>((resolve, reject) => {
+    const cancel = () => {
+      clearTimeout(timer);
+      signal?.removeEventListener('abort', cancel);
+      reject(new SkillRuntimeError('cancelled', '用户已取消这次技能运行。'));
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', cancel);
+      resolve();
+    }, milliseconds);
+    signal?.addEventListener('abort', cancel, { once: true });
+  });
+}
+
+async function runNodeWithRecovery(
+  graph: CompiledSkillGraph,
+  node: CompiledSkillNode,
+  context: SkillExecutionContext,
+  dependencies: SkillRuntimeDependencies,
+  runId: string,
+): Promise<{ context: SkillExecutionContext; evidence: string; provider: string; attempts: number }> {
+  const maximumAttempts = RETRYABLE_CAPABILITIES.has(node.capability) ? 2 : 1;
+  for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
+    throwIfCancelled(dependencies.signal);
+    try {
+      const result = await runNode(graph, node, context, dependencies, runId);
+      return { ...result, attempts: attempt };
+    } catch (error) {
+      const normalized = normalizeRuntimeError(error, node);
+      if (!normalized.retryable || attempt >= maximumAttempts) {
+        throw new SkillRuntimeError(normalized.code, normalized.message, {
+          retryable: normalized.retryable,
+          suggestedAction: normalized.suggestedAction,
+          attempts: attempt,
+        });
+      }
+      await retryDelay(dependencies.retryDelayMs ?? 300, dependencies.signal);
+    }
+  }
+  throw new SkillRuntimeError('provider_failed', '能力执行失败。');
 }
 
 export function previewSkillGraph(graph: CompiledSkillGraph, now = new Date()): SkillRunTrace {
@@ -212,44 +308,68 @@ export async function executeSkillGraph(graph: CompiledSkillGraph, dependencies:
   await emit(trace, dependencies);
 
   for (let index = 0; index < graph.nodes.length; index += 1) {
-    throwIfCancelled(dependencies.signal);
+    if (dependencies.signal?.aborted) {
+      trace = {
+        ...trace,
+        status: 'cancelled',
+        completed_at: now().toISOString(),
+        note: '用户已取消这次运行；未开始的模块均未执行。',
+        steps: trace.steps.map((step, stepIndex) => stepIndex >= index
+          ? { ...step, status: 'skipped', evidence: '用户取消，未执行' }
+          : step),
+      };
+      await emit(trace, dependencies);
+      return trace;
+    }
     const node = graph.nodes[index];
     const startedAt = now().toISOString();
     trace = {
       ...trace,
       steps: trace.steps.map((step, stepIndex) => stepIndex === index
-        ? { ...step, status: 'running', started_at: startedAt, evidence: `RUNNING · ${node.provider_binding}` }
+        ? { ...step, status: 'running', started_at: startedAt, attempts: 1, evidence: `RUNNING · ${node.provider_binding}` }
         : step),
     };
     await emit(trace, dependencies);
     try {
-      const result = await runNode(graph, node, context, dependencies, runId);
+      const result = await runNodeWithRecovery(graph, node, context, dependencies, runId);
       context = result.context;
       const completedAt = now().toISOString();
       const completedStep: SkillRunStep = {
         ...trace.steps[index],
         status: 'completed',
         provider: result.provider,
-        evidence: result.evidence,
+        attempts: result.attempts,
+        evidence: result.attempts > 1 ? `RECOVERED AFTER ${result.attempts} ATTEMPTS · ${result.evidence}` : result.evidence,
         completed_at: completedAt,
         output: jsonObject(context),
       };
       trace = { ...trace, steps: trace.steps.map((step, stepIndex) => stepIndex === index ? completedStep : step) };
       await emit(trace, dependencies);
     } catch (error) {
-      const runtimeError = error instanceof SkillRuntimeError
-        ? error
-        : new SkillRuntimeError('provider_failed', error instanceof Error ? error.message : '能力执行失败');
+      const runtimeError = normalizeRuntimeError(error, node);
       const status = runtimeError.code === 'safety_stop'
         ? 'safe_stopped'
-        : runtimeError.code === 'permission_denied' ? 'waiting_permission' : 'failed';
+        : runtimeError.code === 'permission_denied' ? 'waiting_permission'
+          : runtimeError.code === 'cancelled' ? 'cancelled' : 'failed';
       trace = {
         ...trace,
         status,
         completed_at: now().toISOString(),
         note: runtimeError.message,
         steps: trace.steps.map((step, stepIndex) => stepIndex === index
-          ? { ...step, status: 'blocked', completed_at: now().toISOString(), evidence: `BLOCKED · ${runtimeError.code}`, error: { code: runtimeError.code, message: runtimeError.message } }
+          ? {
+            ...step,
+            status: 'blocked',
+            attempts: runtimeError.attempts,
+            completed_at: now().toISOString(),
+            evidence: `${runtimeError.code === 'cancelled' ? 'CANCELLED' : 'BLOCKED'} · ${runtimeError.code}`,
+            error: {
+              code: runtimeError.code,
+              message: runtimeError.message,
+              retryable: runtimeError.retryable,
+              suggested_action: runtimeError.suggestedAction,
+            },
+          }
           : stepIndex > index ? { ...step, status: 'skipped', evidence: '上游未完成，未执行' } : step),
       };
       await emit(trace, dependencies);

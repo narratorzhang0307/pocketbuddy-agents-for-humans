@@ -7,6 +7,7 @@ import {
 import {
   CAPABILITY_CATALOG, CAPABILITY_DEFINITIONS, compileSkillDraft, createBrowserSkillRuntimeDependencies,
   executeStoredSkillGraph, getCanvasSkill, persistCompiledGraph, preflightBrowserSkillRuntime, saveCanvasSkill,
+  SkillRuntimeError,
   type CompiledSkillGraph, type SkillBlockCapability, type SkillCanvasDraft,
   type SkillCanvasNode, type SkillRunTrace,
 } from '../../../frost-agent/skill-taskmaster';
@@ -18,6 +19,7 @@ interface Props { skillId?: string | null; onSaved?: () => void }
 
 type CardFamily = '启动条件' | '数据输入' | '处理与模型' | '流程控制' | '动作输出' | '状态与证据';
 type DragSource = { kind: 'library'; capability: SkillBlockCapability } | { kind: 'slot'; nodeId: string };
+type RuntimeNotice = { key: string; message: string; action?: string };
 
 interface AbilityBlock {
   capability: SkillBlockCapability; number: string; label: string; detail: string; family: CardFamily;
@@ -102,7 +104,7 @@ function RunStatus({ trace }: { trace: SkillRunTrace }) {
     return <div key={step.node_id} className={`relative grid grid-cols-[34px_1fr_auto] items-center gap-2 border-2 px-2.5 py-2.5 transition-all duration-300 ${completed ? 'border-black bg-white' : active ? 'translate-x-1 border-black bg-[#fff0b5]' : blocked ? 'border-[#b3261e] bg-[#fff0ed]' : 'border-black/15 bg-white/40 text-black/30'}`}>
       {index < trace.steps.length - 1 && <span className="absolute left-[25px] top-[42px] h-4 border-l-2 border-dashed border-black/25" />}
       <span className={`grid h-8 w-8 place-items-center rounded-full border-2 ${completed ? 'border-black bg-[#00ff88]' : active ? 'border-black bg-[#ffd34e]' : blocked ? 'border-[#b3261e] bg-white' : 'border-black/15 bg-white'}`}>{completed ? <Check className="h-4 w-4" strokeWidth={3} /> : active ? <Footprints className="h-4 w-4 animate-pulse" /> : blocked ? <X className="h-4 w-4" /> : <span className="font-pixel text-[6px]">{String(index + 1).padStart(2, '0')}</span>}</span>
-      <span><b className="block text-[10px]">{step.label}</b><small className="mt-0.5 block text-[7px] leading-relaxed text-black/45">{step.evidence}</small></span>
+      <span><b className="block text-[10px]">{step.label}{step.attempts > 1 ? ` · ${step.attempts} 次尝试` : ''}</b><small className="mt-0.5 block text-[7px] leading-relaxed text-black/45">{step.evidence}</small>{step.error && <small className="mt-1 block text-[7px] leading-relaxed text-[#8b1c16]">{step.error.message}<br />建议：{step.error.suggested_action}</small>}</span>
       <span className="font-pixel text-[5px]">{completed ? '完成' : active ? '当前' : blocked ? '阻断' : step.status === 'skipped' ? '跳过' : '待执行'}</span>
     </div>;
   })}</div>;
@@ -240,7 +242,7 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
   const [compiled, setCompiled] = useState<CompiledSkillGraph | null>(null);
   const [trace, setTrace] = useState<SkillRunTrace | null>(null);
   const [running, setRunning] = useState(false);
-  const [runtimeIssues, setRuntimeIssues] = useState<string[]>([]);
+  const [runtimeIssues, setRuntimeIssues] = useState<RuntimeNotice[]>([]);
   const [saved, setSaved] = useState(false);
   const [deckEdges, setDeckEdges] = useState({ left: true, right: false });
   const [comboExpanded, setComboExpanded] = useState(false);
@@ -347,7 +349,10 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     if (!result.ok || !result.graph) return;
     setRuntimeIssues([]);
     const issues = await preflightBrowserSkillRuntime(result.graph);
-    if (issues.length) { setRuntimeIssues(issues); return; }
+    if (issues.some((issue) => issue.severity === 'blocking')) {
+      setRuntimeIssues(issues.map((issue, index) => ({ key: `${issue.code}-${issue.node_id || index}`, message: issue.message, action: issue.suggested_action })));
+      return;
+    }
     await persistCompiledGraph(result.graph);
     const controller = new AbortController();
     runAbortRef.current?.abort();
@@ -361,7 +366,11 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
       );
       setTrace(nextTrace);
     } catch (error) {
-      setRuntimeIssues([error instanceof Error ? error.message : '技能运行失败']);
+      setRuntimeIssues([{
+        key: error instanceof SkillRuntimeError ? error.code : 'runtime-failed',
+        message: error instanceof Error ? error.message : '技能运行失败',
+        ...(error instanceof SkillRuntimeError ? { action: error.suggestedAction } : {}),
+      }]);
     } finally {
       setRunning(false);
     }
@@ -440,6 +449,20 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
             <div className="flex items-center justify-between"><span><b className="block text-[9px]">技能图构建检查</b><small className="mt-0.5 block text-[7px] text-black/45">结构化前先满足最小可执行合同</small></span><Sparkles className="h-4 w-4" /></div>
             <div className="mt-2 grid grid-cols-3 gap-1.5">{buildChecks.map((check) => <span key={check.label} className={`flex min-h-[34px] items-center justify-center rounded-[9px] border border-black px-1 text-center text-[6px] font-black ${check.ok ? 'bg-[#a8c99c]' : 'bg-white text-black/35'}`}>{check.ok ? '✓ ' : '○ '}{check.label}</span>)}</div>
           </div>
+          {compileResult.repairs.length > 0 && <div role="status" className="mt-2 rounded-[14px] border-2 border-[#2f6d44] bg-[#e9f7e9] p-2.5">
+            <b className="text-[9px] text-[#245335]">Frost 已安全自动修复</b>
+            {compileResult.repairs.map((repair, index) => <p key={`${repair.code}-${index}`} className="mt-1 text-[7px] leading-relaxed text-[#245335]">· {repair.message}</p>)}
+            <small className="mt-1.5 block text-[6px] leading-relaxed text-[#245335]/70">只修复 ID、参数范围和连线；不会自动增加权限或副作用。</small>
+          </div>}
+          {compileResult.issues.length > 0 && <div role="alert" className="mt-2 rounded-[14px] border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">
+            <b className="text-[9px] text-[#8b1c16]">编译已阻断 · 需要你确认</b>
+            {compileResult.issues.map((issue, index) => <div key={`${issue.code}-${issue.node_id || index}`} className="mt-2 border-t border-[#b3261e]/20 pt-2 first:mt-1 first:border-0 first:pt-0">
+              <p className="text-[7px] font-black leading-relaxed text-[#8b1c16]">· {issue.message}</p>
+              <p className="mt-0.5 text-[6px] leading-relaxed text-[#8b1c16]/70">建议：{issue.suggested_action}</p>
+              {issue.code === 'missing_trigger' && <button type="button" onClick={() => addBlock('trigger.manual', 0)} className="mt-1.5 rounded-full border-2 border-black bg-[#ffd34e] px-2.5 py-1 text-[7px] font-black">添加手动启动</button>}
+              {issue.code === 'missing_outcome' && <div className="mt-1.5 flex flex-wrap gap-1.5"><button type="button" onClick={() => addBlock('action.voice')} className="rounded-full border-2 border-black bg-white px-2.5 py-1 text-[7px] font-black">添加语音通知</button><button type="button" onClick={() => addBlock('state.skill_completed')} className="rounded-full border-2 border-black bg-[#ffd34e] px-2.5 py-1 text-[7px] font-black">添加完成与证据</button></div>}
+            </div>)}
+          </div>}
         </section>
 
         <section className="border-t-2 border-black bg-[#fff9e8] px-3 py-3">
@@ -484,14 +507,14 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
         {compileResult.issues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[10px] text-[#8b1c16]">还差一点</b>{compileResult.issues.map((issue) => <p key={`${issue.code}-${issue.node_id || ''}`} className="mt-1 text-[8px] text-[#8b1c16]">· {issue.message}</p>)}</div>}
         <div className="mt-3 border-2 border-black bg-[#fff9e8] p-2.5"><div className="flex items-center justify-between"><span><b className="block font-pixel text-[7px]">权限边界</b><small className="mt-1 block text-[7px] text-black/45">运行到对应步骤时才请求</small></span><ShieldCheck className="h-5 w-5" /></div><div className="mt-2 flex flex-wrap gap-1.5">{compileResult.graph?.permissions.map((permission) => <span key={permission} className="border border-black bg-white px-2 py-1 text-[7px] font-bold">{PERMISSION_LABEL[permission] || permission}</span>) || <span className="text-[7px] text-black/40">修复上方问题后生成权限清单</span>}</div></div>
         {compileResult.graph && <div className="mt-3 border-2 border-black bg-[#191a17] p-2.5 text-[#f8f1e3]"><small className="font-pixel text-[5px] text-[#7CFF6B]">不可变执行物 · IMMUTABLE GRAPH</small><code className="mt-1.5 block break-all font-mono text-[7px] text-white/70">{compileResult.graph.graph_id}<br />{compileResult.graph.graph_hash}</code></div>}
-        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[9px] text-[#8b1c16]">真实运行前还差这些</b>{runtimeIssues.map((issue) => <p key={issue} className="mt-1 text-[7px] leading-relaxed text-[#8b1c16]">· {issue}</p>)}</div>}
+        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[9px] text-[#8b1c16]">真实运行前还差这些</b>{runtimeIssues.map((issue) => <div key={issue.key} className="mt-1.5 text-[7px] leading-relaxed text-[#8b1c16]"><p>· {issue.message}</p>{issue.action && <p className="pl-2 text-[#8b1c16]/70">建议：{issue.action}</p>}</div>)}</div>}
         <p className="mt-3 px-1 text-[8px] leading-relaxed text-black/55">下一步会读取这份 Graph 的精确 Hash，按节点请求真实权限和 Provider。缺能力时会停止，不会用 preview 或伪数据冒充成功。</p>
       </section>}
 
       {stage === 'run' && <section className="px-3 py-3">
-        <div className={`mb-3 border-[3px] border-black p-3 ${trace?.status === 'completed' ? 'bg-[#00ff88]' : trace && ['failed', 'safe_stopped', 'waiting_permission'].includes(trace.status) ? 'bg-[#fff0ed]' : 'bg-[#fff0b5]'}`}><div className="flex items-start justify-between gap-3"><span><small className="font-pixel text-[6px]">SKILL TASKMASTER · 真实运行</small><h2 className="mt-1 text-[20px] font-black">{trace?.status === 'completed' ? '整条链路已跑通' : trace && trace.status !== 'running' ? '运行已停止' : '正在执行这张技能图'}</h2><p className="mt-1 text-[8px] leading-relaxed text-black/55">{trace?.note || '正在从 IndexedDB 重读 Graph 并校验 Hash…'}</p></span><span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-black ${trace?.status === 'completed' ? 'bg-white' : 'bg-[#ffd34e]'}`}>{trace?.status === 'completed' ? <Check className="h-6 w-6" strokeWidth={3} /> : running ? <Footprints className="h-6 w-6 animate-pulse" /> : <X className="h-6 w-6" />}</span></div></div>
+        <div className={`mb-3 border-[3px] border-black p-3 ${trace?.status === 'completed' ? 'bg-[#00ff88]' : trace && ['failed', 'safe_stopped', 'waiting_permission', 'cancelled'].includes(trace.status) ? 'bg-[#fff0ed]' : 'bg-[#fff0b5]'}`}><div className="flex items-start justify-between gap-3"><span><small className="font-pixel text-[6px]">SKILL TASKMASTER · 真实运行</small><h2 className="mt-1 text-[20px] font-black">{trace?.status === 'completed' ? '整条链路已跑通' : trace && trace.status !== 'running' ? '运行已停止' : '正在执行这张技能图'}</h2><p className="mt-1 text-[8px] leading-relaxed text-black/55">{trace?.note || '正在从 IndexedDB 重读 Graph 并校验 Hash…'}</p></span><span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-black ${trace?.status === 'completed' ? 'bg-white' : 'bg-[#ffd34e]'}`}>{trace?.status === 'completed' ? <Check className="h-6 w-6" strokeWidth={3} /> : running ? <Footprints className="h-6 w-6 animate-pulse" /> : <X className="h-6 w-6" />}</span></div></div>
         {trace ? <RunStatus trace={trace} /> : <div className="grid min-h-[180px] place-items-center border-2 border-dashed border-black/30 bg-white/50 text-center"><span><Footprints className="mx-auto h-7 w-7 animate-pulse" /><small className="mt-2 block font-pixel text-[6px]">加载不可变 GRAPH</small></span></div>}
-        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">{runtimeIssues.map((issue) => <p key={issue} className="text-[8px] text-[#8b1c16]">· {issue}</p>)}</div>}
+        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">{runtimeIssues.map((issue) => <div key={issue.key} className="text-[8px] text-[#8b1c16]"><p>· {issue.message}</p>{issue.action && <p className="pl-2 text-[7px] text-[#8b1c16]/70">建议：{issue.action}</p>}</div>)}</div>}
         {trace?.status === 'completed' && <div className="mt-3 border-[3px] border-black bg-[#00ff88] p-3"><small className="font-pixel text-[6px]">HASH 一致 · {compiled?.nodes.length || 0} 个真实步骤 · {compiled?.permissions.length || 0} 项权限</small><h3 className="mt-1.5 text-[17px] font-black">{saved ? '已经装进我的技能' : '保存成你的技能'}</h3><p className="mt-1 text-[8px] leading-relaxed text-black/55">{saved ? '以后可以从“我的技能”打开、修改和再次运行。' : 'Graph、Run Trace 与 Evidence 已在本机按同一 Hash 存档；云端只收到 skill_completed 事实。'}</p><button type="button" disabled={saved} onClick={save} className="mt-3 flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px] disabled:bg-white/60 disabled:text-black/45">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saved ? '已保存到我的技能' : '保存到我的技能'}</button></div>}
       </section>}
     </div>

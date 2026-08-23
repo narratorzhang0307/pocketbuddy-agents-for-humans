@@ -1,6 +1,6 @@
 # Pocket Buddy Skill Taskmaster 统一协议与前后端协同规范
 
-> **版本**：v1.1 · 2026-08-21  
+> **版本**：v1.2 · 2026-08-23
 > **用途**：定义 Skill Taskmaster 如何把可视化能力卡牌编译为可真实执行、可恢复、可审计的 Skill Graph，并约束它与 Pocket Buddy 现有前端、端侧 Runtime 和云端 API 的协作方式。  
 > **适用对象**：产品、前端、端侧 Runtime、后端、测试，以及协助生成代码的 LLM。
 
@@ -452,6 +452,25 @@ flowchart LR
 - `npm run typecheck`、`npm test` 和 `npm run build` 同时覆盖 Web 与 API。
 
 尚未宣称完成的部分：生产 Gemma/Firestore 凭据、Android/iOS 原生权限桥、AMap 路线 Adapter、相机/麦克风/姿态 Provider、离线副作用队列与云端跨设备发布。这些能力在接入前仍必须显示为缺失或阻断。
+
+### 11.3 鲁棒性与自动修复边界
+
+Skill Taskmaster 不以“尽量跑下去”为容错目标，而以“只在证据充足时自动修复，其余情况诚实阻断”为原则。
+
+| 故障 | 系统行为 | 是否自动 | 原因 |
+|---|---|---|---|
+| 重复/空白 Node ID | 生成稳定唯一 ID，重建线性依赖 | 是 | 不改变模块语义或权限 |
+| 无效、重复、悬空或成环连线 | 按卡片的工程阶段和顺序重建单向链 | 是 | Canvas P0 以卡片顺序为唯一用户意图来源 |
+| Config 越界、类型错误或未知字段 | 按 Capability Contract 归一为默认值并报告修复 | 是 | 修复后权限和数据去向不扩张 |
+| 缺启动条件 | 阻断编译，提供“添加手动启动” | 用户一键确认 | 不擅自创建运行入口 |
+| 缺动作或状态输出 | 阻断编译，让用户在通知与证据间选择 | 否 | 两者副作用、权限和数据去向不同 |
+| 多启动器、未知 Capability、合同不匹配 | 阻断编译并定位到 Node/Contract | 否 | 存在多个可能意图，不可猜测 |
+| 缺宿主 Provider、Firebase 身份或 API | 运行前 Preflight 阻断，返回 Node、原因和操作建议 | 否 | 不使用 preview、伪数据或旧缓存冒充 Provider |
+| 无副作用的短暂读取/模型故障 | 最多自动重试 1 次，Trace 记录 attempts | 是 | 读取与候选生成可安全重放 |
+| 通知、事实写入等副作用失败 | 默认不自动重放；本地 Evidence 保留并显示恢复建议 | 否 | 防止重复播报、写入或外部动作 |
+| 用户取消或 Safety Gate 阻断 | 完结 Trace 为 `cancelled` / `safe_stopped`，下游全部 `skipped` | 否 | 终止优先，不得自动续跑 |
+
+编译报告必须分开 `repairs[]` 与 `issues[]`；运行前报告必须使用结构化 `SkillPreflightIssue`；运行失败必须记录 `code/retryable/suggested_action/attempts`。任何自动修复都必须在 UI 中向用户显示，不允许静默改变技能意图。
 
 ---
 

@@ -2,7 +2,10 @@ import type { LlmGenerateInput } from '../schemas/llm.js';
 import { ServiceError } from '../lib/errors.js';
 
 export interface LlmResult { text: string; model_version: string }
-export interface LlmService { generate(input: LlmGenerateInput, uid: string): Promise<LlmResult> }
+export interface LlmService {
+  generate(input: LlmGenerateInput, uid: string): Promise<LlmResult>;
+  readiness?(): { ready: boolean; provider: string; reason?: string };
+}
 
 interface OpenAiChatResponse {
   choices?: Array<{ message?: { content?: string } }>;
@@ -13,6 +16,7 @@ interface OpenAiChatResponse {
 export function configuredLlmService(env: NodeJS.ProcessEnv = process.env): LlmService {
   if (env.NODE_ENV !== 'production' && env.SKILL_DEV_LLM_MODE === 'deterministic') {
     return {
+      readiness: () => ({ ready: true, provider: 'dev-deterministic' }),
       async generate(input) {
         const location = input.prompt.match(/\u4f4d\u7f6e\uff1a([^\n]+)/)?.[1];
         return {
@@ -27,6 +31,11 @@ export function configuredLlmService(env: NodeJS.ProcessEnv = process.env): LlmS
   const token = String(env.GEMMA_API_TOKEN || '');
   const model = String(env.GEMMA_MODEL || 'gemma-3-4b-pocketbuddy');
   return {
+    readiness: () => ({
+      ready: !!baseUrl && !!token,
+      provider: 'gemma-openai-compatible',
+      ...(!baseUrl || !token ? { reason: 'GEMMA_BASE_URL or GEMMA_API_TOKEN is missing' } : {}),
+    }),
     async generate(input) {
       if (!baseUrl || !token) throw new ServiceError('model_unavailable', 'Gemma service is not configured', 503);
       const response = await fetch(`${baseUrl}/v1/chat/completions`, {

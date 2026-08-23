@@ -1,6 +1,6 @@
 # Pocket Buddy API 文件（API_REFERENCE）
 
-> **版本**：v1.0 · 2026-08-21 · Base URL：`https://api.<domain>`（本地 `http://localhost:8080`）
+> **版本**：v1.1 · 2026-08-23 · Base URL：`https://api.<domain>`（本地 `http://localhost:8080`）
 > 通用规范（认证、错误格式、分页、幂等）见 `BACKEND_SPEC.md` §6；实体字段定义见 `DATA_SCHEMA.md`，本文不重复完整 schema，只标注差异与必填项。
 >
 > 除 `GET /v1/healthz` 外，所有端点要求 `Authorization: Bearer <Firebase ID Token>`。
@@ -17,7 +17,19 @@
 ## 1. 系统
 
 ### `GET /v1/healthz`
-无需认证。→ `200 { "ok": true, "version": "string" }`
+无需认证。返回服务存活与非敏感能力就绪状态，供 Skill Taskmaster 在运行前阻断未配置 Provider；不回传密钥、URL 或凭据。
+
+```json
+{
+  "ok": true,
+  "service": "pocketbuddy-api",
+  "version": "0.1.0",
+  "capabilities": {
+    "llm_generate": { "ready": true, "provider": "gemma-openai-compatible" },
+    "health_event_sync": { "ready": true, "provider": "repository" }
+  }
+}
+```
 
 ## 2. 用户
 

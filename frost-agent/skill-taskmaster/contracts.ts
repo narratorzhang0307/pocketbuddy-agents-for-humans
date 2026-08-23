@@ -126,7 +126,11 @@ export interface CompiledSkillGraph {
 export interface SkillCompileIssue {
   code:
     | 'missing_trigger'
+    | 'multiple_triggers'
     | 'missing_outcome'
+    | 'empty_goal'
+    | 'unknown_capability'
+    | 'missing_required_input'
     | 'dangling_edge'
     | 'duplicate_edge'
     | 'cycle'
@@ -135,6 +139,14 @@ export interface SkillCompileIssue {
     | 'incompatible_port';
   message: string;
   node_id?: string;
+  repair: 'automatic' | 'user_required';
+  suggested_action: string;
+}
+
+export interface SkillRepairAction {
+  code: 'rebuilt_edges' | 'regenerated_node_id' | 'reset_invalid_config';
+  message: string;
+  node_ids?: string[];
 }
 
 export interface SkillCompileResult {
@@ -142,6 +154,7 @@ export interface SkillCompileResult {
   graph?: CompiledSkillGraph;
   structured: SkillCanvasDraft;
   issues: SkillCompileIssue[];
+  repairs: SkillRepairAction[];
 }
 
 export type SkillRunStepStatus = 'pending' | 'running' | 'completed' | 'blocked' | 'skipped';
@@ -154,9 +167,10 @@ export interface SkillRunStep {
   provider: string;
   evidence: string;
   started_at: string;
+  attempts: number;
   completed_at?: string;
   output?: JsonObject;
-  error?: { code: string; message: string };
+  error?: { code: string; message: string; retryable: boolean; suggested_action: string };
 }
 
 export interface SkillRunTrace {
@@ -166,11 +180,29 @@ export interface SkillRunTrace {
   graph_hash: `sha256:${string}`;
   skill_id: string;
   mode: 'preview' | 'live';
-  status: 'preview_completed' | 'running' | 'completed' | 'waiting_permission' | 'safe_stopped' | 'failed';
+  status: 'preview_completed' | 'running' | 'completed' | 'waiting_permission' | 'safe_stopped' | 'cancelled' | 'failed';
   started_at: string;
   completed_at?: string;
   steps: SkillRunStep[];
   note: string;
+}
+
+export interface SkillPreflightIssue {
+  code:
+    | 'graph_hash_mismatch'
+    | 'contract_mismatch'
+    | 'location_unavailable'
+    | 'voice_unavailable'
+    | 'pose_provider_missing'
+    | 'authentication_missing'
+    | 'backend_capability_unavailable'
+    | 'backend_unavailable';
+  severity: 'blocking' | 'warning';
+  message: string;
+  suggested_action: string;
+  retryable: boolean;
+  node_id?: string;
+  capability?: SkillBlockCapability;
 }
 
 export interface SkillExecutionContext {

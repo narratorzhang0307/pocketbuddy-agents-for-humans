@@ -14,10 +14,21 @@ export interface HealthEventSyncResult {
   error?: string;
 }
 
+export interface PocketBuddyHealthResponse {
+  ok: boolean;
+  service: string;
+  version: string;
+  capabilities?: {
+    llm_generate?: { ready: boolean; provider: string; reason?: string };
+    health_event_sync?: { ready: boolean; provider: string; reason?: string };
+  };
+}
+
 export interface PocketBuddyApiClientOptions {
   baseUrl?: string;
   getIdToken: () => Promise<string>;
   fetchImpl?: typeof fetch;
+  signal?: AbortSignal;
 }
 
 export class SkillApiError extends Error {
@@ -40,6 +51,7 @@ export function createPocketBuddyApiClient(options: PocketBuddyApiClientOptions)
     if (!token) throw new SkillApiError('unauthenticated', '还没有可用的 Firebase 身份，技能已暂停。', 401);
     const response = await fetchImpl(`${baseUrl}${path}`, {
       ...init,
+      signal: init.signal || options.signal,
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${token}`,
@@ -58,10 +70,10 @@ export function createPocketBuddyApiClient(options: PocketBuddyApiClientOptions)
   }
 
   return {
-    async health(): Promise<{ ok: boolean; service: string }> {
-      const response = await fetchImpl(`${baseUrl}/v1/healthz`);
+    async health(): Promise<PocketBuddyHealthResponse> {
+      const response = await fetchImpl(`${baseUrl}/v1/healthz`, { signal: options.signal });
       if (!response.ok) throw new SkillApiError('backend_unavailable', '技能后端尚未就绪。', response.status);
-      return response.json() as Promise<{ ok: boolean; service: string }>;
+      return response.json() as Promise<PocketBuddyHealthResponse>;
     },
     async generate(input: LlmGenerateRequest): Promise<{ text: string }> {
       return request('/v1/llm/generate', { method: 'POST', body: JSON.stringify(input) });

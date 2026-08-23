@@ -1,15 +1,19 @@
 import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex, utf8ToBytes } from '@noble/hashes/utils';
+import type { JsonObject, JsonValue } from '../taskmaster/contracts';
 import { CAPABILITY_CATALOG } from './catalog';
 import {
   SKILL_GRAPH_PROTOCOL,
   type CompiledSkillEdge,
   type CompiledSkillGraph,
+  type SkillBlockCapability,
   type SkillBlockStage,
   type SkillCanvasDraft,
   type SkillCanvasEdge,
+  type SkillCanvasNode,
   type SkillCompileIssue,
   type SkillCompileResult,
+  type SkillRepairAction,
 } from './contracts';
 
 export { CAPABILITY_CATALOG, CAPABILITY_DEFINITIONS } from './catalog';
@@ -38,61 +42,170 @@ export function hashCanonicalValue(value: unknown): `sha256:${string}` {
   return `sha256:${bytesToHex(sha256(utf8ToBytes(canonical(value))))}`;
 }
 
-function uniqueEdges(edges: SkillCanvasEdge[]): SkillCanvasEdge[] {
-  const seen = new Set<string>();
-  return edges.filter((edge) => {
-    const key = `${edge.from}->${edge.to}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
+function isKnownCapability(value: unknown): value is SkillBlockCapability {
+  return typeof value === 'string' && Object.prototype.hasOwnProperty.call(CAPABILITY_CATALOG, value);
+}
+
+function sameValue(left: unknown, right: unknown): boolean {
+  return canonical(left) === canonical(right);
+}
+
+function validNumber(value: JsonValue | undefined, minimum: number, maximum: number): value is number {
+  return typeof value === 'number' && Number.isFinite(value) && value >= minimum && value <= maximum;
+}
+
+function normalizedConfig(capability: SkillBlockCapability, input: JsonObject | undefined): JsonObject {
+  const source = input || {};
+  switch (capability) {
+    case 'trigger.manual':
+      return {};
+    case 'sensor.location':
+      return {
+        high_accuracy: typeof source.high_accuracy === 'boolean' ? source.high_accuracy : true,
+        timeout_ms: validNumber(source.timeout_ms, 1_000, 60_000) ? Math.round(source.timeout_ms) : 12_000,
+      };
+    case 'sensor.health':
+      return { lookback_hours: validNumber(source.lookback_hours, 1, 168) ? Math.round(source.lookback_hours) : 24 };
+    case 'model.gemma':
+      return {
+        json: typeof source.json === 'boolean' ? source.json : false,
+        task: typeof source.task === 'string' && source.task.trim() ? source.task.trim().slice(0, 64) : 'skill-canvas',
+      };
+    case 'model.pose':
+      return { confidence_threshold: validNumber(source.confidence_threshold, 0, 1) ? source.confidence_threshold : 0.7 };
+    case 'gate.safety': {
+      const stopSignals = Array.isArray(source.stop_signals)
+        ? [...new Set(source.stop_signals.filter((value): value is string => typeof value === 'string' && !!value.trim()).map((value) => value.trim()))].slice(0, 16)
+        : [];
+      return { stop_signals: stopSignals.length ? stopSignals : ['pain', 'dizzy', 'breathing_abnormal', 'stop'] };
+    }
+    case 'action.voice':
+      return { lang: typeof source.lang === 'string' && source.lang.trim() ? source.lang.trim().slice(0, 20) : 'zh-CN' };
+    case 'state.skill_completed':
+      return { visibility: source.visibility === 'friends' || source.visibility === 'public' ? source.visibility : 'private' };
+  }
+}
+
+function normalizedNodeIds(nodes: SkillCanvasNode[]): { nodes: SkillCanvasNode[]; repairs: SkillRepairAction[] } {
+  const used = new Set<string>();
+  const repaired: string[] = [];
+  const normalized = nodes.map((node, index) => {
+    const base = node.id.trim() || `module-${index + 1}`;
+    let candidate = base;
+    let suffix = 2;
+    while (used.has(candidate)) candidate = `${base}-${suffix++}`;
+    used.add(candidate);
+    if (candidate === node.id) return node;
+    repaired.push(candidate);
+    return { ...node, id: candidate };
   });
+  return {
+    nodes: normalized,
+    repairs: repaired.length ? [{
+      code: 'regenerated_node_id',
+      message: `已为 ${repaired.length} 个重复或空白模块重新生成唯一 ID。`,
+      node_ids: repaired,
+    }] : [],
+  };
+}
+
+function edgeSignature(edges: SkillCanvasEdge[]): string[] {
+  return edges.map((edge) => `${edge.from}->${edge.to}`);
+}
+
+/**
+ * Frost 只修复不改变用户意图的结构问题：唯一 ID、合同参数和按卡片顺序生成的单向连线。
+ * 启动方式、输出方式与权限不在这里擅自补齐。
+ */
+export function repairSkillDraft(draft: SkillCanvasDraft): { structured: SkillCanvasDraft; repairs: SkillRepairAction[] } {
+  const idResult = normalizedNodeIds(draft.nodes);
+  const configRepairs: SkillRepairAction[] = [];
+  const normalized = idResult.nodes.map((node) => {
+    if (!isKnownCapability(node.capability)) return node;
+    const config = normalizedConfig(node.capability, node.config);
+    const mergedInput = { ...CAPABILITY_CATALOG[node.capability].default_config, ...(node.config || {}) };
+    if (!sameValue(config, mergedInput)) {
+      configRepairs.push({
+        code: 'reset_invalid_config',
+        message: `已将“${node.label}”的越界、缺失或未知参数恢复为能力合同允许的值。`,
+        node_ids: [node.id],
+      });
+    }
+    return { ...node, config };
+  });
+  const ordered = [...normalized].sort((left, right) => {
+    const leftStage = isKnownCapability(left.capability) ? STAGE_ORDER[CAPABILITY_CATALOG[left.capability].stage] : Number.MAX_SAFE_INTEGER;
+    const rightStage = isKnownCapability(right.capability) ? STAGE_ORDER[CAPABILITY_CATALOG[right.capability].stage] : Number.MAX_SAFE_INTEGER;
+    return leftStage - rightStage || normalized.indexOf(left) - normalized.indexOf(right);
+  });
+  const edges = ordered.slice(1).map((node, index) => ({ from: ordered[index].id, to: node.id }));
+  const edgeChanged = !sameValue(edgeSignature(draft.edges), edgeSignature(edges));
+  const edgeRepair: SkillRepairAction[] = edgeChanged && ordered.length > 1 ? [{
+    code: 'rebuilt_edges',
+    message: `已按“启动 → 输入 → 处理 → 安全 → 输出 → 证据”顺序重建 ${edges.length} 条连线。`,
+    node_ids: ordered.map((node) => node.id),
+  }] : [];
+  return {
+    structured: {
+      ...draft,
+      nodes: ordered.map((node, index) => ({
+        ...node,
+        x: 5 + (index % 2) * 50,
+        y: 58 + Math.floor(index / 2) * 104 + (index % 2 ? 12 : 0),
+      })),
+      edges,
+    },
+    repairs: [...idResult.repairs, ...configRepairs, ...edgeRepair],
+  };
 }
 
 /** Frost 把自由摆放的卡片整理成一个可读的单向任务骨架；用户不需要先理解图论。 */
 export function structureSkillDraft(draft: SkillCanvasDraft): SkillCanvasDraft {
-  const ordered = [...draft.nodes].sort((left, right) => {
-    const stage = STAGE_ORDER[CAPABILITY_CATALOG[left.capability].stage] - STAGE_ORDER[CAPABILITY_CATALOG[right.capability].stage];
-    return stage || draft.nodes.indexOf(left) - draft.nodes.indexOf(right);
-  });
-  const edges = ordered.slice(1).map((node, index) => ({ from: ordered[index].id, to: node.id }));
-  return {
-    ...draft,
-    nodes: ordered.map((node, index) => ({
-      ...node,
-      x: 5 + (index % 2) * 50,
-      y: 58 + Math.floor(index / 2) * 104 + (index % 2 ? 12 : 0),
-    })),
-    edges: uniqueEdges(edges),
-  };
+  return repairSkillDraft(draft).structured;
 }
 
 function validateGraph(draft: SkillCanvasDraft): SkillCompileIssue[] {
   const issues: SkillCompileIssue[] = [];
   const ids = new Set(draft.nodes.map((node) => node.id));
-  if (!draft.title.trim()) issues.push({ code: 'empty_title', message: '请先给这个 Skill 一个名字' });
-  if (!draft.nodes.some((node) => CAPABILITY_CATALOG[node.capability].stage === 'trigger')) {
-    issues.push({ code: 'missing_trigger', message: '至少需要一个开始方式' });
+  const knownNodes = draft.nodes.filter((node) => isKnownCapability(node.capability));
+  if (!draft.title.trim()) issues.push({ code: 'empty_title', message: '请先给这个技能一个名字。', repair: 'user_required', suggested_action: '填写技能名称。' });
+  if (!draft.prompt.trim()) issues.push({ code: 'empty_goal', message: '还没有定义可验证的目标与安全边界。', repair: 'user_required', suggested_action: '补充期望结果、使用场景和停止条件。' });
+  draft.nodes.forEach((node) => {
+    if (!isKnownCapability(node.capability)) issues.push({
+      code: 'unknown_capability',
+      node_id: node.id,
+      message: `“${node.label || node.id}”使用了当前版本不认识的能力合同。`,
+      repair: 'user_required',
+      suggested_action: '移除这张模块，或安装兼容的 Provider 后重新编译。',
+    });
+  });
+  const triggers = knownNodes.filter((node) => CAPABILITY_CATALOG[node.capability].stage === 'trigger');
+  if (!triggers.length) {
+    issues.push({ code: 'missing_trigger', message: '至少需要一个开始方式。', repair: 'user_required', suggested_action: '添加“手动启动”，由用户明确确认每次运行。' });
+  } else if (triggers.length > 1) {
+    issues.push({ code: 'multiple_triggers', message: `当前有 ${triggers.length} 个启动条件，无法唯一确定入口。`, repair: 'user_required', suggested_action: '只保留一个启动模块；复合触发器应先封装成单个 Provider。' });
   }
-  if (!draft.nodes.some((node) => ['act', 'remember'].includes(CAPABILITY_CATALOG[node.capability].stage))) {
-    issues.push({ code: 'missing_outcome', message: '至少需要一个行动或记录结果' });
+  if (!knownNodes.some((node) => ['act', 'remember'].includes(CAPABILITY_CATALOG[node.capability].stage))) {
+    issues.push({ code: 'missing_outcome', message: '至少需要一个行动或记录结果。', repair: 'user_required', suggested_action: '根据真实意图选择“语音通知”或“完成与证据”，系统不会擅自选择副作用。' });
   }
 
   const edgeKeys = new Set<string>();
   draft.edges.forEach((edge) => {
     if (!ids.has(edge.from) || !ids.has(edge.to) || edge.from === edge.to) {
-      issues.push({ code: 'dangling_edge', message: '发现无效连接' });
+      issues.push({ code: 'dangling_edge', message: '发现无效连接。', repair: 'automatic', suggested_action: '按卡片顺序重建连线。' });
       return;
     }
     const key = `${edge.from}->${edge.to}`;
-    if (edgeKeys.has(key)) issues.push({ code: 'duplicate_edge', message: '发现重复连接' });
+    if (edgeKeys.has(key)) issues.push({ code: 'duplicate_edge', message: '发现重复连接。', repair: 'automatic', suggested_action: '删除重复连线。' });
     edgeKeys.add(key);
     const source = draft.nodes.find((node) => node.id === edge.from);
     const target = draft.nodes.find((node) => node.id === edge.to);
     if (!source || !target) return;
+    if (!isKnownCapability(source.capability) || !isKnownCapability(target.capability)) return;
     const output = CAPABILITY_CATALOG[source.capability].outputs[0];
     const input = CAPABILITY_CATALOG[target.capability].inputs[0];
     if (!output || !input || output.schema !== input.schema) {
-      issues.push({ code: 'incompatible_port', node_id: target.id, message: `${source.label} 与 ${target.label} 的数据接口不匹配` });
+      issues.push({ code: 'incompatible_port', node_id: target.id, message: `${source.label} 与 ${target.label} 的数据接口不匹配。`, repair: 'user_required', suggested_action: '中间加入兼容的转换模块，或替换能力 Provider。' });
     }
   });
 
@@ -103,6 +216,7 @@ function validateGraph(draft: SkillCanvasDraft): SkillCompileIssue[] {
     incoming.set(edge.to, (incoming.get(edge.to) || 0) + 1);
     outgoing.get(edge.from)?.push(edge.to);
   });
+  const originalIncoming = new Map(incoming);
   const queue = draft.nodes.filter((node) => (incoming.get(node.id) || 0) === 0).map((node) => node.id);
   const visited: string[] = [];
   while (queue.length) {
@@ -114,9 +228,16 @@ function validateGraph(draft: SkillCanvasDraft): SkillCompileIssue[] {
       if (incoming.get(to) === 0) queue.push(to);
     });
   }
-  if (visited.length !== draft.nodes.length) issues.push({ code: 'cycle', message: '任务里出现了无法结束的循环' });
+  if (visited.length !== draft.nodes.length) issues.push({ code: 'cycle', message: '任务里出现了无法结束的循环。', repair: 'automatic', suggested_action: '按卡片顺序重建为单向链。' });
 
-  const starts = draft.nodes.filter((node) => CAPABILITY_CATALOG[node.capability].stage === 'trigger').map((node) => node.id);
+  knownNodes.forEach((node) => {
+    const contract = CAPABILITY_CATALOG[node.capability];
+    if (contract.inputs.some((port) => port.required) && (originalIncoming.get(node.id) || 0) === 0) {
+      issues.push({ code: 'missing_required_input', node_id: node.id, message: `“${node.label}”缺少必需的上游上下文。`, repair: 'automatic', suggested_action: '按卡片顺序重建连线；如仍失败则替换数据合同。' });
+    }
+  });
+
+  const starts = triggers.map((node) => node.id);
   const reachable = new Set(starts);
   const walk = [...starts];
   while (walk.length) {
@@ -129,7 +250,7 @@ function validateGraph(draft: SkillCanvasDraft): SkillCompileIssue[] {
     });
   }
   draft.nodes.forEach((node) => {
-    if (!reachable.has(node.id)) issues.push({ code: 'unreachable_node', node_id: node.id, message: `${node.label} 还没有接入任务` });
+    if (!reachable.has(node.id)) issues.push({ code: 'unreachable_node', node_id: node.id, message: `${node.label} 还没有接入任务。`, repair: 'automatic', suggested_action: '按卡片顺序重建连线。' });
   });
   return issues;
 }
@@ -148,9 +269,9 @@ export function verifyGraphHash(graph: CompiledSkillGraph): boolean {
 }
 
 export function compileSkillDraft(input: SkillCanvasDraft): SkillCompileResult {
-  const structured = structureSkillDraft(input);
+  const { structured, repairs } = repairSkillDraft(input);
   const issues = validateGraph(structured);
-  if (issues.length) return { ok: false, structured, issues };
+  if (issues.length) return { ok: false, structured, issues, repairs };
 
   const dependencies = new Map(structured.nodes.map((node) => [node.id, [] as string[]]));
   structured.edges.forEach((edge) => dependencies.get(edge.to)?.push(edge.from));
@@ -203,5 +324,5 @@ export function compileSkillDraft(input: SkillCanvasDraft): SkillCompileResult {
     graph_hash: graphHash,
     compiled_at: structured.updated_at,
   };
-  return { ok: true, graph, structured, issues: [] };
+  return { ok: true, graph, structured, issues: [], repairs };
 }
