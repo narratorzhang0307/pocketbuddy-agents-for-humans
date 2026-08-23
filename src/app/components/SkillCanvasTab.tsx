@@ -5,7 +5,8 @@ import {
   Volume2, WandSparkles, X,
 } from 'lucide-react';
 import {
-  CAPABILITY_DEFINITIONS, compileSkillDraft, getCanvasSkill, previewSkillGraph, saveCanvasSkill,
+  CAPABILITY_CATALOG, CAPABILITY_DEFINITIONS, compileSkillDraft, createBrowserSkillRuntimeDependencies,
+  executeStoredSkillGraph, getCanvasSkill, persistCompiledGraph, preflightBrowserSkillRuntime, saveCanvasSkill,
   type CompiledSkillGraph, type SkillBlockCapability, type SkillCanvasDraft,
   type SkillCanvasNode, type SkillRunTrace,
 } from '../../../frost-agent/skill-taskmaster';
@@ -18,29 +19,44 @@ interface Props { skillId?: string | null; onSaved?: () => void }
 type CardFamily = '启动条件' | '数据输入' | '处理与模型' | '流程控制' | '动作输出' | '状态与证据';
 type DragSource = { kind: 'library'; capability: SkillBlockCapability } | { kind: 'slot'; nodeId: string };
 
-const BLOCKS: Array<{
+interface AbilityBlock {
   capability: SkillBlockCapability; number: string; label: string; detail: string; family: CardFamily;
   color: string; icon: typeof Play; editorialArtwork: string; blurb: string; input: string; output: string; provider: string;
   stats: { instant: number; privacy: number; evidence: number; risk: number };
-}> = [
-  { capability: 'trigger.manual', number: '01', label: '手动启动', detail: 'Manual Trigger', family: '启动条件', color: '#e5ba58', icon: Play, editorialArtwork: '01-manual-trigger.png', blurb: '由用户明确点击后创建一次技能运行（Skill Run）。', input: '用户确认', output: 'task.started', provider: '宿主界面', stats: { instant: 5, privacy: 5, evidence: 3, risk: 1 } },
-  { capability: 'sensor.location', number: '02', label: '位置数据', detail: 'Location Input', family: '数据输入', color: '#83b8d2', icon: MapPin, editorialArtwork: '02-location-input.png', blurb: '按最小权限读取坐标、精度与时间戳。', input: '定位授权', output: 'location.point', provider: '手机 GPS', stats: { instant: 5, privacy: 2, evidence: 5, risk: 3 } },
-  { capability: 'sensor.health', number: '03', label: '健康摘要', detail: 'Readiness Input', family: '数据输入', color: '#72b9ad', icon: HeartPulse, editorialArtwork: '03-health-summary.png', blurb: '读取经确认的睡眠、HRV 与恢复摘要，不自行诊断。', input: 'Health Event', output: 'readiness.summary', provider: '本机健康桥', stats: { instant: 4, privacy: 2, evidence: 5, risk: 4 } },
-  { capability: 'model.qwen', number: '04', label: '语义决策', detail: 'Qwen Processor', family: '处理与模型', color: '#a8b77e', icon: Sparkles, editorialArtwork: '04-semantic-decision.png', blurb: '把结构化上下文转换为候选动作，不直接执行副作用。', input: '结构化上下文', output: 'candidate.action', provider: 'Qwen / MNN', stats: { instant: 3, privacy: 4, evidence: 3, risk: 3 } },
-  { capability: 'model.pose', number: '05', label: '姿态识别', detail: 'Pose Processor', family: '处理与模型', color: '#a99bc6', icon: Camera, editorialArtwork: '05-pose-recognition.png', blurb: '从连续帧输出可复查的姿态信号，低置信度返回 unknown。', input: '相机帧', output: 'pose.signal', provider: '本地视觉', stats: { instant: 4, privacy: 3, evidence: 4, risk: 4 } },
-  { capability: 'gate.safety', number: '06', label: '安全门', detail: 'Safety Gate', family: '流程控制', color: '#ad91b8', icon: ShieldCheck, editorialArtwork: '06-safety-gate.png', blurb: '在疼痛、眩晕或停止指令出现时阻断后续动作。', input: '风险信号', output: 'safe / stop', provider: '确定性规则', stats: { instant: 5, privacy: 5, evidence: 5, risk: 1 } },
-  { capability: 'action.voice', number: '07', label: '语音通知', detail: 'Notification Action', family: '动作输出', color: '#df8a5f', icon: Volume2, editorialArtwork: '07-voice-notification.png', blurb: '把已确认的下一步发送为简短语音或系统提醒。', input: 'action.copy', output: 'user.notified', provider: '宿主通知', stats: { instant: 5, privacy: 4, evidence: 2, risk: 2 } },
-  { capability: 'store.local', number: '08', label: '证据写入', detail: 'Evidence Store', family: '状态与证据', color: '#95a77a', icon: Database, editorialArtwork: '08-evidence-store.png', blurb: '将结果、Evidence 与运行状态绑定并保存在本机。', input: 'result + evidence', output: 'local.memory', provider: '本机存储', stats: { instant: 4, privacy: 5, evidence: 5, risk: 1 } },
-];
+}
 
-type AbilityBlock = (typeof BLOCKS)[number];
+const BLOCK_VISUALS: Record<SkillBlockCapability, Pick<AbilityBlock, 'number' | 'color' | 'icon' | 'editorialArtwork' | 'stats'>> = {
+  'trigger.manual': { number: '01', color: '#e5ba58', icon: Play, editorialArtwork: '01-manual-trigger.png', stats: { instant: 5, privacy: 5, evidence: 3, risk: 1 } },
+  'sensor.location': { number: '02', color: '#83b8d2', icon: MapPin, editorialArtwork: '02-location-input.png', stats: { instant: 5, privacy: 2, evidence: 5, risk: 3 } },
+  'sensor.health': { number: '03', color: '#72b9ad', icon: HeartPulse, editorialArtwork: '03-health-summary.png', stats: { instant: 4, privacy: 2, evidence: 5, risk: 4 } },
+  'model.gemma': { number: '04', color: '#a8b77e', icon: Sparkles, editorialArtwork: '04-semantic-decision.png', stats: { instant: 3, privacy: 4, evidence: 3, risk: 3 } },
+  'model.pose': { number: '05', color: '#a99bc6', icon: Camera, editorialArtwork: '05-pose-recognition.png', stats: { instant: 4, privacy: 3, evidence: 4, risk: 4 } },
+  'gate.safety': { number: '06', color: '#ad91b8', icon: ShieldCheck, editorialArtwork: '06-safety-gate.png', stats: { instant: 5, privacy: 5, evidence: 5, risk: 1 } },
+  'action.voice': { number: '07', color: '#df8a5f', icon: Volume2, editorialArtwork: '07-voice-notification.png', stats: { instant: 5, privacy: 4, evidence: 2, risk: 2 } },
+  'state.skill_completed': { number: '08', color: '#95a77a', icon: Database, editorialArtwork: '08-evidence-store.png', stats: { instant: 4, privacy: 5, evidence: 5, risk: 1 } },
+};
+
+const BLOCKS: AbilityBlock[] = (Object.keys(CAPABILITY_CATALOG) as SkillBlockCapability[]).map((capability) => {
+  const contract = CAPABILITY_CATALOG[capability];
+  return {
+    capability,
+    ...BLOCK_VISUALS[capability],
+    label: contract.title,
+    detail: contract.detail,
+    family: contract.family,
+    blurb: contract.description,
+    input: contract.inputs[0]?.schema || '用户手势',
+    output: contract.outputs[0]?.schema || '无',
+    provider: contract.provider,
+  };
+});
 
 const FAMILY_FILTERS: Array<'全部' | CardFamily> = ['全部', '启动条件', '数据输入', '处理与模型', '流程控制', '动作输出', '状态与证据'];
 const STAGE_LABEL = { trigger: '启动条件', sense: '数据输入', think: '处理与模型', guard: '流程控制', act: '动作输出', remember: '状态与证据' } as const;
 
 const PERMISSION_LABEL: Record<string, string> = {
-  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': '端侧 / Qwen 模型',
-  'capture:camera': '摄像头', 'notify:user': '提醒', 'write:health_events': '本地健康记忆',
+  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': 'Gemma / 本机模型',
+  'capture:camera': '摄像头', 'notify:user': '语音提醒', 'write:health_events': '本机证据 + 完成事实同步',
 };
 
 const EDITORIAL_ART_BASE = `${import.meta.env.BASE_URL}assets/skill-cards/editorial-line-art-v1/`;
@@ -48,11 +64,11 @@ const EDITORIAL_ART_LAYOUT: Record<SkillBlockCapability, { x: number; y: number;
   'trigger.manual': { x: 15, y: 37, width: 130, height: 136 },
   'sensor.location': { x: 14, y: 37, width: 132, height: 137 },
   'sensor.health': { x: 15, y: 37, width: 130, height: 136 },
-  'model.qwen': { x: 13, y: 37, width: 134, height: 138 },
+  'model.gemma': { x: 13, y: 37, width: 134, height: 138 },
   'model.pose': { x: 27, y: 31, width: 106, height: 146 },
   'gate.safety': { x: 14, y: 37, width: 132, height: 138 },
   'action.voice': { x: 15, y: 37, width: 130, height: 138 },
-  'store.local': { x: 14, y: 37, width: 132, height: 138 },
+  'state.skill_completed': { x: 14, y: 37, width: 132, height: 138 },
 };
 
 function blockDefinition(capability: SkillBlockCapability) {
@@ -78,15 +94,16 @@ function emptyDraft(existingId?: string): SkillCanvasDraft {
   };
 }
 
-function RunStatus({ trace, visibleSteps }: { trace: SkillRunTrace; visibleSteps: number }) {
+function RunStatus({ trace }: { trace: SkillRunTrace }) {
   return <div className="space-y-2">{trace.steps.map((step, index) => {
-    const visible = index < visibleSteps;
-    const active = index === visibleSteps;
-    return <div key={step.node_id} className={`relative grid grid-cols-[34px_1fr_auto] items-center gap-2 border-2 px-2.5 py-2.5 transition-all duration-300 ${visible ? 'border-black bg-white' : active ? 'translate-x-1 border-black bg-[#fff0b5]' : 'border-black/15 bg-white/40 text-black/30'}`}>
+    const completed = step.status === 'completed';
+    const active = step.status === 'running';
+    const blocked = step.status === 'blocked';
+    return <div key={step.node_id} className={`relative grid grid-cols-[34px_1fr_auto] items-center gap-2 border-2 px-2.5 py-2.5 transition-all duration-300 ${completed ? 'border-black bg-white' : active ? 'translate-x-1 border-black bg-[#fff0b5]' : blocked ? 'border-[#b3261e] bg-[#fff0ed]' : 'border-black/15 bg-white/40 text-black/30'}`}>
       {index < trace.steps.length - 1 && <span className="absolute left-[25px] top-[42px] h-4 border-l-2 border-dashed border-black/25" />}
-      <span className={`grid h-8 w-8 place-items-center rounded-full border-2 ${visible ? 'border-black bg-[#00ff88]' : active ? 'border-black bg-[#ffd34e]' : 'border-black/15 bg-white'}`}>{visible ? <Check className="h-4 w-4" strokeWidth={3} /> : active ? <Footprints className="h-4 w-4 animate-pulse" /> : <span className="font-pixel text-[6px]">{String(index + 1).padStart(2, '0')}</span>}</span>
-      <span><b className="block text-[10px]">{step.label}</b><small className="mt-0.5 block text-[7px] leading-relaxed text-black/45">{visible ? step.evidence : active ? 'Frost 正在走到这里…' : '等待上一步'}</small></span>
-      <span className="font-pixel text-[5px]">{visible ? '完成' : active ? '当前' : '待执行'}</span>
+      <span className={`grid h-8 w-8 place-items-center rounded-full border-2 ${completed ? 'border-black bg-[#00ff88]' : active ? 'border-black bg-[#ffd34e]' : blocked ? 'border-[#b3261e] bg-white' : 'border-black/15 bg-white'}`}>{completed ? <Check className="h-4 w-4" strokeWidth={3} /> : active ? <Footprints className="h-4 w-4 animate-pulse" /> : blocked ? <X className="h-4 w-4" /> : <span className="font-pixel text-[6px]">{String(index + 1).padStart(2, '0')}</span>}</span>
+      <span><b className="block text-[10px]">{step.label}</b><small className="mt-0.5 block text-[7px] leading-relaxed text-black/45">{step.evidence}</small></span>
+      <span className="font-pixel text-[5px]">{completed ? '完成' : active ? '当前' : blocked ? '阻断' : step.status === 'skipped' ? '跳过' : '待执行'}</span>
     </div>;
   })}</div>;
 }
@@ -185,12 +202,13 @@ function AbilityCardDialog({ block, onClose, onAdd }: { block: AbilityBlock; onC
         </section>
 
         <section className="mt-3 overflow-hidden rounded-[18px] border-2 border-[#26231f] bg-white/55">
-          <div className="flex items-center justify-between border-b border-[#26231f] bg-[#dfd8ca] px-3 py-2"><b className="font-pixel text-[5px]">运行时接口 · RUNTIME</b><span className="font-mono text-[7px] text-black/45">v1</span></div>
+          <div className="flex items-center justify-between border-b border-[#26231f] bg-[#dfd8ca] px-3 py-2"><b className="font-pixel text-[5px]">运行时接口 · RUNTIME</b><span className="font-mono text-[7px] text-black/45">{definition.version}</span></div>
           <dl className="grid grid-cols-[72px_1fr] gap-x-2 gap-y-1.5 p-3 font-mono text-[8px]">
             <dt className="text-black/40">阶段</dt><dd>{STAGE_LABEL[definition.stage]} / {definition.stage}</dd>
-            <dt className="text-black/40">执行方</dt><dd className="truncate">{block.provider}</dd>
+            <dt className="text-black/40">执行方</dt><dd className="truncate">{definition.execution} / {block.provider}</dd>
+            <dt className="text-black/40">绑定</dt><dd className="truncate">{definition.runtime_binding}</dd>
             <dt className="text-black/40">输入</dt><dd className="truncate text-[#36697f]">{block.input}</dd>
-            <dt className="text-black/40">输出事件</dt><dd className="truncate text-[#7b5630]">{block.output}</dd>
+            <dt className="text-black/40">输出</dt><dd className="truncate text-[#7b5630]">{block.output}</dd>
           </dl>
         </section>
 
@@ -221,10 +239,12 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
   const [compiled, setCompiled] = useState<CompiledSkillGraph | null>(null);
   const [trace, setTrace] = useState<SkillRunTrace | null>(null);
-  const [visibleSteps, setVisibleSteps] = useState(0);
+  const [running, setRunning] = useState(false);
+  const [runtimeIssues, setRuntimeIssues] = useState<string[]>([]);
   const [saved, setSaved] = useState(false);
   const [deckEdges, setDeckEdges] = useState({ left: true, right: false });
   const [comboExpanded, setComboExpanded] = useState(false);
+  const runAbortRef = useRef<AbortController | null>(null);
 
   const updateDeckEdges = () => {
     const deck = deckScrollRef.current;
@@ -245,14 +265,12 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     const record = getCanvasSkill(skillId);
     if (!record) return;
     setDraft(record.draft); setCompiled(record.graph); setTrace(record.latest_run || null);
-    setVisibleSteps(record.latest_run?.steps.length || 0); setStage('structure'); setSaved(true);
+    setStage('structure'); setSaved(true);
   }, [skillId]);
 
   useEffect(() => {
-    if (stage !== 'run' || !trace || visibleSteps >= trace.steps.length) return;
-    const timer = window.setTimeout(() => setVisibleSteps((value) => value + 1), 420);
-    return () => window.clearTimeout(timer);
-  }, [stage, trace, visibleSteps]);
+    return () => runAbortRef.current?.abort();
+  }, []);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(updateDeckEdges);
@@ -275,13 +293,24 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     { label: '包含动作或状态输出', ok: draft.nodes.some((node) => ['act', 'remember'].includes(CAPABILITY_DEFINITIONS[node.capability].stage)) },
   ];
   const updateDraft = (next: SkillCanvasDraft) => {
-    setDraft({ ...next, updated_at: new Date().toISOString() }); setSaved(false); setCompiled(null); setTrace(null);
+    setDraft({ ...next, updated_at: new Date().toISOString() }); setSaved(false); setCompiled(null); setTrace(null); setRuntimeIssues([]);
   };
   const addBlock = (capability: SkillBlockCapability, slotIndex = draft.nodes.length) => {
     sequenceRef.current += 1;
     const nextNodes = [...draft.nodes];
     nextNodes.splice(Math.min(slotIndex, nextNodes.length), 0, makeNode(capability, draft.nodes.length + sequenceRef.current));
     updateDraft({ ...draft, nodes: nextNodes });
+  };
+  const loadExecutableTemplate = () => {
+    const capabilities: SkillBlockCapability[] = ['trigger.manual', 'sensor.location', 'model.gemma', 'action.voice', 'state.skill_completed'];
+    updateDraft({
+      ...draft,
+      title: draft.title || '城市观察伙伴',
+      prompt: draft.prompt || '读取我的当前位置，给出一条安全、简短的城市观察建议，语音播报后保存完成证据。',
+      nodes: capabilities.map((capability, index) => makeNode(capability, sequenceRef.current + index)),
+      edges: [],
+    });
+    sequenceRef.current += capabilities.length;
   };
   const removeNode = (id: string) => updateDraft({ ...draft, nodes: draft.nodes.filter((node) => node.id !== id), edges: draft.edges.filter((edge) => edge.from !== id && edge.to !== id) });
   const moveNodeToSlot = (nodeId: string, slotIndex: number) => {
@@ -313,22 +342,38 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
     });
     setStage('structure');
   };
-  const startPreview = () => {
+  const startRun = async () => {
     const result = compileSkillDraft(draft); setDraft(result.structured);
     if (!result.ok || !result.graph) return;
-    const nextTrace = previewSkillGraph(result.graph);
-    setCompiled(result.graph); setTrace(nextTrace); setVisibleSteps(0); setSaved(false); setStage('run');
-    setCompiled(result.graph); setTrace(nextTrace); setVisibleSteps(0); setSaved(false); setStage('run');
+    setRuntimeIssues([]);
+    const issues = await preflightBrowserSkillRuntime(result.graph);
+    if (issues.length) { setRuntimeIssues(issues); return; }
+    await persistCompiledGraph(result.graph);
+    const controller = new AbortController();
+    runAbortRef.current?.abort();
+    runAbortRef.current = controller;
+    setCompiled(result.graph); setTrace(null); setSaved(false); setStage('run'); setRunning(true);
+    try {
+      const nextTrace = await executeStoredSkillGraph(
+        result.graph.graph_id,
+        result.graph.graph_hash,
+        createBrowserSkillRuntimeDependencies({ signal: controller.signal, onTrace: setTrace }),
+      );
+      setTrace(nextTrace);
+    } catch (error) {
+      setRuntimeIssues([error instanceof Error ? error.message : '技能运行失败']);
+    } finally {
+      setRunning(false);
+    }
   };
   const save = () => {
-    if (!compiled || !trace || visibleSteps < trace.steps.length) return;
+    if (!compiled || !trace || trace.status !== 'completed') return;
     const avatarId = draft.avatar_id || selectedAvatar.id;
     const avatarName = draft.avatar_name ?? selectedAvatar.name;
     const avatarRole = draft.avatar_role ?? selectedAvatar.role;
     const draftWithAvatar = { ...draft, avatar_id: avatarId, avatar_name: avatarName, avatar_role: avatarRole };
-    const graphWithAvatar = { ...compiled, avatar_id: avatarId, avatar_name: avatarName, avatar_role: avatarRole };
-    saveCanvasSkill(graphWithAvatar, draftWithAvatar, trace);
-    setDraft(draftWithAvatar); setCompiled(graphWithAvatar); setSaved(true); onSaved?.();
+    saveCanvasSkill(compiled, draftWithAvatar, trace);
+    setDraft(draftWithAvatar); setSaved(true); onSaved?.();
   };
 
   return <div className="relative flex h-full flex-col overflow-hidden bg-[#efece4]">
@@ -347,6 +392,7 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
             <span><b className="block font-pixel text-[7px]">02 · 能力模块</b><small className="mt-1 block text-[7px] text-black/45">按工程能力分类筛选；拖动模块进入组合区</small></span>
             <span className="rounded-full border-2 border-black bg-[#f8f1e3] px-2 py-1 font-pixel text-[5px]">{BLOCKS.length} 个模块</span>
           </div>
+          {draft.nodes.length === 0 && <button type="button" onClick={loadExecutableTemplate} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#ffd34e] px-3 py-2 text-[8px] font-black"><WandSparkles className="h-4 w-4" />装入“手动 → 位置 → Gemma → 语音 → 证据”真链模板</button>}
           <div className="-mx-3 mt-2 flex gap-1.5 overflow-x-auto px-3 pb-1">{FAMILY_FILTERS.map((family) => <button key={family} type="button" onClick={() => setActiveFamily(family)} className={`shrink-0 rounded-full border-2 border-black px-3 py-1.5 text-[8px] font-black ${activeFamily === family ? 'bg-[#26231f] text-[#f8f1e3]' : 'bg-[#f8f1e3]'}`}>{family}</button>)}</div>
           <div className="relative -mx-3 mt-2">
             <button type="button" aria-label="向左滑动能力卡牌" disabled={deckEdges.left} onClick={() => scrollDeck(-1)} className="absolute left-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border-2 border-black bg-[#f8f1e3] disabled:opacity-20"><ChevronLeft className="h-5 w-5" strokeWidth={3} /></button>
@@ -437,20 +483,23 @@ export default function SkillCanvasTab({ skillId, onSaved }: Props) {
         </div>
         {compileResult.issues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[10px] text-[#8b1c16]">还差一点</b>{compileResult.issues.map((issue) => <p key={`${issue.code}-${issue.node_id || ''}`} className="mt-1 text-[8px] text-[#8b1c16]">· {issue.message}</p>)}</div>}
         <div className="mt-3 border-2 border-black bg-[#fff9e8] p-2.5"><div className="flex items-center justify-between"><span><b className="block font-pixel text-[7px]">权限边界</b><small className="mt-1 block text-[7px] text-black/45">运行到对应步骤时才请求</small></span><ShieldCheck className="h-5 w-5" /></div><div className="mt-2 flex flex-wrap gap-1.5">{compileResult.graph?.permissions.map((permission) => <span key={permission} className="border border-black bg-white px-2 py-1 text-[7px] font-bold">{PERMISSION_LABEL[permission] || permission}</span>) || <span className="text-[7px] text-black/40">修复上方问题后生成权限清单</span>}</div></div>
-        <p className="mt-3 px-1 text-[8px] leading-relaxed text-black/45">本次“试运行”只检查任务图，不会读取真实 GPS、HRV、相机或模型数据。</p>
+        {compileResult.graph && <div className="mt-3 border-2 border-black bg-[#191a17] p-2.5 text-[#f8f1e3]"><small className="font-pixel text-[5px] text-[#7CFF6B]">不可变执行物 · IMMUTABLE GRAPH</small><code className="mt-1.5 block break-all font-mono text-[7px] text-white/70">{compileResult.graph.graph_id}<br />{compileResult.graph.graph_hash}</code></div>}
+        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[9px] text-[#8b1c16]">真实运行前还差这些</b>{runtimeIssues.map((issue) => <p key={issue} className="mt-1 text-[7px] leading-relaxed text-[#8b1c16]">· {issue}</p>)}</div>}
+        <p className="mt-3 px-1 text-[8px] leading-relaxed text-black/55">下一步会读取这份 Graph 的精确 Hash，按节点请求真实权限和 Provider。缺能力时会停止，不会用 preview 或伪数据冒充成功。</p>
       </section>}
 
-      {stage === 'run' && trace && <section className="px-3 py-3">
-        <div className="mb-3 border-[3px] border-black bg-[#fff0b5] p-3"><div className="flex items-start justify-between gap-3"><span><small className="font-pixel text-[6px]">SKILL TASKMASTER · 试运行</small><h2 className="mt-1 text-[20px] font-black">{visibleSteps >= trace.steps.length ? '这条任务能跑通' : '伙伴正在走一遍'}</h2><p className="mt-1 text-[8px] leading-relaxed text-black/55">{trace.note}</p></span><span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-black ${visibleSteps >= trace.steps.length ? 'bg-[#00ff88]' : 'bg-white'}`}>{visibleSteps >= trace.steps.length ? <Check className="h-6 w-6" strokeWidth={3} /> : <Footprints className="h-6 w-6 animate-pulse" />}</span></div></div>
-        <RunStatus trace={trace} visibleSteps={visibleSteps} />
-        {visibleSteps >= trace.steps.length && <div className="mt-3 border-[3px] border-black bg-[#00ff88] p-3"><small className="font-pixel text-[6px]">已编译 · {compiled?.nodes.length || 0} 个步骤 · {compiled?.permissions.length || 0} 项权限</small><h3 className="mt-1.5 text-[17px] font-black">{saved ? '已经装进我的技能' : '保存成你的技能'}</h3><p className="mt-1 text-[8px] leading-relaxed text-black/55">{saved ? '以后可以从“我的技能”打开、修改和再次试运行。' : '任务图、权限清单和本次证据会一起保存在本机。'}</p><button type="button" disabled={saved} onClick={save} className="mt-3 flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px] disabled:bg-white/60 disabled:text-black/45">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saved ? '已保存到我的技能' : '保存到我的技能'}</button></div>}
+      {stage === 'run' && <section className="px-3 py-3">
+        <div className={`mb-3 border-[3px] border-black p-3 ${trace?.status === 'completed' ? 'bg-[#00ff88]' : trace && ['failed', 'safe_stopped', 'waiting_permission'].includes(trace.status) ? 'bg-[#fff0ed]' : 'bg-[#fff0b5]'}`}><div className="flex items-start justify-between gap-3"><span><small className="font-pixel text-[6px]">SKILL TASKMASTER · 真实运行</small><h2 className="mt-1 text-[20px] font-black">{trace?.status === 'completed' ? '整条链路已跑通' : trace && trace.status !== 'running' ? '运行已停止' : '正在执行这张技能图'}</h2><p className="mt-1 text-[8px] leading-relaxed text-black/55">{trace?.note || '正在从 IndexedDB 重读 Graph 并校验 Hash…'}</p></span><span className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border-2 border-black ${trace?.status === 'completed' ? 'bg-white' : 'bg-[#ffd34e]'}`}>{trace?.status === 'completed' ? <Check className="h-6 w-6" strokeWidth={3} /> : running ? <Footprints className="h-6 w-6 animate-pulse" /> : <X className="h-6 w-6" />}</span></div></div>
+        {trace ? <RunStatus trace={trace} /> : <div className="grid min-h-[180px] place-items-center border-2 border-dashed border-black/30 bg-white/50 text-center"><span><Footprints className="mx-auto h-7 w-7 animate-pulse" /><small className="mt-2 block font-pixel text-[6px]">加载不可变 GRAPH</small></span></div>}
+        {runtimeIssues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5">{runtimeIssues.map((issue) => <p key={issue} className="text-[8px] text-[#8b1c16]">· {issue}</p>)}</div>}
+        {trace?.status === 'completed' && <div className="mt-3 border-[3px] border-black bg-[#00ff88] p-3"><small className="font-pixel text-[6px]">HASH 一致 · {compiled?.nodes.length || 0} 个真实步骤 · {compiled?.permissions.length || 0} 项权限</small><h3 className="mt-1.5 text-[17px] font-black">{saved ? '已经装进我的技能' : '保存成你的技能'}</h3><p className="mt-1 text-[8px] leading-relaxed text-black/55">{saved ? '以后可以从“我的技能”打开、修改和再次运行。' : 'Graph、Run Trace 与 Evidence 已在本机按同一 Hash 存档；云端只收到 skill_completed 事实。'}</p><button type="button" disabled={saved} onClick={save} className="mt-3 flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px] disabled:bg-white/60 disabled:text-black/45">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saved ? '已保存到我的技能' : '保存到我的技能'}</button></div>}
       </section>}
     </div>
 
     <div className="shrink-0 border-t-[3px] border-black bg-white p-2.5">
       {stage === 'sketch' && <button type="button" disabled={!goalReady || !compileResult.ok} onClick={showStructure} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-3 py-3 font-pixel text-[7px] text-[#7CFF6B] disabled:opacity-30"><WandSparkles className="h-4 w-4" />编译为技能图 <ArrowRight className="h-4 w-4" /></button>}
-      {stage === 'structure' && <div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" onClick={() => setStage('sketch')} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-3 font-pixel text-[6px]"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={!compileResult.ok} onClick={startPreview} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-3 font-pixel text-[7px] disabled:bg-black/20"><Play className="h-4 w-4" fill="currentColor" />交给 SKILL TASKMASTER</button></div>}
-      {stage === 'run' && <button type="button" onClick={() => setStage('structure')} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px]"><ArrowLeft className="h-4 w-4" />返回检查结构</button>}
+      {stage === 'structure' && <div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" onClick={() => setStage('sketch')} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-3 font-pixel text-[6px]"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={!compileResult.ok || running} onClick={() => void startRun()} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-3 font-pixel text-[7px] disabled:bg-black/20"><Play className="h-4 w-4" fill="currentColor" />真实运行这张技能图</button></div>}
+      {stage === 'run' && <button type="button" onClick={() => { runAbortRef.current?.abort(); setRunning(false); setStage('structure'); }} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-white px-3 py-3 font-pixel text-[7px]"><ArrowLeft className="h-4 w-4" />{running ? '取消并返回结构' : '返回检查结构'}</button>}
     </div>
     {selectedBlock && <AbilityCardDialog
       key={selectedBlock.capability}

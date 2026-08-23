@@ -434,6 +434,25 @@ flowchart LR
 
 它覆盖 Trigger、Input、Processor、Action、State 五类积木，同时严格复用 AMap、Firebase Auth、Gemma 代理和 HealthEvent 契约。Graph Trace 与生成文本留端侧，云端只记录 `DATA_SCHEMA.md` 已允许的完成事实。
 
+### 11.2 2026-08-23 已落地的首条垂直切片
+
+本仓库已经把推荐切片从产品原型升级为可执行实现：
+
+1. Canvas 的 8 张卡片读取同一份 `CapabilityContract`，不再各自维护一套展示字段；模型卡固定绑定 `POST /v1/llm/generate`，完成卡固定绑定 `POST /v1/health-events:batchSync`。
+2. Compiler 对 typed ports、必需输入、能力版本锁和 Provider binding 做校验，并对 canonical Graph 计算真实 SHA-256；`graph_id` 从该 Hash 派生。
+3. Graph、Run Trace 和 Evidence 进入 IndexedDB。Runtime 启动时不是使用 React 内存中的草稿，而是按 `graph_id` 重读、重新计算并校验同一 `graph_hash` 后才执行。
+4. 浏览器 Runtime 已接入真实 Geolocation、Speech Synthesis 和 API Client。位置权限拒绝或超时会在对应节点 `blocked`，下游节点 `skipped`；不会把 preview、旧缓存或静态文本冒充成功。
+5. `backend/` 实现 Node 20 + TypeScript + Fastify 服务。生产认证使用 Firebase ID Token，健康事件按 uid 写入 Firestore，Gemma 密钥只存在服务端；开发模式的固定 Token、内存仓库和确定性模型必须显式开启且禁止在 `NODE_ENV=production` 使用。
+6. 完成节点先在本机写入完整 Evidence，再同步一条规范允许的 `skill_completed` HealthEvent。服务端覆盖客户端 uid，按 `event_id + sync.revision` 幂等处理，冲突返回结构化结果。
+
+当前验证结果：
+
+- 端到端集成测试通过同一个真实 Fastify HTTP 进程执行 `手动 → 固定位置适配器 → Gemma API → 语音适配器 → Evidence/batchSync`，并断言编译 Hash、Runtime Hash 和 Evidence Hash 完全一致。
+- 本地浏览器完成 `手动 → Gemma API → 系统语音 → Evidence/batchSync` 的真实运行并保存到“我的技能”；浏览器定位超时时，五节点模板在位置节点诚实阻断。
+- `npm run typecheck`、`npm test` 和 `npm run build` 同时覆盖 Web 与 API。
+
+尚未宣称完成的部分：生产 Gemma/Firestore 凭据、Android/iOS 原生权限桥、AMap 路线 Adapter、相机/麦克风/姿态 Provider、离线副作用队列与云端跨设备发布。这些能力在接入前仍必须显示为缺失或阻断。
+
 ---
 
 ## 12. 验收标准
@@ -493,4 +512,3 @@ flowchart LR
 最可信的产品叙事不是“我们为每个 Skill 写了后端”，而是：
 
 > 同一个端侧 Taskmaster 执行用户刚编译的 Graph；每张能力卡只绑定已批准的本地 Adapter 或 `pocketbuddy-api` 契约；任何云端变化都先更新三份权威文档。
-

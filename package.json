@@ -4,12 +4,16 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --config vite.pocketbuddy.config.ts",
-    "build": "vite build --config vite.pocketbuddy.config.ts",
-    "mobile:sync": "npm run build && cap sync android",
+    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:web": "vite --config vite.pocketbuddy.config.ts",
+    "dev:api": "ALLOW_DEV_AUTH=true SKILL_DEV_STORE=memory SKILL_DEV_LLM_MODE=deterministic API_PORT=8787 npm --prefix backend run dev",
+    "build": "npm run build:web && npm run build:api",
+    "build:web": "vite build --config vite.pocketbuddy.config.ts",
+    "build:api": "npm --prefix backend run build",
+    "mobile:sync": "npm run build:web && cap sync android",
     "preview": "vite preview --config vite.pocketbuddy.config.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
+    "typecheck": "tsc --noEmit && npm --prefix backend run typecheck",
+    "test": "vitest run && npm --prefix backend test",
     "health:install-connectors": "node scripts/health/install-connectors.mjs",
     "health:verify-connectors": "node scripts/health/install-connectors.mjs --verify-only",
     "health:eval-qwen4b-skills": "vitest run scripts/health/qwen4b-skill-chain.live.test.ts --reporter=verbose"
@@ -20,6 +24,7 @@
   "dependencies": {
     "@capacitor/android": "^8.5.0",
     "@capacitor/core": "^8.5.0",
+    "@noble/hashes": "^1.7.1",
     "lucide-react": "0.487.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -31,6 +36,7 @@
     "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.7.0",
+    "concurrently": "^9.2.1",
     "sharp": "^0.34.5",
     "tailwindcss": "4.1.12",
     "typescript": "5.6.3",

@@ -180,8 +180,13 @@ export default defineConfig(({ mode }) => {
   return {
     base: '/',
     server: {
+      host: process.env.DEV_HOST || '127.0.0.1',
       port: process.env.PORT ? Number(process.env.PORT) : 5173,
+      hmr: { host: process.env.DEV_HOST || '127.0.0.1' },
       fs: { allow: [__dirname, ...(hasSoundWalkWorkspace ? [soundWalkRoot!] : [])] },
+      proxy: {
+        '/v1': { target: env.POCKETBUDDY_API_DEV_URL || 'http://127.0.0.1:8787', changeOrigin: true },
+      },
     },
     plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), frostEdge(env), qwenChatDev(env), pocketEarthPublicFallback(pocketEarthPublic)],
     resolve: {
