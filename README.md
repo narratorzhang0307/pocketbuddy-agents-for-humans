@@ -2,6 +2,8 @@
 
 > 一个认识你的运动健康伙伴：记住今天，理解目标，把下一步交给合适的 Skill。
 
+**稳定节点：[0828最终版](docs/technical/0828-FINAL-MILESTONE.md)** · 标签 [`v2026.08.28-final`](https://github.com/narratorzhang0307/pocketbuddy/tree/v2026.08.28-final) · 对应 TestFlight `0.1.0 (2026082828)`。用户已反馈真机实测满意；源码范围、校验记录与安全回退步骤见节点说明。
+
 Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问答放进同一个长期陪伴角色 **Frost**。你可以在手机里打字，也可以通过电子吧唧说话；Frost 结合已授权的记忆理解目标，选择能力，把真实结果带回同一个会话。
 
 个性化不只是换一份训练计划：不同用户可以装备不同 Skill，保留自己的目标、偏好和使用记录。模型负责理解与建议，Taskmaster 负责执行边界，手机和硬件承担真实的采集与交互。
@@ -125,7 +127,7 @@ npm run dev -- --host 127.0.0.1 --port 5174
 - 地图前端配置按 [.env.example](.env.example) 设置，并限制域名与额度。
 - Qwen / MiniMax 的密钥只放服务端，不能加 `VITE_` 前缀进入浏览器包。
 - Python 服务、模型权重、健康连接器和原始音频不随源码自动安装。
-- 练了吗原始提示 MP3 未入 Git；已有硬件 PCM 不替代子应用构建所需的原始输入。
+- 练了吗源码引用的离线教练 MP3 已纳入该子应用的 `assets/audio/`；完整构建步骤见 [当前源码构建说明](docs/development/CURRENT-SOURCE-BUILD.md)。
 
 ### 构建与验证
 
