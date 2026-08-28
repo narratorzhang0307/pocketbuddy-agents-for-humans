@@ -3,6 +3,10 @@ export const BIRD_ASSETS = catalog;
 export interface BirdStatus {
   enabled: boolean; active: boolean; busy: boolean; state: string; message: string;
   speciesId?: string; name?: string; confidence?: number; imageUrl?: string;
+  stage?: 'preparing' | 'ready' | 'recording' | 'receiving' | 'validating' | 'transcribing' | 'recognizing' | 'downloading' | 'returning' | 'complete';
+  captureId?: string; captureSource?: 'bird' | 'voice';
+  receivedBytes?: number; expectedBytes?: number; audioPackets?: number; audioComplete?: boolean;
+  peak?: number; dropped?: number; stopReason?: number; httpStatus?: number; modelAudioBytes?: number; imageApplied?: boolean;
 }
 export function birdIntent(text: string): 'start' | 'stop' | null {
   const t = text.replace(/\s/g, '');

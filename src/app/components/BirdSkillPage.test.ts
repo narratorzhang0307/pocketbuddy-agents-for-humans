@@ -30,6 +30,8 @@ describe('bird recording page', () => {
     expect(primary).toContain('按住 B 板屏幕录音');
     expect(primary).toContain('请长按B板触屏录制鸟叫');
     expect(primary).toContain('松手后自动识别');
+    expect(primary).toContain('最多 10 秒自动停止');
+    expect(html).toContain('3 秒分析窗');
     expect(primary).toContain('退出识鸟');
     expect(primary).not.toContain('重新准备识鸟');
     expect(html).not.toContain('现在进入识鸟');
@@ -60,5 +62,28 @@ describe('bird recording page', () => {
     expect(primary).toContain('正在收录鸟叫');
     expect(primary).not.toContain('重新准备识鸟');
     expect(primary).toContain('退出识鸟');
+  });
+
+  it('distinguishes complete BLE audio from a failed backend request', () => {
+    state.badge.bird = { ...state.badge.bird!, state: 'error', stage: 'recognizing', captureId: 'capture-1',
+      receivedBytes: 320000, expectedBytes: 320000, audioComplete: true, httpStatus: 503,
+      message: '识鸟服务请求失败（HTTP 503），音频已在手机收齐' };
+    const { primary } = render();
+    expect(primary).toContain('320000 / 320000');
+    expect(primary).toContain('10.0');
+    expect(primary).toContain('完整校验通过');
+    expect(primary).toContain('HTTP 503');
+    expect(primary).toContain('尚未确认');
+    expect(primary).not.toContain('已收到硬件解码回执');
+  });
+
+  it('never marks partial BLE audio or an unrequested backend call complete', () => {
+    state.badge.bird = { ...state.badge.bird!, state: 'receiving', stage: 'receiving', captureId: 'capture-2',
+      receivedBytes: 160000, expectedBytes: 320000, audioComplete: false, busy: true };
+    const { primary } = render();
+    expect(primary).toContain('160000 / 320000');
+    expect(primary).toContain('尚未收齐');
+    expect(primary).toContain('尚未请求');
+    expect(primary).not.toContain('完整校验通过');
   });
 });

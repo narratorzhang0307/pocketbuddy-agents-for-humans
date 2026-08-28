@@ -2,6 +2,7 @@
 #include "config.h"
 #include "capture_delivery.h"
 #include "agent_link.h"
+#include "agent_link_transport.h"
 #include <algorithm>
 #include <cmath>
 #include <cstring>
@@ -76,6 +77,9 @@ void LogOutputActivity(int pin, const char* name) {
 }
 
 esp_err_t OjBadgeAudio::Init() {
+    // A six-second bird hold must not overflow a three-second internal-heap queue
+    // when the phone negotiates a slower BLE link. Bound all physical holds at 30 s.
+    ESP_RETURN_ON_ERROR(agent_transport_ble_reserve_voice(16000 * 2 * 30), TAG, "PSRAM voice buffer");
     Es8311Config cfg = {};
     cfg.i2c_port = I2C_NUM_1;  // Touch + BQ27220 already own bus 0 on GPIO43/44.
     cfg.pin_sda = static_cast<gpio_num_t>(ojbadge::kAudioSda);
@@ -108,7 +112,9 @@ void OjBadgeAudio::BeginPhysicalCapture(uint32_t max_ms, bool bird) {
     if (!ready_ || agent_link_state() != AGENT_STATE_READY || recording_.load()) return;
     const uint32_t duration = max_ms == 0 ? 30000 : std::min(max_ms, uint32_t{30000});
     StopPlayback();  // Half-duplex UX avoids acoustic echo; hardware codec stays full duplex.
-    capture_until_ms_.store(esp_timer_get_time() / 1000 + duration);
+    // Bird capture also has a hard 160000-sample bound. Allow only the 100 ms
+    // initial DMA flush in addition to the ten seconds of actual input.
+    capture_until_ms_.store(esp_timer_get_time() / 1000 + duration + (bird ? 100 : 0));
 }
 
 void OjBadgeAudio::Enqueue(const uint8_t* data, size_t bytes) {
@@ -162,7 +168,7 @@ void OjBadgeAudio::CaptureTask(void* ctx) {
             vTaskDelay(pdMS_TO_TICKS(20));
             continue;
         }
-        self->recording_.store(true);
+        self->recorded_samples_.store(0); self->recording_.store(true);
         self->codec_.StartMic();
         uint32_t samples = 0;
         uint16_t peak = 0, dropped = 0;
@@ -189,11 +195,14 @@ void OjBadgeAudio::CaptureTask(void* ctx) {
             if (self->capture_until_ms_.load() == 0 || agent_link_state() != AGENT_STATE_READY) break;
             for (size_t i = 0; i < got; ++i) peak = std::max(peak, static_cast<uint16_t>(std::abs(int(pcm[i]))));
             samples += got;
+            self->recorded_samples_.store(samples);
             if (agent_link_push_voice(reinterpret_cast<const uint8_t*>(pcm), got * sizeof(int16_t)) != ESP_OK) {
                 ++dropped; reason = 4; break;  // Stop explicitly, rather than report a complete broken recording.
             }
+            if (bird && samples >= 160000) { reason = 2; break; }
         }
         self->codec_.StopMic();
+        std::memset(pcm, 0, sizeof(pcm));
         agent_link_voice_end();
         self->recording_.store(false);
         self->capture_until_ms_.store(0);

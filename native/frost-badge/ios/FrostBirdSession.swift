@@ -21,6 +21,10 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
     private(set) var enabled = UserDefaults.standard.bool(forKey: "frost.bird.background.enabled")
     private var state = "idle", message = ""
     private var details: [String: Any] = [:]
+    // Metadata only: no audio, transcript, credentials or server payloads in diagnostics.
+    private var progress: [String: Any] = [:]
+    private var lastProgressAt = Date.distantPast
+    private var lastCaptureEnd: [UInt8]?
     private var generation = 0
     private var capture: BirdCapture?
     private var ownsCapture = false
@@ -62,11 +66,14 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
                && $0.jpegUrl.path.hasPrefix("/pocket-earth/bird-skill/20260828-v1/") }) { assets = catalog }
     }
     var busy: Bool { capture != nil || operation != nil || pending != nil }
-    func snapshot() -> [String: Any] { ["enabled": enabled, "active": active, "busy": busy, "state": state, "message": message].merging(details) { _, b in b } }
+    func snapshot() -> [String: Any] { ["enabled": enabled, "active": active, "busy": busy, "state": state, "message": message].merging(progress) { _, b in b }.merging(details) { _, b in b } }
     private func update(_ value: String, _ text: String, extra: [String: Any] = [:]) {
         state = value; message = text; details = extra
         emit?(snapshot())
-        NSLog("[FrostBird] state=%@ background=%d", value, UIApplication.shared.applicationState != .active)
+        NSLog("[FrostBird] state=%@ stage=%@ received=%d expected=%d http=%d background=%d", value,
+              progress["stage"] as? String ?? "idle", progress["receivedBytes"] as? Int ?? 0,
+              progress["expectedBytes"] as? Int ?? 0, progress["httpStatus"] as? Int ?? 0,
+              UIApplication.shared.applicationState != .active)
     }
     func configure(_ on: Bool, completion: @escaping (Error?) -> Void) {
         guard on else {
@@ -119,23 +126,31 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         guard enabled, connected, maxWrite >= 64, assets.count == 13 else {
             throw BirdFailure.invalid("请先连接新版B板并启用识鸟；需要完整资源清单与足够的蓝牙MTU")
         }
-        cancelWork(); active = true
+        cancelWork(); active = true; progress = [:]
         launch { [self] in try await activate() }
     }
     private func activate() async throws {
+        progress["stage"] = "preparing"
         update("loading", "正在唤起识鸟")
         try await actuate("speaker0", Data([0]))
         try await actuate("bird_mode_v1", Data([2]))
         try await screen("识鸟素材加载中")
         try await show(index: 17)
-        try await screen("长按屏幕录鸟叫\n建议六秒后松手")
+        try await screen("长按屏幕录鸟叫\n十秒自动停止")
         try await actuate("bird_mode_v1", Data([1]))
-        update("ready", "请长按B板触屏录制鸟叫，建议六秒后松手")
+        progress["stage"] = "ready"
+        update("ready", "请长按B板触屏录制鸟叫，最多十秒，松手结束")
     }
     private func failureScreen(_ error: Error) -> String {
         guard active else { return "OPEN APP TO RETRY" }
         if error.localizedDescription.contains("请求较多") { return "服务请求较多\n请稍后重录" }
         if error is URLError { return "网络暂不可用\n请稍后重录" }
+        let reason = error.localizedDescription
+        if reason.contains("至少") { return "录音太短\n请按住十秒" }
+        if reason.contains("未录到声音") { return "未录到声音\n请靠近声源" }
+        if reason.contains("录音") || reason.contains("收音") { return "蓝牙收音中断\n请查看手机" }
+        if progress["stage"] as? String == "recognizing" { return "识别服务异常\n请查看手机" }
+        if progress["stage"] as? String == "returning" { return "图片回传中断\n请查看手机" }
         return "本次未完成\n请重新录制"
     }
     private func launch(_ body: @escaping () async throws -> Void) {
@@ -186,19 +201,42 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
                 guard take else { return false }
                 cancelWork(); ownsCapture = true; beginBackground()
                 guard enabled, !bird || active else { update("error", "识鸟未启用，本次录音不上传"); return true }
-                capture = BirdCapture(bird: bird)
+                capture = BirdCapture(bird: bird); lastCaptureEnd = nil
+                progress = ["stage": "recording", "captureId": UUID().uuidString,
+                            "receivedBytes": 0, "audioPackets": 0, "audioComplete": false, "captureSource": bird ? "bird" : "voice"]
                 update("recording", bird ? "正在收录鸟叫" : "正在倾听语音指令")
                 armCaptureTimeout(40)
             } else if ownsCapture {
+                // A repeated end notification must not cancel the in-flight HTTP request.
+                if lastCaptureEnd == p { return true }
                 do {
+                    progress["expectedBytes"] = Int(BirdWire.u32(p, 4)) * 2
+                    progress["peak"] = Int(BirdWire.u16(p, 8)); progress["dropped"] = Int(BirdWire.u16(p, 10))
+                    progress["stopReason"] = Int(p[3])
                     guard capture != nil, capture?.bird == (p[1] == 6) else { throw BirdFailure.invalid("录音来源不符") }
-                    try capture?.end(p); finishCapture(); if capture != nil { armCaptureTimeout(12) }
+                    try capture?.end(p); lastCaptureEnd = p
+                    if capture?.complete != true {
+                        progress["stage"] = "receiving"
+                        update("receiving", "录音已结束，正在接收蓝牙音频")
+                        // Match the firmware's bounded 20 s tail drain, with 2 s for delivery.
+                        armCaptureTimeout(22)
+                    }
+                    finishCapture()
                 } catch { rejectCapture(error) }
             } else { return p[1] == 6 }
             return true
         }
         if b[2] == 0x40, ownsCapture {
-            do { try capture?.push(p); finishCapture() } catch { rejectCapture(error) }
+            do {
+                try capture?.push(p)
+                if let capture {
+                    progress["receivedBytes"] = capture.pcm.count; progress["audioPackets"] = Int(capture.next)
+                    if Date().timeIntervalSince(lastProgressAt) >= 0.25 {
+                        lastProgressAt = Date(); emit?(snapshot())
+                    }
+                }
+                finishCapture()
+            } catch { rejectCapture(error) }
             return true
         }
         return false
@@ -209,7 +247,9 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         captureTimer = Timer.scheduledTimer(withTimeInterval: seconds, repeats: false) { [weak self] _ in
             Task { @MainActor in
                 guard let self, self.generation == id, self.capture != nil else { return }
-                self.rejectCapture(BirdFailure.invalid("录音接收超时，本次未上传"))
+                let received = self.progress["receivedBytes"] as? Int ?? 0
+                let expected = self.progress["expectedBytes"] as? Int ?? 0
+                self.rejectCapture(BirdFailure.invalid("蓝牙录音接收超时：已收到\(received)/\(expected)字节，本次未上传"))
             }
         }
     }
@@ -228,10 +268,12 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
     private func finishCapture() {
         guard let result = capture, result.complete else { return }
         captureTimer?.invalidate(); captureTimer = nil; capture = nil
+        progress["audioComplete"] = true; progress["receivedBytes"] = result.pcm.count
         NSLog("[FrostBird] capture_complete bird=%d bytes=%d", result.bird, result.pcm.count)
         launch { [self] in
             if result.bird { try await identify(result.pcm) }
             else {
+                progress["stage"] = "transcribing"
                 update("transcribing", "本机识别指令中")
                 let text = try await transcribe(result.pcm)
                 switch BirdWire.intent(text) {
@@ -283,7 +325,9 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         }
     }
     private func identify(_ pcm: Data) async throws {
+        progress["stage"] = "validating"
         let wav = try BirdWire.modelWave(pcm)
+        progress["stage"] = "recognizing"; progress["modelAudioBytes"] = wav.count
         update("recognizing", "正在调用T5自建识鸟服务")
         try await actuate("bird_mode_v1", Data([2])); try await screen("正在识别鸟叫")
         var request = URLRequest(url: URL(string: "https://hearnature.throughtheglass.art/hardware/recognize")!)
@@ -291,25 +335,32 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         request.httpBody = try JSONSerialization.data(withJSONObject: ["format": "wav", "deviceId": "ojbadge-bird-v1", "audioBase64": wav.base64EncodedString()])
         let (data, response) = try await http.data(for: request)
         try Task.checkCancellation()
+        let status = (response as? HTTPURLResponse)?.statusCode ?? 0
+        progress["httpStatus"] = status
         if (response as? HTTPURLResponse)?.statusCode == 429 { throw BirdFailure.invalid("识鸟服务请求较多，请稍后再录") }
-        guard (response as? HTTPURLResponse)?.statusCode == 200, data.count < 65536,
-              let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+        guard status == 200 else { throw BirdFailure.invalid("识鸟服务请求失败（HTTP \(status)），音频已在手机收齐") }
+        guard data.count < 65536,
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let matched = json["matched"] as? Bool else { throw BirdFailure.invalid("识鸟服务返回无效结果") }
         let id = json["species_id"] as? String
         let confidence = json["confidence"] as? Double ?? -1
         if matched, confidence.isFinite, (0...1).contains(confidence), let bird = assets.first(where: { $0.index > 17 && $0.id == id }) {
+            progress["stage"] = "downloading"
             update("loading", "正在获取\(bird.name)的OSS图片")
             try await show(index: bird.index)
             try await screen("疑似：\(bird.name)\n长按屏幕再识别")
             try await actuate("bird_mode_v1", Data([3]))
+            progress["stage"] = "complete"
             update("result", "候选：\(bird.name)。置信度不是准确率。", extra: ["speciesId": bird.id, "name": bird.name, "confidence": confidence, "imageUrl": bird.webUrl.absoluteString])
         } else {
             try await show(index: 17); try await screen("未确定鸟种\n请靠近声源重录")
             try await actuate("bird_mode_v1", Data([4]))
+            progress["stage"] = "complete"
             update("unknown", matched ? "模型候选未收录或无效，不展示错误鸟图" : "未识别到可靠候选，请重新录制")
         }
     }
     private func show(index: UInt8) async throws {
+        progress["stage"] = "downloading"
         guard let asset = assets.first(where: { $0.index == index }) else { throw BirdFailure.invalid("鸟图未收录") }
         let bytes: Data
         if let existing = cache[index] { bytes = existing }
@@ -326,6 +377,8 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
             cache[index] = data; bytes = data
         }
         try Task.checkCancellation(); token &+= 1
+        progress["stage"] = "returning"; progress["imageApplied"] = false
+        emit?(snapshot())
         let current = token, low = UInt8(truncatingIfNeeded: current), high = UInt8(current >> 8)
         func receipt(_ state: UInt8, _ value: UInt32) -> [UInt8] { [1, 5, index, state, low, high] + BirdWire.le(value) }
         try await actuate("avatar_jpeg_v1", Data([0, index, low, high] + BirdWire.le(UInt32(bytes.count)) + BirdWire.le(asset.crc32)), receipt: receipt(1, 0))
@@ -336,6 +389,7 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
             try await actuate("avatar_jpeg_v1", Data([1, index, low, high] + BirdWire.le(UInt32(offset))) + bytes.subdata(in: offset..<end), receipt: receipt(2, UInt32(end)))
         }
         try await actuate("avatar_jpeg_v1", Data([2, index, low, high]), receipt: receipt(3, asset.crc32))
+        progress["imageApplied"] = true
         NSLog("[FrostBird] image_applied index=%d bytes=%d crc=%u", index, bytes.count, asset.crc32)
     }
     private func screen(_ text: String) async throws { try await actuate("screen0", Data(text.utf8)) }

@@ -219,7 +219,7 @@ async def main(touch_seconds, audio=False, coc_tone=False, mic_gate=False, pcm_f
             if bird_oss:
                 if 'bird_mode_v1' not in endpoints:
                     raise RuntimeError('Bird mode endpoint missing')
-                birds = json.loads((Path(__file__).resolve().parents[3] / 'src/app/lib/skill/birdCatalog.json').read_text())
+                birds = json.loads((Path(__file__).resolve().parents[3] / 'native/frost-badge/ios/BirdCatalog.json').read_text())
                 if [b['index'] for b in birds] != list(range(17, 30)):
                     raise RuntimeError('Unexpected bird mapping')
                 catalog = [dict(id=b['id'], name=b['name'], badgeIndex=b['index'], cloud=b) for b in birds]

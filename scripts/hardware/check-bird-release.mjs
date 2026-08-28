@@ -61,6 +61,19 @@ function verifyCode(catalog, code) {
   }
 }
 
+// Catalog freshness alone cannot prove that the recording page was updated.
+// Check the actual lazy-loaded page at build time and again inside the signed App.
+export function verifyBirdRecordingEntry(webDir) {
+  const assets = path.join(webDir, 'assets');
+  const pages = readdirSync(assets).filter(name => /^BirdSkillPage-[A-Za-z0-9_-]+\.js$/.test(name));
+  requireThat(pages.length === 1, '识鸟录音页面分包缺失或混入旧版，请全量重建');
+  const code = readFileSync(path.join(assets, pages[0]), 'utf8');
+  for (const marker of ['按住 B 板屏幕录音', '识鸟会自动准备，无需再点', '松手后自动识别', '重新准备识鸟', '退出识鸟', '最多 10 秒自动停止', '硬件 → 手机', '手机 → 识别服务', '图片 → 硬件']) {
+    requireThat(code.includes(marker), `识鸟页面缺少当前录音入口：${marker}`);
+  }
+  requireThat(!code.includes('现在进入识鸟'), '识鸟页面仍有旧的二次启动入口');
+}
+
 // The Vite build stamps hashes of its actual JS output, including the catalog module.
 // Xcode verifies these bytes again; copying only a new manifest over old JS cannot pass.
 export function birdReleasePlugin(root) {
@@ -79,6 +92,7 @@ export function birdReleasePlugin(root) {
         const directory = path.resolve(root, options.dir);
         const actual = chunks.map(chunk => ({ chunk, bytes: readFileSync(path.join(directory, chunk.fileName)) }));
         verifyCode(source.catalog, actual.map(item => item.bytes.toString('utf8')).join('\n'));
+        verifyBirdRecordingEntry(directory);
         const stamp = { release: source.release, catalogSha256: source.catalogSha256,
           entries: chunks.filter(chunk => chunk.isEntry).map(chunk => chunk.fileName),
           chunks: actual.map(({ chunk, bytes }) => ({ file: chunk.fileName, sha256: sha(bytes) })) };
@@ -107,6 +121,7 @@ export function verifyBirdWeb(root, webDir) {
   }
   requireThat(stamp.entries.every(entry => stamp.chunks.some(chunk => chunk.file === entry)), '入口 JS 没有纳入哈希核验');
   verifyCode(source.catalog, code.join('\n'));
+  verifyBirdRecordingEntry(webDir);
   // Detect leftover old chunks, even if the new entry no longer references them.
   for (const name of readdirSync(path.join(webDir, 'assets')).filter(name => name.endsWith('.js'))) {
     const text = readFileSync(path.join(webDir, 'assets', name), 'utf8');

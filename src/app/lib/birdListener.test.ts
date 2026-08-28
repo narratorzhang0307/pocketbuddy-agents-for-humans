@@ -172,6 +172,14 @@ describe('bird release build gate', () => {
     mkdirSync(dirname(join(base, file)), { recursive: true }); writeFileSync(join(base, file), content);
   };
   const canonical = () => readFileSync(BIRD_CATALOG);
+  const recordingPage = 'export const labels = ["按住 B 板屏幕录音", "识鸟会自动准备，无需再点", "松手后自动识别", "重新准备识鸟", "退出识鸟", "最多 10 秒自动停止", "硬件 → 手机", "手机 → 识别服务", "图片 → 硬件"];';
+  function stampPage(web: string, code: string) {
+    write(web, 'assets/BirdSkillPage-current.js', code);
+    const stamp = JSON.parse(readFileSync(join(web, 'bird-release.json'), 'utf8'));
+    stamp.chunks = stamp.chunks.filter((chunk: { file: string }) => chunk.file !== 'assets/BirdSkillPage-current.js');
+    stamp.chunks.push({ file: 'assets/BirdSkillPage-current.js', sha256: createHash('sha256').update(code).digest('hex') });
+    write(web, 'bird-release.json', JSON.stringify(stamp));
+  }
   function webFixture() {
     const web = temp();
     const code = `export const birds = ${JSON.stringify(BIRD_ASSETS)};`;
@@ -179,6 +187,7 @@ describe('bird release build gate', () => {
     write(web, 'index.html', '<script type="module" src="/assets/entry.js"></script>');
     write(web, 'bird-release.json', JSON.stringify({ release: BIRD_RELEASE, catalogSha256: BIRD_CATALOG_SHA256,
       entries: ['assets/entry.js'], chunks: [{ file: 'assets/entry.js', sha256: createHash('sha256').update(code).digest('hex') }] }));
+    stampPage(web, recordingPage);
     symlinkSync(resolve(root, 'public/assets/bird-skill'), join(web, 'assets/bird-skill'), 'dir');
     return web;
   }
@@ -210,6 +219,26 @@ describe('bird release build gate', () => {
   it('rejects old JS copied over a newer stamped Web directory', () => {
     const web = webFixture(); write(web, 'assets/entry.js', 'export const birds = [];');
     expect(() => verifyBirdWeb(root, web)).toThrow(/JS 被替换/);
+  });
+  it('rejects an old recording page even with the latest catalog and matching chunk hashes', () => {
+    const web = webFixture(); stampPage(web, 'export const label = "现在进入识鸟";');
+    expect(() => verifyBirdWeb(root, web)).toThrow(/识鸟页面缺少当前录音入口/);
+  });
+  it('rejects a restored second-start action even when current instructions remain', () => {
+    const web = webFixture(); stampPage(web, `${recordingPage} export const oldAction = "现在进入识鸟";`);
+    expect(() => verifyBirdWeb(root, web)).toThrow(/旧的二次启动入口/);
+  });
+  it('rejects a leftover recording-page chunk alongside the current page', () => {
+    const web = webFixture(); write(web, 'assets/BirdSkillPage-old.js', 'export const oldAction = "现在进入识鸟";');
+    expect(() => verifyBirdWeb(root, web)).toThrow(/页面分包缺失或混入旧版/);
+  });
+  it('rejects a catalog-only package whose recording page was omitted', () => {
+    const web = webFixture();
+    const stamp = JSON.parse(readFileSync(join(web, 'bird-release.json'), 'utf8'));
+    stamp.chunks = stamp.chunks.filter((chunk: { file: string }) => !chunk.file.includes('BirdSkillPage-'));
+    write(web, 'bird-release.json', JSON.stringify(stamp));
+    rmSync(join(web, 'assets/BirdSkillPage-current.js'));
+    expect(() => verifyBirdWeb(root, web)).toThrow(/页面分包缺失或混入旧版/);
   });
   it('rejects an HTML entry left pointing at a previous build', () => {
     const web = webFixture(); write(web, 'index.html', '<script src="/assets/old.js"></script>');

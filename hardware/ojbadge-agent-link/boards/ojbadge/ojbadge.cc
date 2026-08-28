@@ -582,6 +582,7 @@ private:
         uint8_t displayed_avatar = 0;
         uint8_t last_bird_mode = 0;
         int64_t bird_processing_until = 0;
+        unsigned last_bird_seconds = 99;
         while (true) {
             const int64_t now = esp_timer_get_time() / 1000;
             lv_tick_inc(static_cast<uint32_t>(now - last_tick));
@@ -683,6 +684,13 @@ private:
                     }
                     last_feedback = feedback;
                 }
+                if (recording && self->bird_touch_active_) {
+                    const unsigned seconds = self->audio_.RecordedSamples() / 16000;
+                    if (seconds != last_bird_seconds) {
+                        lv_label_set_text_fmt(self->feedback_hint_, "%u / 10 秒 · 松手结束", seconds);
+                        last_bird_seconds = seconds;
+                    }
+                } else last_bird_seconds = 99;
             }
             if (recording != was_recording) {
                 lv_label_set_text(self->state_label_, recording ? "REC - RELEASE TO END" : kStates[self->state_]);

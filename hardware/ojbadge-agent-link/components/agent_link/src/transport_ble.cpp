@@ -13,6 +13,7 @@
 //    ASR/recording uplink (device -> App): L2CAP CoC (PSM 0x0081) send + control events 0x52/0x53.
 //    Image snapshot uplink (device -> App): L2CAP CoC (PSM 0x0082) send + control events 0x54/0x55.
 #include "agent_link_transport.h"
+#include "voice_pcm_buffer.h"
 
 #include <cstring>
 #include <queue>
@@ -21,6 +22,8 @@
 #include <atomic>
 
 #include "esp_log.h"
+#include "esp_heap_caps.h"
+#include "esp_timer.h"
 #include "nvs_flash.h"
 
 #include "freertos/FreeRTOS.h"
@@ -214,23 +217,42 @@ esp_err_t Notify(uint16_t handle, const uint8_t* data, size_t len) {
 // Frame overhead = 6 (common header) + session(4) + sequence(4) + flags(1) = 15.
 constexpr size_t   kVoiceOverhead      = 15;
 constexpr size_t   kMaxFrameSingleMbuf = 220;  // keep a frame in a single mbuf, avoiding chain-alloc failures on high-rate notify
-constexpr size_t   kMaxPcmSingleMbuf   = kMaxFrameSingleMbuf - kVoiceOverhead;  // 205
-constexpr size_t   kFallbackPcmBytes   = 80;   // conservative slice when the MTU is abnormal
-constexpr size_t   kVoiceQueueHardCap  = 96 * 1024;  // hard cap ~3s @ 32KB/s: when the link is bad, drop new frames to keep the head
+constexpr size_t   kDefaultVoiceCapacity = 96 * 1024; // Other boards retain their existing bound.
+constexpr size_t   kMaxVoiceCapacity = 960000; // Full 30-second physical capture, volatile PSRAM only.
 constexpr uint32_t kVoiceMaxRetries    = 300;  // per-slice congestion retry limit
 
 struct VoiceState {
     std::atomic<bool>     active{false};
     std::atomic<bool>     end_req{false};
+    std::atomic<bool>     failed{false};
+    std::atomic<int64_t>  drain_deadline_ms{0};
     uint32_t              session_id = 0;
     std::atomic<uint32_t> sequence{0};
-    std::queue<std::vector<uint8_t>> q;
+    agentlink::VoicePcmBuffer q;
+    uint8_t*             storage = nullptr;
+    size_t               capacity = 0;
     std::mutex            mtx;
     std::atomic<size_t>   queued_bytes{0};
     TaskHandle_t          task = nullptr;
 };
 VoiceState s_voice;
 uint32_t   s_voice_counter = 0;
+std::atomic<bool> s_voice_subscribed{false};
+
+esp_err_t ReserveVoice(size_t bytes) {
+    if (!bytes || bytes % 2 || bytes > kMaxVoiceCapacity || s_voice.active.load()) return ESP_ERR_INVALID_ARG;
+    std::lock_guard<std::mutex> lk(s_voice.mtx);
+    if (s_voice.capacity >= bytes) return ESP_OK;
+    // Large audio buffers must not starve NimBLE's internal mbuf/ACL pools.
+    auto* storage = static_cast<uint8_t*>(heap_caps_malloc(bytes,
+        MALLOC_CAP_8BIT | (bytes > kDefaultVoiceCapacity ? MALLOC_CAP_SPIRAM : MALLOC_CAP_INTERNAL)));
+    if (!storage) return ESP_ERR_NO_MEM;
+    s_voice.q.Clear(); heap_caps_free(s_voice.storage);
+    s_voice.storage = storage; s_voice.capacity = bytes;
+    s_voice.q.Attach(storage, bytes); s_voice.q.Clear();
+    ESP_LOGI(TAG, "voice buffer reserved: bytes=%u psram=%d", static_cast<unsigned>(bytes), bytes > kDefaultVoiceCapacity);
+    return ESP_OK;
+}
 
 // ── ASR / recording uplink (L2CAP CoC data plane + control events 0x52/0x53) ──
 // device -> App real-time audio: 0x52 StreamStart opens, raw bytes flow over L2CAP CoC, 0x53 StreamEnd closes.
@@ -281,6 +303,7 @@ uint32_t   s_img_counter = 0;
 
 // Assemble one 0x40 VoiceChunk frame and notify it on 0xFFA1. len <= kMaxPcmSingleMbuf.
 bool VoiceSendChunk(uint32_t sequence, const uint8_t* data, size_t len) {
+    if (!s_voice_subscribed.load()) return false;
     uint8_t f[kMaxFrameSingleMbuf];
     size_t i = 0;
     f[i++] = 0x01;                          // version
@@ -306,20 +329,23 @@ bool VoiceSendChunk(uint32_t sequence, const uint8_t* data, size_t len) {
 
 void VoiceTask(void*) {
     ESP_LOGI(TAG, "voice task started (session=%u)", static_cast<unsigned>(s_voice.session_id));
+    size_t sent_bytes = 0;
     while (true) {
-        if (!s_connected) { ESP_LOGW(TAG, "voice: link down — stop"); break; }
+        const int64_t deadline = s_voice.drain_deadline_ms.load();
+        if (!s_connected || !s_voice_subscribed.load() ||
+            (deadline && esp_timer_get_time() / 1000 >= deadline)) {
+            s_voice.failed.store(true); ESP_LOGW(TAG, "voice: link unavailable or drain deadline — stop"); break;
+        }
         const bool end_req = s_voice.end_req.load(std::memory_order_acquire);
 
-        std::vector<uint8_t> chunk;
+        uint8_t chunk[640];
+        size_t chunk_bytes = 0;
         {
             std::lock_guard<std::mutex> lk(s_voice.mtx);
-            if (!s_voice.q.empty()) {
-                chunk = std::move(s_voice.q.front());
-                s_voice.q.pop();
-                s_voice.queued_bytes.fetch_sub(chunk.size(), std::memory_order_release);
-            }
+            chunk_bytes = s_voice.q.Pop(chunk, sizeof(chunk));
+            s_voice.queued_bytes.store(s_voice.q.Size(), std::memory_order_release);
         }
-        if (chunk.empty()) {
+        if (!chunk_bytes) {
             if (end_req) { ESP_LOGI(TAG, "voice: drained — done"); break; }
             vTaskDelay(pdMS_TO_TICKS(10));  // empty queue: yield at least 1 tick (FREERTOS_HZ=100)
             continue;
@@ -327,33 +353,40 @@ void VoiceTask(void*) {
 
         // MTU-aware slicing: per-notify PCM = ATT_MTU - 3 - 15, clamped to a single mbuf (205) and even-aligned.
         const uint16_t mtu = (s_conn_handle != BLE_HS_CONN_HANDLE_NONE) ? ble_att_mtu(s_conn_handle) : 0;
-        size_t max_pcm = (static_cast<size_t>(mtu) > 3 + kVoiceOverhead + 2)
-                             ? (static_cast<size_t>(mtu) - 3 - kVoiceOverhead)
-                             : kFallbackPcmBytes;
-        if (max_pcm > kMaxPcmSingleMbuf) max_pcm = kMaxPcmSingleMbuf;
-        max_pcm &= ~static_cast<size_t>(1);           // even-aligned (int16 samples)
-        if (max_pcm == 0) max_pcm = 2;
+        const size_t max_pcm = agentlink::VoicePcmSlice(mtu);
+        if (!max_pcm) { s_voice.failed.store(true); break; }
 
-        for (size_t off = 0; off < chunk.size(); ) {
-            const size_t remaining = chunk.size() - off;
+        for (size_t off = 0; off < chunk_bytes; ) {
+            const size_t remaining = chunk_bytes - off;
             const size_t n = (remaining < max_pcm) ? remaining : max_pcm;
             const uint32_t seq = s_voice.sequence.fetch_add(1, std::memory_order_release);
 
             bool sent = false;
             for (uint32_t retry = 0; retry < kVoiceMaxRetries; retry++) {
-                if (!s_connected) break;
-                if (VoiceSendChunk(seq, chunk.data() + off, n)) { sent = true; break; }
+                const int64_t drain_deadline = s_voice.drain_deadline_ms.load();
+                if (!s_connected || !s_voice_subscribed.load() ||
+                    (drain_deadline && esp_timer_get_time() / 1000 >= drain_deadline)) break;
+                if (VoiceSendChunk(seq, chunk + off, n)) { sent = true; break; }
                 // congestion backoff: 1ms x5 -> 5ms x15 -> 10ms (a failed notify signals mbuf-pool pressure).
                 const uint32_t d = (retry < 5) ? 1 : (retry < 20) ? 5 : 10;
-                vTaskDelay(pdMS_TO_TICKS(d));
+                vTaskDelay(std::max(TickType_t{1}, pdMS_TO_TICKS(d)));
             }
-            if (!sent) { ESP_LOGE(TAG, "voice: slice send failed — stop"); s_voice.end_req.store(true); break; }
-            off += n;
+            if (!sent) { ESP_LOGE(TAG, "voice: slice send failed — stop"); s_voice.failed.store(true); break; }
+            off += n; sent_bytes += n;
             vTaskDelay(pdMS_TO_TICKS(1));  // small yield per slice to give the BLE host a chance
         }
+        std::memset(chunk, 0, sizeof(chunk));
+        // A failed slice ends the whole utterance, never skip it then send later PCM.
+        if (s_voice.failed.load()) break;
     }
-    s_voice.active.store(false, std::memory_order_release);
+    {
+        std::lock_guard<std::mutex> lk(s_voice.mtx);
+        s_voice.q.Clear(); s_voice.queued_bytes.store(0);
+    }
+    ESP_LOGI(TAG, "VOICE END session=%u sent=%u failed=%d", static_cast<unsigned>(s_voice.session_id),
+        static_cast<unsigned>(sent_bytes), s_voice.failed.load());
     s_voice.task = nullptr;
+    s_voice.active.store(false, std::memory_order_release);
     vTaskDelete(nullptr);
 }
 
@@ -362,15 +395,19 @@ esp_err_t VoiceStart() {
         // Never merge a new utterance into the old session while its tail is draining.
         return s_voice.end_req.load(std::memory_order_acquire) ? ESP_ERR_INVALID_STATE : ESP_OK;
     }
-    if (!s_connected) return ESP_ERR_INVALID_STATE;
+    if (!s_connected || !s_voice_subscribed.load()) return ESP_ERR_INVALID_STATE;
+    if (!s_voice.storage) {
+        const esp_err_t result = ReserveVoice(kDefaultVoiceCapacity);
+        if (result != ESP_OK) return result;
+    }
     {   // reset queue + counters
         std::lock_guard<std::mutex> lk(s_voice.mtx);
-        std::queue<std::vector<uint8_t>> empty;
-        std::swap(s_voice.q, empty);
+        s_voice.q.Clear();
     }
     s_voice.queued_bytes.store(0, std::memory_order_release);
     s_voice.sequence.store(0, std::memory_order_release);
     s_voice.end_req.store(false, std::memory_order_release);
+    s_voice.failed.store(false); s_voice.drain_deadline_ms.store(0);
     s_voice.session_id = ++s_voice_counter;
     s_voice.active.store(true, std::memory_order_release);
     // Use the internal stack (NimBLE's notify call chain is deep, so leave headroom; do not assume PSRAM, for portability). Priority 6.
@@ -386,22 +423,22 @@ esp_err_t VoiceStart() {
 }
 
 esp_err_t VoiceEnqueue(const uint8_t* data, size_t len) {
-    if (!s_voice.active.load(std::memory_order_acquire)) return ESP_ERR_INVALID_STATE;
-    if (!data || len == 0) return ESP_ERR_INVALID_ARG;
+    if (!s_voice.active.load(std::memory_order_acquire) || s_voice.failed.load() || s_voice.end_req.load()) return ESP_ERR_INVALID_STATE;
+    if (!data || len == 0 || len % 2) return ESP_ERR_INVALID_ARG;
     std::lock_guard<std::mutex> lk(s_voice.mtx);
     // Integrity-first, with a hard cap as a backstop: when the link is bad, drop new frames to keep the head (the App at least gets the start of the voice).
-    if (s_voice.queued_bytes.load(std::memory_order_acquire) + len > kVoiceQueueHardCap) {
+    if (!s_voice.q.Push(data, len)) {
         ESP_LOGW(TAG, "voice queue hard cap (%uKB) — drop %uB (link stalled)",
-                 static_cast<unsigned>(kVoiceQueueHardCap / 1024), static_cast<unsigned>(len));
+                 static_cast<unsigned>(s_voice.capacity / 1024), static_cast<unsigned>(len));
         return ESP_ERR_NO_MEM;
     }
-    s_voice.q.emplace(data, data + len);
-    s_voice.queued_bytes.fetch_add(len, std::memory_order_release);
+    s_voice.queued_bytes.store(s_voice.q.Size(), std::memory_order_release);
     return ESP_OK;
 }
 
 esp_err_t VoiceEnd() {
     if (!s_voice.active.load(std::memory_order_acquire)) return ESP_OK;
+    s_voice.drain_deadline_ms.store(esp_timer_get_time() / 1000 + 20000);
     s_voice.end_req.store(true, std::memory_order_release);  // the worker drains the rest, then exits on its own
     return ESP_OK;
 }
@@ -827,9 +864,18 @@ int GapEvent(struct ble_gap_event* event, void* /*arg*/) {
     switch (event->type) {
     case BLE_GAP_EVENT_CONNECT:
         if (event->connect.status == 0) {
+            s_voice_subscribed.store(false);
             s_connected = true;
             s_conn_handle = event->connect.conn_handle;
             ESP_LOGI(TAG, "connected (handle=%d)", s_conn_handle);
+            // Request, never assume, an Apple-compatible 15–30 ms connection and
+            // 251-byte link-layer packets. The PCM buffer covers slower peers.
+            ble_gap_upd_params params = {};
+            params.itvl_min = 12; params.itvl_max = 24;
+            params.latency = 0; params.supervision_timeout = 400;
+            const int update = ble_gap_update_params(s_conn_handle, &params);
+            const int data_len = ble_gap_set_data_len(s_conn_handle, 251, 2120);
+            ESP_LOGI(TAG, "audio link parameters requested: interval_rc=%d data_len_rc=%d", update, data_len);
             if (s_on_conn) s_on_conn(true);
         } else {
             ESP_LOGW(TAG, "connect failed (status=%d) — re-advertising", event->connect.status);
@@ -837,6 +883,7 @@ int GapEvent(struct ble_gap_event* event, void* /*arg*/) {
         }
         return 0;
     case BLE_GAP_EVENT_DISCONNECT:
+        s_voice_subscribed.store(false);
         s_connected = false;
         s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
         s_l2cap_connected = false; s_l2cap_chan = nullptr;  // L2CAP goes down with the ACL
@@ -865,6 +912,10 @@ int GapEvent(struct ble_gap_event* event, void* /*arg*/) {
         return BLE_GAP_REPEAT_PAIRING_RETRY;
     }
     case BLE_GAP_EVENT_SUBSCRIBE:
+        if (event->subscribe.attr_handle == s_h_voice) {
+            s_voice_subscribed.store(event->subscribe.cur_notify);
+            ESP_LOGI(TAG, "voice notifications subscribed=%d", event->subscribe.cur_notify);
+        }
         // Peer subscribed to the event channel 0xFFC4 (CCCD write enables notify) -> notifications
         // are delivered from now on -> tell the core it is "notify-ready" (the core sends the I/O
         // manifest from here, see agent_link.cpp OnLinkReady).
@@ -873,6 +924,12 @@ int GapEvent(struct ble_gap_event* event, void* /*arg*/) {
             s_on_ready();
         }
         return 0;
+    case BLE_GAP_EVENT_CONN_UPDATE: {
+        ble_gap_conn_desc desc = {};
+        if (ble_gap_conn_find(s_conn_handle, &desc) == 0)
+            ESP_LOGI(TAG, "audio link interval=%u latency=%u", desc.conn_itvl, desc.conn_latency);
+        return 0;
+    }
     case BLE_GAP_EVENT_ADV_COMPLETE:
         StartAdvertising();
         return 0;
@@ -1013,6 +1070,7 @@ agent_transport_t s_ble = {
 }  // namespace
 
 extern "C" agent_transport_t* agent_transport_ble(void) { return &s_ble; }
+extern "C" esp_err_t agent_transport_ble_reserve_voice(size_t bytes) { return ReserveVoice(bytes); }
 
 extern "C" void agent_transport_ble_set_name(const char* name) {
     if (name && *name) {

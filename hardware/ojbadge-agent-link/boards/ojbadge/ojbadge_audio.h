@@ -11,6 +11,7 @@ public:
     esp_err_t Init();
     bool Ready() const { return ready_; }
     bool Recording() const { return recording_.load(); }
+    uint32_t RecordedSamples() const { return recorded_samples_.load(); }
     uint8_t PlaybackLevel(int64_t now) const {
         return stop_requested_.load() ? 0 : playback_envelope_.Level(now);
     }
@@ -34,6 +35,7 @@ private:
     bool ready_ = false;
     std::atomic<int64_t> capture_until_ms_{0};
     std::atomic<bool> recording_{false};
+    std::atomic<uint32_t> recorded_samples_{0};
     std::atomic<bool> bird_capture_{false};
     std::atomic<uint8_t> tone_requested_{0};
     std::atomic<bool> stop_requested_{false};

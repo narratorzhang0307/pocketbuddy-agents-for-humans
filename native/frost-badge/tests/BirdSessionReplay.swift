@@ -181,15 +181,21 @@ func ending(_ bytes: Int, reason: UInt8 = 1, dropped: UInt16 = 0) -> Data {
                 for (part, chunk) in chunks.enumerated() {
                     if part == chunks.count - 1 {
                         _ = session.receive(ending(pcm.count))
-                        try require(session.snapshot()["state"] as? String == "recording", "end metadata must wait for final audio packet")
+                        try require(session.snapshot()["state"] as? String == "receiving", "end metadata must wait for final audio packet")
                     }
                     try require(session.receive(audio(chunk, UInt32(part), session: UInt32(100 + number))), "audio packet not owned")
                 }
+                // Repeat the actual end metadata after completion: it must not cancel
+                // the operation or start a second request for the same physical hold.
+                _ = session.receive(ending(pcm.count))
                 try await settled(session)
+                try require(session.snapshot()["receivedBytes"] as? Int == pcm.count, "diagnostic byte count")
+                try require(session.snapshot()["audioComplete"] as? Bool == true, "complete input gate")
                 var result = session.snapshot()
                 result["file"] = fixture["file"]; result["expected"] = fixture["expected"]
                 result["pcmBytes"] = pcm.count; result["audioPackets"] = chunks.count
                 result["tailBeforeAudioVerified"] = true; result["seconds"] = Date().timeIntervalSince(began)
+                result["duplicateEndIgnored"] = true
                 result["correct"] = result["state"] as? String == "result" && result["speciesId"] as? String == fixture["expected"] as? String
                 result["newImageCommits"] = Array((ble?.applied ?? board.applied).dropFirst(initialImages))
                 results.append(result); try save()

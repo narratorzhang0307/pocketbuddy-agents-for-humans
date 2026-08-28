@@ -118,6 +118,11 @@ typedef struct agent_transport_s {
  */
 agent_transport_t* agent_transport_ble(void);
 
+/** Reserve bounded volatile audio storage before recording. OJBadge reserves
+ * 30 seconds (960000 bytes) in PSRAM; this never starts the microphone.
+ * Call only during board initialization, not from a BLE callback. */
+esp_err_t agent_transport_ble_reserve_voice(size_t bytes);
+
 /**
  * @brief Set BLE advertising name
  * @param name Device name (used in advertising and GAP)
