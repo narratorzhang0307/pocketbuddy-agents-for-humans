@@ -35,7 +35,7 @@ beforeEach(() => {
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('Frost → Her Motion direct camera handoff', () => {
-  it.each(['capacitor://localhost/', 'https://pocketbuddy.throughtheglass.art/', 'http://localhost:5173/'])('requests the camera on a first explicit launch at %s without pretending permission was granted', parent => {
+  it.each(['capacitor://localhost/', 'https://pocketbuddy.throughtheglass.art/', 'https://pocket-buddy.throughtheglass.art/', 'http://localhost:5173/'])('requests the camera on a first explicit launch at %s without pretending permission was granted', parent => {
     const url = openFrame(handoff, parent);
     expect(url.searchParams.get('frost_auto_camera')).toBe('1');
     expect(url.searchParams.get('frost_run_id')).toBe(handoff.runId);

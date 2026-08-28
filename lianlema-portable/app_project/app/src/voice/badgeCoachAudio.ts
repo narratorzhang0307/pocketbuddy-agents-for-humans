@@ -52,7 +52,7 @@ function embeddedOutput(): BadgeCoachAudio | undefined {
   if (!badgeAudioRequested || typeof window === 'undefined' || window.parent === window) return;
   const session = params?.get('frostAudioSession') || '';
   const parentOrigin = params?.get('frostParentOrigin');
-  if (!/^[a-f0-9-]{36}$/.test(session) || !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art'].includes(parentOrigin || '')) return;
+  if (!/^[a-f0-9-]{36}$/.test(session) || !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art'].includes(parentOrigin || '')) return;
   return new BadgeCoachAudio({ session,
     // WKWebView custom schemes can have an opaque origin. Only public clip IDs cross this message.
     post: data => window.parent.postMessage(data, parentOrigin === 'capacitor://localhost' ? '*' : parentOrigin!),

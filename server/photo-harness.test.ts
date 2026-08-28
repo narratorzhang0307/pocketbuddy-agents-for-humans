@@ -99,9 +99,15 @@ describe('real Photos SAM gateway', () => {
     expect(fetcher).toHaveBeenCalledTimes(3);
     expect(duplicate.headers.get('cache-control')).toBe('no-store');
   });
-  it('rejects an unrelated browser origin without calling Qwen', async () => {
+  it.each(['https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art', 'capacitor://localhost'])('accepts the exact deployed origin %s with explicit consent', async origin => {
     const { url, fetcher } = await listen();
-    const response = await fetch(`${url}/analyze`, { method: 'POST', headers: { Origin: 'https://unrelated.example' }, body: '{}' });
+    const response = await fetch(`${url}/analyze`, { method: 'POST', headers: { Origin: origin },
+      body: JSON.stringify({ image, consent: true, requestId: crypto.randomUUID() }) });
+    expect(response.status).toBe(200); expect(fetcher).toHaveBeenCalledTimes(3);
+  });
+  it.each(['https://unrelated.example', 'https://pocket-buddy.throughtheglass.art.evil.example', 'http://pocket-buddy.throughtheglass.art'])('rejects an unrelated browser origin %s without calling Qwen', async origin => {
+    const { url, fetcher } = await listen();
+    const response = await fetch(`${url}/analyze`, { method: 'POST', headers: { Origin: origin }, body: '{}' });
     expect(response.status).toBe(403); expect(fetcher).not.toHaveBeenCalled();
   });
   it('health reports real dependency readiness without any model call', async () => {

@@ -60,7 +60,7 @@ describe('pocket-skill/v1', () => {
     });
     expect(lianlema?.permissions.scopes).toEqual(expect.arrayContaining(['camera', 'audio', 'network']));
     expect(lianlema?.quality_gate.checks.join(' ')).toContain('仅在用户同意后发往 Pocket Buddy 模型服务，不保存画面');
-    expect(lianlema?.permissions.network_hosts).toEqual(['localhost', 'pocketbuddy.throughtheglass.art']);
+    expect(lianlema?.permissions.network_hosts).toEqual(['localhost', 'pocketbuddy.throughtheglass.art', 'pocket-buddy.throughtheglass.art']);
     expect(resolveSkillRunTarget(lianlema?.entry.target || '')).toBe('lianlema');
   });
 

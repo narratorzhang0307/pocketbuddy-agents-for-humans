@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { runInNewContext } from 'node:vm';
 import ts from 'typescript';
-import { consumeFrostTraining, forgetTraining, rememberedTraining, rememberTraining, reportTrainingStage }
+import { consumeFrostTraining, forgetTraining, rememberedTraining, rememberTraining, reportTrainingStage, reportTrainingCompletion }
   from '../../../lianlema-portable/app_project/app/src/camera/trainingConsent';
 
 function store() {
@@ -15,6 +15,19 @@ const search = '?embed=frost&frostAutoStart=1&frostRunId=run:1&frostParentOrigin
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 describe('remembered training consent and explicit start', () => {
+  it.each(['https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art'])('keeps launch and completion messages scoped to %s', origin => {
+    const query = search.replace('capacitor%3A%2F%2Flocalhost', encodeURIComponent(origin));
+    const s = store(), postMessage = vi.fn();
+    expect(consumeFrostTraining(query, true, true, s)).toBe(true);
+    expect(consumeFrostTraining(query, true, true, s)).toBe(false);
+    vi.stubGlobal('window', { parent: { postMessage }, location: { search: query } });
+    reportTrainingStage('camera-ready');
+    const workout = { input_mode: 'live' as const, duration_sec: 10, exercise_name: 'squat', total_reps: 1, observed_frames: 4 };
+    reportTrainingCompletion(workout);
+    expect(postMessage).toHaveBeenNthCalledWith(1, { protocol: 'pocket-lianlema/v1', type: 'camera-ready', runId: 'run:1' }, origin);
+    expect(postMessage).toHaveBeenNthCalledWith(2, { protocol: 'pocket-lianlema/v1', type: 'workout-completed', runId: 'run:1', workout }, origin);
+    expect(consumeFrostTraining(query.replace(encodeURIComponent(origin), encodeURIComponent(origin + '.evil.example')), true, true, store())).toBe(false);
+  });
   it('does not invent prior consent; remembers the chosen exercise only for the same endpoint', () => {
     const s = store();
     expect(rememberedTraining(base, s)).toBeUndefined();

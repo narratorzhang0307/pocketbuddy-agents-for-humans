@@ -5,7 +5,7 @@ export const HEALTH_CONSULTATION_SKILL: SkillManifest = {
     description: '直接打开健康咨询；实体按键语音经蓝牙到手机，本机转文字后由 Qwen 与本地文本检索辅助多轮交流，回复通过 TTS 回到吧唧。非医生诊断。' },
   kind: 'markdown', entry: { target: 'health-consultation' },
   runtime: { execution: 'declarative', runtime_min: '1.0.0', platforms: ['web', 'ios'] },
-  permissions: { scopes: ['audio', 'network'], tools: [], network_hosts: ['pocketbuddy.throughtheglass.art'] },
+  permissions: { scopes: ['audio', 'network'], tools: [], network_hosts: ['pocketbuddy.throughtheglass.art', 'pocket-buddy.throughtheglass.art'] },
   data: { schemas: ['pocket-health-consultation/v1'] },
   quality_gate: { policy_id: 'health-consultation-voice/v1', checks: [
     '打开页面不发送健康内容；按键提问或点击发送才将当前会话文本送往 Qwen',

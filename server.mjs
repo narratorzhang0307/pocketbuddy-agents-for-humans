@@ -868,6 +868,7 @@ function compressFor(accept, buf, abs, mtimeMs) {
 
 async function serveStatic(req, res, pathname) {
   applySecurityHeaders(res)
+  if (pathname === '/her-motion' || pathname.startsWith('/her-motion/')) res.setHeader('x-frame-options', 'SAMEORIGIN')
   // Only the training page can be framed by this site and its bundled iOS app.
   if (pathname === '/lianlema' || pathname.startsWith('/lianlema/')) {
     res.removeHeader('x-frame-options')

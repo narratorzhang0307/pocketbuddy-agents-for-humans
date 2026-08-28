@@ -7,6 +7,11 @@ import { createHash } from 'node:crypto';
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const app = path.join(root, 'lianlema-portable/app_project/app');
 const output = process.argv[2] ? path.resolve(process.argv[2]) : path.join(root, 'public/lianlema');
+const publicOrigin = new URL(process.env.POCKET_BUDDY_PUBLIC_ORIGIN || 'https://pocketbuddy.throughtheglass.art');
+if (publicOrigin.protocol !== 'https:' || publicOrigin.username || publicOrigin.password ||
+    publicOrigin.pathname !== '/' || publicOrigin.search || publicOrigin.hash) {
+  throw new Error('POCKET_BUDDY_PUBLIC_ORIGIN must be a bare HTTPS origin');
+}
 function sourceHash() {
   const hash = createHash('sha256');
   function visit(relative) {
@@ -26,7 +31,7 @@ const result = spawnSync(process.execPath, [path.join(app, 'node_modules/expo/bi
   cwd: app, stdio: 'inherit', env: { ...process.env,
     EXPO_NO_DOTENV: '1',
     LIANLEMA_WEB_BASE_PATH: '/lianlema',
-    EXPO_PUBLIC_MODEL_BASE_URL: 'https://pocketbuddy.throughtheglass.art/lianlema',
+    EXPO_PUBLIC_MODEL_BASE_URL: `${publicOrigin.origin}/lianlema`,
     EXPO_PUBLIC_MODEL_MODE: 'manual',
     EXPO_PUBLIC_PREFERRED_CAMERA: '',
   },

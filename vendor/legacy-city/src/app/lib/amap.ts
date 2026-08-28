@@ -9,6 +9,7 @@
 //   应用管理 → 创建新应用 → 添加 Key → 服务平台选「Web端(JS API)」→ 拿到 key + 安全密钥。
 export const AMAP_KEY = (import.meta.env.VITE_AMAP_KEY as string) || '';
 export const AMAP_SECURITY_JSCODE = (import.meta.env.VITE_AMAP_SECURITY_JSCODE as string) || '';
+export const AMAP_SERVICE_HOST = (import.meta.env.VITE_AMAP_SERVICE_HOST as string) || '';
 
 // 通用底图样式：保留给仍需太空黑背景的旧地图入口。
 // 可换 amap://styles/normal | light | dark | grey | whitesmoke。
@@ -21,7 +22,7 @@ export const AMAP_PERSONAL_STYLE =
 declare global {
   interface Window {
     AMap?: unknown;
-    _AMapSecurityConfig?: { securityJsCode: string };
+    _AMapSecurityConfig?: { securityJsCode?: string; serviceHost?: string };
   }
 }
 
@@ -40,7 +41,9 @@ export function loadAmap(): Promise<unknown> {
     return Promise.reject(new Error('缺少 VITE_AMAP_KEY（高德地图 key 未配置）'));
   }
   // JSAPI 2.0 要求安全密钥在加载脚本前挂到 window 上。
-  window._AMapSecurityConfig = { securityJsCode: AMAP_SECURITY_JSCODE };
+  window._AMapSecurityConfig = AMAP_SERVICE_HOST
+    ? { serviceHost: AMAP_SERVICE_HOST }
+    : { securityJsCode: AMAP_SECURITY_JSCODE };
   amapPromise = new Promise((resolve, reject) => {
     let attempt = 0;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;

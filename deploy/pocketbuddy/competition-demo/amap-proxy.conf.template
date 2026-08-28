@@ -1,0 +1,22 @@
+# See https://lbs.amap.com/api/javascript-api-v2/guide/abc/jscode
+# Replace the placeholder only in a private, mode-0600 server configuration.
+location /_AMapService/v4/map/styles {
+    limit_req zone=pocket_buddy_demo_maps burst=30 nodelay;
+    limit_req_status 429;
+    set $args "$args&jscode=__AMAP_SECURITY_JSCODE__";
+    proxy_ssl_server_name on;
+    proxy_ssl_verify on;
+    proxy_ssl_trusted_certificate /etc/pki/tls/certs/ca-bundle.crt;
+    proxy_pass https://webapi.amap.com/v4/map/styles;
+    error_log /dev/null crit;
+}
+location /_AMapService/ {
+    limit_req zone=pocket_buddy_demo_maps burst=30 nodelay;
+    limit_req_status 429;
+    set $args "$args&jscode=__AMAP_SECURITY_JSCODE__";
+    proxy_ssl_server_name on;
+    proxy_ssl_verify on;
+    proxy_ssl_trusted_certificate /etc/pki/tls/certs/ca-bundle.crt;
+    proxy_pass https://restapi.amap.com/;
+    error_log /dev/null crit;
+}

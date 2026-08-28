@@ -46,7 +46,8 @@ export default function PickScreen({ navigation }: Props) {
   const [serviceReady, setServiceReady] = useState(false);
   const [serviceMessage, setServiceMessage] = useState("正在检查模型服务…");
   const [retry, setRetry] = useState(0);
-  const hosted = modelBaseUrl().startsWith("https://pocketbuddy.throughtheglass.art/");
+  const hosted = ['https://pocketbuddy.throughtheglass.art/', 'https://pocket-buddy.throughtheglass.art/']
+    .some(origin => modelBaseUrl().startsWith(origin));
   useEffect(() => {
     if (!hosted) { setServiceReady(true); setServiceMessage("电脑模型服务 · 开始后验证连接"); return; }
     const controller = new AbortController();

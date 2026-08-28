@@ -1,0 +1,24 @@
+[Unit]
+Description=Pocket Buddy competition demo (isolated from the original site)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/pocket-buddy-demo/current
+Environment=NODE_ENV=production
+EnvironmentFile=/root/pocket-buddy-demo/shared/.env
+ExecStart=/usr/bin/node /root/pocket-buddy-demo/current/server.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/root/pocket-buddy-demo/shared
+MemoryMax=768M
+CPUQuota=100%
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target

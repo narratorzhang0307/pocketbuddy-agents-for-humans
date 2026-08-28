@@ -31,7 +31,7 @@ export function consumeFrostTraining(search: string, embedded: boolean, foregrou
   if (!embedded || !foreground || !storage) return false;
   const params = new URLSearchParams(search), runId = params.get('frostRunId') || '';
   if (params.get('embed') !== 'frost' || params.get('frostAutoStart') !== '1' || !runId || runId.length > 256 ||
-      !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art'].includes(params.get('frostParentOrigin') || '')) return false;
+      !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art'].includes(params.get('frostParentOrigin') || '')) return false;
   try {
     const key = 'pocket.lianlema.consumed-starts.v1';
     const parsed = JSON.parse(storage.getItem(key) || '[]');
@@ -47,7 +47,7 @@ export function reportTrainingStage(type: 'camera-ready' | 'frame-analyzed' | 't
   const params = new URLSearchParams(window.location.search);
   if (params.get('embed') !== 'frost') return;
   const origin = params.get('frostParentOrigin');
-  if (!['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art'].includes(origin || '')) return;
+  if (!['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art'].includes(origin || '')) return;
   window.parent.postMessage({ protocol: 'pocket-lianlema/v1', type, runId: params.get('frostRunId') },
     origin === 'capacitor://localhost' ? '*' : origin!);
 }
@@ -55,6 +55,6 @@ export function reportTrainingStage(type: 'camera-ready' | 'frame-analyzed' | 't
 export function reportTrainingCompletion(workout: { input_mode: 'live'; duration_sec: number; exercise_name: string; total_reps: number; observed_frames: number }): void {
   if (typeof window === 'undefined' || window.parent === window) return;
   const params = new URLSearchParams(window.location.search), origin = params.get('frostParentOrigin');
-  if (params.get('embed') !== 'frost' || !params.get('frostRunId') || !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art'].includes(origin || '')) return;
+  if (params.get('embed') !== 'frost' || !params.get('frostRunId') || !['capacitor://localhost', 'https://pocketbuddy.throughtheglass.art', 'https://pocket-buddy.throughtheglass.art'].includes(origin || '')) return;
   window.parent.postMessage({ protocol: 'pocket-lianlema/v1', type: 'workout-completed', runId: params.get('frostRunId'), workout }, origin === 'capacitor://localhost' ? '*' : origin!);
 }

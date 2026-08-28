@@ -45,7 +45,7 @@ const lianlemaSkill = (): SkillManifest => ({
   permissions: {
     scopes: ['camera', 'audio', 'network'],
     tools: ['pose'],
-    network_hosts: ['localhost', 'pocketbuddy.throughtheglass.art'],
+    network_hosts: ['localhost', 'pocketbuddy.throughtheglass.art', 'pocket-buddy.throughtheglass.art'],
   },
   data: { schemas: ['frost-pose-signal/v1', 'health_event/v1'] },
   quality_gate: {

@@ -41,7 +41,8 @@ function embeddedUrl(launchUrl: string, objective?: string, runId?: string, audi
 
 export default function LianlemaSkillPage({ launchUrl, onBack, backLabel = '返回 Skills' }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const hosted = launchUrl.startsWith('https://pocketbuddy.throughtheglass.art/');
+  const hosted = ['https://pocketbuddy.throughtheglass.art/', 'https://pocket-buddy.throughtheglass.art/']
+    .some(origin => launchUrl.startsWith(origin));
   const connection = useMemo(() => resolveLianlemaConnection(launchUrl, window.location.href, Capacitor.isNativePlatform()), [launchUrl]);
   const [handoff] = useState(() => peekTaskHandoff('lianlema-coach'));
   const [autoStart] = useState(() => shouldAutoStartLianlema(handoff));

@@ -116,7 +116,7 @@ export function createPhotoHarnessHandler({ env = process.env, fetcher = fetch, 
       }
       if (pathname !== `${PATH}/analyze` || req.method !== 'POST') throw new PhotoError('not_found', 404);
       const origin = String(req.headers.origin || '');
-      if (origin && origin !== 'https://pocketbuddy.throughtheglass.art' && origin !== 'capacitor://localhost'
+      if (origin && origin !== 'https://pocketbuddy.throughtheglass.art' && origin !== 'https://pocket-buddy.throughtheglass.art' && origin !== 'capacitor://localhost'
         && !(localDev && /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin))) throw new PhotoError('origin_not_allowed', 403);
       if (busy) throw new PhotoError('sam_busy', 429);
       busy = true; ownsSlot = true;
