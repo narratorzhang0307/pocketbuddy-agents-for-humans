@@ -269,7 +269,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
   if (running === 'frost') return <Suspense fallback={<SkillPageLoader label="FROST" />}><FrostBuddyPage onBack={closeRunning} onRun={runSkill} /></Suspense>;
   if (running === 'hermotion') return <Suspense fallback={<SkillPageLoader label="HER MOTION" />}><HerMotionSkillPage launchUrl={HER_MOTION_LAUNCH_URL} onBack={closeRunning} avatarSkillId={skillAvatarForPage(running, runningEntry).id} backLabel={herMotionReturnToFrost ? '返回 Frost' : returnToExternalTarget ? externalBackLabel : '返回 Skills'} /></Suspense>;
   if (running === 'lianlema') return <Suspense fallback={<SkillPageLoader label="练了吗" />}><LianlemaSkillPage launchUrl={LIANLEMA_LAUNCH_URL} onBack={closeRunning} backLabel={lianlemaReturnToFrost ? '返回 Frost' : returnToExternalTarget ? externalBackLabel : '返回 Skills'} /></Suspense>;
-  if (running === 'hospital') return <Suspense fallback={<SkillPageLoader label="医院 Agent" />}><HospitalAgentPage onBack={closeRunning} backLabel={returnToExternalTarget ? externalBackLabel : '返回 Agents'} /></Suspense>;
+  if (running === 'hospital') return <Suspense fallback={<SkillPageLoader label="健康咨询 Agent" />}><HospitalAgentPage onBack={closeRunning} backLabel={returnToExternalTarget ? externalBackLabel : '返回 Agents'} /></Suspense>;
   if (running === 'runroute') return <Suspense fallback={<SkillPageLoader label="RUN ROUTE" />}><RunRouteSkillPage onBack={closeRunning} /></Suspense>;
   if (running === 'birdlistener') return <Suspense fallback={<SkillPageLoader label="识鸟" />}><BirdSkillPage onBack={closeRunning} /></Suspense>;
   if (running === 'deviceevidence') return <Suspense fallback={<SkillPageLoader label="本机验收账本" />}><DeviceEvidenceLedgerPage onBack={closeRunning} /></Suspense>;
@@ -317,13 +317,13 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
 
         <button
           type="button"
-          onClick={() => runSkill('hospital-agent')}
+          onClick={() => runSkill('health-consultation')}
           className="grid w-full grid-cols-[52px_1fr_auto] items-center gap-2.5 border-2 border-black bg-[#e3f4f0] p-2.5 text-left transition-colors hover:bg-[#d2eee7] active:translate-y-px"
         >
           <HospitalAgentAvatar />
           <span className="min-w-0">
-            <span className="block text-[13px] font-black">医院 Agent</span>
-            <span className="mt-0.5 block font-pixel text-[6px] tracking-wider text-[#187b73]">HOSPITAL · SUB AGENT</span>
+            <span className="block text-[13px] font-black">健康咨询 Agent</span>
+            <span className="mt-0.5 block font-pixel text-[6px] tracking-wider text-[#187b73]">HEALTH CONSULTATION · SUB AGENT</span>
             <span className="mt-1 block text-[10.5px] leading-snug text-black/60">Qwen 自动接入 · 健康信息、就医准备与本地知识目录</span>
           </span>
           <span className="grid min-h-11 w-[76px] shrink-0 place-items-center border-2 border-black bg-white px-1 text-center text-[10px] font-bold">打开 Agent</span>

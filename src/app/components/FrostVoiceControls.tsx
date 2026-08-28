@@ -52,7 +52,7 @@ export default function FrostVoiceControls({ reply, connected, recording, workin
       <p>已生成 · {(audio.durationMs / 1000).toFixed(1)} 秒</p>
       <audio controls src={waveUrl} aria-label="MiniMax 语音试听" className="h-8 max-w-full" />
       <div className="flex flex-wrap gap-2">
-        <button className={button} disabled={working || !connected || recording} onClick={() => void run(() => frostBadge.playPcm(audio.pcm))}>播放到吧唧（不再计费）</button>
+        <button className={button} disabled={working || !connected || recording} onClick={() => void run(() => frostBadge.playPcm(audio.pcm, { gain: 'max' }))}>播放到吧唧（不再计费）</button>
         <button className={button} disabled={working} onClick={() => setAudio(null)}>清除这段语音</button>
       </div>
     </div>}

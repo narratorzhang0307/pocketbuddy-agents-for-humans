@@ -285,8 +285,8 @@ void OjBadgeAudio::PlaybackTask(void* ctx) {
         Packet p = {};
         if (xQueueReceive(self->playback_, &p, pdMS_TO_TICKS(20)) != pdTRUE) continue;
         if (p.end) {
-            ESP_LOGI(TAG, "speaker stream drained: %u samples, odd_tail=%d, dropped=%u", written,
-                     have_low ? 1 : 0, self->playback_dropped_.exchange(0));
+            ESP_LOGI(TAG, "speaker stream drained: %u samples, odd_tail=%d, dropped=%u, codec_volume=%d muted=%d", written,
+                     have_low ? 1 : 0, self->playback_dropped_.exchange(0), applied_volume, applied_volume == 0);
             written = 0; have_low = false;
             continue;
         }
@@ -297,6 +297,9 @@ void OjBadgeAudio::PlaybackTask(void* ctx) {
             else { pcm[frames++] = static_cast<int16_t>(low | (uint16_t(p.data[i]) << 8)); have_low = false; }
         }
         if (frames && self->codec_.WritePcm(pcm, frames) == ESP_OK) {
+            // Verify the actual codec level used by every stream, including replies
+            // and coach clips. 100 is the existing 0 dB ceiling; no PCM boost/clipping.
+            if (written == 0) ESP_LOGI(TAG, "speaker stream started: codec_volume=%d reference_0db=%d muted=%d", applied_volume, applied_volume == 100, applied_volume == 0);
             written += frames;
             if (!self->stop_requested_.load() && !self->recording_.load() && applied_volume > 0)
                 self->playback_envelope_.Observe(pcm, frames, esp_timer_get_time() / 1000);

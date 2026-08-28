@@ -46,6 +46,7 @@ describe('pocket-skill/v1', () => {
       'frost.wger-planner',
       'frost.mealie-kitchen',
       'frost.bird-listener',
+      'frost.health-consultation',
     ]);
     expect(JSON.stringify(BUILTIN_SKILLS)).not.toMatch(/pocket\.(?:books|movies|music|travel|reading-jot|exhibition)/);
   });

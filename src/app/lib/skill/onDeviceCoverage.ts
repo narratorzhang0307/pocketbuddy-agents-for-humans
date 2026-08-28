@@ -15,6 +15,7 @@ const QWEN4B: MobileSemanticRuntime = 'qwen3-4b-health-mnn';
 
 // Every built-in in the health edition declares its local execution boundary.
 export const ON_DEVICE_SKILL_COVERAGE: OnDeviceSkillCoverage[] = [
+  { manifestId: 'frost.health-consultation', label: '健康咨询 Agent', capabilities: ['local-data'], semanticRuntime: 'not-required', semanticTasks: [], deterministicTasks: ['本机ASR与语音直达页面', '文本RAG检索与会话隔离', '本机TTS与蓝牙音频回传'], proof: '本机只负责文本检索和语音中介；用户提交的本次咨询明确交给服务器配置的Qwen，不声称端侧医疗推理；未验证资料不用于确诊或处方' },
   { manifestId: 'frost.bird-listener', label: '识鸟', capabilities: ['local-data'], semanticRuntime: 'not-required', semanticTasks: [], deterministicTasks: ['本机ASR与指令分流', '完整录音校验与T5窗口选择', 'OSS图片校验与BLE回传'], proof: 'iPhone原生协调器处理蓝牙及本机ASR；鸟种推理明确在已有HearNature服务器，不声称端侧识鸟模型' },
   { manifestId: 'pocket.her-motion', label: 'HER MOTION', capabilities: ['mnn-vision', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['动作意图理解', '训练反馈解释'], deterministicTasks: ['姿态关键点', '连续帧确认', '置信度门控'], proof: '本地姿态管线 + Qwen3-4B 健康解释层；画面不作为医疗诊断' },
   { manifestId: 'pocket.lianlema', label: '练了吗', capabilities: ['mnn-vision', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['动作反馈解释'], deterministicTasks: ['RTMPose 关键点', 'ST-GCN 动作分类', '动作计数'], proof: '本地动作服务产生可复查关键点与计数，Qwen3-4B 只负责表达' },

@@ -44,8 +44,47 @@ import Foundation
         do { try wrong.push([2,0,0,0,1,0,0,0,0,4,0]); assertionFailure("session changed") } catch {}
         do { try wrong.end([1,6,0,1,1,0,0,0,8,0,1,0]); assertionFailure("drop accepted") } catch {}
         do { try wrong.end([1,6,0,3,1,0,0,0,8,0,0,0]); assertionFailure("disconnect accepted") } catch {}
+        // Full ten-second recording, including an end event arriving before
+        // all 1600 audio notifications. Never upload a partially drained queue.
+        let fullPCM = (0..<320000).map { UInt8(truncatingIfNeeded: $0 * 17 + $0 / 251) }
+        var fullCapture = BirdCapture(bird: true)
+        try fullCapture.end([1, 6, 0, 2] + BirdWire.le(160000) + [100, 0, 0, 0])
+        for sequence in 0..<1600 {
+            assert(!fullCapture.complete)
+            let header = BirdWire.le(7) + BirdWire.le(UInt32(sequence)) + [0]
+            try fullCapture.push(header + Array(fullPCM[sequence * 200..<(sequence + 1) * 200]))
+        }
+        assert(fullCapture.complete && fullCapture.next == 1600 && fullCapture.pcm == Data(fullPCM))
+
+        let failure = BirdFailure.invalid("B板执行回执超时")
+        let cases: [(String?, Error, String)] = [
+            ("recording", failure, "蓝牙收音中断\n请查看手机"),
+            ("receiving", failure, "蓝牙收音中断\n请查看手机"),
+            ("validating", BirdFailure.invalid("请录制至少三秒鸟叫"), "录音太短\n请按住三秒"),
+            ("recording", BirdFailure.invalid("未录到声音"), "未录到声音\n请靠近声源"),
+            ("validating", failure, "录音校验失败\n请查看手机"),
+            ("preparing", failure, "设备通信异常\n请查看手机"),
+            ("ready", failure, "设备通信异常\n请查看手机"),
+            ("transcribing", failure, "指令识别失败\n请查看手机"),
+            ("recognizing", BirdFailure.invalid("录音已收齐，服务返回HTTP 503"), "识别服务异常\n请查看手机"),
+            ("recognizing", BirdFailure.invalid("识鸟服务请求较多"), "服务请求较多\n请稍后重录"),
+            ("recognizing", URLError(.timedOut), "识别网络异常\n请查看手机"),
+            ("downloading", BirdFailure.invalid("OSS图片完整性校验失败"), "鸟图下载异常\n请查看手机"),
+            ("downloading", URLError(.notConnectedToInternet), "鸟图网络异常\n请查看手机"),
+            ("returning", failure, "图片回传中断\n请查看手机"),
+            (nil, failure, "识鸟流程中断\n请查看手机"),
+        ]
+        for (stage, error, expected) in cases {
+            let text = BirdFailure.screenText(for: error, stage: stage, active: true)
+            assert(text == expected, "Wrong error screen at \(stage ?? "unknown"): \(text)")
+            assert(text.split(separator: "\n").count == 2 && text.split(separator: "\n").allSatisfy { $0.count <= 7 })
+            assert(BirdWire.frame(0x33, 128, BirdWire.actuation("screen0", Data(text.utf8))).count <= 64)
+        }
+        assert(BirdFailure.screenText(for: failure, stage: "returning", active: true, imageApplied: true)
+               == "结果显示中断\n请查看手机")
+        assert(BirdFailure.screenText(for: failure, stage: "receiving", active: false) == "OPEN APP TO RETRY")
         let frame = [UInt8](BirdWire.frame(0x33, 128, BirdWire.actuation("bird_mode_v1", Data([1]))))
         assert(frame[3] == 128 && Int(BirdWire.u16(frame, 4)) == frame.count - 6)
-        print("PASS: native bird intent, T5 loudest window, WAV, CRC, ordered audio, tail, loss and disconnect gates")
+        print("PASS: native bird intent, T5 window, WAV, CRC, full 10s/1600 packets, tail/loss gates and stage-specific error screens")
     }
 }

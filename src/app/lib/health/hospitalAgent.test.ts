@@ -9,14 +9,14 @@ const response = { ok: true, text: '{"reply":"可以准备既往检查与用药�
 describe('Hospital Agent automatically reuses Qwen', () => {
   it('uses the existing server-selected subagent route with only the question and local catalogue', async () => {
     const request = vi.fn(async (_input: QwenTextRequest) => response);
-    expect(await askHospitalAgent(input, request)).toEqual({ question: input.question, reply: JSON.parse(response.text).reply, model: response.model });
+    expect(await askHospitalAgent(input, request)).toMatchObject({ question: input.question, reply: JSON.parse(response.text).reply, model: response.model });
     expect(request).toHaveBeenCalledOnce();
     const sent = request.mock.calls[0][0];
     expect(sent.task).toBe(HOSPITAL_QWEN_TASK);
     expect(sent.task).toBe('subagent:hospital-agent');
     expect(sent.json).toBe(true);
     expect(sent.endpoint).toBeUndefined();
-    expect(Object.keys(JSON.parse(sent.prompt)).sort()).toEqual(['department', 'question', 'referenceSkills']);
+    expect(Object.keys(JSON.parse(sent.prompt)).sort()).toEqual(['department', 'history', 'question', 'references']);
     expect(sent.system).toContain('不作确诊、开处方、给药物剂量');
     expect(sent.system).toContain('本次没有运行多角色诊疗');
     expect(sent.system).toContain('立即联系当地急救或就医');
@@ -28,7 +28,7 @@ describe('Hospital Agent automatically reuses Qwen', () => {
     expect(request).not.toHaveBeenCalled();
   });
 
-  it.each(['', '<html>fallback</html>', '{"reply":"截断', '{"reply":null}', JSON.stringify({ reply: '长'.repeat(801) })])('fails closed on incomplete or invalid model content', async (text) => {
+  it.each(['', '<html>fallback</html>', '{"reply":"截断', '{"reply":null}', JSON.stringify({ reply: '长'.repeat(101) })])('fails closed on incomplete or invalid model content', async (text) => {
     await expect(askHospitalAgent(input, async () => ({ ...response, text }))).rejects.toThrow('回答不完整');
   });
 

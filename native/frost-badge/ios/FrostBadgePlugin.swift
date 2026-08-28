@@ -188,7 +188,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
         speechPCM.removeAll()
         let request = SFSpeechAudioBufferRecognitionRequest()
-        request.contextualStrings = ["帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式"]
+        request.contextualStrings = ["帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式", "帮我打开下健康咨询agent", "打开健康咨询", "打开医院agent", "退出健康咨询"]
         request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = false
         request.taskHint = .dictation

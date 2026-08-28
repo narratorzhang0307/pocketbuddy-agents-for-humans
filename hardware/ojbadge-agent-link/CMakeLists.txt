@@ -49,6 +49,6 @@ if(EXISTS "${_sdkconfig}")
     endif()
 endif()
 
-set(PROJECT_VER "0.2.22-ojbadge-bird-audio")
+set(PROJECT_VER "0.2.23-reply-volume")
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
 project(agent_link)

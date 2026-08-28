@@ -2,12 +2,14 @@ import type { FrostAgentEvent, FrostAgentStatus } from '../../../frost-agent/run
 import { taskFromEvents } from '../../../frost-agent/runtime/turnContext';
 import type { BadgeStatus } from './frostBadge';
 import type { BadgePose } from './frostBadgeProtocol';
-import { readFrostConversationReply, type FrostConversationReply } from './frostConversation';
+import { planFrostWorkspaceLaunch, readFrostConversationReply, type FrostConversationReply } from './frostConversation';
+import { handleHealthVoice } from './health/healthConsultation';
 import type { FrostAgentRunNotice, FrostAgentRunResult, FrostMessageOrigin } from './frostAgentRuntime';
 import { presentFrostAgentRun } from './frostAgentPresentation';
 import { BADGE_AVATAR_ENDPOINT, skillAvatarFor } from './skill/avatars';
-import { tryVoiceTreeCommand } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/voicePlanting';
-import { tryVoiceMapCommand } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
+import { isVoiceTreeCommand, tryVoiceTreeCommand } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/voicePlanting';
+import { isVoiceMapCommand, tryVoiceMapCommand } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
+import { birdIntent } from './birdListener';
 
 export interface FrostVoiceState {
   autoSend: boolean;
@@ -40,8 +42,8 @@ interface CompanionPorts {
   badge: { snapshot(): BadgeStatus; subscribe(listener: () => void): () => void; projectPose(pose: BadgePose): Promise<void>; projectAvatar?(skillId: string): Promise<void>; testSpeaker(): Promise<void> };
   voice?: {
     transcribe(): Promise<{ text: string; inputId: string }>;
-    handleLocalCommand?(text: string, inputId: string, signal: AbortSignal): Promise<boolean | { message: string }>;
-    speak(text: string): Promise<void>;
+    handleLocalCommand?(text: string, inputId: string, signal: AbortSignal): Promise<boolean | { message: string; signal?: AbortSignal }>;
+    speak(text: string, signal?: AbortSignal): Promise<void>;
     speakAnswer?(text: string, ticket: string, signal: AbortSignal): Promise<void>;
     stop(): Promise<void>;
     cancel(): Promise<void>;
@@ -283,7 +285,10 @@ export class FrostCompanion {
         if (typeof localResult === 'object') {
           this.update({ attention: localResult.message });
           this.updateVoice({ phase: 'speaking', spokenText: localResult.message });
-          try { await voice.speak(localResult.message); }
+          try {
+            if (localResult.signal) await voice.speak(localResult.message, AbortSignal.any([controller.signal, localResult.signal]));
+            else await voice.speak(localResult.message);
+          }
           catch (error) {
             if (this.voiceCurrent(epoch)) this.updateVoice({ phase: 'error', error: `结果已留在手机；吧唧朗读未完成：${String(error)}` });
             return;
@@ -381,9 +386,13 @@ export async function getFrostCompanion(): Promise<FrostCompanion> {
     const [runtime, { frostBadge }] = await Promise.all([import('./frostAgentRuntime'), import('./frostBadge')]);
     companion ||= new FrostCompanion({ history: () => runtime.readFrostAgentEvents(), observe: runtime.subscribeFrostAgentEvents,
       record: runtime.recordFrostPeripheralInput, badge: frostBadge, voice: {
-        transcribe: () => frostBadge.transcribeRecording(), speak: text => frostBadge.speakText(text),
-        handleLocalCommand: async (text, inputId, signal) => tryVoiceMapCommand(text, inputId, signal)
-          ?? tryVoiceTreeCommand(text, inputId) ?? frostBadge.tryBirdCommand(text),
+        transcribe: () => frostBadge.transcribeRecording(), speak: (text, signal) => frostBadge.speakText(text, signal),
+        handleLocalCommand: async (text, inputId, signal) => {
+          const health = await handleHealthVoice(text, signal, value => !!planFrostWorkspaceLaunch(value)
+            || !!birdIntent(value) || isVoiceMapCommand(value) || isVoiceTreeCommand(value));
+          return health || (tryVoiceMapCommand(text, inputId, signal)
+            ?? tryVoiceTreeCommand(text, inputId) ?? frostBadge.tryBirdCommand(text));
+        },
         speakAnswer: async (text, ticket, signal) => {
           const { requestFrostVoice } = await import('./frostVoice');
           signal.throwIfAborted();
@@ -394,7 +403,7 @@ export async function getFrostCompanion(): Promise<FrostCompanion> {
           if (current.status !== 'connected' || current.recording || current.connectionId !== connectionId) return;
           const stop = () => { void frostBadge.stopPlayback().catch(() => {}); };
           signal.addEventListener('abort', stop, { once: true });
-          try { await frostBadge.playPcm(audio.pcm); } finally { signal.removeEventListener('abort', stop); }
+          try { await frostBadge.playPcm(audio.pcm, { gain: 'max' }); } finally { signal.removeEventListener('abort', stop); }
         },
         stop: () => frostBadge.stopPlayback(), cancel: () => frostBadge.cancelTranscription(),
         send: runtime.sendFrostAgentMessage, observe: runtime.subscribeFrostAgentRuns,

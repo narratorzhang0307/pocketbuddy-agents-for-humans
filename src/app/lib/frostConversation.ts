@@ -14,6 +14,7 @@ import { resolveSkillRunTarget } from './plaza/skillRoutes';
 
 import { answerFrostSkill, selectFrostAnswerSkill, type FrostSkillAnswer } from './frostSkillAnswer';
 import { askHealthAdvice, healthSettings, isHealthAdviceRequest, readHealthMemory, type HealthAdvice } from './frostHealthMemory';
+import { HEALTH_GREETING } from './health/healthConsultation';
 
 const REPLY_TOOLS = new Set(['frost.skill_answer', 'frost.skill_plan', 'frost.memory', 'frost.schedule', 'frost.health_advice']);
 const HEALTH_SUBAGENTS: Record<string, string> = {
@@ -273,7 +274,8 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         const ctx = legacyContext(context.events);
         const workspace = workspaceLaunchInput(context.events);
         if (workspace) return { status: 'success', data: {
-          reply: `正在打开${workspace.steps[0].skillName}。使用原有 Skill 页面和服务，沿用已有权限；首次系统权限仍需授权。`,
+          reply: workspace.steps[0].skillId === 'frost.health-consultation' ? HEALTH_GREETING
+            : `正在打开${workspace.steps[0].skillName}。使用原有 Skill 页面和服务，沿用已有权限；首次系统权限仍需授权。`,
           plan: workspace as unknown as JsonObject,
           trace: ['WORKSPACE OPEN · 同一 Frost 入口 · 已装备页面直接交接 · 未调用云端子 Agent 准备'],
         } };

@@ -300,7 +300,7 @@ class FrostBadgeClient {
       const result = await native.synthesizeSpeech({ text: clean });
       check();
       if (result.onDevice !== true || result.sampleRate !== 16000 || typeof result.data !== 'string' || result.data.length > 1280000) throw new Error('本机语音格式不符合要求');
-      await this.writePcm(badgeBytes(result.data), 1, generation);
+      await this.writePcm(badgeBytes(result.data), 'max', generation);
       check();
     } finally { signal?.removeEventListener('abort', abort); }
   }

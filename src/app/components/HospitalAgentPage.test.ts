@@ -11,10 +11,11 @@ describe('Hospital Agent entry and local catalogue', () => {
   it('adds a lazy, independently addressed page to the actual Agents tab', () => {
     const source = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
     expect(source).toContain("lazy(() => import('./HospitalAgentPage'))");
-    expect(source).toContain("runSkill('hospital-agent')");
+    expect(source).toContain("runSkill('health-consultation')");
     expect(source).toContain("running === 'hospital'");
     expect(source).toContain('<HospitalAgentPage onBack={closeRunning}');
     expect(resolveSkillRunTarget('hospital-agent')).toBe('hospital');
+    expect(resolveSkillRunTarget('health-consultation')).toBe('hospital');
     expect(resolveSkillRunTarget('lianlema-coach')).toBe('lianlema');
   });
 
@@ -33,7 +34,7 @@ describe('Hospital Agent entry and local catalogue', () => {
     expect(entry).not.toContain('Stethoscope');
     const avatar = renderToStaticMarkup(createElement(HospitalAgentAvatar));
     expect(avatar).toContain(`src="${HOSPITAL_AGENT_AVATAR_SRC}"`);
-    expect(avatar).toContain('医院 Agent 小白熊医生头像');
+    expect(avatar).toContain('健康咨询 Agent 小白熊头像');
     expect(avatar).toContain('width="52" height="52"');
     const page = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
     expect(page).toContain(`src="${HOSPITAL_AGENT_AVATAR_SRC}"`);
@@ -51,12 +52,12 @@ describe('Hospital Agent entry and local catalogue', () => {
 
   it('replaces deployment settings with explicit-consent Qwen questions and preserves the research boundary', () => {
     const html = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
-    expect(html).toContain('医院 Agent');
+    expect(html).toContain('健康咨询 Agent');
     expect(html).toContain('返回 Agents');
     expect(html).toContain('覆盖科室');
     expect(html).toContain('本地疾病 Skills');
     expect(html).toContain('原发性高血压');
-    expect(html).toContain('data-hospital-qwen="direct-v1"');
+    expect(html).toContain('data-hospital-qwen="voice-rag-v2"');
     expect(html).toContain('同意并发送给 Qwen');
     expect(html).toContain('不自动附带健康记录');
     expect(html).not.toContain('HOSPITAL_AGENT_BASE_URL');

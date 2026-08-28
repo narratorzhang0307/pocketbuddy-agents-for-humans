@@ -15,6 +15,7 @@ export interface QwenTextRequest {
   endpoint?: string;
   timeoutMs?: number;
   fetcher?: QwenFetch;
+  signal?: AbortSignal;
 }
 
 export interface QwenTextResult {
@@ -63,15 +64,21 @@ async function requestNative(endpoint: string, body: Record<string, unknown>, ti
 }
 
 export async function requestQwenText(input: QwenTextRequest): Promise<QwenTextResult> {
+  input.signal?.throwIfAborted();
   const prompt = (input.prompt || '').trim();
   if (!prompt) return { ok: false, text: '', error: 'invalid_prompt' };
   const endpoint = input.endpoint || QWEN_TEXT_ENDPOINT;
   const timeoutMs = input.timeoutMs ?? 30_000;
   const body = { prompt, system: input.system, json: !!input.json, task: input.task };
 
-  if (!input.fetcher && Capacitor.isNativePlatform()) return requestNative(endpoint, body, timeoutMs);
+  if (!input.fetcher && Capacitor.isNativePlatform()) {
+    const result = await requestNative(endpoint, body, timeoutMs);
+    input.signal?.throwIfAborted(); // Native HTTP may finish after cancellation; never publish its stale reply.
+    return result;
+  }
 
-  const result = await postQwenJson({ endpoint, timeoutMs, fetcher: input.fetcher, body });
+  const result = await postQwenJson({ endpoint, timeoutMs, fetcher: input.fetcher, body, signal: input.signal });
+  input.signal?.throwIfAborted();
   const payload = parsePayload(result.data);
   const ok = result.ok && !!payload.text.trim() && !payload.error;
   return {

@@ -50,9 +50,17 @@ try {
 const coachIndex = read('ios/App/App/public/lianlema/index.html');
 const hospitalBundles = readdirSync(path.join(root, 'ios/App/App/public/assets')).filter(name => /^HospitalAgentPage-[\w-]+\.js$/.test(name));
 const hospitalCode = hospitalBundles.map(name => readFileSync(path.join(root, 'ios/App/App/public/assets', name), 'utf8')).join('\n');
-check(hospitalBundles.length === 1 && ['data-hospital-qwen', 'subagent:hospital-agent', '同意并发送给 Qwen'].every(marker => hospitalCode.includes(marker))
+// Rollup shares the private consultation runtime with the Frost voice router.
+// Verify its actual emitted owner, not a source filename that is not a chunk.
+const healthVoiceBundles = readdirSync(path.join(root, 'ios/App/App/public/assets')).filter(name => /^frostConversation-[\w-]+\.js$/.test(name));
+const healthVoiceCode = healthVoiceBundles.map(name => readFileSync(path.join(root, 'ios/App/App/public/assets', name), 'utf8')).join('\n');
+const healthKnowledgeBundles = readdirSync(path.join(root, 'ios/App/App/public/assets')).filter(name => /^hospitalKnowledge-[\w-]+\.js$/.test(name));
+const healthKnowledgeCode = healthKnowledgeBundles.map(name => readFileSync(path.join(root, 'ios/App/App/public/assets', name), 'utf8')).join('\n');
+check(hospitalBundles.length === 1 && ['data-hospital-qwen', 'voice-rag-v2', '健康咨询 Agent', '同意并发送给 Qwen'].every(marker => hospitalCode.includes(marker))
+  && healthVoiceBundles.length === 1 && ['subagent:hospital-agent', 'references', 'pocket-health-consultation/v1'].every(marker => healthVoiceCode.includes(marker))
+  && healthKnowledgeBundles.length === 1 && healthKnowledgeCode.includes('health-text-')
   && !['后端连接', '部署接入说明', 'HOSPITAL_AGENT_BASE_URL'].some(marker => hospitalCode.includes(marker)),
-  '医院 Agent 使用现有 Qwen 旗舰路由，无旧部署设置面板');
+  '健康咨询使用现有 Qwen、文本检索与语音会话，无旧部署设置面板');
 const photoBundles = readdirSync(path.join(root, 'ios/App/App/public/assets')).filter(name => /^FoodPhotosTab-[\w-]+\.js$/.test(name));
 const photoCode = photoBundles.map(name => readFileSync(path.join(root, 'ios/App/App/public/assets', name), 'utf8')).join('\n');
 check(photoBundles.length === 1 && ['preview-only', '移除示例', '恢复餐食示例预览', '餐食记录示例', '非 SAM 分割结果'].every(marker => photoCode.includes(marker)),

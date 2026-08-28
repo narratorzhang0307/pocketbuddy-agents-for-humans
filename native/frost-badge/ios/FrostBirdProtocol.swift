@@ -3,6 +3,32 @@ import Foundation
 enum BirdFailure: Error, LocalizedError {
     case invalid(String)
     var errorDescription: String? { if case let .invalid(message) = self { return message }; return nil }
+
+    // Two short lines fit the round screen. Classify by the operation that
+    // failed, not a generic “record again” or an incidental word in its error.
+    static func screenText(for error: Error, stage: String?, active: Bool, imageApplied: Bool = false) -> String {
+        guard active else { return "OPEN APP TO RETRY" }
+        let reason = error.localizedDescription
+        switch stage {
+        case "recording", "receiving", "validating":
+            if reason.contains("至少") { return "录音太短\n请按住三秒" }
+            if reason.contains("未录到声音") { return "未录到声音\n请靠近声源" }
+            return stage == "validating" ? "录音校验失败\n请查看手机" : "蓝牙收音中断\n请查看手机"
+        case "preparing", "ready":
+            return "设备通信异常\n请查看手机"
+        case "transcribing":
+            return "指令识别失败\n请查看手机"
+        case "recognizing":
+            if reason.contains("请求较多") { return "服务请求较多\n请稍后重录" }
+            return error is URLError ? "识别网络异常\n请查看手机" : "识别服务异常\n请查看手机"
+        case "downloading":
+            return error is URLError ? "鸟图网络异常\n请查看手机" : "鸟图下载异常\n请查看手机"
+        case "returning":
+            return imageApplied ? "结果显示中断\n请查看手机" : "图片回传中断\n请查看手机"
+        default:
+            return "识鸟流程中断\n请查看手机"
+        }
+    }
 }
 
 struct BirdAsset: Decodable {

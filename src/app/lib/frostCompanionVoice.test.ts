@@ -7,6 +7,7 @@ import { FrostCompanion } from './frostCompanion';
 import { registerVoiceTreeMap, tryVoiceTreeCommand, type VoiceTreeContext } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/voicePlanting';
 import { readPocketPlantings } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/planting';
 import { claimVoiceMapMode, getVoiceMapState, reportVoiceMapReady, tryVoiceMapCommand, VOICE_MAP_READY_MESSAGE } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
+import { handleHealthVoice, healthConsultation } from './health/healthConsultation';
 
 const session = FrostAgentLoop.createSession('session-a', 'local-user');
 const event = (seq: number, type: FrostAgentEvent['type'], data: FrostAgentEvent['data']): FrostAgentEvent => ({
@@ -21,7 +22,7 @@ beforeEach(() => {
   vi.stubGlobal('localStorage', { getItem: (key: string) => storage.get(key) ?? null,
     setItem: (key: string, value: string) => storage.set(key, value) });
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { healthConsultation.close(); vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 function setup(initialBadge: Partial<BadgeStatus> = {}) {
   let badge: BadgeStatus = { status: 'connected', connectionId: 'badge:a', devices: [], endpoints: [], recording: false, receivedBytes: 0, ...initialBadge };
   let badgeChanged = () => {}, observed = (_: FrostAgentEvent) => {}, completed = (_: FrostAgentRunNotice) => {};
@@ -46,6 +47,35 @@ function setup(initialBadge: Partial<BadgeStatus> = {}) {
 }
 
 describe('default-on foreground voice mode', () => {
+  it('relays fresh physical recordings through private health consultation and speaks the full reply, never through the Frost inbox', async () => {
+    const x = setup(); await flush(); healthConsultation.open();
+    const answer = { question: '如何准备就诊？', reply: '请带上既往检查和用药清单。你希望咨询哪方面的问题？', model: 'qwen-test', references: [] };
+    const consultation = vi.spyOn(healthConsultation, 'send').mockResolvedValue(answer);
+    x.voice.handleLocalCommand.mockImplementation(async (text, _id, signal) => handleHealthVoice(text, signal, () => false));
+    x.voice.transcribe.mockResolvedValueOnce({ text: answer.question, inputId: 'badge:a:recording:health' });
+    try {
+      x.capture('health'); await flush();
+      expect(consultation).toHaveBeenCalledExactlyOnceWith(answer.question, expect.any(AbortSignal));
+      expect(x.voice.send).not.toHaveBeenCalled();
+      expect(x.voice.speak).toHaveBeenCalledExactlyOnceWith(answer.reply, expect.any(AbortSignal));
+      expect(x.companion.snapshot().voice.phase).toBe('ready');
+      x.patch({ receivedBytes: 4 }); await flush(); expect(consultation).toHaveBeenCalledOnce();
+    } finally { x.release(); }
+  });
+  it('does not speak a late health reply after the page session closes', async () => {
+    const x = setup(); await flush(); healthConsultation.open();
+    const replySignal = healthConsultation.signal();
+    x.voice.handleLocalCommand.mockImplementationOnce(async () => {
+      healthConsultation.close();
+      return { message: '迟到的回复', signal: replySignal };
+    });
+    x.voice.speak.mockImplementation(async (_text, signal?: AbortSignal) => { signal?.throwIfAborted(); });
+    try {
+      x.capture('closed-health'); await flush();
+      expect(x.voice.send).not.toHaveBeenCalled();
+      expect(x.companion.snapshot().voice.phase).toBe('error');
+    } finally { x.release(); }
+  });
   it('dispatches a recognized bird command once without a duplicate main-agent turn', async () => {
     const x = setup(); await flush();
     x.voice.transcribe.mockResolvedValueOnce({ text: '帮我识别下鸟叫', inputId: 'badge:a:recording:bird' });

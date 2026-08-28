@@ -20,6 +20,9 @@ function avatar(id: string, target: string, name: string, badgeIndex: number): S
 }
 
 export const FROST_AVATAR = avatar('frost', 'frost', 'Frost 焦糖腊肠犬', 0);
+// Consultation has a separate phone portrait but deliberately retains Frost on
+// the badge: no new unprovisioned avatar index is sent to existing firmware.
+export const SKILLS_WITH_FROST_AVATAR = ['frost.health-consultation'] as const;
 export const SKILL_AVATARS: readonly SkillAvatar[] = [
   avatar('frost.bird-listener', 'frost-bird-listener', '识鸟 聆听小鸟', 17),
   avatar('pocket.her-motion', 'her-motion', 'Her Motion 火烈鸟', 1),

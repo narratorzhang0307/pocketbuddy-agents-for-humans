@@ -32,6 +32,7 @@ interface Props {
 
 // 高频快捷入口不做自动执行，只打开目标 Skill。
 const QUICK: { label: string; target: string }[] = [
+  { label: '健康咨询 Agent', target: 'health-consultation' },
   { label: '跑步路线规划', target: 'frost-run-route' },
   { label: '练了吗 · 动作纠正', target: 'lianlema-coach' },
   { label: 'Her Motion 热身', target: 'her-motion' },

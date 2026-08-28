@@ -8,6 +8,7 @@ export interface QwenJsonRequest {
   body: Record<string, unknown>;
   timeoutMs: number;
   fetcher?: QwenFetch;
+  signal?: AbortSignal;
 }
 
 export interface QwenJsonResult {
@@ -88,7 +89,7 @@ export async function postQwenJson(input: QwenJsonRequest): Promise<QwenJsonResu
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify(input.body),
-      signal: timeout.signal,
+      signal: input.signal && timeout.signal ? AbortSignal.any([input.signal, timeout.signal]) : input.signal || timeout.signal,
     });
     const retryAfterMs = parseRetryAfterMs(response.headers.get('retry-after'));
     const parsed = await readJsonSafely(response);

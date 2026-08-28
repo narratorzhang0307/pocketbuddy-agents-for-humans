@@ -25,6 +25,20 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('badge inputs use the main Frost runtime', () => {
+  it.each(['帮我打开下健康咨询agent', '帮我打开一下医院agent', '打开健康咨询', '调用医疗咨询'])('opens health consultation directly with no paid preparation: %s', async text => {
+    const origin = { channel: 'badge_voice' as const, inputId: `badge:test:health:${Array.from(text).map(c => c.codePointAt(0)!.toString(16)).join('')}` };
+    const intermediate = vi.fn(), show = createFrostVoiceConversation({ isActive: () => true, open: intermediate });
+    const release = subscribeFrostAgentEvents(show);
+    try {
+      const result = await sendFrostAgentMessage(text, origin);
+      const open = vi.fn(), navigate = createFrostAutoNavigation({ isActive: () => true, open });
+      expect(await navigate({ result, input: { text, origin } })).toBe(true);
+      expect(open).toHaveBeenCalledExactlyOnceWith('health-consultation');
+      expect(intermediate).not.toHaveBeenCalled();
+      expect(fetch).not.toHaveBeenCalled();
+      expect(result.task).toBeNull();
+    } finally { release(); }
+  });
   it.each(['phone', 'badge_voice'] as const)('opens the bird recording Skill directly for the reported phrase from %s', async channel => {
     const text = '帮我打开下识别鸟类声音的agent';
     const origin = channel === 'phone' ? { channel } : { channel, inputId: 'badge:test:bird:direct-open' };

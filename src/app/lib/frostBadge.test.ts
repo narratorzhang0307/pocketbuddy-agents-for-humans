@@ -287,10 +287,16 @@ describe('Frost badge integration boundary', () => {
     await client.playPcm(Uint8Array.of(12, 0), { gain: 'max' });
     await client.stopPlayback(); expect(volumeWrites()).toEqual([0, 0]);
   });
-  it.each(['pcm', 'speech', 'tone'])('restores ordinary volume before %s output after maximum coach playback', async output => {
+  it.each([0, 25, 60])('uses the same coach level for every local TTS reply, retaining mute from %i', async base => {
+    const client = await connect(); await client.setVolume(base); fixture.native.write.mockClear();
+    await client.speakText('健康咨询与户外窗口的回复');
+    expect(volumeWrites().at(-1)).toBe(base === 0 ? 0 : 100);
+    expect(fixture.native.playPcm).toHaveBeenCalledExactlyOnceWith({ data: 'AAAQAA==' });
+    await client.stopPlayback(); expect(volumeWrites().at(-1)).toBe(base);
+  });
+  it.each(['pcm', 'tone'])('restores ordinary volume before %s output after maximum coach playback', async output => {
     const client = await connect(); await client.playPcm(Uint8Array.of(12, 0), { gain: 'max' });
     if (output === 'pcm') await client.playPcm(Uint8Array.of(24, 0));
-    if (output === 'speech') await client.speakText('普通 Frost 回复');
     if (output === 'tone') await client.testSpeaker();
     expect(volumeWrites()).toEqual([100, 25]);
   });
@@ -309,11 +315,10 @@ describe('Frost badge integration boundary', () => {
     await client.stopPlayback();
     expect(volumeWrites()).toEqual([50, 25]);
   });
-  it.each(['pcm', 'speech', 'tone'])('restores the normal level before %s output after a coach clip', async output => {
+  it.each(['pcm', 'tone'])('restores the normal level before %s output after a coach clip', async output => {
     const client = await connect();
     await client.playPcm(Uint8Array.of(12, 0), { gain: 4 });
     if (output === 'pcm') await client.playPcm(Uint8Array.of(24, 0));
-    if (output === 'speech') await client.speakText('普通 Frost 回复');
     if (output === 'tone') await client.testSpeaker();
     expect(volumeWrites()).toEqual([50, 25]);
   });

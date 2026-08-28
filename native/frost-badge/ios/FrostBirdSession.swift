@@ -136,22 +136,25 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         try await actuate("bird_mode_v1", Data([2]))
         try await screen("识鸟素材加载中")
         try await show(index: 17)
+        progress["stage"] = "preparing"
         try await screen("长按屏幕录鸟叫\n十秒自动停止")
         try await actuate("bird_mode_v1", Data([1]))
         progress["stage"] = "ready"
         update("ready", "请长按B板触屏录制鸟叫，最多十秒，松手结束")
     }
     private func failureScreen(_ error: Error) -> String {
-        guard active else { return "OPEN APP TO RETRY" }
-        if error.localizedDescription.contains("请求较多") { return "服务请求较多\n请稍后重录" }
-        if error is URLError { return "网络暂不可用\n请稍后重录" }
-        let reason = error.localizedDescription
-        if reason.contains("至少") { return "录音太短\n请按住十秒" }
-        if reason.contains("未录到声音") { return "未录到声音\n请靠近声源" }
-        if reason.contains("录音") || reason.contains("收音") { return "蓝牙收音中断\n请查看手机" }
-        if progress["stage"] as? String == "recognizing" { return "识别服务异常\n请查看手机" }
-        if progress["stage"] as? String == "returning" { return "图片回传中断\n请查看手机" }
-        return "本次未完成\n请重新录制"
+        BirdFailure.screenText(for: error, stage: progress["stage"] as? String, active: active,
+                               imageApplied: progress["imageApplied"] as? Bool == true)
+    }
+    private func displayFailure(_ error: Error) async {
+        guard connected else { return }
+        let text = failureScreen(error)
+        progress["imageApplied"] = false
+        // Resident Frost needs no network/download. Remove the previous bird
+        // result before the failure text; each write is independently best effort.
+        try? await actuate("bird_mode_v1", Data([active ? 4 : 0]))
+        try? await actuate("avatar_skill_v1", Data([0]))
+        try? await screen(text)
     }
     private func launch(_ body: @escaping () async throws -> Void) {
         beginBackground(); let id = generation
@@ -162,10 +165,7 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
                 guard id == self.generation else { return }
                 self.update("error", (error as? LocalizedError)?.errorDescription ?? "识鸟失败，请重新录制")
                 // Best-effort truthful error and a physical retry gate; never re-upload audio.
-                if self.connected {
-                    try? await self.actuate("bird_mode_v1", Data([self.active ? 4 : 0]))
-                    try? await self.screen(self.failureScreen(error))
-                }
+                await self.displayFailure(error)
             }
             guard id == self.generation else { return }
             self.operation = nil; self.endBackground(); self.emit?(self.snapshot())
@@ -261,8 +261,9 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
         // A locked phone cannot show the web error. Also return the board to a
         // physical retry state; no audio is uploaded and late packets stay suppressed.
         launch { [self] in
-            try await actuate("bird_mode_v1", Data([active ? 4 : 0]))
-            try await screen(failureScreen(error))
+            // A failed error-display write must not replace the original audio
+            // failure with a second, less useful control-channel error.
+            await displayFailure(error)
         }
     }
     private func finishCapture() {
@@ -305,7 +306,7 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
             let recognitionId = UUID(); speechId = recognitionId; speechRecognizer = r
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.requiresOnDeviceRecognition = true; request.shouldReportPartialResults = false
-            request.contextualStrings = ["帮我识别下鸟叫", "帮我打开下识别鸟类声音的agent", "识别鸟的叫声", "识鸟", "退出识鸟", "帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式"]
+            request.contextualStrings = ["帮我识别下鸟叫", "帮我打开下识别鸟类声音的agent", "识别鸟的叫声", "识鸟", "退出识鸟", "帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式", "帮我打开下健康咨询agent", "打开健康咨询", "打开医院agent", "退出健康咨询"]
             let finish: (Result<String, Error>) -> Void = { [weak self] value in
                 guard let self, self.speechId == recognitionId, self.speechDone != nil else { return }
                 self.speechDone = nil; self.speechId = nil
@@ -327,12 +328,14 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
     private func identify(_ pcm: Data) async throws {
         progress["stage"] = "validating"
         let wav = try BirdWire.modelWave(pcm)
-        progress["stage"] = "recognizing"; progress["modelAudioBytes"] = wav.count
-        update("recognizing", "正在调用T5自建识鸟服务")
+        progress["stage"] = "preparing"
+        update("recognizing", "音频已收齐，正在准备识别")
         try await actuate("bird_mode_v1", Data([2])); try await screen("正在识别鸟叫")
         var request = URLRequest(url: URL(string: "https://hearnature.throughtheglass.art/hardware/recognize")!)
         request.httpMethod = "POST"; request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONSerialization.data(withJSONObject: ["format": "wav", "deviceId": "ojbadge-bird-v1", "audioBase64": wav.base64EncodedString()])
+        progress["stage"] = "recognizing"; progress["modelAudioBytes"] = wav.count
+        update("recognizing", "正在调用T5自建识鸟服务")
         let (data, response) = try await http.data(for: request)
         try Task.checkCancellation()
         let status = (response as? HTTPURLResponse)?.statusCode ?? 0

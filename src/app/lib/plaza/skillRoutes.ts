@@ -25,6 +25,7 @@ const SKILL_RUN_BY_ENTRY_TARGET: Readonly<Record<string, SkillRunTarget>> = {
   'her-motion': 'hermotion',
   'lianlema-coach': 'lianlema',
   'hospital-agent': 'hospital',
+  'health-consultation': 'hospital',
   'frost-motion-vision': 'hermotion',
   'frost-healthsync': 'healthsync',
   'frost-openfoodfacts': 'openfoodfacts',

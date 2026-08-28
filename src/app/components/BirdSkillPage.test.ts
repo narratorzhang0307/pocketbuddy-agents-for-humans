@@ -86,4 +86,14 @@ describe('bird recording page', () => {
     expect(primary).toContain('尚未请求');
     expect(primary).not.toContain('完整校验通过');
   });
+
+  it('keeps HTTP unrequested when complete audio is waiting for board control', () => {
+    state.badge.bird = { ...state.badge.bird!, state: 'recognizing', stage: 'preparing', captureId: 'capture-3',
+      receivedBytes: 320000, expectedBytes: 320000, audioComplete: true, busy: true,
+      message: '音频已收齐，正在准备识别' };
+    const { primary } = render();
+    expect(primary).toContain('完整校验通过');
+    expect(primary).toContain('尚未请求');
+    expect(primary).not.toContain('请求中');
+  });
 });
