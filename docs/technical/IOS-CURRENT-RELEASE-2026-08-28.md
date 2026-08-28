@@ -113,5 +113,6 @@ node scripts/ios/archive.mjs --build-number <已在苹果后台核对未使用�
 - 全量测试 2,696 通过、16 跳过；原生协议/生命周期、完整 10 秒 1,600 分片、0/8/16/32 KB/s 缓存排出回归通过。独立 GitHub 源码目录同样通过全量测试和类型检查。
 - 16:29 CST 覆盖安装至连接的 iPhone，回读 `2026082826` 并成功启动，未卸载或清除用户数据。实板已运行 `0.2.23-reply-volume`；下行短音频实际排空 4,800 samples、零丢弃、codec volume 100，之后恢复普通音量。
 - 归档与 IPA 位于 `/Volumes/PocketBuddy-iOS-Dev/Current/Releases/2026082826-vxLfFg`。上传和 Apple 可测试状态需独立确认，不把本机安装或上传成功视为 TestFlight 已可下载。
+- 16:34:25 CST，Xcode 确认 `Upload succeeded`，Apple 已接受新包并开始处理。尚未代填出口合规声明或把待处理版本宣称为可下载。
 
 真人实体录音 → iPhone → 服务 → 硬件回图/语音、实际听感和黑屏使用仍待验收。健康咨询当前要求 App 前台；原始语音本机识别，本次咨询文本经用户同意交给云端处理，不自动写入健康记忆。
