@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<HealthData locale="zh_CN">
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="Apple Watch" unit="count" value="500" startDate="2026-08-18 08:00:00 +0800" endDate="2026-08-18 09:00:00 +0800"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count" value="300" startDate="2026-08-18 08:00:00 +0800" endDate="2026-08-18 09:00:00 +0800"/>
+  <Record type="HKQuantityTypeIdentifierStepCount" sourceName="iPhone" unit="count" value="200" startDate="2026-08-18 10:00:00 +0800" endDate="2026-08-18 11:00:00 +0800"/>
+  <Record type="HKQuantityTypeIdentifierHeartRateVariabilitySDNN" sourceName="Apple Watch" unit="ms" value="52" startDate="2026-08-18 07:30:00 +0800" endDate="2026-08-18 07:31:00 +0800"/>
+  <Record type="HKQuantityTypeIdentifierRestingHeartRate" sourceName="Apple Watch" unit="count/min" value="58" startDate="2026-08-18 07:00:00 +0800" endDate="2026-08-18 07:01:00 +0800"/>
+  <Record type="HKCategoryTypeIdentifierSleepAnalysis" sourceName="Apple Watch" value="HKCategoryValueSleepAnalysisAsleepCore" startDate="2026-08-17 23:00:00 +0800" endDate="2026-08-18 06:30:00 +0800"/>
+  <Workout workoutActivityType="HKWorkoutActivityTypeRunning" duration="30" durationUnit="min" totalDistance="5" totalDistanceUnit="km" totalEnergyBurned="310" totalEnergyBurnedUnit="kcal" sourceName="Apple Watch" startDate="2026-08-18 18:00:00 +0800" endDate="2026-08-18 18:30:00 +0800"/>
+</HealthData>

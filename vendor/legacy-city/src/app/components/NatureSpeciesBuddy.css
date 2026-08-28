@@ -1,0 +1,55 @@
+.nsb-buddy {
+  position: relative;
+  display: inline-grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  isolation: isolate;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.nsb-buddy:not(.is-animated) {
+  cursor: default;
+}
+
+.nsb-buddy > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0;
+  transform: translateY(2%) scale(.97);
+  transition: opacity 260ms ease, transform 340ms cubic-bezier(.2,.8,.2,1);
+  filter: drop-shadow(0 9px 0 rgb(28 25 17 / 12%));
+}
+
+.nsb-buddy > img.is-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.nsb-buddy > small {
+  position: absolute;
+  right: 4%;
+  bottom: 3%;
+  z-index: 2;
+  padding: 4px 8px;
+  border: 1.5px solid #1c1911;
+  border-radius: 999px;
+  background: #fff9df;
+  color: #1c1911;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  box-shadow: 2px 2px 0 #1c1911;
+}
+
+.nsb-buddy.is-compact > img {
+  filter: drop-shadow(0 4px 0 rgb(28 25 17 / 11%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nsb-buddy > img { transition: none; }
+}

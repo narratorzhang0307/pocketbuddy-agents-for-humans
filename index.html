@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content" />
+    <title>Pocket Buddy · 运动健康陪伴 Agent</title>
+    <meta name="description" content="把训练、恢复、饮食与城市行动连接起来的运动健康陪伴 Agent。" />
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#EAEAEA" />
+
+    <!-- iOS：可安装到桌面、独立运行 -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Pocket Buddy" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- 图标 -->
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+    <link rel="apple-touch-icon" sizes="120x120" href="/icons/icon-120.png" />
+
+    <style>
+      html, body { width: 100%; min-width: 0; height: 100%; margin: 0; overflow: hidden; background: #EAEAEA; }
+      #root { width: 100%; min-width: 0; height: 100%; overflow: hidden; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;              /* 关掉下拉刷新 / 橡皮筋，更像原生 */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

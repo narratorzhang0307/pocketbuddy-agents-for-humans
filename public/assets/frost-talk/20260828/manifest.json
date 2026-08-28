@@ -1,0 +1,248 @@
+{
+  "schema": "frost-talk/v1",
+  "generator": "built-in image_gen edits + sharp format conversion",
+  "hardwareSize": 240,
+  "originalSha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8",
+  "addedFlashImageBytes": 61720,
+  "extraFramebuffers": 0,
+  "preview": "illustrative cadence, no recorded speech",
+  "sequence": [
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      200
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      3,
+      1600
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      200
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      4,
+      1600
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      0,
+      120
+    ],
+    [
+      1,
+      120
+    ],
+    [
+      2,
+      120
+    ],
+    [
+      0,
+      120
+    ]
+  ],
+  "frames": [
+    {
+      "name": "rest",
+      "index": 0,
+      "bytes": 14126,
+      "sha256": "68d2cd757d571ebb4bb26b2e19755da2523ba2fda45c4873c4e74fbcc2090e3f",
+      "sourceSha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8"
+    },
+    {
+      "name": "small",
+      "index": 1,
+      "bytes": 15298,
+      "sha256": "7ec756053772e09b676c166d4f09e28c8db02c9d728abbf92f1aacfda13b60d7",
+      "sourceSha256": "e754bf1b62f5062e8788ffe3355cd9d03edfe7c8bb854fc1897a8e2d838c23df"
+    },
+    {
+      "name": "open",
+      "index": 2,
+      "bytes": 15630,
+      "sha256": "3b969f6182e43f59e3da457158d8fcda19d1fafb722381286a344586d6b7aa33",
+      "sourceSha256": "196be94bdafd03464e0fbccb300cee3caf623d018f012e3cc7c9f69d1c39833e"
+    },
+    {
+      "name": "blink",
+      "index": 3,
+      "bytes": 14940,
+      "sha256": "458d048a2d29bc057fbde97ff40c9b6e7546fdcafb847a1afee1f5198ec391c3",
+      "sourceSha256": "30a49f8d333077d88282c668bc077f5d7aa49e4284c0716d92edad8d6465d025"
+    },
+    {
+      "name": "wink",
+      "index": 4,
+      "bytes": 15852,
+      "sha256": "50cad8411f6b0da3d802774bbb2952228f88c1f9992064c4cb3c6bd428203a5d",
+      "sourceSha256": "d1b2b9b5d2c94cfc567c5fca187fc592addc25cb5f70c3707f7fef33086e1fd6"
+    }
+  ]
+}

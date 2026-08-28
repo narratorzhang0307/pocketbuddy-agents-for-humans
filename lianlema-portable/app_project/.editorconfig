@@ -1,0 +1,31 @@
+# EditorConfig 是用于统一不同编辑器/IDE 的代码风格的配置。
+# https://editorconfig.org
+root = true
+
+# 通用规则：UTF-8 编码、LF 换行、末尾保留换行、去除行尾空白
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+
+# Python：4 空格缩进
+[*.py]
+indent_size = 4
+
+# JavaScript / TypeScript / JSON / JSX / TSX：2 空格缩进
+[*.{js,jsx,ts,tsx,json,jsonc}]
+indent_size = 2
+
+# YAML：2 空格缩进
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown：保留行尾空白（用于换行语义）
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefile 必须使用 Tab 缩进
+[Makefile]
+indent_style = tab

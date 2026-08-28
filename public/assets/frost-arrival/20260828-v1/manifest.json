@@ -1,0 +1,146 @@
+{
+  "schema": "frost-arrival/v1",
+  "generator": "built-in imagegen; sharp for cell slicing, resize and packaging only",
+  "sourceSha256": "42df49c81bae60ca61af7429edcdc49a75679c437660026f53db0d76ed594027",
+  "referenceHashes": [
+    {
+      "path": "public/assets/skill-avatars/20260827/originals/frost.png",
+      "sha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8"
+    },
+    {
+      "path": "public/assets/frost-talk/20260828/originals/small.png",
+      "sha256": "e754bf1b62f5062e8788ffe3355cd9d03edfe7c8bb854fc1897a8e2d838c23df"
+    },
+    {
+      "path": "public/assets/frost-talk/20260828/originals/open.png",
+      "sha256": "196be94bdafd03464e0fbccb300cee3caf623d018f012e3cc7c9f69d1c39833e"
+    },
+    {
+      "path": "public/assets/frost-talk/20260828/originals/blink.png",
+      "sha256": "30a49f8d333077d88282c668bc077f5d7aa49e4284c0716d92edad8d6465d025"
+    }
+  ],
+  "cellSize": 256,
+  "columns": 4,
+  "rows": 4,
+  "atlas": {
+    "file": "atlas.webp",
+    "bytes": 79590,
+    "sha256": "4a5c807f4e32b0b26bcfb6cac4b499b3e002459e4e3611a188fbe09e76bc99f4"
+  },
+  "background": "opaque pale cyan, not transparent; never use the rejected checkerboard edit",
+  "frames": [
+    {
+      "index": 0,
+      "name": "run-01",
+      "file": "run-01.webp",
+      "bytes": 4800,
+      "sha256": "522265b0a75a2883c7f3d22b4750d70f5896dd41cd1e875248facfc9bc8678ed"
+    },
+    {
+      "index": 1,
+      "name": "run-02",
+      "file": "run-02.webp",
+      "bytes": 4796,
+      "sha256": "f346b3bb16c8c775b14a050be126eacefb45b81608769f5a67654ef31861d66d"
+    },
+    {
+      "index": 2,
+      "name": "run-03",
+      "file": "run-03.webp",
+      "bytes": 4794,
+      "sha256": "384c6f76673a85e04d5bc99ea7f847bf7f684ec57c6ba889143ed47ea5dfa5b6"
+    },
+    {
+      "index": 3,
+      "name": "run-04",
+      "file": "run-04.webp",
+      "bytes": 5050,
+      "sha256": "930b5afa56d62bd6f273cfc514d3db0a7a784558b314488d60375ffb993e3a0a"
+    },
+    {
+      "index": 4,
+      "name": "wag-01",
+      "file": "wag-01.webp",
+      "bytes": 5624,
+      "sha256": "78d9b78b519331a8f0508adefed159fefb850805603bcdfc2d2b3d54a390c0a9"
+    },
+    {
+      "index": 5,
+      "name": "wag-02",
+      "file": "wag-02.webp",
+      "bytes": 5194,
+      "sha256": "8bcf6000c434873d4d0ce4d126a6dbaaf56c6c581bd4d0fa8221767193ad7d0d"
+    },
+    {
+      "index": 6,
+      "name": "wag-03",
+      "file": "wag-03.webp",
+      "bytes": 5370,
+      "sha256": "0b0217bba2072d7dddba5fddd392dcd8dea5a21987ec611050050c7339015abd"
+    },
+    {
+      "index": 7,
+      "name": "wag-04",
+      "file": "wag-04.webp",
+      "bytes": 5202,
+      "sha256": "b8abc479dfac4990ae9e50fe679d6ffec89a18b2318e48a0ee64238c3d8eacfe"
+    },
+    {
+      "index": 8,
+      "name": "approach-01",
+      "file": "approach-01.webp",
+      "bytes": 5460,
+      "sha256": "b5a30d3f5b94ea73913d2c24fd964c3e3d3741070c73a2aae49cdb117936823c"
+    },
+    {
+      "index": 9,
+      "name": "approach-02",
+      "file": "approach-02.webp",
+      "bytes": 6122,
+      "sha256": "3472b4da48f82257624efc77389d6548a03ded4cc97619f4f3cad0b386d80780"
+    },
+    {
+      "index": 10,
+      "name": "approach-03",
+      "file": "approach-03.webp",
+      "bytes": 5776,
+      "sha256": "103fa7121261f932964c5b3c1a7d0bb187853c4f0d22a3cea72e71d9274acecb"
+    },
+    {
+      "index": 11,
+      "name": "approach-04",
+      "file": "approach-04.webp",
+      "bytes": 6098,
+      "sha256": "1887bef939379b1a1d00084a450a6d4512e8f27043b6da69b55887842d851195"
+    },
+    {
+      "index": 12,
+      "name": "portrait-rest",
+      "file": "portrait-rest.webp",
+      "bytes": 5262,
+      "sha256": "3b0694cf429fdefc4ecce03338d982f770871ad57b7c5b95c1f607a28a263df1"
+    },
+    {
+      "index": 13,
+      "name": "mouth-small",
+      "file": "mouth-small.webp",
+      "bytes": 5678,
+      "sha256": "14586f24a15e1d97a8bee46a90cbcbcb7ed0d3da96a57dc7c1011b55b21505a3"
+    },
+    {
+      "index": 14,
+      "name": "mouth-open",
+      "file": "mouth-open.webp",
+      "bytes": 5918,
+      "sha256": "2f9926861a6ed5bc208bfcd5b06920dcdf78df6af2bb07f73b5f446278ad79e5"
+    },
+    {
+      "index": 15,
+      "name": "blink",
+      "file": "blink.webp",
+      "bytes": 5512,
+      "sha256": "13f4a2d38b2a291aa0767440f074f1b5b6133fd0bc0c0d4d5ec5d94851378824"
+    }
+  ]
+}

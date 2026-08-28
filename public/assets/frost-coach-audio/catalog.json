@@ -1,0 +1,450 @@
+{
+  "curl_elbows": {
+    "path": "/assets/frost-coach-audio/curl_elbows-4e5a1255f95f.pcm",
+    "bytes": 140544,
+    "sha256": "4e5a1255f95fc28a662910813d282f69781bb50efd1f1cf0f9af7dcbe439c466",
+    "durationMs": 4392.0,
+    "sourceSha256": "36830f088cdb2f0a2547e4e9434dfde086d430a2f7ce69789d75611fad294084"
+  },
+  "curl_finish": {
+    "path": "/assets/frost-coach-audio/curl_finish-6c30b8783393.pcm",
+    "bytes": 122112,
+    "sha256": "6c30b87833937adf4efe4f85ccc7150503d681e5ef4c27d019306840500007c9",
+    "durationMs": 3816.0,
+    "sourceSha256": "ac511da94692c7730ff8384e8a7f2c14ca2857a2c8ce2621e08357775b0f5c61"
+  },
+  "encourage_10": {
+    "path": "/assets/frost-coach-audio/encourage_10-4f314d92a250.pcm",
+    "bytes": 127872,
+    "sha256": "4f314d92a2504478c41ff0a2e900a92a6fa6d30060d3a083e293ae72bd180344",
+    "durationMs": 3996.0,
+    "sourceSha256": "5c306a4df0e9efe5217193707b65fd283e0affe71841d1d35b1eeaaf0c3c7ca3"
+  },
+  "encourage_3": {
+    "path": "/assets/frost-coach-audio/encourage_3-d0cef90f9677.pcm",
+    "bytes": 89856,
+    "sha256": "d0cef90f96779f192313b2b0d19de8c514c32ef9c3e218cbcf40b149f46d99e5",
+    "durationMs": 2808.0,
+    "sourceSha256": "3761aba927e47eb2e90644bde2d33ead017c649a905b6674cad8d41947f9b73b"
+  },
+  "encourage_5": {
+    "path": "/assets/frost-coach-audio/encourage_5-56fed82cd824.pcm",
+    "bytes": 82944,
+    "sha256": "56fed82cd824dc1a5c21740e84ba348c155ac3a57318b6a79b54ce295bc56942",
+    "durationMs": 2592.0,
+    "sourceSha256": "92b8697c2e5f1d94b2011df4210f79f5df94c93c920b520716bf8f7a93d35b79"
+  },
+  "generic_jumping_jacks": {
+    "path": "/assets/frost-coach-audio/generic_jumping_jacks-dc109e4e09c9.pcm",
+    "bytes": 140544,
+    "sha256": "dc109e4e09c93381642438e8900ccf51634b2361d05360253b095bd136a3a126",
+    "durationMs": 4392.0,
+    "sourceSha256": "1a76dba548cdbfdbe9b3dbb682daba493097440fa7b267082f9a03cc5568b2aa"
+  },
+  "generic_lateral_shoulder_raises": {
+    "path": "/assets/frost-coach-audio/generic_lateral_shoulder_raises-aaab94478c68.pcm",
+    "bytes": 167040,
+    "sha256": "aaab94478c6875794c529a52f7da88f47009bd3b20d630714ee19341072fce07",
+    "durationMs": 5220.0,
+    "sourceSha256": "b537dddff7cda03f8c8583130cd5012b767abb1296736d3fa4c8007b4543286f"
+  },
+  "generic_other": {
+    "path": "/assets/frost-coach-audio/generic_other-62658a21bd97.pcm",
+    "bytes": 156672,
+    "sha256": "62658a21bd97cf2018736211504b4c7ea535c693615b4ac390634f859bc86916",
+    "durationMs": 4896.0,
+    "sourceSha256": "229f8ba288fc0e3f4bb40ae28fc585b254f13c7adf55cf18dcab88d520eb9905"
+  },
+  "generic_situps": {
+    "path": "/assets/frost-coach-audio/generic_situps-c7dcdd7cc681.pcm",
+    "bytes": 160128,
+    "sha256": "c7dcdd7cc68123c4b9b95f6ee05ae7ac42289baf1520aa8e336fef1655b016f0",
+    "durationMs": 5004.0,
+    "sourceSha256": "45b1d01bab1eaf29c4ba5e23992084709f19fb6bce93948971e23129d630d025"
+  },
+  "generic_tricep_extensions": {
+    "path": "/assets/frost-coach-audio/generic_tricep_extensions-b1cb0e690933.pcm",
+    "bytes": 125568,
+    "sha256": "b1cb0e6909334633f78c398a8cd7c69d3ef6ddaa4ea2ab22628768a152ba84b4",
+    "durationMs": 3924.0,
+    "sourceSha256": "7370455afe1f46a4e85ed212bd9a14bd3e8d16ef5949a7ed77e640b4d1594055"
+  },
+  "good_form_1": {
+    "path": "/assets/frost-coach-audio/good_form_1-2d08ad672a79.pcm",
+    "bytes": 91008,
+    "sha256": "2d08ad672a79e10569162596911dacacb4ead64c103f4ededf1b9431c7eb5f29",
+    "durationMs": 2844.0,
+    "sourceSha256": "47a7fd12208a872d81d10e9b0604b923b026e639d1b919671d73be871f5810e1"
+  },
+  "good_form_2": {
+    "path": "/assets/frost-coach-audio/good_form_2-2d54df93e26e.pcm",
+    "bytes": 97920,
+    "sha256": "2d54df93e26e69ec712869b87141ee7a03cba97a25869d68864aea98d9d13362",
+    "durationMs": 3060.0,
+    "sourceSha256": "2e19170998b9d4fcf6d372163e7c10f6310dee291ae8d655b9785ef859c509c5"
+  },
+  "good_form_3": {
+    "path": "/assets/frost-coach-audio/good_form_3-38cda084365a.pcm",
+    "bytes": 72576,
+    "sha256": "38cda084365a86b49aa6613891718e42a41400dc0bcd3716feafdea14bf973c9",
+    "durationMs": 2268.0,
+    "sourceSha256": "c605648b74c0b412f83698af53a6666928edba8f4eb1759730e151d5441054f0"
+  },
+  "good_form_4": {
+    "path": "/assets/frost-coach-audio/good_form_4-b901c690ee99.pcm",
+    "bytes": 67968,
+    "sha256": "b901c690ee993edb810930f797ae1c030ee4018fbbf1211f52c18f3fbb1b7d27",
+    "durationMs": 2124.0,
+    "sourceSha256": "cbeff40059d2e1528b8b59bf2b677ba6ce5361e2f6972bb23b1cc8c2ca11e768"
+  },
+  "good_form_5": {
+    "path": "/assets/frost-coach-audio/good_form_5-b92b6af4be79.pcm",
+    "bytes": 91008,
+    "sha256": "b92b6af4be790b4b6db20ed5a1489f74d84898a399b3c4b82a904a8c001982d1",
+    "durationMs": 2844.0,
+    "sourceSha256": "2470d6d7be0b46852217b2e92e2b417147ca537af59f4ad9d56d981a7ddc7b84"
+  },
+  "good_rep": {
+    "path": "/assets/frost-coach-audio/good_rep-6a8bcc29cb52.pcm",
+    "bytes": 116352,
+    "sha256": "6a8bcc29cb5216b2d8d724b3f249f69a5774e894b77ca962142f03b49aa53063",
+    "durationMs": 3636.0,
+    "sourceSha256": "b602eb12954067d55babd5aec8cab253660477f5899e61abfd7f6f5e6b27271d"
+  },
+  "intro_squat": {
+    "path": "/assets/frost-coach-audio/intro_squat-aa3e2645401e.pcm",
+    "bytes": 340992,
+    "sha256": "aa3e2645401e17f9f0d1f6e3df6734014d6edd633a37bb2c54093c7d49766aaa",
+    "durationMs": 10656.0,
+    "sourceSha256": "ba4fbf720c291836ea4cb35250a55ec6f5034a2971105b7cc378b3e111084667"
+  },
+  "lunge_stack": {
+    "path": "/assets/frost-coach-audio/lunge_stack-4f22b4f9682b.pcm",
+    "bytes": 154368,
+    "sha256": "4f22b4f9682bddc8af9ebae40318eb0ae94bc58f64215706c34c8cc8839530ce",
+    "durationMs": 4824.0,
+    "sourceSha256": "7fb6e5ce92cf9cdf0287de50a192d9bcc8982b127a568939a9999df2d7fb7e40"
+  },
+  "lunge_stride": {
+    "path": "/assets/frost-coach-audio/lunge_stride-4be2fe0ac256.pcm",
+    "bytes": 145152,
+    "sha256": "4be2fe0ac256ca5e5bd5c72539a650b7848cf6311e610c7651221105c0f54c7f",
+    "durationMs": 4536.0,
+    "sourceSha256": "68b52b80e56fa3494d9b8f5c79b6608b53a3a25ac0388ecbead3a313cabb8452"
+  },
+  "lunge_torso": {
+    "path": "/assets/frost-coach-audio/lunge_torso-a52d1ca597e6.pcm",
+    "bytes": 147456,
+    "sha256": "a52d1ca597e6a3b59d6b89f46abb2032e259d36e460477f0232943b137ebc31c",
+    "durationMs": 4608.0,
+    "sourceSha256": "2a9928c153358f87f5ed3b9a0ac013ad401c9ec5a9bd9421954dba4f385d02a7"
+  },
+  "no_person": {
+    "path": "/assets/frost-coach-audio/no_person-bb12a54c538a.pcm",
+    "bytes": 169344,
+    "sha256": "bb12a54c538ad8416835518508055de0392f4238de8ae9c609ca9941934d0824",
+    "durationMs": 5292.0,
+    "sourceSha256": "e90b7d3ed449f91d897cd509fa4d8bd0ad0f2f22b0797ccc77cbe127ac18b620"
+  },
+  "press_lockout": {
+    "path": "/assets/frost-coach-audio/press_lockout-e70d93668342.pcm",
+    "bytes": 173952,
+    "sha256": "e70d936683426bc1356316142caff56099057cd6391be6ce80bd45c4058f0ff1",
+    "durationMs": 5436.0,
+    "sourceSha256": "2ae37b9acf6ae64fb26fab794696761fabbe8736a68852ce5825f043b26166d0"
+  },
+  "press_path": {
+    "path": "/assets/frost-coach-audio/press_path-333e612c71d3.pcm",
+    "bytes": 147456,
+    "sha256": "333e612c71d37efa06bd7363eb9862ab89731d527e91686852dc24d2cb148d8b",
+    "durationMs": 4608.0,
+    "sourceSha256": "19450f99810e677e56583ea0672a9baa3d38c481b0b064143040bc6274c17e3d"
+  },
+  "press_ribs": {
+    "path": "/assets/frost-coach-audio/press_ribs-bebea32ea2e8.pcm",
+    "bytes": 127872,
+    "sha256": "bebea32ea2e89e6af146f5ae99d7015b4d5be85d855b183a2751f1726b689121",
+    "durationMs": 3996.0,
+    "sourceSha256": "a88be4b63c7c6737cc6060788a698cf283f4514585b950285791ddde26c90626"
+  },
+  "pushup_depth": {
+    "path": "/assets/frost-coach-audio/pushup_depth-7cfa707d1b8c.pcm",
+    "bytes": 122112,
+    "sha256": "7cfa707d1b8cb24d2a60ef44a5fb4388fde4c91b5f76df33748b1fb09779ff37",
+    "durationMs": 3816.0,
+    "sourceSha256": "f607b801cdb00a35a184eb135fcde0fcfdb4dbce6b86dc7462fc533e7e265ad4"
+  },
+  "pushup_elbows": {
+    "path": "/assets/frost-coach-audio/pushup_elbows-3b396a8189d6.pcm",
+    "bytes": 135936,
+    "sha256": "3b396a8189d6a2d612272b9a855b730195ed73bcc2dc56dc3ef83e9ff10aca17",
+    "durationMs": 4248.0,
+    "sourceSha256": "0cbdb3ffaa640b96876162a87dfc58efdb6d8eb7d9cc3e4df92269e2cf8c9873"
+  },
+  "pushup_line": {
+    "path": "/assets/frost-coach-audio/pushup_line-eeacf941fed1.pcm",
+    "bytes": 138240,
+    "sha256": "eeacf941fed18d656396decceafc41fe14e8a263b920c39e9a9e6ccd7841aebd",
+    "durationMs": 4320.0,
+    "sourceSha256": "83d6b5c160c0fd2e75bb842bd0663bc18fea4c18717af79ef72bac9d766fffd4"
+  },
+  "rep_1": {
+    "path": "/assets/frost-coach-audio/rep_1-cbcba49ba6e8.pcm",
+    "bytes": 34560,
+    "sha256": "cbcba49ba6e8156a9c827bb45030aed30ebae88fda12f9bf1dff2d0ee32b56a4",
+    "durationMs": 1080.0,
+    "sourceSha256": "dc57c888fa9053462e9f00c3b39fac70b616dc9ae5c0cf0d5334cd26c8884a7d"
+  },
+  "rep_10": {
+    "path": "/assets/frost-coach-audio/rep_10-3e05079476a7.pcm",
+    "bytes": 66816,
+    "sha256": "3e05079476a75e78b9edefeafdcc1cfe4f739eb8c382cd0328c9afde39948e52",
+    "durationMs": 2088.0,
+    "sourceSha256": "eafb3c9ce4ec73980af02042e6c994078e55f7a120ae8919ebca07ee667f9fc7"
+  },
+  "rep_15": {
+    "path": "/assets/frost-coach-audio/rep_15-f44c76ca506e.pcm",
+    "bytes": 201600,
+    "sha256": "f44c76ca506ef3d9f7068a5b85a4dfd17d48a480c8456743fe337f471ca0b239",
+    "durationMs": 6300.0,
+    "sourceSha256": "381abe9215eae762bb92fb22ce7bad8bc6ec0f1abd6edea0ad0c82719fbf1ad1"
+  },
+  "rep_2": {
+    "path": "/assets/frost-coach-audio/rep_2-749061c21192.pcm",
+    "bytes": 36864,
+    "sha256": "749061c21192dfe1be2e730924a6e116cf84e5ca71392f70351130d2962fe3df",
+    "durationMs": 1152.0,
+    "sourceSha256": "03495a197aa98dedf6c170eab80391a3165ccefa11c54a12c127e4e84c6f2194"
+  },
+  "rep_20": {
+    "path": "/assets/frost-coach-audio/rep_20-4619b4ab535a.pcm",
+    "bytes": 122112,
+    "sha256": "4619b4ab535aa8cca94f99c50a13ba41f89e43327312f92aa8382754ea0f3cea",
+    "durationMs": 3816.0,
+    "sourceSha256": "615fc32990971761ca8fa72864fb207b9464147723b9659eb5614d76808e52c3"
+  },
+  "rep_25": {
+    "path": "/assets/frost-coach-audio/rep_25-381a4b9b41c3.pcm",
+    "bytes": 72576,
+    "sha256": "381a4b9b41c348d837cfb649f36a5887d7bcfc06b5b853f2b61768ecaa2723ef",
+    "durationMs": 2268.0,
+    "sourceSha256": "660d84d3e0f1e7e98115f64fb659ef1af7afa40f9c55631c6a881b8e9fde3eed"
+  },
+  "rep_3": {
+    "path": "/assets/frost-coach-audio/rep_3-44967f319596.pcm",
+    "bytes": 34560,
+    "sha256": "44967f3195968de5b995aab70d546f5253f1d33ba481a41426fb8407a893fd12",
+    "durationMs": 1080.0,
+    "sourceSha256": "38c531d073cd795e0ef382c18a668dff23d5764ea991b73a643a7cc75ff2202d"
+  },
+  "rep_30": {
+    "path": "/assets/frost-coach-audio/rep_30-2be71911343c.pcm",
+    "bytes": 105984,
+    "sha256": "2be71911343ce366f0d63b816a12cc0db5a0fb1c2ba21b24285dcafb8b8af755",
+    "durationMs": 3312.0,
+    "sourceSha256": "c5fed943bef623eb8d4c806719117179c1b2e6ad0d7920993ab86b143569ac1a"
+  },
+  "rep_35": {
+    "path": "/assets/frost-coach-audio/rep_35-f2f952f03f95.pcm",
+    "bytes": 116352,
+    "sha256": "f2f952f03f95c3611db2e9293eeb8622cde3000ad75b708f833271fdd0251fbe",
+    "durationMs": 3636.0,
+    "sourceSha256": "bf3174a8d68fe99adc3139aff9ea171cd5350d91f886353355325d51ef45d41f"
+  },
+  "rep_4": {
+    "path": "/assets/frost-coach-audio/rep_4-af5a5255b503.pcm",
+    "bytes": 36864,
+    "sha256": "af5a5255b503e4c8589e4a09a4d68644bba9edc3efd553cc7f9b1031c788c638",
+    "durationMs": 1152.0,
+    "sourceSha256": "70dca5209e4c8ecb7c2b937482ad127e5afff68707075e6e41640005187f0408"
+  },
+  "rep_40": {
+    "path": "/assets/frost-coach-audio/rep_40-d6d5ed21cd5e.pcm",
+    "bytes": 125568,
+    "sha256": "d6d5ed21cd5e1da9c3606294235d8cedc0943ba9a80079f652897da24af2e682",
+    "durationMs": 3924.0,
+    "sourceSha256": "66b648a464ffe4cd9ed49b29c47bfbfb86f1fed6b14a62612e2c289e11322c6b"
+  },
+  "rep_45": {
+    "path": "/assets/frost-coach-audio/rep_45-be91b5274d90.pcm",
+    "bytes": 101376,
+    "sha256": "be91b5274d90b92f2d894cef052175e477e16ad962bc4bb96b764da2e3d718af",
+    "durationMs": 3168.0,
+    "sourceSha256": "81850275b0f58ef326a92453d147fcb7ff42a61afd283f65a839e3a56922c014"
+  },
+  "rep_5": {
+    "path": "/assets/frost-coach-audio/rep_5-eb04e9839404.pcm",
+    "bytes": 49536,
+    "sha256": "eb04e9839404bb824af17184f26729af8244188049577a1f79188dec6ca550cf",
+    "durationMs": 1548.0,
+    "sourceSha256": "9b86dae4653f0f831c328fb90ff27949f0848c77d0869d103bb42c879659be0e"
+  },
+  "rep_50": {
+    "path": "/assets/frost-coach-audio/rep_50-53d79301b45f.pcm",
+    "bytes": 122112,
+    "sha256": "53d79301b45f677d8470cfa54b3fecee9ac9a0a5a785f93caa9d55ce0b15e8ac",
+    "durationMs": 3816.0,
+    "sourceSha256": "2834f48d8be021efb4ff2aaf7cb5052fff703e69cfbcc20a29cccbc45753507e"
+  },
+  "rep_6": {
+    "path": "/assets/frost-coach-audio/rep_6-cd0086548536.pcm",
+    "bytes": 36864,
+    "sha256": "cd00865485363dd15d486dc0d794e378def400351ac4c211fe34045861ef7a4f",
+    "durationMs": 1152.0,
+    "sourceSha256": "8ba95642a101072d8f3a4e14fbfbdefe78f85b65783f306f47e196eb8f605d05"
+  },
+  "rep_7": {
+    "path": "/assets/frost-coach-audio/rep_7-33580d1e277a.pcm",
+    "bytes": 40320,
+    "sha256": "33580d1e277abf1bfa25231a7aee52d7c2f4e50583ad0fa35db9362edd3e2baa",
+    "durationMs": 1260.0,
+    "sourceSha256": "1bfe29fa7beb7accb2b7f90379230ef610c0c2b70d51205858758208d7e8e7bb"
+  },
+  "rep_8": {
+    "path": "/assets/frost-coach-audio/rep_8-87d0d3760406.pcm",
+    "bytes": 34560,
+    "sha256": "87d0d3760406c83f32f9da89b023f5f9a193a57afbe5faf19580ca0800d605e7",
+    "durationMs": 1080.0,
+    "sourceSha256": "e30c3781831f2f076007922153b779cbb06a5f689293935c1f032024cff1750d"
+  },
+  "rep_9": {
+    "path": "/assets/frost-coach-audio/rep_9-37f1c8643f41.pcm",
+    "bytes": 36864,
+    "sha256": "37f1c8643f414b228a154cecf2ed61bd6ed442c51c94bbf19d728aabb81fe35a",
+    "durationMs": 1152.0,
+    "sourceSha256": "e0ef76ea2a54eb4c4db330c1168b6b41e9cf620553826787e2bdaab6e6ff410f"
+  },
+  "resume_squat": {
+    "path": "/assets/frost-coach-audio/resume_squat-46c3b244cb38.pcm",
+    "bytes": 88704,
+    "sha256": "46c3b244cb389a756b37f21bd06d6a6cc40c46b1703a0b7cf726a38b34b25e77",
+    "durationMs": 2772.0,
+    "sourceSha256": "02dbb9c045fed22cb55de13b64f06c807a0e5d78b369fdd4999da95df8543d68"
+  },
+  "row_elbows": {
+    "path": "/assets/frost-coach-audio/row_elbows-9757a0dd84e2.pcm",
+    "bytes": 135936,
+    "sha256": "9757a0dd84e2f69089911d1696f381dbc46a1511c57fd14130a27a5547f2ff27",
+    "durationMs": 4248.0,
+    "sourceSha256": "3a37dfc9def7b84e1ac2baddc4afcbf42f3ab4e4534119a9175fc3562708aeb5"
+  },
+  "row_pull": {
+    "path": "/assets/frost-coach-audio/row_pull-2dc6cd051f48.pcm",
+    "bytes": 138240,
+    "sha256": "2dc6cd051f4884e83e7cb97a1be6fa87d13b28594aac849b8bfbf6e026d45054",
+    "durationMs": 4320.0,
+    "sourceSha256": "5d90aeb4d76888f04822d3f5a4f1b9bec590d370b507243e1343737f385397f6"
+  },
+  "row_torso": {
+    "path": "/assets/frost-coach-audio/row_torso-187956d8cd4c.pcm",
+    "bytes": 156672,
+    "sha256": "187956d8cd4c905b4fab3d30ddbdc7d439d3500b7ca4e2659d1f0d0b09945ad8",
+    "durationMs": 4896.0,
+    "sourceSha256": "26a0ced8b36c2541c266aa1e454751a6027118ba4f50719554e040eca0fadca1"
+  },
+  "squat_chest_up": {
+    "path": "/assets/frost-coach-audio/squat_chest_up-573aefa69d21.pcm",
+    "bytes": 111744,
+    "sha256": "573aefa69d21998fcd986bf13b7cf51d234c98376a557de4e12403edfb9c719b",
+    "durationMs": 3492.0,
+    "sourceSha256": "0b4099d1414f8be2de14e74776ec4d2398773ee9e57282d28dfbb756e9c03030"
+  },
+  "squat_depth": {
+    "path": "/assets/frost-coach-audio/squat_depth-5ec474167e21.pcm",
+    "bytes": 127872,
+    "sha256": "5ec474167e2180826e0e4943e77c9cbdea2aaa7ce4e416f3083ffca4b9587638",
+    "durationMs": 3996.0,
+    "sourceSha256": "9752f66f97a7283fc309fc0cb2ab2a6c489639c82ab2245723410566bbdb957f"
+  },
+  "squat_good_1": {
+    "path": "/assets/frost-coach-audio/squat_good_1-b318a92ad67d.pcm",
+    "bytes": 91008,
+    "sha256": "b318a92ad67dae2bf6d0ea81fbe451a6c3ea3d3339613172b730f4315f93331e",
+    "durationMs": 2844.0,
+    "sourceSha256": "989f729d23a7e215ae8737e12e2a4e7dc3106a00d65dd03ba3f8e9c4c68925ba"
+  },
+  "squat_good_2": {
+    "path": "/assets/frost-coach-audio/squat_good_2-4d17b93efefe.pcm",
+    "bytes": 70272,
+    "sha256": "4d17b93efefe2ed920edb4c4dce427a85fb0e5ad8db9ce916d8f1ffff1b9336f",
+    "durationMs": 2196.0,
+    "sourceSha256": "ae018236b9210c24664ecf178b4ebaf822ffc3679d636014e00baa85d0a479d5"
+  },
+  "squat_good_3": {
+    "path": "/assets/frost-coach-audio/squat_good_3-7dd8c32e40c7.pcm",
+    "bytes": 86400,
+    "sha256": "7dd8c32e40c786284718a4d54a512132d282eba1a1de0117fb90e37afdc553a7",
+    "durationMs": 2700.0,
+    "sourceSha256": "45553398d541fbfb8781f5f5cb0a9b78fb154b3ebe0d10c50ccb4ce36eddc209"
+  },
+  "squat_good_4": {
+    "path": "/assets/frost-coach-audio/squat_good_4-9bcc68adc8d9.pcm",
+    "bytes": 91008,
+    "sha256": "9bcc68adc8d93339b38714f131429837229d30fc39821e7fcec59037b702bdd9",
+    "durationMs": 2844.0,
+    "sourceSha256": "e239bf9a2af9d9dfff7ceb082a6abca7558a630be79a05cf287a134a26163cfb"
+  },
+  "squat_good_5": {
+    "path": "/assets/frost-coach-audio/squat_good_5-d5a7e79927bc.pcm",
+    "bytes": 79488,
+    "sha256": "d5a7e79927bcaa6b6c422401fe2ac43845fffacb21645e2ffa1180f6e1f91eb6",
+    "durationMs": 2484.0,
+    "sourceSha256": "87719457b41bf76d256fb5280d20b86a2906277c4a38803ac6c3fec572ef7525"
+  },
+  "squat_good_6": {
+    "path": "/assets/frost-coach-audio/squat_good_6-fd795cae89ac.pcm",
+    "bytes": 79488,
+    "sha256": "fd795cae89acbc53f246cbd14e63272733e4ddd79d6d05e49cdc0eb374cafd77",
+    "durationMs": 2484.0,
+    "sourceSha256": "dbbc5f64b9c9b42c939666101889007a36de197dfc9385ec119d6af66caceefe"
+  },
+  "squat_good_7": {
+    "path": "/assets/frost-coach-audio/squat_good_7-92bae7042028.pcm",
+    "bytes": 101376,
+    "sha256": "92bae7042028794bb10c37cf2c92ed1af0d55dc70f5a9484308855ca95a2367e",
+    "durationMs": 3168.0,
+    "sourceSha256": "9d8b1e89fbd7cc4b9e0d0134eb577cc76e931252eeef43ff3b84afda398babd2"
+  },
+  "squat_good_8": {
+    "path": "/assets/frost-coach-audio/squat_good_8-3bb144e83bb7.pcm",
+    "bytes": 72576,
+    "sha256": "3bb144e83bb74984d35d9bc2387948ad577bc02c04fccee25fe4c656ea6656e2",
+    "durationMs": 2268.0,
+    "sourceSha256": "cbf03bb1c2bea350283fba422d885fe978fd62abc34139456ff88c915652239f"
+  },
+  "squat_knees_out": {
+    "path": "/assets/frost-coach-audio/squat_knees_out-55771eda84f5.pcm",
+    "bytes": 127872,
+    "sha256": "55771eda84f5860262bba86244268187a417d899832ca1c8b8ef443b0a9039d5",
+    "durationMs": 3996.0,
+    "sourceSha256": "5e783246cd300fa268dbd18f5ca9131e8d81edfa824d617e1f430755b160335a"
+  },
+  "squat_streak_10": {
+    "path": "/assets/frost-coach-audio/squat_streak_10-524d6f0490cb.pcm",
+    "bytes": 116352,
+    "sha256": "524d6f0490cb0085919ea24b029fd5ff8731d47d45ab55bc57e1bcc16eeb1e8b",
+    "durationMs": 3636.0,
+    "sourceSha256": "542842b7b45c91f6aa7bb74c7fd2da6a01f9b060024fa49d9a47c8bf302225aa"
+  },
+  "squat_streak_3": {
+    "path": "/assets/frost-coach-audio/squat_streak_3-202fee39b21c.pcm",
+    "bytes": 81792,
+    "sha256": "202fee39b21ca4bd689f6cadf69178a7e4b230993a05bb7e973614a9b6343e44",
+    "durationMs": 2556.0,
+    "sourceSha256": "677ac42316a37530258d80c9939c5e6ef83f70fd7b765ac9d1da0da7206d6d65"
+  },
+  "squat_streak_5": {
+    "path": "/assets/frost-coach-audio/squat_streak_5-0c91e9716295.pcm",
+    "bytes": 110592,
+    "sha256": "0c91e971629582878893e76998b8526e69d3f24f001a13d68f7b9731fe2e3399",
+    "durationMs": 3456.0,
+    "sourceSha256": "5724fb2c2e240258cac5488f7cb54b4fd64f715218650990700f1791e857be6d"
+  },
+  "squat_streak_8": {
+    "path": "/assets/frost-coach-audio/squat_streak_8-0320653613df.pcm",
+    "bytes": 119808,
+    "sha256": "0320653613df243d2d4eb61093f9a0fb2624016d9276910c99fe71b3eaca568c",
+    "durationMs": 3744.0,
+    "sourceSha256": "511a2966d6599fcf0e5839c0114795b046a43f965b1ad1e644eb93918143ebc8"
+  }
+}

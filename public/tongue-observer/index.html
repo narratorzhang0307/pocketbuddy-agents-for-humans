@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#167f77" />
+  <title>舌苔观察站 · Pocket Buddy</title>
+  <style>
+    :root { --ink:#111; --paper:#f4f0e5; --mint:#dff3ee; --green:#00ef88; --teal:#167f77; --pink:#ff9d91; }
+    * { box-sizing: border-box; }
+    body { margin:0; color:var(--ink); background:#d9dedc; font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif; }
+    button, input { font:inherit; }
+    .pixel { font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace; font-weight:900; letter-spacing:.08em; }
+    .app { width:min(100%, 560px); min-height:100vh; margin:0 auto; background:#edf0ee; border-inline:2px solid var(--ink); }
+    header { position:sticky; top:0; z-index:5; display:grid; grid-template-columns:42px 1fr auto; gap:10px; align-items:center; padding:12px; background:#fff; border-bottom:3px solid var(--ink); }
+    .back { display:grid; place-items:center; height:40px; color:var(--ink); text-decoration:none; border:2px solid var(--ink); background:var(--paper); font-size:22px; }
+    h1 { margin:0; font-size:17px; }
+    .sub { margin:3px 0 0; color:#5a625f; font-size:11px; }
+    .status { padding:7px 8px; border:2px solid var(--ink); background:#fff2cc; font-size:9px; white-space:nowrap; }
+    .status.online { background:var(--green); }
+    .status.offline { background:#ffd9d9; }
+    main { padding:12px 12px 36px; }
+    .hero { position:relative; overflow:hidden; padding:20px 16px; border:3px solid var(--ink); background:var(--mint); }
+    .hero::before { content:""; position:absolute; inset:0; opacity:.34; background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(22,127,119,.18) 12px 14px),linear-gradient(90deg,transparent 72%,rgba(22,127,119,.12) 72%); }
+    .hero > * { position:relative; }
+    .eyebrow { display:inline-block; padding:5px 7px; border:2px solid var(--ink); background:#fff; font-size:9px; }
+    .hero h2 { margin:14px 0 7px; max-width:360px; font-size:28px; line-height:1.15; }
+    .hero p { margin:0; max-width:430px; color:#3d5550; font-size:13px; line-height:1.65; }
+    .metric { display:flex; flex-wrap:wrap; gap:7px; margin-top:15px; }
+    .metric span { padding:6px 8px; border:2px solid var(--ink); background:#fff; font-size:9px; }
+    .panel { margin-top:12px; border:3px solid var(--ink); background:#fff; }
+    .panel-title { display:flex; align-items:center; justify-content:space-between; padding:10px 11px; border-bottom:2px solid var(--ink); background:var(--paper); font-size:10px; }
+    .panel-body { padding:12px; }
+    .guide { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:11px; }
+    .guide div { min-height:76px; padding:9px 7px; border:2px solid var(--ink); background:#f8faf9; }
+    .guide b { display:block; color:var(--teal); font-size:10px; }
+    .guide span { display:block; margin-top:5px; color:#5c6662; font-size:10px; line-height:1.45; }
+    .drop { display:grid; place-items:center; min-height:154px; padding:16px; text-align:center; cursor:pointer; border:3px dashed var(--ink); background:#eef9f5; }
+    .drop.drag { background:#c7f8e3; }
+    .camera { display:grid; place-items:center; width:54px; height:54px; margin-bottom:8px; border:2px solid var(--ink); border-radius:50%; background:var(--green); font-size:25px; }
+    .drop b { font-size:13px; }
+    .drop small { display:block; margin-top:6px; color:#64716c; font-size:10px; }
+    #file { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+    .preview-wrap { display:none; position:relative; margin-top:11px; border:3px solid var(--ink); background:#222; }
+    .preview-wrap.ready { display:block; }
+    #preview { display:block; width:100%; max-height:360px; object-fit:contain; }
+    .filename { padding:7px 9px; overflow:hidden; background:#fff; border-top:2px solid var(--ink); font-size:10px; text-overflow:ellipsis; white-space:nowrap; }
+    .run { width:100%; min-height:48px; margin-top:10px; cursor:pointer; border:3px solid var(--ink); background:var(--green); font-size:11px; }
+    .run:disabled { cursor:wait; opacity:.55; }
+    .message { display:none; margin-top:10px; padding:10px; border:2px solid var(--ink); background:#ffe0e0; color:#7e2020; font-size:11px; line-height:1.5; }
+    .message.show { display:block; }
+    #results { display:none; margin-top:12px; }
+    #results.show { display:block; }
+    .finding { margin-top:8px; padding:11px; border:3px solid var(--ink); background:#fff; }
+    .finding:first-child { margin-top:0; }
+    .finding-head { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+    .finding h3 { margin:0; font-size:14px; }
+    .confidence { min-width:58px; padding:6px; text-align:center; border:2px solid var(--ink); background:var(--mint); color:var(--teal); font-size:11px; }
+    .bar { height:9px; margin:9px 0; border:2px solid var(--ink); background:#e3e7e5; }
+    .bar i { display:block; height:100%; background:var(--green); }
+    .finding p { margin:0; color:#58625e; font-size:11px; line-height:1.6; }
+    .safety { margin-top:12px; padding:12px; border:3px solid var(--ink); background:#fff3d2; }
+    .safety b { font-size:11px; }
+    .safety p { margin:6px 0 0; color:#5f5132; font-size:10px; line-height:1.65; }
+    .tech { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:12px; }
+    .tech div { padding:10px; border:2px solid var(--ink); background:#fff; }
+    .tech b { display:block; font-size:9px; }
+    .tech span { display:block; margin-top:5px; color:#59635f; font-size:10px; line-height:1.45; }
+    footer { padding:16px 12px calc(18px + env(safe-area-inset-bottom)); text-align:center; border-top:2px solid var(--ink); background:#111; color:#b9c9c3; font-size:9px; line-height:1.6; }
+    @media (max-width:390px) { .hero h2{font-size:24px}.guide{grid-template-columns:1fr}.guide div{min-height:auto}.tech{grid-template-columns:1fr} }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <a class="back pixel" href="/" aria-label="返回 Pocket Buddy">‹</a>
+      <div><h1 class="pixel">TONGUE OBSERVER</h1><p class="sub">舌苔与舌质颜色观察</p></div>
+      <span id="status" class="status pixel">CHECKING</span>
+    </header>
+    <main>
+      <section class="hero">
+        <span class="eyebrow pixel">POCKET EARTH · VISION STATION</span>
+        <h2>舌苔观察站</h2>
+        <p>从一张白光照片中观察舌苔和舌质的可见颜色。图片仅在本次服务器推理中使用，不落盘保存。</p>
+        <div class="metric"><span class="pixel">2 COLOR HEADS</span><span class="pixel">85.78% MACRO F1</span><span class="pixel">NO DIAGNOSIS</span></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-title pixel"><span>01 · CAPTURE</span><span>JPG / PNG / WEBP · ≤12MB</span></div>
+        <div class="panel-body">
+          <div class="guide">
+            <div><b class="pixel">WHITE LIGHT</b><span>自然白光，避免暖黄灯和滤镜。</span></div>
+            <div><b class="pixel">CLEAR FRAME</b><span>舌头居中、清晰，不要过度曝光。</span></div>
+            <div><b class="pixel">NO STAIN</b><span>有色食物、茶和咖啡后稍候再拍。</span></div>
+          </div>
+          <label id="drop" class="drop" for="file">
+            <span class="camera" aria-hidden="true">📷</span>
+            <b>拍摄或选择舌头照片</b>
+            <small>点击此处，也可把图片拖进来</small>
+          </label>
+          <input id="file" type="file" accept="image/jpeg,image/png,image/webp" capture="user" />
+          <div id="previewWrap" class="preview-wrap"><img id="preview" alt="待观察的舌头照片" /><div id="filename" class="filename"></div></div>
+          <button id="run" class="run pixel" type="button" disabled>RUN COLOR OBSERVATION</button>
+          <div id="message" class="message" role="alert"></div>
+        </div>
+      </section>
+
+      <section id="results" class="panel" aria-live="polite">
+        <div class="panel-title pixel"><span>02 · OBSERVATION</span><span id="modelName">MODEL RESULT</span></div>
+        <div id="resultBody" class="panel-body"></div>
+      </section>
+
+      <section class="safety">
+        <b class="pixel">SAFETY BOUNDARY / 使用边界</b>
+        <p>结果仅描述照片中可见的舌苔与舌质颜色，会受光线、白平衡、食物染色、拍摄角度和口腔清洁影响。它不判断疾病、气血、体质或营养缺乏。如有持续疼痛、溃疡、出血、吞咽困难或无法解释的持续变色，请咨询医生或牙医。</p>
+      </section>
+
+      <section class="tech">
+        <div><b class="pixel">MODEL</b><span>MobileNetV3-Small 共享骨干，舌苔 / 舌质双分类头。</span></div>
+        <div><b class="pixel">EVALUATION</b><span>舌苔测试 58 例，舌质测试 52 例；样本较小，不等于临床有效性。</span></div>
+      </section>
+    </main>
+    <footer class="pixel">TONGUEXPERT MANUAL LABELS · TORCHSCRIPT CPU INFERENCE<br />POCKET EARTH / PRIVATE REQUEST, NO IMAGE RETENTION</footer>
+  </div>
+
+  <script>
+    const statusEl = document.querySelector('#status');
+    const fileInput = document.querySelector('#file');
+    const drop = document.querySelector('#drop');
+    const previewWrap = document.querySelector('#previewWrap');
+    const preview = document.querySelector('#preview');
+    const filename = document.querySelector('#filename');
+    const run = document.querySelector('#run');
+    const message = document.querySelector('#message');
+    const results = document.querySelector('#results');
+    const resultBody = document.querySelector('#resultBody');
+    const modelName = document.querySelector('#modelName');
+    let selectedFile = null;
+    let previewUrl = '';
+
+    function setStatus(kind) {
+      statusEl.textContent = kind === 'online' ? 'MODEL ONLINE' : kind === 'offline' ? 'MODEL OFFLINE' : 'CHECKING';
+      statusEl.className = `status pixel ${kind}`;
+    }
+
+    function showError(text) {
+      message.textContent = text;
+      message.classList.toggle('show', Boolean(text));
+    }
+
+    function selectFile(file) {
+      showError('');
+      results.classList.remove('show');
+      resultBody.replaceChildren();
+      if (!file) return;
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) return showError('请选择 JPG、PNG 或 WebP 图片。');
+      if (file.size > 12 * 1024 * 1024) return showError('图片不能超过 12MB。');
+      selectedFile = file;
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = URL.createObjectURL(file);
+      preview.src = previewUrl;
+      filename.textContent = `${file.name} · ${(file.size / 1024 / 1024).toFixed(2)}MB`;
+      previewWrap.classList.add('ready');
+      run.disabled = false;
+    }
+
+    function renderFinding(finding) {
+      const card = document.createElement('article');
+      card.className = 'finding';
+      const head = document.createElement('div');
+      head.className = 'finding-head';
+      const title = document.createElement('h3');
+      title.textContent = String(finding.label || '颜色观测');
+      const score = Math.max(0, Math.min(100, Math.round(Number(finding.confidence || 0) * 100)));
+      const confidence = document.createElement('span');
+      confidence.className = 'confidence pixel';
+      confidence.textContent = `${score}%`;
+      head.append(title, confidence);
+      const bar = document.createElement('div');
+      bar.className = 'bar';
+      const fill = document.createElement('i');
+      fill.style.width = `${score}%`;
+      bar.append(fill);
+      const advice = document.createElement('p');
+      advice.textContent = Array.isArray(finding.advice) ? String(finding.advice[0] || '') : '';
+      card.append(head, bar, advice);
+      return card;
+    }
+
+    fileInput.addEventListener('change', () => selectFile(fileInput.files && fileInput.files[0]));
+    ['dragenter', 'dragover'].forEach((name) => drop.addEventListener(name, (event) => { event.preventDefault(); drop.classList.add('drag'); }));
+    ['dragleave', 'drop'].forEach((name) => drop.addEventListener(name, (event) => { event.preventDefault(); drop.classList.remove('drag'); }));
+    drop.addEventListener('drop', (event) => selectFile(event.dataTransfer && event.dataTransfer.files[0]));
+
+    run.addEventListener('click', async () => {
+      if (!selectedFile || run.disabled) return;
+      showError('');
+      run.disabled = true;
+      run.textContent = 'OBSERVING…';
+      try {
+        const response = await fetch('./api/predict', { method: 'POST', headers: { 'content-type': selectedFile.type }, body: selectedFile });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.detail || data.error || '观测服务暂时不可用');
+        if (!Array.isArray(data.findings)) throw new Error('模型返回结果不完整');
+        modelName.textContent = String(data.model || 'TONGUE MODEL');
+        resultBody.replaceChildren(...data.findings.map(renderFinding));
+        results.classList.add('show');
+        results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setStatus('online');
+      } catch (error) {
+        showError(error instanceof Error ? error.message : '观测失败，请稍后再试。');
+      } finally {
+        run.disabled = false;
+        run.textContent = 'RUN COLOR OBSERVATION';
+      }
+    });
+
+    fetch('./api/health', { signal: AbortSignal.timeout(6000) })
+      .then(async (response) => ({ ok: response.ok, data: await response.json() }))
+      .then(({ ok, data }) => setStatus(ok && data.model_loaded ? 'online' : 'offline'))
+      .catch(() => setStatus('offline'));
+  </script>
+</body>
+</html>

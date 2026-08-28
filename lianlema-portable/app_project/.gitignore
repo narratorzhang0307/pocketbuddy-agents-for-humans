@@ -1,0 +1,92 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+dist/
+build/
+out/
+.output/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Cache
+.cache/
+.eslintcache
+.stylelintcache
+
+# Test coverage
+coverage/
+
+# Misc
+*.local
+
+# Python (backend/ 与模型项目)
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.db
+.pytest_cache/
+
+# Expo / React Native (app/)
+.expo/
+.expo-shared/
+web-build/
+
+# Keep environment templates tracked (do not ignore example files)
+!.env.example
+!.env.*.example
+
+# Python packaging metadata (editable install)
+*.egg-info/
+
+# ---- 模型 / 姿态识别项目 (origin/dev) ----
+# 大体积媒体与中间产物
+*.mp4
+*.mov
+*.MOV
+*.avi
+*.mkv
+*.csv
+*.whl
+/res/
+/pose9/
+/vid/
+/uploads/
+/static/results/
+/训练数据集/
+/分别组合/
+dataset/video_annotations.json
+data/.DS_Store
+dataset/readme.md
+/.pose_runtime/
+/datas/
+/tools/mmfit_pose_11cls/
+/tools/mmfit_pose_11cls_stride48/

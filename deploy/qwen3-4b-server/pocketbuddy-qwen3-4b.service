@@ -1,0 +1,66 @@
+[Unit]
+Description=Pocket Buddy local Qwen3-4B inference service
+After=network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=2
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/pocketbuddy/qwen3-4b
+ExecStart=/opt/pocketbuddy/qwen3-4b/runtime/current/llama-server \
+  --model /opt/pocketbuddy/qwen3-4b/model/Qwen3-4B-Q4_K_M.gguf \
+  --alias qwen3-4b-local \
+  --host 127.0.0.1 \
+  --port 8040 \
+  --ctx-size 1024 \
+  --n-predict 256 \
+  --parallel 1 \
+  --threads 3 \
+  --threads-batch 3 \
+  --batch-size 128 \
+  --ubatch-size 64 \
+  --flash-attn on \
+  --cache-type-k q8_0 \
+  --cache-type-v q8_0 \
+  --jinja \
+  --chat-template-kwargs '{"enable_thinking":false}' \
+  --reasoning off \
+  --reasoning-budget 0 \
+  --reasoning-format deepseek \
+  --sleep-idle-seconds 120 \
+  --metrics \
+  --no-webui
+Restart=on-failure
+RestartSec=20
+TimeoutStartSec=180
+TimeoutStopSec=30
+KillSignal=SIGINT
+
+# This ECS also hosts existing applications. Prefer killing this validation
+# process over putting the rest of the machine under memory pressure.
+Nice=10
+IOSchedulingClass=idle
+CPUQuota=300%
+MemoryLimit=3200M
+OOMScoreAdjust=750
+TasksMax=96
+LimitNOFILE=4096
+
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,82 @@
+.ns-map-card-viewer {
+  position: absolute;
+  z-index: 80;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 30px 20px;
+  background: rgb(23 25 20 / 12%);
+  animation: ns-map-card-viewer-in 160ms ease both;
+}
+
+.ns-map-card-viewer > section {
+  position: relative;
+  width: min(330px, calc(100% - 20px));
+  margin-block: auto;
+  transform: scale(0.6667);
+  transform-origin: 50% 50%;
+  transition: transform 220ms ease;
+}
+
+.ns-map-card-viewer.is-expanded > section {
+  transform: scale(1);
+}
+
+.ns-map-card-viewer__close {
+  position: absolute;
+  z-index: 12;
+  top: -14px;
+  left: -10px;
+  display: grid;
+  width: 36px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid #171914;
+  border-radius: 50%;
+  color: #171914;
+  background: #fff8df;
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.ns-map-card-viewer__resize {
+  position: absolute;
+  z-index: 12;
+  right: 8px;
+  bottom: 8px;
+  display: grid;
+  width: 36px;
+  aspect-ratio: 1;
+  place-items: center;
+  padding: 0;
+  border: 2px solid #171914;
+  border-radius: 8px;
+  color: #171914;
+  background: #fff8df;
+  transform: scale(1.5);
+  transform-origin: 100% 100%;
+  cursor: pointer;
+}
+
+.ns-map-card-viewer.is-expanded .ns-map-card-viewer__resize {
+  transform: none;
+}
+
+.ns-map-card-viewer__resize:focus-visible {
+  outline: 3px solid #8be3b8;
+  outline-offset: 2px;
+}
+
+.ns-map-card-viewer .ccc-shell .ccc-face {
+  box-shadow: none;
+}
+
+@keyframes ns-map-card-viewer-in {
+  from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-map-card-viewer { animation: none; }
+  .ns-map-card-viewer > section { transition: none; }
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "dachshund-miko",
+  "name": "小肠",
+  "species": "dachshund",
+  "source": {
+    "path": "/assets/agent-forge/dachshund-agent-world-v2.png",
+    "cutoutPath": "/assets/agent-forge/production/dachshund-miko/v1/identity/source-clean-v1.png",
+    "observedViews": ["left"],
+    "inferredViews": [
+      "front",
+      "front-left",
+      "back-left",
+      "back",
+      "back-right",
+      "right",
+      "front-right"
+    ],
+    "backgroundRemoval": "none",
+    "provenance": "illustration"
+  },
+  "visual": {
+    "representation": "rigged-3d",
+    "turnaround": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/front.png",
+    "turnaroundIndex": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/index.json",
+    "turnaroundViews": {
+      "front": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/front.png",
+      "front-left": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/front-left.png",
+      "left": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/left.png",
+      "back-left": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/back-left.png",
+      "back": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/back.png",
+      "back-right": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/back-right.png",
+      "right": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/right.png",
+      "front-right": "/assets/agent-forge/production/dachshund-miko/v1/turnaround/views-v2/front-right.png"
+    },
+    "viewerGlb": "/assets/tripo/dachshund-miko-v3/dachshund-rigged-walk-map-lod-v3.glb?v=3",
+    "mapGlb": "/assets/tripo/dachshund-miko-v3/dachshund-rigged-walk-map-lod-v3.glb?v=3",
+    "primaryColor": "#B9824F",
+    "accentColor": "#4B3424",
+    "heightMeters": 0.34,
+    "version": "forge-production-v3-tripo-rigged-walk",
+    "shadowless": true
+  },
+  "personality": {
+    "version": 1,
+    "role": "街角气味侦探",
+    "voice": "温暖、实际，喜欢微小的城市仪式",
+    "goal": "把没有人留意的小记忆带回街角",
+    "traits": ["亲近", "好奇", "认路"]
+  },
+  "navigation": {
+    "mode": "walking",
+    "snapToRoad": true,
+    "speedMetersPerSecond": 1.05
+  }
+}

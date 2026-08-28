@@ -1,0 +1,155 @@
+.bird-journal-motion {
+  position: relative;
+  width: 100%;
+  transform-origin: 52% 78%;
+  will-change: transform;
+}
+
+.bird-journal-motion-perch { animation: bird-perch 4.2s steps(2, end) infinite; }
+.bird-journal-motion-hop { animation: bird-hop 3.7s steps(1, end) infinite; }
+.bird-journal-motion-flutter { animation: bird-flutter 4.8s ease-in-out infinite; }
+.bird-journal-motion-forage { animation: bird-forage 4.4s steps(2, end) infinite; }
+.bird-journal-motion-scan { animation: bird-scan 5.1s ease-in-out infinite; }
+.bird-journal-motion-dive { animation: bird-dive 4.6s cubic-bezier(.4, 0, .2, 1) infinite; }
+
+@keyframes bird-perch {
+  0%, 74%, 100% { transform: translateY(0) rotate(0deg); }
+  78%, 88% { transform: translateY(-2px) rotate(-1.5deg); }
+}
+
+@keyframes bird-hop {
+  0%, 48%, 100% { transform: translate(0, 0) rotate(0deg); }
+  52% { transform: translate(5px, -7px) rotate(2deg); }
+  58%, 72% { transform: translate(9px, 0) rotate(0deg); }
+  76% { transform: translate(4px, -4px) rotate(-2deg); }
+}
+
+@keyframes bird-flutter {
+  0%, 66%, 100% { transform: translate(0, 0) rotate(0deg) scale(1); }
+  70% { transform: translate(-3px, -7px) rotate(-3deg) scale(1.025); }
+  74% { transform: translate(4px, -10px) rotate(4deg) scale(.985); }
+  79% { transform: translate(7px, -2px) rotate(1deg) scale(1.01); }
+}
+
+@keyframes bird-forage {
+  0%, 38%, 100% { transform: translate(0, 0) rotate(0deg); }
+  44%, 54% { transform: translate(4px, 4px) rotate(5deg); }
+  60%, 66% { transform: translate(7px, 1px) rotate(-2deg); }
+}
+
+@keyframes bird-scan {
+  0%, 32%, 100% { transform: translateY(0) rotate(0deg); }
+  38%, 52% { transform: translateY(-1px) rotate(-2.2deg); }
+  58%, 70% { transform: translateY(0) rotate(1.4deg); }
+}
+
+@keyframes bird-dive {
+  0%, 56%, 100% { transform: translate(0, 0) rotate(0deg); }
+  63%, 71% { transform: translate(5px, 5px) rotate(5deg); }
+  77% { transform: translate(12px, 13px) rotate(9deg); }
+  84% { transform: translate(2px, 2px) rotate(1deg); }
+}
+
+.bird-journal-hud {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 2px solid #111;
+  background: #15201a;
+  color: #f8f3e7;
+  padding: 7px 10px;
+  font-family: var(--font-pixel, monospace);
+}
+
+.bird-journal-hud__eyebrow {
+  overflow: hidden;
+  color: var(--bird-scene-accent, #76c99d);
+  font-size: 7px;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bird-journal-hud__target {
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 7px;
+  letter-spacing: .04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bird-journal-hud__target span { color: rgba(255, 255, 255, .5); }
+
+.bird-journal-hud__capture {
+  display: flex;
+  min-width: 86px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 2px solid #000;
+  background: var(--bird-scene-accent, #76c99d);
+  padding: 8px 7px;
+  color: #111;
+  font-size: 7px;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.bird-journal-hud__capture:active { transform: translateY(1px); box-shadow: 1px 1px 0 #000; }
+.bird-journal-hud__capture:disabled { background: #f3ead4; color: #2d3b33; opacity: 1; }
+.bird-journal-hud__capture[data-waiting='true'] { animation: bird-camera-wait .7s steps(2, end) infinite; }
+
+@keyframes bird-camera-wait { 50% { filter: brightness(1.35); } }
+
+.bird-journal-canvas-box { position: relative; }
+.bird-journal-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  background: white;
+  animation: bird-camera-flash .32s ease-out forwards;
+}
+
+@keyframes bird-camera-flash { from { opacity: .88; } to { opacity: 0; } }
+
+.bird-capture-note {
+  width: 100%;
+  border: 2px solid #111;
+  background: var(--bird-capture-color, #fff6db);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, .72);
+  color: #172018;
+  font-family: var(--font-pixel, monospace);
+}
+
+.bird-capture-note__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(0, 0, 0, .45);
+  padding: 5% 6%;
+  font-size: clamp(5px, 6cqw, 8px);
+  letter-spacing: .08em;
+}
+
+.bird-capture-note__dot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid #111;
+  border-radius: 50%;
+  background: #e14e39;
+}
+
+.bird-capture-note__body {
+  padding: 7% 7% 8%;
+  font-size: clamp(6px, 7cqw, 9px);
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bird-journal-motion,
+  .bird-journal-hud__capture,
+  .bird-journal-flash { animation: none !important; }
+}

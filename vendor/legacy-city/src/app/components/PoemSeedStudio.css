@@ -1,0 +1,210 @@
+[data-poem-seed-studio] {
+  --poem-green: #00c07f;
+  --poem-neon: #7cff6b;
+  color: #171712;
+}
+
+.poem-seed-card {
+  border: 2px solid #000;
+  background: #f8f5ea;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  padding: 11px;
+}
+
+.poem-seed-card__header {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 9px;
+}
+
+.poem-seed-card__header > span {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  flex: 0 0 30px;
+  place-items: center;
+  border: 2px solid #000;
+  background: #000;
+  color: var(--poem-neon);
+  font-family: var(--font-pixel, monospace);
+  font-size: 9px;
+}
+
+.poem-seed-card__header div { min-width: 0; }
+.poem-seed-card__header small {
+  display: block;
+  color: rgba(0, 0, 0, 0.42);
+  font-family: var(--font-pixel, monospace);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+}
+.poem-seed-card__header strong { display: block; margin-top: 2px; font-size: 12px; }
+
+.poem-seed-card textarea {
+  width: 100%;
+  resize: none;
+  border: 2px solid #000;
+  border-radius: 0;
+  outline: 0;
+  background: #fff;
+  padding: 11px;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.65;
+}
+.poem-seed-card textarea:focus { box-shadow: inset 0 -3px 0 var(--poem-green); }
+
+.poem-magic-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 8px;
+  color: rgba(0, 0, 0, 0.48);
+  font-size: 9px;
+}
+.poem-magic-row b {
+  border: 1px solid rgba(0, 0, 0, 0.55);
+  background: rgba(0, 192, 127, 0.08);
+  padding: 2px 5px;
+  color: #335b49;
+  font-size: 8px;
+}
+
+.poem-seed-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.poem-seed-options button {
+  position: relative;
+  min-width: 0;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  background: #eeeee3;
+  padding: 5px;
+  text-align: left;
+}
+.poem-seed-options button.is-active {
+  border-color: #000;
+  background: #fff;
+  box-shadow: 2px 2px 0 #000;
+}
+.poem-seed-options button > span {
+  display: grid;
+  height: 84px;
+  place-items: center;
+  overflow: hidden;
+}
+.poem-seed-options img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform-origin: 50% 100%;
+  animation: poem-seed-breathe 4.8s ease-in-out infinite alternate;
+}
+.poem-seed-options button:nth-child(2) img { animation-delay: -1.6s; }
+.poem-seed-options button:nth-child(3) img { animation-delay: -3.1s; }
+.poem-seed-options strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 9.5px; }
+.poem-seed-options em { display: block; margin-top: 1px; overflow: hidden; color: #315d49; font-family: Georgia, serif; font-size: 6px; text-overflow: ellipsis; white-space: nowrap; }
+.poem-seed-options p { display: -webkit-box; min-height: 30px; margin: 4px 0 0; overflow: hidden; color: rgba(0, 0, 0, 0.62); font-size: 7px; font-style: normal; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.poem-seed-options small { display: block; margin-top: 2px; color: rgba(0, 0, 0, 0.42); font-size: 8px; }
+.poem-seed-options i {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  width: 18px;
+  height: 18px;
+  place-items: center;
+  border: 2px solid #000;
+  border-radius: 50%;
+  background: var(--poem-neon);
+}
+
+.poem-birth-preview { display: grid; grid-template-columns: 78px 1fr; align-items: center; gap: 10px; }
+.poem-birth-preview__art {
+  display: grid;
+  width: 78px;
+  height: 90px;
+  place-items: end center;
+  overflow: hidden;
+}
+.poem-birth-preview__art img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform: scale(var(--poem-seed-preview-scale, 1));
+  transform-origin: 50% 100%;
+}
+.poem-birth-preview > div { display: grid; gap: 8px; }
+.poem-birth-preview span { display: flex; align-items: center; gap: 5px; font-size: 9.5px; }
+
+.poem-visibility {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 8px;
+  margin-top: 9px;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+  padding-top: 9px;
+  text-align: left;
+}
+.poem-visibility > span { display: grid; }
+.poem-visibility strong { font-size: 10px; }
+.poem-visibility small { color: rgba(0, 0, 0, 0.45); font-size: 8.5px; }
+
+.poem-plant-cta {
+  display: grid;
+  width: 100%;
+  grid-template-columns: 34px 1fr 20px;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid #000;
+  background: #000;
+  padding: 10px;
+  color: var(--poem-neon);
+  box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.28);
+  text-align: left;
+}
+.poem-plant-cta > span { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--poem-neon); }
+.poem-plant-cta div { display: grid; }
+.poem-plant-cta small { color: rgba(255, 255, 255, 0.36); font-family: var(--font-pixel, monospace); font-size: 6.5px; letter-spacing: 0.12em; }
+.poem-plant-cta strong { margin-top: 2px; font-size: 12px; }
+.poem-plant-cta:disabled { opacity: 0.35; }
+
+.poem-growth-contract {
+  border: 2px solid #000;
+  background: #f8f5ea;
+  padding: 11px;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+}
+.poem-growth-contract header small {
+  display: block;
+  color: rgba(0, 0, 0, 0.42);
+  font-family: var(--font-pixel, monospace);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+}
+.poem-growth-contract header strong { display: block; margin-top: 3px; font-size: 12px; }
+.poem-growth-contract > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin-top: 9px;
+  border: 1px solid #000;
+  background: #000;
+}
+.poem-growth-contract > div > span { display: grid; grid-template-columns: auto 1fr; gap: 1px 5px; background: #fff; padding: 8px; }
+.poem-growth-contract b { font-size: 9.5px; }
+.poem-growth-contract em { color: #315d49; font-size: 9px; font-style: normal; text-align: right; }
+.poem-growth-contract small { grid-column: 1 / -1; color: rgba(0, 0, 0, 0.42); font-size: 7.5px; }
+
+@keyframes poem-seed-breathe {
+  from { transform: scale(var(--poem-seed-preview-scale, 1)) rotate(-1.2deg) translateY(1px); }
+  to { transform: scale(var(--poem-seed-preview-scale, 1)) rotate(1.2deg) translateY(-1px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .poem-seed-options img { animation: none; }
+}

@@ -1,0 +1,67 @@
+@font-face {
+  font-family: "Fusion Pixel Deck Title";
+  src: url("/fonts/fusion-pixel-sc.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.nsd-page { height: 100%; overflow-y: auto; overscroll-behavior: contain; color: #171914; background: #eee6d2; font-family: "Fusion Pixel 10px Monospaced SC", "PingFang SC", sans-serif; }
+.nsd-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; padding: 21px 17px 17px; border-bottom: 3px solid #171914; color: #fff7de; background: radial-gradient(circle at 92% 16%, rgba(240, 142, 106, .32), transparent 26%), #315e49; }
+.nsd-hero > div:first-child { min-width: 0; }
+.nsd-hero small { display: flex; align-items: center; gap: 4px; color: #a7edca; font-size: 7px; font-weight: 900; letter-spacing: .08em; }
+.nsd-hero h1 { margin: 7px 0 5px; font-family: "Fusion Pixel Deck Title", "PingFang SC", sans-serif; font-size: 23px; font-weight: 400; line-height: 1; }
+.nsd-hero p { margin: 0; color: rgba(255,247,222,.7); font-size: 7px; line-height: 1.5; }
+.nsd-progress { display: grid; min-width: 74px; padding: 10px 7px; place-items: center; border: 2px solid #171914; color: #171914; background: #f0c86a; }
+.nsd-progress strong { font-size: 17px; line-height: 1; }
+.nsd-progress strong i { margin: 0 2px; font-size: 9px; font-style: normal; opacity: .5; }
+.nsd-progress span { margin-top: 4px; font-size: 5px; font-weight: 900; }
+
+.nsd-collection { padding: 17px 14px 8px; }
+.nsd-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 10px; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 2px solid #171914; }
+.nsd-heading small { color: #4f8066; font-size: 6px; font-weight: 950; letter-spacing: .12em; }
+.nsd-heading h2 { margin: 3px 0 0; font-size: 14px; }
+.nsd-heading > button, .nsd-heading > span { display: flex; align-items: center; gap: 4px; padding: 5px 7px; border: 1px solid #171914; color: #171914; background: #8be3b8; font: inherit; font-size: 6px; font-weight: 900; }
+
+.nsd-species-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-bottom: 10px; border: 2px solid #171914; background: #171914; gap: 2px; }
+.nsd-species-tabs button { display: flex; min-height: 34px; align-items: center; justify-content: center; gap: 6px; border: 0; color: #315e49; background: #fffaf0; font: inherit; cursor: pointer; }
+.nsd-species-tabs button strong { font-size: 9px; }
+.nsd-species-tabs button span { display: grid; min-width: 16px; height: 16px; padding: 0 3px; place-items: center; border: 1px solid currentColor; font-size: 6px; }
+.nsd-species-tabs button.is-active { color: #171914; background: #8be3b8; }
+.nsd-species-tabs button:focus-visible { outline: 2px solid #f0c86a; outline-offset: -4px; }
+
+.nsd-species-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.nsd-species-grid > article { position: relative; min-width: 0; overflow: hidden; border: 1.5px solid #171914; background: #fff; }
+.nsd-species-card__art { position: relative; display: grid; height: 104px; place-items: center; overflow: hidden; border-bottom: 1px solid rgba(23,25,20,.28); background: #edf1df; }
+.nsd-species-card__art .nsb-buddy,
+.nsd-species-card__art > svg { width: 100%; height: 100%; }
+.nsd-species-card__art > span { position: absolute; z-index: 2; right: 5px; bottom: 5px; padding: 3px 5px; border: 1px solid #171914; color: #171914; background: #fffaf0; font-size: 5.5px; font-weight: 950; }
+.nsd-species-grid > article.is-recognized .nsd-species-card__art > span { background: #8be3b8; }
+.nsd-species-card__copy { min-height: 98px; padding: 7px; }
+.nsd-species-card__copy strong,
+.nsd-species-card__copy em,
+.nsd-species-card__copy small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nsd-species-card__copy strong { font-size: 9px; }
+.nsd-species-card__copy em { margin-top: 2px; color: #47755e; font-family: Georgia, serif; font-size: 6px; }
+.nsd-species-card__copy p { display: -webkit-box; min-height: 30px; margin: 6px 0 0; overflow: hidden; color: rgba(23,25,20,.66); font-size: 6.5px; line-height: 1.5; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
+.nsd-species-card__copy small { margin-top: 5px; color: rgba(23,25,20,.48); font-size: 5.5px; }
+.nsd-species-card__open { position: absolute; z-index: 3; inset: 0; width: 100%; border: 0; background: transparent; cursor: pointer; }
+.nsd-species-card__open:focus-visible { outline: 3px solid var(--nsd-card-accent); outline-offset: -4px; }
+
+.nsd-card-viewer { position: fixed; z-index: 2000; inset: 0; display: grid; place-items: center; overflow: auto; padding: max(48px, 7vh) 20px 30px; background: rgba(17,20,16,.18); animation: nsd-card-backdrop-in 180ms ease both; }
+.nsd-card-viewer > section { position: relative; width: min(330px, calc(100vw - 40px)); margin-block: auto; animation: nsd-card-rise 320ms cubic-bezier(.18,.82,.24,1.12) both; }
+.nsd-card-viewer__close { position: absolute; z-index: 12; top: -15px; left: -10px; display: grid; width: 38px; aspect-ratio: 1; place-items: center; border: 2px solid #17150f; border-radius: 50%; color: #17150f; background: #fff8df; box-shadow: 3px 4px 0 #17150f; }
+.nsd-card-viewer .ccc-shell .ccc-face { box-shadow: none; }
+
+@keyframes nsd-card-backdrop-in { from { opacity: 0; } }
+@keyframes nsd-card-rise { from { opacity: 0; transform: translateY(18px) rotate(-1.5deg) scale(.95); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .nsd-card-viewer,
+  .nsd-card-viewer > section { animation: none; }
+}
+
+.nsd-empty { display: grid; height: 100%; place-content: center; place-items: center; padding: 30px; text-align: center; }
+.nsd-empty h1 { margin: 12px 0 5px; font-size: 18px; }
+.nsd-empty p { margin: 0; color: rgba(23,25,20,.55); font-size: 8px; }
+.nsd-empty button { margin-top: 16px; padding: 10px 24px; border: 2px solid #171914; color: #fff7de; background: #315e49; font: inherit; font-size: 8px; font-weight: 950; box-shadow: 4px 4px 0 #171914; }

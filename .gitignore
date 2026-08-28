@@ -1,0 +1,198 @@
+node_modules
+dist
+dist-ios
+/.ios-build/
+
+# iOS generated bundles, build products and signing material.
+/ios/App/App/public/
+/ios/App/App/capacitor.config.json
+/ios/App/App/config.xml
+/ios/App/build/
+/ios/DerivedData/
+*.xcarchive/
+*.ipa
+*.p12
+*.p8
+*.mobileprovision
+xcuserdata/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*credentials*
+*secret*
+.DS_Store
+*.local
+
+# 当前 Google 版的本地 Gemma 权重（约 2.8 GiB）：部署时单独随项目上传，不进入 Git / dist。
+.local-models/*.litertlm
+!.local-models/README.md
+*.gguf
+
+# 决赛端侧模型与安装包：权重由阿里云 OSS / Release 分发，不进入源码仓库。
+*.mnn
+*.apk
+*.aab
+deliverables/
+
+# 用户放入供阅读的版权书籍 / 教程，不入库
+*.docx
+!/docs/product/Pocket_Buddy_终极产品文档_v1.0.docx
+*.pdf
+
+# 介绍 / 演示用 PPT，保密不外泄
+*.pptx
+
+# 后端数据底座 / 私有资料库：二进制链接库、城市数据与坐标元数据不入库（私有）
+resource-library/audio.db
+resource-library/cities/
+resource-library/city-meta.json
+
+# 照片库（高清 full + 缩略 thumb，私有，不入库）
+resource-library/photos/
+resource-library/world-photos.json
+
+# Public Earth 每日 Agent 的运行快照（公开来源草稿 + 模型审计轨迹）；运行时生成，不进入源码。
+var/knowledge/
+var/data-packs/
+var/toolchains/
+var/health-skills/
+.agent-forge-data/
+.codex-tmp*/
+.codex-work/
+.ppt-edit-*/
+releases/
+android/app/src/main/assets/
+.ossutil_checkpoint/
+
+# 本地生成 / 准备用的临时产物，不入库
+outputs/
+tmp/
+_local-backups/
+.codex_tmp/
+__pycache__/
+*.py[cod]
+
+# 第三方研究项目（各有上游来源，不进本仓库备份）
+hermes-agent-main/
+openhanako-main/
+Frost Buddy/
+docx_render_qa/
+langchain-master/
+research/upstream/
+*.zip
+
+# 原始照片源（已处理上 OSS + resource-library，原图不入库）
+照片替换/
+
+# 开发工具配置 / 优化日志：含服务器信息与开发过程记录，不进公开仓库
+.claude/
+OPTIMIZATION-LOG.md
+
+# 提交材料与本地测试图（保密，绝不入库；防自动化 git add 误提交）
+GMI提交材料/
+test-label.jpg
+
+# 本地活动材料包含联系方式、证书与邮寄信息，只保留在本机。
+GoogleAIVibeathon/
+
+# —— 本地资料 / 大文件，不进代码仓库（视频素材、导出稿件等）——
+*.mp3
+*.mp4
+*.mov
+视频最终版/
+video_processing_preview/
+最终*视频/
+Pocket Earth · 口袋地球/
+Pocket Earth_产品文档_Final.md
+
+# 旧版活动资料与本地参考，不属于 Google 版源码
+PocketEarthGlobal_AICoding*/
+谷歌技术*/
+阿里*图参考/
+当前提交材料_架构图核对/
+0720最终提交文件/
+
+# 硬件视觉本地参考与生成缓存；最终技术图保留在 docs/assets/hardware。
+树莓派硬件/.DS_Store
+树莓派硬件/__pycache__/
+树莓派硬件/参考图/
+树莓派硬件/04_硬件体验_Web数字孪生_直接运行版.html
+树莓派硬件/Google技术版_最终图/
+树莓派硬件/真实Whisplay界面/
+
+# 0827 本地开发清理：可重建产物与独立研究镜像已归档到 SSD。
+/android/app/build/
+/android/build/
+/var/build/
+/var/venture_final/
+/var/docx_revision/
+/var/codex-harness-plan/
+/.codex-doc-refresh.*/
+/release/
+/deepseek-harness-master/
+/模型训练/
+/PPT重构_按主办方目录_20260813/.work/
+/third_party/upstream/facet/*
+!/third_party/upstream/facet/LICENSE
+/third_party/upstream/picquery/*
+!/third_party/upstream/picquery/LICENSE
+
+# 0827 二次清理：仅归档旧树莓派，不排除或处理 ojbadge-agent-link。
+/树莓派硬件/
+/hardware/frost-edge-google/
+/public/hardware-digital-twin.html
+/docs/assets/hardware/*
+!/docs/assets/hardware/README.md
+/android/.gradle/
+/android/capacitor-cordova-android-plugins/build/
+/PPT重构_按主办方目录_20260813/03_重构输出/.render*/
+/PPT重构_按主办方目录_20260813/03_重构输出/*QA*/
+/PPT重构_按主办方目录_20260813/03_重构输出/*4K预览/
+
+# Keep the source-snapshot exclusions already used by pocketbuddy/main.
+# Child web bundles are rebuilt from the current child-app source by ios:prepare.
+/hardware/ojbadge-agent-link/build-*/
+/public/her-motion/
+/public/lianlema/
+/lianlema-portable/assets_cache/
+*.onnx
+*.onnx.data
+*.pth
+*.pt
+*.safetensors
+*.npy
+*.npz
+*.so
+*.dylib
+*.dll
+coverage/
+.vite/
+*.log
+
+# These shipped coaching prompts are source assets imported by coachAudio.ts,
+# not personal recordings; a clean checkout needs them to rebuild the child app.
+!/lianlema-portable/app_project/app/assets/audio/*.mp3
+
+# Local reference and presentation material, not current application source.
+/0819改造方案/
+/GMI 参考文档/
+/ppt 样张/
+/技能组合卡牌参考/
+/本地开发与SSD说明.md
+/var/mobile-release/
+/var/guji-vision-lora.asset.json
+/var/llm-demo-text-prompt.txt
+/var/pocket-base-bundle-20260811.json
+/var/rdap-check.json
+# Competition snapshot: keep private historical evidence and retired standalone
+# public runtimes out of this independent source repository.
+docs/evidence/
+docs/technical-evidence/
+docs/design/
+docs/development/evidence/
+docs/deploy/oss-*.json
+public/mediapipe/
+public/signbridge/
+.github/workflows/

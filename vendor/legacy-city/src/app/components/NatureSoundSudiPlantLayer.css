@@ -1,0 +1,195 @@
+.ns-sudi-plant-marker {
+  --map-scale: .72;
+  --plant-lean: 0deg;
+  --plant-side: 0px;
+  --plant-delay: 0s;
+  --stem-x: 55%;
+  --stem-y: 45%;
+  position: relative;
+  padding: 0;
+  transform: translateX(var(--plant-side)) scale(var(--map-scale));
+  transform-origin: 50% 100%;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+  font-family: "Fusion Pixel 10px Monospaced SC", "PingFang SC", sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ns-sudi-plant-marker::after {
+  position: absolute;
+  z-index: -1;
+  bottom: 1px;
+  left: 50%;
+  width: 42%;
+  height: 7%;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: rgb(28 49 34 / 24%);
+  filter: blur(2px);
+  content: '';
+}
+
+.ns-sudi-plant-art {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  filter: drop-shadow(0 3px 2px rgb(27 44 32 / 20%));
+  transform: rotate(var(--plant-lean));
+  transform-origin: 50% 96%;
+  animation: ns-sudi-plant-sway 4.8s ease-in-out var(--plant-delay) infinite alternate;
+}
+
+/* A tied card must stay registered to the illustrated stem. */
+.ns-sudi-plant-marker.has-cards .ns-sudi-plant-art {
+  transform: none;
+  animation: none;
+}
+
+.ns-sudi-plant-label {
+  position: absolute;
+  z-index: 4;
+  bottom: -9px;
+  left: 50%;
+  display: grid;
+  min-width: 48px;
+  padding: 3px 5px;
+  transform: translateX(-50%);
+  border: 1.5px solid #171914;
+  border-radius: 4px;
+  color: #171914;
+  background: #fff8dc;
+  box-shadow: none;
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 140ms ease;
+}
+
+.ns-sudi-plant-label b { font-size: 7px; }
+.ns-sudi-plant-label small { display: none; margin-top: 2px; color: #397560; font-size: 5.5px; font-weight: 900; }
+.ns-sudi-plant-marker[data-open="true"] { z-index: 8; }
+.ns-sudi-plant-marker[data-open="true"] .ns-sudi-plant-label { opacity: 1; }
+.ns-sudi-plant-marker[data-open="true"] .ns-sudi-plant-label small { display: block; }
+
+.ns-sudi-hanging-cards {
+  position: absolute;
+  z-index: 5;
+  top: var(--stem-y);
+  left: var(--stem-x);
+  width: 36px;
+  height: 48px;
+  pointer-events: none;
+}
+
+.ns-sudi-hanging-cards::before {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: -7px;
+  width: 14px;
+  height: 13px;
+  background: #40514c;
+  clip-path: polygon(46% 0, 54% 0, 100% 100%, 87% 100%, 50% 18%, 13% 100%, 0 100%);
+  content: '';
+}
+
+.ns-sudi-hanging-cards::after {
+  position: absolute;
+  z-index: 3;
+  top: -1px;
+  left: -3px;
+  width: 6px;
+  height: 2px;
+  border-radius: 50%;
+  background: #40514c;
+  content: '';
+}
+
+.ns-sudi-hanging-card {
+  --card-index: 0;
+  position: absolute;
+  top: calc(10px + var(--card-index) * 3px);
+  left: calc(-17px + var(--card-index) * -2px);
+  display: grid;
+  width: 34px;
+  height: 39px;
+  overflow: hidden;
+  transform: rotate(calc(-3deg + var(--card-index) * 4deg));
+  transform-origin: 50% 0;
+  grid-template-rows: 29px 10px;
+  padding: 0;
+  border: 1.5px solid #171914;
+  border-radius: 3px;
+  color: #171914;
+  background: #edf1df;
+  box-shadow: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.ns-sudi-hanging-card:focus-visible {
+  outline: 2px solid #00c878;
+  outline-offset: 2px;
+}
+
+.ns-sudi-hanging-card > * {
+  pointer-events: none;
+}
+
+.ns-sudi-hanging-card__art {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  background: #edf1df;
+}
+
+.ns-sudi-hanging-card__art img {
+  width: 94%;
+  height: 94%;
+  object-fit: contain;
+}
+
+.ns-sudi-hanging-card__name {
+  display: block;
+  overflow: hidden;
+  padding: 1.5px 2px 0;
+  border-top: 1px solid rgb(23 25 20 / 55%);
+  background: #fffaf0;
+  font-size: 5.5px;
+  font-weight: 950;
+  line-height: 7px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ns-sudi-hanging-card__status {
+  position: absolute;
+  z-index: 2;
+  top: 2px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid #171914;
+  border-radius: 50%;
+  background: #fffaf0;
+}
+
+.ns-sudi-hanging-card__status[data-recognized="true"] {
+  background: #63d49c;
+}
+
+@keyframes ns-sudi-plant-sway {
+  from { transform: translateX(-.8px) rotate(calc(var(--plant-lean) - 2deg)); }
+  to { transform: translateX(.8px) rotate(calc(var(--plant-lean) + 2deg)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-sudi-plant-art { animation: none; }
+}

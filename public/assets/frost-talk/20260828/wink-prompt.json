@@ -1,0 +1,7 @@
+{
+  "mode": "built-in image_gen edit",
+  "model": "tool did not return a model version",
+  "editTarget": "originals/blink.png",
+  "openEyeReference": "../../skill-avatars/20260827/originals/frost.png",
+  "prompt": "Use case: identity-preserve.\nAsset type: a single square 1:1 frame for an existing Frost dachshund avatar animation on a 240x240 circular hardware screen.\nImage 1 is the EXACT edit target: the existing dog with two gently closed curved eyelids.\nImage 2 is a reference ONLY for the original open eye shape.\nChange ONLY the viewer-left eye in Image 1: replace that left closed eyelid with the exact dark brown open oval eye from the same position in Image 2. Leave the viewer-right eye gently closed in its existing curved smiling squint. The result must clearly have ONE OPEN OVAL EYE on the left and ONE CLOSED CURVED EYELID on the right, a charming playful wink.\nPreserve every other feature of Image 1: identical head tilt, nose, no mouth, ears, body silhouette, scale, composition, cyan backdrop, caramel color, lighting and paper/clay shading. Keep the open eye center, size, tilt and location matching the original oval from Image 2.\nNo crop, no movement, no enlargement, no border, no circular mask, no text, no collage, no added objects. Output one matching square animation frame."
+}

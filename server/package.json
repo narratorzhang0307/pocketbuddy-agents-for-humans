@@ -1,0 +1,8 @@
+{
+  "name": "pocket-earth-server-runtime",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "sharp": "0.34.5"
+  }
+}

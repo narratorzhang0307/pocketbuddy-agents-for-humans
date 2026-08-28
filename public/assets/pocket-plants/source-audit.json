@@ -1,0 +1,71 @@
+{
+  "sourceImages": [
+    {
+      "file": "26(1).jpg",
+      "role": "master",
+      "specimens": 7,
+      "note": "七株室内盆栽母版"
+    },
+    {
+      "file": "32(1).jpg",
+      "role": "master-curated",
+      "specimens": 5,
+      "note": "十六株母版，仅保留五株完整花株；十一株简陋枝叶已淘汰"
+    },
+    {
+      "file": "柚子布丁 (1).jpg",
+      "role": "master",
+      "specimens": 8,
+      "note": "八株蓝粉草本母版；蜻蜓不是植物，未收录"
+    },
+    {
+      "file": "柚子布丁 (2).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的重叠花田，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (3).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的重叠花田，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (4).jpg",
+      "role": "master-and-reconstruction",
+      "specimens": 14,
+      "note": "九株可直接提取，五株重叠植物已补全重建"
+    },
+    {
+      "file": "柚子布丁 (5).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的局部放大图，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (6).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的横幅，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (7).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的蓝色花田横幅，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (8).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的文字横幅，无新增植物"
+    },
+    {
+      "file": "柚子布丁 (9).jpg",
+      "role": "composite-covered",
+      "specimens": 0,
+      "note": "重复使用母版植物的海报组合，无新增植物"
+    }
+  ],
+  "uniquePlantCount": 34
+}
