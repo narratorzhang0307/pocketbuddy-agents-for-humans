@@ -7,6 +7,7 @@ import type { FrostAgentRunNotice, FrostAgentRunResult, FrostMessageOrigin } fro
 import { presentFrostAgentRun } from './frostAgentPresentation';
 import { BADGE_AVATAR_ENDPOINT, skillAvatarFor } from './skill/avatars';
 import { tryVoiceTreeCommand } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/voicePlanting';
+import { tryVoiceMapCommand } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
 
 export interface FrostVoiceState {
   autoSend: boolean;
@@ -39,7 +40,7 @@ interface CompanionPorts {
   badge: { snapshot(): BadgeStatus; subscribe(listener: () => void): () => void; projectPose(pose: BadgePose): Promise<void>; projectAvatar?(skillId: string): Promise<void>; testSpeaker(): Promise<void> };
   voice?: {
     transcribe(): Promise<{ text: string; inputId: string }>;
-    handleLocalCommand?(text: string, inputId: string): Promise<boolean | { message: string }>;
+    handleLocalCommand?(text: string, inputId: string, signal: AbortSignal): Promise<boolean | { message: string }>;
     speak(text: string): Promise<void>;
     speakAnswer?(text: string, ticket: string, signal: AbortSignal): Promise<void>;
     stop(): Promise<void>;
@@ -78,6 +79,7 @@ export class FrostCompanion {
   private voiceEpoch = 0;
   private speechEpoch = 0;
   private answerSpeech?: AbortController;
+  private localCommand?: AbortController;
   private voiceInputs = new Set<string>();
   private spokenRuns = new Set<string>();
   private pageRuns = new Set<string>();
@@ -127,6 +129,7 @@ export class FrostCompanion {
     this.updateVoice({ enabled, phase: enabled ? 'ready' : 'off', error: undefined });
     if (!enabled) {
       this.answerSpeech?.abort();
+      this.localCommand?.abort();
       void this.ports.voice?.cancel().catch(() => {});
       void this.ports.voice?.stop().catch(() => {});
     }
@@ -164,6 +167,7 @@ export class FrostCompanion {
     this.cursor = event.seq;
     if (event.type === 'user.message' && event.data.source === 'user') {
       this.answerSpeech?.abort();
+      this.localCommand?.abort();
       if (this.outcomeTimer) clearTimeout(this.outcomeTimer);
       this.outcomeTimer = undefined;
       this.update({ task: undefined, attention: undefined, avatarId: 'frost' });
@@ -230,6 +234,7 @@ export class FrostCompanion {
     this.syncVoiceMode();
     if (badge.recording && !this.wasRecording && this.value.voice.enabled) {
       this.answerSpeech?.abort();
+      this.localCommand?.abort();
       ++this.voiceEpoch;
       this.voiceCaptureConnection = badge.connectionId;
       void this.ports.voice?.stop().catch(() => {});
@@ -264,15 +269,17 @@ export class FrostCompanion {
   }
   private async processVoice(inputId: string) {
     const epoch = ++this.voiceEpoch, voice = this.ports.voice!;
+    const controller = new AbortController();
     this.update({ attention: undefined });
     this.updateVoice({ phase: 'transcribing', transcript: '', error: undefined });
     try {
       const draft = await voice.transcribe();
       if (!this.voiceCurrent(epoch) || draft.inputId !== inputId || this.ports.badge.snapshot().pcmId !== inputId) return;
       this.updateVoice({ phase: 'sending', transcript: draft.text });
-      const localResult = await voice.handleLocalCommand?.(draft.text, inputId);
+      this.localCommand = controller;
+      const localResult = await voice.handleLocalCommand?.(draft.text, inputId, controller.signal);
       if (localResult) {
-        if (!this.voiceCurrent(epoch)) return;
+        if (!this.voiceCurrent(epoch) || controller.signal.aborted) return;
         if (typeof localResult === 'object') {
           this.update({ attention: localResult.message });
           this.updateVoice({ phase: 'speaking', spokenText: localResult.message });
@@ -285,7 +292,8 @@ export class FrostCompanion {
         if (this.voiceCurrent(epoch)) this.updateVoice({ phase: 'ready', transcript: draft.text });
         return;
       }
-      if (!this.voiceCurrent(epoch) || this.ports.badge.snapshot().pcmId !== inputId) return;
+      if (this.localCommand === controller) this.localCommand = undefined;
+      if (controller.signal.aborted || !this.voiceCurrent(epoch) || this.ports.badge.snapshot().pcmId !== inputId) return;
       console.info(`[FrostVoice] asr_complete characters=${draft.text.length} source=badge onDevice=true`);
       this.voiceSending = { inputId, epoch };
       await voice.send(draft.text, { channel: 'badge_voice', inputId });
@@ -294,13 +302,14 @@ export class FrostCompanion {
     } catch (error) {
       if (this.voiceCurrent(epoch)) this.updateVoice({ phase: 'error', error: String(error) });
     } finally {
+      if (this.localCommand === controller) this.localCommand = undefined;
       if (this.voiceSending?.epoch === epoch) this.voiceSending = undefined;
     }
   }
   private feedback(notice: FrostAgentRunNotice) {
     const { result, input } = notice;
     if (!this.voiceCurrent(this.voiceEpoch) || result.session.session_id !== this.value.sessionId
-      || this.value.voice.phase === 'transcribing') return;
+      || this.value.voice.phase === 'transcribing' || this.localCommand) return;
     if (this.voiceSending && (this.voiceSending.epoch !== this.voiceEpoch
       || input?.origin.inputId !== this.voiceSending.inputId)) return;
     const last = [...result.events].reverse().find(event => event.type === 'assistant.message');
@@ -373,7 +382,8 @@ export async function getFrostCompanion(): Promise<FrostCompanion> {
     companion ||= new FrostCompanion({ history: () => runtime.readFrostAgentEvents(), observe: runtime.subscribeFrostAgentEvents,
       record: runtime.recordFrostPeripheralInput, badge: frostBadge, voice: {
         transcribe: () => frostBadge.transcribeRecording(), speak: text => frostBadge.speakText(text),
-        handleLocalCommand: async (text, inputId) => tryVoiceTreeCommand(text, inputId) ?? frostBadge.tryBirdCommand(text),
+        handleLocalCommand: async (text, inputId, signal) => tryVoiceMapCommand(text, inputId, signal)
+          ?? tryVoiceTreeCommand(text, inputId) ?? frostBadge.tryBirdCommand(text),
         speakAnswer: async (text, ticket, signal) => {
           const { requestFrostVoice } = await import('./frostVoice');
           signal.throwIfAborted();

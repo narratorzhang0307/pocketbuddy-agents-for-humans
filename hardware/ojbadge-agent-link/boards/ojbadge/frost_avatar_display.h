@@ -146,6 +146,9 @@ private:
         staging_ = previous;
         descriptor_.data = pixels_;
         lv_img_set_src(image_, &descriptor_);
+        // LVGL resets the pivot on every source change; keep mouth/eye frames
+        // anchored to the same lower-body point as the breathing transform.
+        lv_img_set_pivot(image_, frost_talk::kBodyPivotX, frost_talk::kBodyPivotY);
         lv_obj_invalidate(image_);
         index_ = index;
         return true;

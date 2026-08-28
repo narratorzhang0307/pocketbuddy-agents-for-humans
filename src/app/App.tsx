@@ -5,6 +5,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 // import RunDrawer from './components/RunDrawer';   // 录视频时临时隐藏「运行轨迹」浮钮；要找回：取消本行 + 下方 <RunDrawer/> 两处注释
 import { subscribeMapFocus } from './data/mapFocus';
 import { subscribeRunRouteOpen } from './lib/runRouteSkill';
+import { cancelVoiceMapMode, getVoiceMapState, subscribeVoiceMapMode } from '../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
 
 // 懒加载重试：持续部署后旧 hash 的 chunk 会从服务器消失，挂着不刷新的页面首次切到该 tab 时
 // import() 会 reject → 无 ErrorBoundary 即白屏。这里捕获一次、强刷一次拉到新 index.html+新 hash。
@@ -97,6 +98,18 @@ export default function App() {
   useEffect(() => subscribeMapFocus(() => setActiveTab('earth')), []);
   // 路线 Skill 只发出可逆的 UI handoff；定位与持续 GPS 权限仍由 Earth 执行面处理。
   useEffect(() => subscribeRunRouteOpen((sessionId) => { if (sessionId) setActiveTab('earth'); }), []);
+  useEffect(() => subscribeVoiceMapMode(request => {
+    if (request?.status === 'opening') {
+      setVoiceNavigationError('');
+      setActiveTab('earth');
+    }
+  }), []);
+  useEffect(() => {
+    const request = getVoiceMapState();
+    if (activeTab !== 'earth' && request && ['opening', 'locating'].includes(request.status)) {
+      cancelVoiceMapMode(request.inputId, '已离开地图，这次真实 GPS 定位已取消。');
+    }
+  }, [activeTab]);
   const standalone = useStandalone();
   const phoneViewport = usePhoneViewport();
   const fullViewport = standalone || phoneViewport;

@@ -6,6 +6,7 @@ import type { BadgeStatus } from './frostBadge';
 import { FrostCompanion } from './frostCompanion';
 import { registerVoiceTreeMap, tryVoiceTreeCommand, type VoiceTreeContext } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/voicePlanting';
 import { readPocketPlantings } from '../../../vendor/legacy-city/src/app/lib/pocket-plants/planting';
+import { claimVoiceMapMode, getVoiceMapState, reportVoiceMapReady, tryVoiceMapCommand, VOICE_MAP_READY_MESSAGE } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
 
 const session = FrostAgentLoop.createSession('session-a', 'local-user');
 const event = (seq: number, type: FrostAgentEvent['type'], data: FrostAgentEvent['data']): FrostAgentEvent => ({
@@ -25,7 +26,7 @@ function setup(initialBadge: Partial<BadgeStatus> = {}) {
   let badge: BadgeStatus = { status: 'connected', connectionId: 'badge:a', devices: [], endpoints: [], recording: false, receivedBytes: 0, ...initialBadge };
   let badgeChanged = () => {}, observed = (_: FrostAgentEvent) => {}, completed = (_: FrostAgentRunNotice) => {};
   const voice = { transcribe: vi.fn(async () => ({ text: '生成今日总结', inputId: badge.pcmId! })),
-    handleLocalCommand: vi.fn(async (_text: string, _inputId: string): Promise<boolean | { message: string }> => false),
+    handleLocalCommand: vi.fn(async (_text: string, _inputId: string, _signal: AbortSignal): Promise<boolean | { message: string }> => false),
     send: vi.fn(async (_text: string, _origin: unknown) => result), speak: vi.fn(async (_text: string) => {}),
     speakAnswer: vi.fn(async (_text: string, _ticket: string, _signal: AbortSignal) => {}),
     stop: vi.fn(async () => {}), cancel: vi.fn(async () => {}),
@@ -50,7 +51,7 @@ describe('default-on foreground voice mode', () => {
     x.voice.transcribe.mockResolvedValueOnce({ text: '帮我识别下鸟叫', inputId: 'badge:a:recording:bird' });
     x.voice.handleLocalCommand.mockResolvedValueOnce(true);
     x.capture('bird'); await flush(); x.patch({ receivedBytes: 4 }); await flush();
-    expect(x.voice.handleLocalCommand).toHaveBeenCalledExactlyOnceWith('帮我识别下鸟叫', 'badge:a:recording:bird');
+    expect(x.voice.handleLocalCommand).toHaveBeenCalledExactlyOnceWith('帮我识别下鸟叫', 'badge:a:recording:bird', expect.any(AbortSignal));
     expect(x.voice.send).not.toHaveBeenCalled();
     expect(x.companion.snapshot().voice.phase).toBe('ready'); x.release();
   });
@@ -84,6 +85,52 @@ describe('default-on foreground voice mode', () => {
     expect(x.voice.send).not.toHaveBeenCalled();
     expect(x.companion.snapshot().attention).toContain('已种下');
     expect(x.companion.snapshot().voice.error).toContain('结果已留在手机');
+    x.release();
+  });
+  it('runs enter-map → real GPS readiness → badge reply → plant at that GPS without a cloud turn', async () => {
+    vi.stubGlobal('window', { localStorage });
+    vi.stubGlobal('document', Object.assign(new EventTarget(), { visibilityState: 'visible' }));
+    const context: VoiceTreeContext = { walking: false, mode: 'preview', fix: null };
+    const unmap = registerVoiceTreeMap({ context: () => context, onResult: vi.fn() });
+    const x = setup(); await flush();
+    x.voice.handleLocalCommand.mockImplementation(async (text, inputId, signal) =>
+      tryVoiceMapCommand(text, inputId, signal) ?? tryVoiceTreeCommand(text, inputId) ?? false);
+    x.voice.transcribe.mockResolvedValueOnce({ text: '进入地图模式', inputId: 'badge:a:recording:enter-map' });
+    try {
+      x.capture('enter-map'); await flush();
+      expect(getVoiceMapState()?.status).toBe('opening');
+      expect(x.voice.speak).not.toHaveBeenCalled();
+      claimVoiceMapMode('badge:a:recording:enter-map');
+      x.run({ result }); // An older main-Agent reply must not interrupt this local GPS request.
+      await flush(); expect(x.voice.speak).not.toHaveBeenCalled();
+      context.walking = true; context.mode = 'gps';
+      context.fix = { position: [120.15, 30.25], wgs84Position: [120.145, 30.253], timestamp: Date.now(), accuracyM: 8 };
+      reportVoiceMapReady('badge:a:recording:enter-map', context.fix); await flush();
+      expect(x.voice.speak).toHaveBeenCalledExactlyOnceWith(VOICE_MAP_READY_MESSAGE);
+      expect(x.companion.snapshot().voice.phase).toBe('ready');
+      x.voice.transcribe.mockResolvedValueOnce({ text: '帮我种下一棵树', inputId: 'badge:a:recording:plant-after-map' });
+      x.capture('plant-after-map'); await flush(); x.patch({ receivedBytes: 4 }); await flush();
+      expect(readPocketPlantings()).toEqual([expect.objectContaining({ position: context.fix.position, wgs84Position: context.fix.wgs84Position })]);
+      expect(x.voice.speak).toHaveBeenCalledTimes(2);
+      expect(x.voice.send).not.toHaveBeenCalled();
+    } finally { x.release(); unmap(); }
+  });
+  it.each(['background', 'disconnect', 'new-capture', 'phone-input', 'off'] as const)('cancels pending map entry on %s and never speaks late GPS readiness', async reason => {
+    vi.stubGlobal('document', Object.assign(new EventTarget(), { visibilityState: 'visible' }));
+    const x = setup(); await flush();
+    const captureId = `map-cancel-${reason}`, inputId = `badge:a:recording:${captureId}`;
+    x.voice.handleLocalCommand.mockImplementation(async (text, id, signal) => tryVoiceMapCommand(text, id, signal) ?? false);
+    x.voice.transcribe.mockResolvedValueOnce({ text: '进入地图模式', inputId });
+    x.capture(captureId); await flush(); claimVoiceMapMode(inputId);
+    if (reason === 'background') x.companion.setForeground(false);
+    if (reason === 'disconnect') x.patch({ status: 'disconnected', connectionId: undefined });
+    if (reason === 'new-capture') x.patch({ recording: true, pcmId: undefined });
+    if (reason === 'phone-input') x.event(event(2, 'user.message', { source: 'user', content: { text: '新的手机指令' } }));
+    if (reason === 'off') x.companion.setVoiceMode(false);
+    await flush();
+    expect(getVoiceMapState()?.status).toBe('cancelled');
+    expect(reportVoiceMapReady(inputId, { position: [120, 30], wgs84Position: [120, 30], accuracyM: 8, timestamp: Date.now() })).toBe(false);
+    expect(x.voice.speak).not.toHaveBeenCalled(); expect(x.voice.send).not.toHaveBeenCalled();
     x.release();
   });
   it('does not send a stale command after waiting for native skill dispatch', async () => {

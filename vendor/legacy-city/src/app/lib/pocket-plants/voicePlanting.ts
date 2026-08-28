@@ -46,14 +46,19 @@ function validPosition(position: GeoPosition): boolean {
     && Math.abs(position[0]) <= 180 && Math.abs(position[1]) <= 90;
 }
 
+/** Shared by map entry and planting: a displayed map alone is not GPS readiness. */
+export function isFreshVoiceTreeFix(fix: VoiceTreeFix | null, now = Date.now()): fix is VoiceTreeFix {
+  return !!fix && validPosition(fix.position) && validPosition(fix.wgs84Position)
+    && Number.isFinite(fix.timestamp) && now >= fix.timestamp && now - fix.timestamp <= VOICE_TREE_MAX_FIX_AGE_MS
+    && Number.isFinite(fix.accuracyM) && fix.accuracyM >= 0 && fix.accuracyM <= VOICE_TREE_MAX_ACCURACY_M;
+}
+
 function plantTree(inputId: string, context: VoiceTreeContext | null, now: number): VoiceTreeResult {
   if (!context?.walking || context.mode !== 'gps') {
     return { status: 'blocked', message: '还没有种树。请先进入中间地图，开始真实 GPS 散步；演示漫游不能语音种树。' };
   }
   const fix = context.fix;
-  if (!fix || !validPosition(fix.position) || !validPosition(fix.wgs84Position)
-    || !Number.isFinite(fix.timestamp) || now < fix.timestamp || now - fix.timestamp > VOICE_TREE_MAX_FIX_AGE_MS
-    || !Number.isFinite(fix.accuracyM) || fix.accuracyM < 0 || fix.accuracyM > VOICE_TREE_MAX_ACCURACY_M) {
+  if (!isFreshVoiceTreeFix(fix, now)) {
     return { status: 'blocked', message: '还没有种树。正在等待新鲜、准确的 GPS 定位，请定位恢复后再说一次。' };
   }
   const plantings = readPocketPlantings();

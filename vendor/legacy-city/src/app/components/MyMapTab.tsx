@@ -2,6 +2,7 @@ import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import AmapEarth from './AmapEarth';
 import GardenKnowledgeMap from './GardenKnowledgeMap';
+import { cancelVoiceMapMode, getVoiceMapState, subscribeVoiceMapMode } from '../lib/location/voiceMapMode';
 import MapSkillLayerHost from './MapSkillLayerHost';
 import MapSkillsLegend from './MapSkillsLegend';
 import WorldLayerSwitch, {
@@ -317,6 +318,20 @@ export default function MyMapTab({
   const isPlantView = !universeOnly && streetView === '种植物';
   const isPublicStreet = !universeOnly && streetView === '街头';
   const isJournalView = !universeOnly && streetView === '手帐';
+  useEffect(() => {
+    if (!pocketEarthMode || universeOnly) return;
+    return subscribeVoiceMapMode(request => {
+      if (request?.status !== 'opening') return;
+      setStreetView('街头');
+      setWorldLayer('public');
+      setOpenNatureSpeciesId(null);
+    });
+  }, [pocketEarthMode, universeOnly]);
+  useEffect(() => () => {
+    if (!pocketEarthMode) return;
+    const request = getVoiceMapState();
+    if (request) cancelVoiceMapMode(request.inputId, '已离开地图，这次真实 GPS 定位已取消。');
+  }, [pocketEarthMode]);
   // 宇宙与图谱共用同一套 Knowledge Skill 装载状态：图谱负责管理，宇宙只负责呈现。
   const [knowledgeSkillRevision, refreshKnowledgeSkills] = useReducer((value: number) => value + 1, 0);
   useEffect(() => subscribeKnowledgeSkills(refreshKnowledgeSkills), []);
@@ -845,6 +860,10 @@ export default function MyMapTab({
             journalMode={journalContent === 'nature-deck' ? 'nature-deck' : 'journal'}
             mode={pocketEarthMode ? 'health-ledger' : 'default'}
             onChange={(nextView) => {
+              const request = getVoiceMapState();
+              if (pocketEarthMode && nextView !== '街头' && request) {
+                cancelVoiceMapMode(request.inputId, '已离开地图，这次真实 GPS 定位已取消。');
+              }
               setOpenNatureSpeciesId(null);
               setShowAtlasJournal(false);
               setStreetView(nextView);

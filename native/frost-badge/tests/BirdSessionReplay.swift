@@ -1,6 +1,7 @@
-// Mac-only integration harness. UIKit/background scheduling and BLE are doubles.
+// Mac-only integration harness. UIKit/background scheduling are doubles.
+// BLE is a double by default; --ble-stdio uses the explicit real-board adapter.
 // FrostBirdSession itself is compiled unchanged except for removing import UIKit.
-// No microphone, ASR authorization, phone, or hardware access occurs here.
+// No microphone, ASR authorization or phone access occurs here.
 import Foundation
 import CryptoKit
 import ImageIO
@@ -86,28 +87,64 @@ func ending(_ bytes: Int, reason: UInt8 = 1, dropped: UInt16 = 0) -> Data {
     }
 }
 
+@MainActor final class StdioBle {
+    weak var session: FrostBirdSession?
+    var callbacks: [Int: (Error?) -> Void] = [:]
+    var next = 0, applied: [[String: Any]] = []
+    func start(_ session: FrostBirdSession) {
+        self.session = session
+        Task.detached { [self] in
+            while let line = readLine() { await handle(line) }
+        }
+    }
+    func write(_ bytes: Data, _ done: @escaping (Error?) -> Void) {
+        next += 1; callbacks[next] = done
+        let json: [String: Any] = ["type": "write", "id": next, "data": bytes.base64EncodedString()]
+        print(String(data: try! JSONSerialization.data(withJSONObject: json), encoding: .utf8)!); fflush(stdout)
+    }
+    private func handle(_ line: String) {
+        guard let data = line.data(using: .utf8), let value = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return }
+        if value["type"] as? String == "written", let id = value["id"] as? Int, let callback = callbacks.removeValue(forKey: id) {
+            callback((value["error"] as? String).map { BirdFailure.invalid($0) })
+        } else if value["type"] as? String == "notification", let encoded = value["data"] as? String, let frame = Data(base64Encoded: encoded) {
+            let bytes = [UInt8](frame)
+            if bytes.count == 16, bytes[1] == 3, bytes[2] == 0x64, bytes[6] == 1, bytes[7] == 5, bytes[9] == 3 {
+                applied.append(["index": bytes[8], "token": BirdWire.u16(bytes, 10), "crc32": BirdWire.u32(bytes, 12), "physicalDecodedReceipt": true])
+            }
+            _ = session?.receive(frame)
+        }
+    }
+}
+
 @main struct BirdSessionReplay {
     @MainActor static func main() async {
         do {
             let input = URL(fileURLWithPath: CommandLine.arguments[1])
             let output = URL(fileURLWithPath: CommandLine.arguments[2])
             let interval = Double(CommandLine.arguments[3])!
+            let physical = CommandLine.arguments.contains("--ble-stdio")
             let fixtures = try JSONSerialization.jsonObject(with: Data(contentsOf: input)) as! [[String: Any]]
             // Registration defaults are in-memory; do not change saved opt-in preferences.
             UserDefaults.standard.register(defaults: ["frost.bird.background.enabled": true])
             let session = FrostBirdSession(), board = ReplayBoard()
+            let ble = physical ? StdioBle() : nil
             var states: [[String: Any]] = []
             session.connected = true; session.maxWrite = 244
             session.emit = { states.append($0) }
-            session.write = { [weak session] bytes, done in
-                guard let session else { done(CancellationError()); return }
-                board.write(bytes, session: session, done: done)
+            if let ble {
+                ble.start(session)
+                session.write = { bytes, done in ble.write(bytes, done) }
+            } else {
+                session.write = { [weak session] bytes, done in
+                    guard let session else { done(CancellationError()); return }
+                    board.write(bytes, session: session, done: done)
+                }
             }
             try session.start(); try await settled(session)
             try require(session.snapshot()["state"] as? String == "ready", "activation: \(session.snapshot())")
             var negatives: [[String: Any]] = []
             let small = Data([1, 0, 2, 0])
-            for fault in ["sequence_gap", "duplicate", "mixed_session", "reported_drop", "disconnect_end", "short", "silent"] {
+            for fault in (physical ? [] : ["sequence_gap", "duplicate", "mixed_session", "reported_drop", "disconnect_end", "short", "silent"]) {
                 let before = states.filter { $0["state"] as? String == "recognizing" }.count
                 _ = session.receive(event(0x64, [1, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
                 switch fault {
@@ -128,14 +165,17 @@ func ending(_ bytes: Int, reason: UInt8 = 1, dropped: UInt16 = 0) -> Data {
             }
             var results: [[String: Any]] = []
             func save() throws {
-                let report: [String: Any] = ["scope": "Mac replay of actual iOS session with real HTTPS/OSS; synthetic audio frames and BLE/UIKit doubles; NOT iPhone, microphone, ASR, lockscreen or physical BLE evidence", "results": results, "negativeCases": negatives, "imageCommits": board.applied, "nativeCommands": board.commands]
+                let scope = physical
+                    ? "Mac replay of actual iOS session with real HTTPS/OSS and real BLE board receipts; synthetic input audio and UIKit double; NOT iPhone, microphone, ASR or lockscreen evidence"
+                    : "Mac replay of actual iOS session with real HTTPS/OSS; synthetic audio frames and BLE/UIKit doubles; NOT iPhone, microphone, ASR, lockscreen or physical BLE evidence"
+                let report: [String: Any] = ["scope": scope, "physicalBle": physical, "results": results, "negativeCases": negatives, "imageCommits": ble?.applied ?? board.applied, "nativeCommands": ble?.next ?? board.commands]
                 try JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]).write(to: output, options: .atomic)
             }
             try save()
             for (number, fixture) in fixtures.enumerated() {
                 if number > 0 { try await Task.sleep(nanoseconds: UInt64(interval * 1_000_000_000)) }
                 let pcm = try Data(contentsOf: URL(fileURLWithPath: fixture["pcmPath"] as! String))
-                let began = Date(), initialImages = board.applied.count
+                let began = Date(), initialImages = ble?.applied.count ?? board.applied.count
                 _ = session.receive(event(0x64, [1, 6, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]))
                 let chunks = stride(from: 0, to: pcm.count, by: 200).map { pcm.subdata(in: $0..<min($0 + 200, pcm.count)) }
                 for (part, chunk) in chunks.enumerated() {
@@ -151,7 +191,7 @@ func ending(_ bytes: Int, reason: UInt8 = 1, dropped: UInt16 = 0) -> Data {
                 result["pcmBytes"] = pcm.count; result["audioPackets"] = chunks.count
                 result["tailBeforeAudioVerified"] = true; result["seconds"] = Date().timeIntervalSince(began)
                 result["correct"] = result["state"] as? String == "result" && result["speciesId"] as? String == fixture["expected"] as? String
-                result["newImageCommits"] = Array(board.applied.dropFirst(initialImages))
+                result["newImageCommits"] = Array((ble?.applied ?? board.applied).dropFirst(initialImages))
                 results.append(result); try save()
                 print(String(data: try JSONSerialization.data(withJSONObject: result, options: .sortedKeys), encoding: .utf8)!); fflush(stdout)
                 if (result["message"] as? String ?? "").contains("请求较多") { break } // No retry or rate-limit evasion.

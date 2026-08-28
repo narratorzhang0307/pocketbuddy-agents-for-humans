@@ -1,0 +1,235 @@
+{
+  "firmware": {
+    "version": "0.2.20-ojbadge-frost-body",
+    "sha256": "57103593d69778cd4608426ce08b1f068d12d90b18cbf5238c9a2c87ec5f15b7",
+    "bytes": 2384944,
+    "partitionFreeBytes": 760784,
+    "hostTestsPassed": true,
+    "avatarTestsPassed": 93,
+    "bodyMaxAngleTenths": 8,
+    "bodyZoomRange": [
+      260,
+      264
+    ],
+    "bodyPeriodMs": 4800,
+    "addedBodyImageBytes": 0,
+    "blinkHoldMs": 1600,
+    "winkHoldMs": 1600,
+    "blinkStartIntervalMs": 4800,
+    "snapshot": [
+      {
+        "path": "CMakeLists.txt",
+        "sha256": "b7c56076281906e662a984a702b8089359a574592acb9f90bf3c09f0b6bed11c"
+      },
+      {
+        "path": "boards/ojbadge/ojbadge.cc",
+        "sha256": "12a5d9437530d617cc37a84ae26bb75555d5df0f1c89df424224c64ae0cb74de"
+      },
+      {
+        "path": "boards/ojbadge/ojbadge_audio.cc",
+        "sha256": "774d54bcea89cd4347ff8f92c368671fb9d9a6c9aac79ee9a07aeaed63db60eb"
+      },
+      {
+        "path": "boards/ojbadge/ojbadge_audio.h",
+        "sha256": "1b1a24d5023931ddfd0c1ce7d4055e1571ea0d23484d328f7ec0597be31ca6b7"
+      },
+      {
+        "path": "boards/ojbadge/frost_avatar_display.h",
+        "sha256": "a987b0d9fb31c63d7ffa9fcb63f39fe23add0f74dd77ddc5e00af9eb90b8e11c"
+      },
+      {
+        "path": "boards/ojbadge/frost_talk.h",
+        "sha256": "7d9ced2e515aa53cca61aec54f22f45ec35246d1941ea2dc645afd56bd9f7bc6"
+      },
+      {
+        "path": "boards/ojbadge/frost_talk_assets.h",
+        "sha256": "3d861177101b66028b9972b8477cedf42fdccb51999a6dd2806d60ba424d23b2"
+      },
+      {
+        "path": "boards/ojbadge/frost_talk_assets.cc",
+        "sha256": "9e44067c97c1290cacea89cc8968a3b8d148c9991b14e4db3d05ff3ac7ba435e"
+      },
+      {
+        "path": "boards/ojbadge/frost_avatar_assets.h",
+        "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d"
+      },
+      {
+        "path": "boards/ojbadge/frost_avatar_assets.cc",
+        "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc"
+      },
+      {
+        "path": "tests/protocol_host_test.cpp",
+        "sha256": "6cf85f9d9b49447c89025ef21b704b6bf0c2d5b6ada81661b08cd02698ecf436"
+      }
+    ],
+    "port": "/dev/cu.usbmodem1301",
+    "offset": 65536,
+    "previousVersion": "0.2.19-ojbadge-frost-wink",
+    "rollbackSha256": "957b398b3a6b81eb8b5e6584c2921a93398a2e1fc87312bd6fb8c9feeb8f1af6",
+    "physicalReadbackVerified": true,
+    "bootAndMetadataUnchanged": true,
+    "bootVerified": true,
+    "visibleDisplayConfirmed": false,
+    "loopProgressVerified": true
+  },
+  "live": {
+    "bodyMotionVerified": true,
+    "bodySamples": [
+      {
+        "updates": 1,
+        "eyeUpdates": 0,
+        "minAngle": 0,
+        "maxAngle": 0,
+        "minZoom": 260,
+        "maxZoom": 260
+      },
+      {
+        "updates": 29,
+        "eyeUpdates": 13,
+        "minAngle": -8,
+        "maxAngle": 8,
+        "minZoom": 260,
+        "maxZoom": 264
+      },
+      {
+        "updates": 58,
+        "eyeUpdates": 26,
+        "minAngle": -8,
+        "maxAngle": 8,
+        "minZoom": 260,
+        "maxZoom": 264
+      },
+      {
+        "updates": 86,
+        "eyeUpdates": 39,
+        "minAngle": -8,
+        "maxAngle": 8,
+        "minZoom": 260,
+        "maxZoom": 264
+      },
+      {
+        "updates": 112,
+        "eyeUpdates": 50,
+        "minAngle": -8,
+        "maxAngle": 8,
+        "minZoom": 260,
+        "maxZoom": 264
+      },
+      {
+        "updates": 140,
+        "eyeUpdates": 61,
+        "minAngle": -8,
+        "maxAngle": 8,
+        "minZoom": 260,
+        "maxZoom": 264
+      }
+    ],
+    "blinkHoldsMs": [
+      1601,
+      1652,
+      1600
+    ],
+    "winkHoldsMs": [
+      1618,
+      1598,
+      1610
+    ],
+    "blinkTimingVerified": true,
+    "winkTimingVerified": true,
+    "durationSeconds": 30,
+    "samples": [
+      {
+        "frames": 1,
+        "mask": 2,
+        "maxDecodeUs": 105421
+      },
+      {
+        "frames": 18,
+        "mask": 15,
+        "maxDecodeUs": 121920
+      },
+      {
+        "frames": 33,
+        "mask": 31,
+        "maxDecodeUs": 121920
+      },
+      {
+        "frames": 48,
+        "mask": 31,
+        "maxDecodeUs": 121920
+      },
+      {
+        "frames": 63,
+        "mask": 31,
+        "maxDecodeUs": 121920
+      },
+      {
+        "frames": 79,
+        "mask": 31,
+        "maxDecodeUs": 121920
+      }
+    ],
+    "errors": [],
+    "allFiveFramesDecoded": true,
+    "loopProgressVerified": true,
+    "versionInLog": true,
+    "firstLcdDmaInLog": true,
+    "visualConfirmation": false,
+    "serialReleased": true
+  },
+  "sourceAndPreview": {
+    "body": {
+      "periodMs": 4800,
+      "angleTenths": [
+        -8,
+        8
+      ],
+      "zoom256": [
+        260,
+        264
+      ],
+      "pivot": [
+        120,
+        210
+      ],
+      "minUpdateIntervalMs": 80,
+      "addedImageBytes": 0
+    },
+    "eyeHoldsMs": {
+      "blink": 1600,
+      "wink": 1600
+    },
+    "preview": {
+      "url": "http://127.0.0.1:5198/",
+      "browserScreenshot": "browser-preview.png",
+      "isPhysicalRecording": false,
+      "staticAndLoopControlsChecked": true
+    },
+    "files": [
+      {
+        "path": "hardware/ojbadge-agent-link/CMakeLists.txt",
+        "sha256": "b7c56076281906e662a984a702b8089359a574592acb9f90bf3c09f0b6bed11c"
+      },
+      {
+        "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_talk.h",
+        "sha256": "7d9ced2e515aa53cca61aec54f22f45ec35246d1941ea2dc645afd56bd9f7bc6"
+      },
+      {
+        "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_avatar_display.h",
+        "sha256": "a987b0d9fb31c63d7ffa9fcb63f39fe23add0f74dd77ddc5e00af9eb90b8e11c"
+      },
+      {
+        "path": "hardware/ojbadge-agent-link/tests/protocol_host_test.cpp",
+        "sha256": "6cf85f9d9b49447c89025ef21b704b6bf0c2d5b6ada81661b08cd02698ecf436"
+      },
+      {
+        "path": "public/assets/frost-talk/20260828/index.html",
+        "sha256": "dbb4cc1d23edbd7b90b422e6186d6edc06b43576717a322cfe7bdf4a45d61641"
+      },
+      {
+        "path": "public/assets/frost-talk/20260828/motion.mjs",
+        "sha256": "b2ef493d3b47139c588e3b9015b20e3b640bb83fc3ed0d021d7c512b8c639f12"
+      }
+    ]
+  }
+}

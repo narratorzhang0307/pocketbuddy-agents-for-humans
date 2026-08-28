@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Replay local, explicitly authorized bird fixtures through the actual native session.
 
-Real HTTPS to the existing T5 service; BLE and UIKit are test doubles on Mac.
-No microphone, speech recognition, iPhone installation, or board access.
+Real HTTPS to the existing T5 service; UIKit is a test double on Mac.
+BLE defaults to a double; --ble-python explicitly enables the real-board adapter.
+No microphone, speech recognition or iPhone installation.
 """
 import argparse
 import hashlib
@@ -20,9 +21,16 @@ def main():
     parser.add_argument('--live', action='store_true', help='Send the selected local bird recordings to the existing HearNature endpoint')
     parser.add_argument('--interval', type=float, default=12, help='Seconds between requests; no automatic retries')
     parser.add_argument('--species', help='Optional one allowlisted species ID')
+    parser.add_argument('--one-per-species', action='store_true', help='Use the first sorted recording for each species')
+    parser.add_argument('--ble-python', type=Path, help='Python with Bleak for explicit real B-board return-path verification; requires --live')
+    parser.add_argument('--ble-device-id', help='Previously verified CoreBluetooth UUID of the same B board')
     args = parser.parse_args()
     if args.interval < 0:
         parser.error('interval must be nonnegative')
+    if args.ble_python and not args.live:
+        parser.error('--ble-python requires explicit --live')
+    if args.ble_device_id and not args.ble_python:
+        parser.error('--ble-device-id requires --ble-python')
     repo = Path(__file__).resolve().parents[2]
     root = args.output_dir.resolve()
     root.mkdir(parents=True, exist_ok=False)
@@ -37,6 +45,8 @@ def main():
             raise ValueError(f'Unmapped source species: {file.parent.name}')
         bird = by_name[name]
         if args.species and args.species != bird['id']:
+            continue
+        if args.one_per_species and any(item['expected'] == bird['id'] for item in fixtures):
             continue
         target = root / f'{len(fixtures):02d}'
         target.mkdir()
@@ -76,10 +86,14 @@ def main():
     (root / 'build-receipt.json').write_text(json.dumps({'fixtures': len(fixtures), 'liveRequested': args.live,
         'sourceSha256': hashlib.sha256(source.encode()).hexdigest(), 'protocolSha256': hashlib.sha256((native / 'FrostBirdProtocol.swift').read_bytes()).hexdigest(),
         'harnessSha256': hashlib.sha256(replay.read_bytes()).hexdigest(), 'onlyProductionSourceTransformation': 'remove import UIKit; use explicit Mac test double',
-        'iphoneTest': False, 'hardwareMicTest': False, 'physicalBleTest': False, 'asrTest': False, 'lockscreenTest': False}, indent=2))
+        'iphoneTest': False, 'hardwareMicTest': False, 'physicalBleRequested': bool(args.ble_python), 'asrTest': False, 'lockscreenTest': False}, indent=2))
     print(f'PREPARED {len(fixtures)} files; no source audio modified', flush=True)
     if args.live:
-        subprocess.run([str(binary), str(fixture_path), str(root / 'native-session-results.json'), str(args.interval)], check=True)
+        command = [str(binary), str(fixture_path), str(root / 'native-session-results.json'), str(args.interval)]
+        if args.ble_python:
+            selection = ['--device-id', args.ble_device_id] if args.ble_device_id else []
+            command = [str(args.ble_python), str(repo / 'scripts/hardware/bird-replay-ble.py'), '--output-dir', str(root), *selection, '--', *command]
+        subprocess.run(command, check=True)
 
 
 if __name__ == '__main__':

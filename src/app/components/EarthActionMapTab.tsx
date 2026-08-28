@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import SourceMyMapTab from '../../../vendor/legacy-city/src/app/components/MyMapTab';
 import RunRouteOverlay from './RunRouteOverlay';
 import { getActiveRunRouteSessionId, subscribeRunRouteOpen } from '../lib/runRouteSkill';
+import { subscribeVoiceMapMode } from '../../../vendor/legacy-city/src/app/lib/location/voiceMapMode';
 
 /**
  * Pocket Earth 中间 Tab 的固定入口：始终使用原城市花草地图，
@@ -11,6 +12,9 @@ export default function EarthActionMapTab() {
   const [routeSessionId, setRouteSessionId] = useState(getActiveRunRouteSessionId);
 
   useEffect(() => subscribeRunRouteOpen(setRouteSessionId), []);
+  useEffect(() => subscribeVoiceMapMode(request => {
+    if (request?.status === 'opening') setRouteSessionId(null);
+  }), []);
 
   return (
     <SourceMyMapTab

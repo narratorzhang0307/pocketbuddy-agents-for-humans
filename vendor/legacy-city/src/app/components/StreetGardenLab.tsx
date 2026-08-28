@@ -77,7 +77,8 @@ import {
 } from "../lib/pocket-buddy";
 import { refreshMapBuddyCollisionLayout } from "../lib/pocket-buddy/mapBuddyMotion";
 import { POCKET_PLANT_ASSETS } from "../lib/pocket-plants/catalog";
-import { registerVoiceTreeMap, type VoiceTreeFix } from "../lib/pocket-plants/voicePlanting";
+import { isFreshVoiceTreeFix, registerVoiceTreeMap, type VoiceTreeFix } from "../lib/pocket-plants/voicePlanting";
+import { cancelVoiceMapMode, claimVoiceMapMode, failVoiceMapMode, getVoiceMapState, reportVoiceMapReady, subscribeVoiceMapMode } from "../lib/location/voiceMapMode";
 import {
   createPocketPlanting,
   pocketPlantGrowth,
@@ -1515,6 +1516,8 @@ export default function StreetGardenLab({
   const liveLocationActiveRef = useRef(false);
   const voiceTreeFixRef = useRef<VoiceTreeFix | null>(null);
   const liveLocationModeRef = useRef<LiveOutingLocationMode>("preview");
+  const voiceMapRequestIdRef = useRef<string | null>(null);
+  const voiceMapState = useSyncExternalStore(subscribeVoiceMapMode, getVoiceMapState, getVoiceMapState);
   const liveLocationStopRef = useRef<StopLocationWatch | null>(null);
   const walkingWakeLockRef = useRef<WalkingWakeLock | null>(null);
   const liveLocationFilterRef = useRef(new LiveLocationFilter());
@@ -2655,6 +2658,7 @@ export default function StreetGardenLab({
     () => () => {
       liveLocationActiveRef.current = false;
       voiceTreeFixRef.current = null;
+      if (voiceMapRequestIdRef.current) cancelVoiceMapMode(voiceMapRequestIdRef.current, "已离开地图，这次真实 GPS 定位已取消。");
       liveLocationStopRef.current?.();
       liveLocationStopRef.current = null;
       if (testDutySessionIdRef.current) {
@@ -3588,6 +3592,8 @@ export default function StreetGardenLab({
   );
 
   const stopLiveOuting = () => {
+    if (voiceMapRequestIdRef.current) cancelVoiceMapMode(voiceMapRequestIdRef.current, "散步已结束，这次真实 GPS 定位已取消。");
+    voiceMapRequestIdRef.current = null;
     stopDesktopViewOrbit();
     setOutingSetupOpen(false);
     outingCameraOpenRef.current = false;
@@ -3639,6 +3645,7 @@ export default function StreetGardenLab({
     if (
       outingCameraOpenRef.current ||
       !liveLocationActiveRef.current ||
+      liveLocationModeRef.current !== "gps" ||
       !map ||
       !AMap
     ) return;
@@ -3736,11 +3743,13 @@ export default function StreetGardenLab({
         map.setZoomAndCenter(ENCOUNTER_ZOOM, amapPosition);
       }
       requestAnimationFrame(syncLiveOutingPose);
+      if (voiceMapRequestIdRef.current) reportVoiceMapReady(voiceMapRequestIdRef.current, voiceTreeFixRef.current);
     } catch (error) {
-      if (!liveLocationActiveRef.current) return;
+      if (!liveLocationActiveRef.current || sequence < liveLocationAppliedSequenceRef.current) return;
       voiceTreeFixRef.current = null;
       console.error("GPS 坐标转换失败", error);
       setLiveLocationNotice("GPS 已取得，但暂时无法与高德地图对齐");
+      if (voiceMapRequestIdRef.current) failVoiceMapMode(voiceMapRequestIdRef.current, "GPS 尚未与地图对齐，暂时不能种树，请稍后重新进入地图模式。");
     }
   };
 
@@ -3750,7 +3759,12 @@ export default function StreetGardenLab({
     companionMode: OutingCompanionMode,
     pocketBuddiesForOuting: readonly PocketBuddy[],
     locationMode: LiveOutingLocationMode = "preview",
+    voiceRequestId: string | null = null,
   ) => {
+    if (voiceMapRequestIdRef.current && voiceMapRequestIdRef.current !== voiceRequestId) {
+      cancelVoiceMapMode(voiceMapRequestIdRef.current, "散步模式已切换，这次语音定位已取消。");
+    }
+    voiceMapRequestIdRef.current = voiceRequestId;
     voiceTreeFixRef.current = null;
     liveLocationModeRef.current = locationMode;
     setVoiceTreeNotice("");
@@ -3758,6 +3772,7 @@ export default function StreetGardenLab({
       setOutingSetupOpen(false);
       setLiveLocationState("error");
       setLiveLocationNotice("高德地图尚未就绪，请稍后再开始出门");
+      if (voiceRequestId) failVoiceMapMode(voiceRequestId, "地图尚未就绪，请稍后再说“进入地图模式”。");
       return;
     }
     const map = mapRef.current;
@@ -4114,6 +4129,14 @@ export default function StreetGardenLab({
         error.code === "unsupported" ||
         error.code === "insecure-context";
       if (terminal) {
+        if (voiceRequestId) {
+          const message = `真实 GPS 未就绪：${error.message}。请检查手机定位权限后重新进入地图模式。`;
+          failVoiceMapMode(voiceRequestId, message);
+          stopLiveOuting();
+          setLiveLocationState("error");
+          setLiveLocationNotice(message);
+          return;
+        }
         enterDefaultWalk(`无法根据真实位置校正：${error.message}。已回到杭州默认场景。`);
         return;
       }
@@ -4134,6 +4157,49 @@ export default function StreetGardenLab({
       liveLocationStopRef.current = null;
     }
   };
+
+  useEffect(() => {
+    if (!voiceTreePlanting || voiceMapState?.status !== "opening" || mapState === "loading") return;
+    const inputId = voiceMapState.inputId;
+    if (mapState !== "amap" || !mapRef.current || !amapApiRef.current) {
+      failVoiceMapMode(inputId, "地图加载失败，真实 GPS 散步尚未开始，请稍后重新进入地图模式。");
+      return;
+    }
+    if (!claimVoiceMapMode(inputId)) return;
+    // This voice shortcut always chooses the existing male lead + one default dog.
+    // It must not inherit a previous female/multi-pet selection or require seeds.
+    setOutingGuideId(DEFAULT_OUTING_GUIDE_ID);
+    setOutingPetIds([DEFAULT_OUTING_PET_ID]);
+    setOutingPreviewPetId(DEFAULT_OUTING_PET_ID);
+    setOutingPocketBuddyIds([]);
+    setOutingSetupOpen(false);
+    setSeedDrawerOpen(false);
+    setPlantingSuccess(null);
+    setPlantingAssetId(null);
+    setPendingPlantPosition(null);
+    outingCameraOpenRef.current = false;
+    setOutingCameraScene(null);
+    if (liveLocationActiveRef.current && liveLocationModeRef.current === "gps"
+      && isFreshVoiceTreeFix(voiceTreeFixRef.current)
+      && activeOutingGuide.id === DEFAULT_OUTING_GUIDE_ID
+      && activeOutingPets.length === 1 && activeOutingPets[0].id === DEFAULT_OUTING_PET.id
+      && activeOutingCompanionMode === "leash" && activeOutingPocketBuddies.length === 0) {
+      voiceMapRequestIdRef.current = inputId;
+      mapRef.current.setZoomAndCenter(ENCOUNTER_ZOOM, voiceTreeFixRef.current.position);
+      reportVoiceMapReady(inputId, voiceTreeFixRef.current);
+      return;
+    }
+    startLiveOuting(getCityCompanionGuide(DEFAULT_OUTING_GUIDE_ID).profile, [DEFAULT_OUTING_PET], "leash", [], "gps", inputId);
+  }, [voiceTreePlanting, voiceMapState, mapState]);
+
+  useEffect(() => {
+    if (!voiceMapState || voiceMapState.inputId !== voiceMapRequestIdRef.current) return;
+    if (voiceMapState.status === "failed" || voiceMapState.status === "cancelled") {
+      stopLiveOuting();
+      setLiveLocationNotice(voiceMapState.message);
+    }
+    if (["ready", "failed", "cancelled"].includes(voiceMapState.status)) setVoiceTreeNotice(voiceMapState.message);
+  }, [voiceMapState]);
 
   const handleOutingButton = () => {
     if (liveOutingVisible) {
@@ -6134,7 +6200,7 @@ export default function StreetGardenLab({
                   ? liveLocationNotice
                   : ""
               }
-              actionMessage={voiceTreeNotice || (voiceTreePlanting && liveLocationState === "active"
+              actionMessage={(voiceTreePlanting && voiceMapState?.status === "locating" ? voiceMapState.message : '') || voiceTreeNotice || (voiceTreePlanting && liveLocationState === "active"
                 ? '按住吧唧实体键说“帮我种下一颗树”，松手后种在当前 GPS 位置' : '')}
               follower={encounterFollower}
               followers={liveOutingVisible ? activeOutingPets : undefined}

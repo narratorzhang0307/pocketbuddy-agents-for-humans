@@ -62,7 +62,7 @@ export default function FrostBadgePanel({ reply, onVoiceDraft }: { reply?: strin
         {shared?.projectionError && <p role="status" className="text-amber-800">圆屏状态同步：{shared.projectionError} 此项不阻断手机本机识别及 Frost 处理。</p>}
       </div>
       <p>连接成功后，按住已确认的实体键约 0.6 秒，屏幕出现「正在倾听说话」后讲话，松手结束；最长 30 秒，两次录音间隔 4 秒。音频来自吧唧麦克风，仅保存在本次 App 内存，不使用手机麦克风。</p>
-      <p>语音种树：保持 App 前台，在中间地图开始真实 GPS 散步，再按住吧唧实体键说「帮我种下一颗树」。会在当前位置种下一棵本机地图里的枇杷树，不消耗种子；演示路线、未定位或定位过期时不会种植。此指令和结果反馈均在本机处理。</p>
+      <p>语音地图：保持 App 前台，按住吧唧实体键说「进入地图模式」，会自动打开中间地图，选择男主牵默认小狗，并请求手机真实 GPS；首次定位授权仍需在手机允许。听到「定位已就绪，可以种树了」后，再说「帮我种下一颗树」，就在当前 GPS 位置种下本机地图里的枇杷树，不消耗种子。演示路线、未定位或定位过期时不会种植；这两条指令及结果朗读均在本机处理。</p>
       {connected && badge.microphoneAvailable === false && <p role="alert" className="text-red-700">当前固件未启用麦克风，可能仍是按键测试版；需更新固件后重新连接。</p>}
       {(badge.recording || badge.receivedBytes > 0) && <p role="status">蓝牙已收到 {badge.receivedBytes} 字节 · {(badge.receivedBytes / 32000).toFixed(1)} 秒{badge.recording ? ' · 录音中' : badge.pcm ? ' · 完整' : ' · 等待校验'}</p>}
       {badge.captureStats && <p>麦克风峰值 {badge.captureStats.peak} / 32768 · 丢包 {badge.captureStats.dropped} · {badge.captureStats.complete ? '传输校验通过' : '尚未通过完整性校验'}{badge.captureStats.peak === 0 ? '；未检测到声音信号，请勿当作成功录音。' : ''}</p>}
