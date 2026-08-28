@@ -1,3 +1,11 @@
+# 项目体验地址
+
+## [https://pocket-buddy.throughtheglass.art/](https://pocket-buddy.throughtheglass.art/)
+
+> Pocket Buddy 浏览器 Demo。首次加载地图和 3D 素材可能稍慢；定位、摄像头按需授权。原生能力与实体徽章体验需要对应设备。
+
+---
+
 # Pocket Buddy · 烈变黑客松项目文档
 
 > 版本：2026-08-28 参赛准备版。本文以本次提交的实际源码为依据，区分已有实现、外部服务依赖与后续计划。团队分工暂留空；具体报名赛道、命题及赛期增量须由团队最终确认。
@@ -10,6 +18,7 @@
 | Slogan | 把陪伴装进口袋，让每一步都有回应。 |
 | 一句话介绍 | 一个把 AI 伙伴、城市探索、轻量养成和运动健康连接起来的随身陪伴应用。 |
 | 代码仓库 | [narratorzhang0307/Pocket-Buddy](https://github.com/narratorzhang0307/Pocket-Buddy) |
+| 项目体验地址 | [Pocket Buddy 在线 Demo](https://pocket-buddy.throughtheglass.art/) |
 | GitHub Topic | `shenicest-fission` |
 | 主赛道及赞助商命题 | 待团队确认，以正式报名记录为准。 |
 

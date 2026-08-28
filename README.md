@@ -1,3 +1,11 @@
+# 项目体验地址
+
+## [https://pocket-buddy.throughtheglass.art/](https://pocket-buddy.throughtheglass.art/)
+
+> Pocket Buddy 浏览器 Demo。首次加载地图和 3D 素材可能稍慢；定位、摄像头按需授权。原生能力与实体徽章体验需要对应设备。
+
+---
+
 # Pocket Buddy · She Nicest Fission
 
 > 把陪伴装进口袋，让每一步都有回应。
