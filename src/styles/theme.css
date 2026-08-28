@@ -229,3 +229,12 @@ html[data-pocket-platform='android'] input:is([type='text'], [type='search'], [t
 html[data-pocket-platform='android'] textarea {
   font-size: 16px;
 }
+
+/* WKWebView keeps its automatic focus zoom even after the keyboard closes.
+   Prevent that zoom at the source for native iOS forms, without restricting
+   user pinch zoom or changing the layout scale when focus changes. */
+html[data-pocket-platform='ios'] input,
+html[data-pocket-platform='ios'] textarea,
+html[data-pocket-platform='ios'] select {
+  font-size: max(16px, 1rem);
+}

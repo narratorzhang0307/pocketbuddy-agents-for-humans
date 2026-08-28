@@ -77,4 +77,24 @@ describe('Hospital Agent entry and local catalogue', () => {
     const effect = source.split('useEffect(() => {')[1].split('}, []);')[0];
     expect(effect).not.toMatch(/fetch|askHospitalAgent|readHealthMemory/);
   });
+
+  it('keeps health form controls at an iOS-safe size without disabling user zoom', () => {
+    const html = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
+    expect(html).toContain('hospital-agent-page');
+    const source = readFileSync(new URL('./HospitalAgentPage.tsx', import.meta.url), 'utf8');
+    expect(source).toContain("import './HospitalAgentPage.css'");
+    const css = readFileSync(new URL('./HospitalAgentPage.css', import.meta.url), 'utf8');
+    // This must override theme.css's unlayered 12px form-control rule;
+    // a Tailwind font-size utility alone loses to that global rule.
+    expect(css).toMatch(/\.hospital-agent-page\s+:is\(textarea, select\)\s*\{[^}]*font-size:\s*max\(16px, 1rem\)/);
+    for (const id of ['hospital-question', 'hospital-department']) {
+      const control = html.match(new RegExp(`<(?:textarea|select)\\b[^>]*id="${id}"[^>]*>`))?.[0];
+      expect(control).toBeDefined();
+      expect(control).toContain('min-w-0');
+      expect(control).not.toContain('text-xs');
+    }
+    const entry = readFileSync(new URL('../../../index.html', import.meta.url), 'utf8');
+    expect(entry).not.toMatch(/user-scalable\s*=\s*(?:no|0)|maximum-scale\s*=\s*1(?:\.0)?(?:[,"\s]|$)/i);
+    expect(css).not.toMatch(/transform:\s*scale|zoom:/);
+  });
 });

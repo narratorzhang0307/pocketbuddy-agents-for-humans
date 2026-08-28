@@ -48,6 +48,11 @@ run('scripts/ios/presence-assets.mjs', []);
 // silently ship an old training page without the health-memory result bridge.
 run('deploy/pocketbuddy/build-coach-web.mjs', []);
 run('node_modules/vite/bin/vite.js', ['build', '--config', 'vendor/her-motion/vite.config.ts']);
+// Capacitor 8's update also validates webDir. On a clean checkout, generate real
+// current assets first; after dependency normalization, rebuild and seal below.
+if (!webOnly && !existsSync(path.join(webDir, 'index.html'))) {
+  run('node_modules/vite/bin/vite.js', ['build', '--config', 'vite.pocketbuddy.config.ts', '--mode', 'ios', '--outDir', 'dist-ios']);
+}
 // Normalize CLI-generated Swift dependencies and icon BEFORE freezing inputs.
 // The post-build sync must then be idempotent; unexpected edits still fail closed.
 if (!webOnly) run('node_modules/@capacitor/cli/bin/capacitor', ['update', 'ios']);

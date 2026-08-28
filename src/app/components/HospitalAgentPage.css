@@ -1,0 +1,5 @@
+/* Small controls trigger iOS focus zoom. Override the unlayered global 12px
+   rule in theme.css at all times, not just on focus; preserve pinch zoom. */
+.hospital-agent-page :is(textarea, select) {
+  font-size: max(16px, 1rem);
+}

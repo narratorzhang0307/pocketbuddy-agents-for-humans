@@ -5,6 +5,7 @@ import { HEALTH_GREETING, healthConsultation } from '../lib/health/healthConsult
 import { frostBadge } from '../lib/frostBadge';
 import { readFrostAgentSnapshot } from '../lib/frostAgentRuntime';
 import HospitalAgentAvatar from './HospitalAgentAvatar';
+import './HospitalAgentPage.css';
 
 const DEPARTMENT_SKILLS: Record<string, string[]> = skillIndex.skills_by_department;
 const DEPARTMENTS = Object.keys(DEPARTMENT_SKILLS);
@@ -65,7 +66,7 @@ export default function HospitalAgentPage({ onBack, backLabel = '返回 Agents' 
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col bg-[#eaeaea]">
+    <div className="hospital-agent-page flex h-full min-h-0 min-w-0 flex-col bg-[#eaeaea]">
       <header className="flex shrink-0 items-center gap-2 border-b-2 border-black bg-white px-3 py-2.5">
         <button type="button" onClick={onBack} aria-label={backLabel} className="grid h-9 w-9 shrink-0 place-items-center border-2 border-black active:translate-y-px">
           <ChevronLeft className="h-4 w-4" strokeWidth={3} />
@@ -76,7 +77,7 @@ export default function HospitalAgentPage({ onBack, backLabel = '返回 Agents' 
         </div>
         <HospitalAgentAvatar size={36} />
       </header>
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+      <div className="min-h-0 min-w-0 flex-1 space-y-3 overflow-y-auto p-3">
         <section className="border-2 border-black bg-[#e3f4f0] p-3">
           <span className="font-pixel text-[7px] tracking-wider text-[#187b73]">HEALTH CONSULTATION</span>
           <h2 className="mt-2 text-base font-black">健康信息 · 就医准备</h2>
@@ -97,7 +98,7 @@ export default function HospitalAgentPage({ onBack, backLabel = '返回 Agents' 
             <label htmlFor="hospital-question" className="mt-2 block text-[10px] text-black/60">本次问题 · {department}（可在下方切换科室）</label>
             <textarea id="hospital-question" value={question} onChange={(event) => setQuestion(event.target.value)} disabled={busy} maxLength={600} rows={3}
               placeholder="例如：第一次去心内科就诊，可以提前准备哪些资料？"
-              className="mt-2 w-full resize-y border-2 border-black p-2 text-xs leading-relaxed disabled:opacity-60" />
+              className="mt-2 w-full min-w-0 resize-y border-2 border-black p-2 leading-relaxed disabled:opacity-60" />
             <p className="mt-2 text-[10px] leading-relaxed text-black/60">点击发送或按键提问，即同意将本页当前咨询上下文与检索片段交给云端 Qwen 处理。不自动附带健康记录、照片或其他历史对话；不保存到健康记忆，退出或转入后台清除本次会话。</p>
             <button type="submit" disabled={!consultation.active || busy || !question.trim()} className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 border-2 border-black bg-[#e3f4f0] text-[11px] font-bold disabled:opacity-50">
               <Send className="h-3.5 w-3.5" />{busy ? 'Qwen 正在回答…' : '同意并发送给 Qwen'}
@@ -114,7 +115,7 @@ export default function HospitalAgentPage({ onBack, backLabel = '返回 Agents' 
         <section className="border-2 border-black bg-white p-3">
           <h2 className="text-xs font-black">本地知识目录</h2>
           <label htmlFor="hospital-department" className="mt-2 block text-[10px] text-black/60">选择科室查看已收录的疾病 Skill</label>
-          <select id="hospital-department" value={department} onChange={(event) => healthConsultation.setDepartment(event.target.value)} className="mt-1 w-full min-w-0 border-2 border-black bg-[#f5f5f5] px-2 py-2 text-xs">
+          <select id="hospital-department" value={department} onChange={(event) => healthConsultation.setDepartment(event.target.value)} className="mt-1 w-full min-w-0 border-2 border-black bg-[#f5f5f5] px-2 py-2">
             {DEPARTMENTS.map((name) => <option key={name} value={name}>{name} · {DEPARTMENT_SKILLS[name].length} 项</option>)}
           </select>
           <ul className="mt-2 space-y-1.5 text-[11px] leading-relaxed text-black/65">
