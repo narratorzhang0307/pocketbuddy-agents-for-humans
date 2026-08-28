@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="330" viewBox="0 0 1700 330" role="img" aria-labelledby="title desc">
+  <title id="title">Skill Canvas 创作链路</title>
+  <desc id="desc">用户把自由草图和能力积木放入 Skill Canvas，经一键结构化生成声明式 Skill 图，再由 Skill Taskmaster 完成权限校验、编译和可靠的多步骤运行。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#30443d"/>
+    </marker>
+    <style>
+      .node { fill: #ffffff; stroke: #28342f; stroke-width: 2; rx: 14; }
+      .canvas { fill: #e8fff5; stroke: #16835d; stroke-width: 2.4; }
+      .graph { fill: #f4efff; stroke: #7459a8; stroke-width: 2; }
+      .line { fill: none; stroke: #30443d; stroke-width: 2.4; marker-end: url(#arrow); }
+      .label { font-family: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 22px; font-weight: 650; fill: #16201c; text-anchor: middle; }
+      .sub { font-family: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; font-size: 16px; fill: #53615c; text-anchor: middle; }
+    </style>
+  </defs>
+  <rect width="1600" height="330" fill="#ffffff"/>
+
+  <rect class="node" x="35" y="42" width="210" height="76"/>
+  <text class="label" x="140" y="76">用户想法</text>
+  <text class="sub" x="140" y="101">自由 Sketch</text>
+
+  <rect class="node" x="35" y="212" width="210" height="76"/>
+  <text class="label" x="140" y="246">能力积木库</text>
+  <text class="sub" x="140" y="271">地图 · 相机 · 模型 · 逻辑</text>
+
+  <rect class="node canvas" x="330" y="113" width="225" height="104"/>
+  <text class="label" x="442" y="158">Skill Canvas</text>
+  <text class="sub" x="442" y="187">拖动 · 连线 · 组合</text>
+
+  <rect class="node" x="635" y="125" width="205" height="80"/>
+  <text class="label" x="737" y="160">一键结构化</text>
+  <text class="sub" x="737" y="187">整理层级与校验</text>
+
+  <rect class="node graph" x="920" y="113" width="220" height="104"/>
+  <text class="label" x="1030" y="158">声明式 Skill 图</text>
+  <text class="sub" x="1030" y="187">可执行 · 可版本化</text>
+
+  <rect class="node" x="1220" y="125" width="185" height="80"/>
+  <text class="label" x="1312" y="160">权限与能力校验</text>
+  <text class="sub" x="1312" y="187">Capability Broker</text>
+
+  <rect class="node canvas" x="1485" y="113" width="180" height="104"/>
+  <text class="label" x="1575" y="151">Skill Taskmaster</text>
+  <text class="sub" x="1575" y="178">编译 + Graph Runtime</text>
+  <text class="sub" x="1575" y="201">暂停 · 重试 · Evidence</text>
+
+  <path class="line" d="M245 80 C285 80 285 140 330 151"/>
+  <path class="line" d="M245 250 C285 250 285 190 330 179"/>
+  <path class="line" d="M555 165 H635"/>
+  <path class="line" d="M840 165 H920"/>
+  <path class="line" d="M1140 165 H1220"/>
+  <path class="line" d="M1405 165 H1485"/>
+</svg>

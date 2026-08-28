@@ -37,6 +37,7 @@ deliverables/
 
 # 用户放入供阅读的版权书籍 / 教程，不入库
 *.docx
+!/docs/product/Pocket_Buddy_终极产品文档_v1.0.docx
 *.pdf
 
 # 介绍 / 演示用 PPT，保密不外泄

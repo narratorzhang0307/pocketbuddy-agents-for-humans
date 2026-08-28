@@ -1,47 +1,55 @@
-# Frost Agent Harness · Qwen 决赛版
+# Frost Agent · Pocket Buddy
 
-> 软件架构已收口为一个 Frost 主 Agent、受预算约束的 Taskmaster、以及每个已登记 Skill 的独立 Qwen 子 Agent。完整职责、入口和兼容边界见 [ARCHITECTURE.md](./ARCHITECTURE.md)。硬件接入不在本阶段改动范围内。
+Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的文字以及健康建议入口共用同一个主会话；Skill 提供能力，Taskmaster 管理执行边界。
 
-Frost 是用户长期拥有的主 Agent。Skills 保留原有能力与页面；每个已登记 Skill 同时拥有独立子 Agent 身份、任务上下文、Qwen 请求和事件日志。用户仍从同一个 Frost 入口发起任务。
+产品说明见 [Pocket Buddy](../README.md)，当前实现细节见 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
-## 当前推理路线
-
-- 端侧：`edge/capacitorMnnEdge.ts` → Android Capacitor Plugin → `libpocket_mnn_jni.so` → Alibaba MNN。
-- 模型：Qwen3 / Qwen3-VL Base；Travel、古籍、碑拓等能力按需加载 MNN Adapter 或专用模型。
-- 加速：同一 arm64 APK 运行时检测 SME2；target 2 是 I8MM/NEON 基线，target 3 是 SME2 实验组。
-- 云端：`harness/httpBrain.ts` → `/api/frost-llm` → DashScope Qwen。密钥只保存在服务端。
-- 回退：模型或网络不可用时返回明确空值/错误，由业务进入确定性规则或手填，不伪装成模型结果。
-
-## 可信执行链
+## 统一执行链
 
 ```text
-用户意图
-  → sendFrostAgentMessage → Frost Agent Loop（同一会话）
-  → Taskmaster 委派已登记 Skill 子 Agent → 独立 Qwen API 调用
-  → 结构校验 / 固定工具 / 预算与超时
-  → 健康 Taskmaster 或原 Skill 页面（授权、真实数据与质量门）
-  → 用户确认 → 校验后的事实与事件日志
+手机文字 / 吧唧录音经 iPhone 本机 ASR
+  → sendFrostAgentMessage
+  → FrostConversationModel + FrostAgentLoop
+      ├─ 只读问答 / 记忆建议 → 服务端 Qwen → 校验回复
+      └─ 已登记 Skill → Taskmaster → 独立 Skill 子 Agent
+          → 原 Skill 页面 / 可信工具
+          → 权限、确认、真实结果与健康事实边界
+  → 同一会话的状态、证据和回复
 ```
 
-`src/app/lib/frostConversation.ts` 统一处理健康目标、普通对话、记忆、调度和子 Agent 追问。`harness/skillRouter.ts` 只作为兼容的能力发现/页面计划适配器，不再由 UI 与 Agent Loop 二选一。计划通过 Registry 白名单与子 Agent 准备后，仍以 `pocket-frost-task/v1` 交给原 Skill，不绕过其 Adapter、质量门和确认门。
+[FrostConversation](../src/app/lib/frostConversation.ts) 处理统一对话、路由与记忆；[FrostAgentRuntime](../src/app/lib/frostAgentRuntime.ts) 维护运行会话。手机和吧唧没有各自独立的模型人格或健康事实库。
+
+## 模型与设备分工
+
+- 云端 Qwen：通过服务端代理完成结构化决策、Skill 查询或健康建议；服务端配置模型，密钥不进入浏览器或 App。
+- iPhone：承担原生 BLE、本机 ASR、相机和健康数据权限；能力是否可用取决于真实系统状态。
+- 电子吧唧：承担录音、显示和音频交互，由 Companion 投射经过校验的状态。
+- MiniMax：为已接入的回复生成语音；不把云端合成成功等同于硬件已经出声。
+- `edge/` 保留 MNN 等可选兼容路径；它们不代表默认手机流程已支持完全离线模型。
 
 ## 目录
 
-- `agents/`：历史领域契约与兼容实现；产品层统一呈现为 Skills。
-- `subagents/`：从已登记 Skill 生成独立子 Agent 身份、职责和 Qwen 调用。
-- `runtime/`：主/子 Agent 共用的有限循环、收件箱、审批、事件日志与 Goal Driver。
-- `taskmaster/`：健康任务执行与子 Agent 委派监督；不负责 Canvas 编辑。
-- `skill-canvas/`：能力卡编译与结构预览，不执行模型或真实任务。
-- `skill-taskmaster/`：旧导入路径兼容转发，无独立执行器。
-- `harness/`：路由、记忆、事件、校验与云端 Brain。
-- `edge/`：Qwen/MNN 端侧统一契约、Android 桥和开发期 sidecar。
-- `provider-compat/`：DashScope Qwen、MNN 与兼容请求适配。
-- `memory/`：会话记忆和本地长期画像。
+| 目录 | 用途 |
+| --- | --- |
+| [runtime](runtime/) | 有限循环、消息收件箱、审批、日志、恢复与 Goal Driver |
+| [subagents](subagents/) | Skill 子 Agent 身份、独立上下文和 Qwen 请求 |
+| [taskmaster](taskmaster/) | 任务监督、子 Agent 委派、健康事实和幂等执行边界 |
+| [skill-canvas](skill-canvas/) | 能力卡编译、结构预览和保存，不自动执行真实任务 |
+| [skill-taskmaster](skill-taskmaster/) | 旧导入路径的兼容转发 |
+| [harness](harness/) | Brain、路由、交接、记忆和校验 |
+| [skills](skills/) | 能力说明与健康领域适配 |
+| [edge](edge/) | 可选模型运行时契约与适配 |
+| [harness/memory.ts](harness/memory.ts) / [longTermMemory.ts](harness/longTermMemory.ts) | 本地会话和长期信息相关实现 |
 
-## 安全口径
+历史的 `agents/` 领域代码与其他兼容目录不是当前产品能力清单；实际可调用能力以注册表、装备状态和宿主权限为准。
 
-- 前端与 APK 不保存 DashScope API Key。
-- 用户选择端侧时不静默升级云端；私人原图默认不离设备。
-- Adapter 未安装时明确阻断，不能用共享 Base 冒充 Skill。
-- 所有写入先建议、再校验、最后由用户确认。
-- RunTrace 与真机验收账本只展示真实执行路径和原始指标。
+## 安全与真实状态
+
+1. 主 Agent 和子 Agent 都受步骤、工具、超时和上下文边界约束。
+2. 模型输出只能作为候选；写入健康事实、采集数据或控制设备需要相应执行校验。
+3. 语义上的“确认”不能替代系统权限，也不能确认已失效的旧任务。
+4. `waiting_external` 仅表示等待真实能力结果，不表示训练、播放或写入完成。
+5. 中断恢复不得重放已提交副作用；缺服务、缺权限、断连和失败需要明确展示。
+6. 手机后台、锁屏相机及锁屏语音不由这份文档保证可用。
+
+历史产品设计与原版详细说明见 [产品文档索引](../docs/product/README.md)。当前调用链以源码和实际验证结果为准。
