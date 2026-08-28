@@ -23,6 +23,7 @@ export function qwenModelForTask(provider, task) {
   const name = String(task || 'default').trim().toLowerCase()
   if (name.startsWith('skill-answer:')) return provider.skillAnswerModel || 'qwen3.8-max'
   if (name.startsWith('subagent:')) return provider.subagentModel || provider.model
+  if (name === 'run-route-intent') return provider.taskModels.route || provider.model
   if (name === 'route' || name.endsWith('-route') || name.endsWith('-plan')) return provider.taskModels.route
   if (name === 'taskmaster' || name.startsWith('health-')) return provider.taskModels.taskmaster
   if (name.includes('multilingual')) return provider.taskModels.multilingual
@@ -39,6 +40,7 @@ export function buildQwenChatBody(provider, { prompt, system = '', task = 'defau
     temperature: temperature ?? (json ? 0 : 0.55),
     ...(String(task).startsWith('subagent:') ? { max_tokens: 1536, enable_thinking: false } : {}),
     ...(String(task).startsWith('skill-answer:') ? { max_tokens: 768, enable_thinking: false } : {}),
+    ...(task === 'run-route-intent' ? { max_tokens: 512, enable_thinking: false } : {}),
     ...(json ? { response_format: { type: 'json_object' } } : {}),
   }
 }

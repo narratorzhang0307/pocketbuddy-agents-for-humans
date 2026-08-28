@@ -77,6 +77,9 @@ export default function App() {
   const [voiceNavigationId, setVoiceNavigationId] = useState(0);
   const [voiceNavigationError, setVoiceNavigationError] = useState('');
   useEffect(() => {
+    void import('./lib/runRouteNavigation').then(module => module.initializeRunNavigation()).catch(() => {});
+  }, []);
+  useEffect(() => {
     let active = true, release: (() => void) | undefined;
     void Promise.all([import('./lib/frostAgentRuntime'), import('./lib/frostAgentNavigation'), import('./lib/frostBadge'), import('./lib/birdListener')]).then(([runtime, routing, { frostBadge }, bird]) => {
       if (!active) return;

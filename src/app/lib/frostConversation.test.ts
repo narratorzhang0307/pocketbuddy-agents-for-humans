@@ -154,8 +154,22 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
 
   it('retains the health Taskmaster path when the actual UI registry contains the route Skill', async () => {
     const app = await runtime(); const route = await app.send('帮我规划 5 公里跑步路线');
-    expect(route.task?.request.kind).toBe('plan_run_route');
-    expect(route.events.some((event) => event.data.tool === 'taskmaster.start_intent')).toBe(true);
+    expect(route.session.status).toBe('waiting_user');
+    expect(route.view.autoStep).toBeUndefined();
+    expect(route.view.routeChoices).toContain('环线');
+    const ready = await app.send('环线，风景好、少路口');
+    expect(ready.events.some(event => event.data.tool === 'frost.run_route_dialogue')).toBe(true);
+    const reply = ready.events.find(event => event.type === 'tool.result')?.data.result as { data?: { routeSessionId?: string; routeTaskId?: string } };
+    expect(reply.data?.routeSessionId).toBeTruthy(); expect(reply.data?.routeTaskId).toBeTruthy();
+    expect(ready.view.autoStep).toBeUndefined(); // The real route opens Earth, never the old input form.
+  });
+
+  it('cancels a pending route and does not steal an unrelated workspace launch', async () => {
+    const app = await runtime();
+    await app.send('帮我规划5公里跑步路线');
+    expect((await app.send('取消规划')).view.text).toContain('已取消');
+    await app.send('帮我规划5公里跑步路线');
+    expect((await app.send('打开包装食品')).view.autoStep?.target).toBe('frost-openfoodfacts');
   });
 
   it('continues a page subagent question in the same child context', async () => {

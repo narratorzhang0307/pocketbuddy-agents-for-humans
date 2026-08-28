@@ -11,13 +11,23 @@ export type RunRouteGoal =
 
 export interface RunRouteInput {
   activity: 'running' | 'walking';
-  start: 'current_location';
+  start: 'current_location' | 'place';
+  start_query?: string;
   goal: RunRouteGoal;
   shape: RunRouteShape;
   preferences: RunRoutePreference[];
   source: 'user' | 'agent' | 'taskmaster';
   source_task_id?: string;
   request_text?: string;
+  /** Only the actual badge inbox may enable this, never model-supplied JSON. */
+  auto_start?: boolean;
+}
+
+export interface RunRouteCue {
+  id: string;
+  point_index: number;
+  instruction: string;
+  source: 'amap' | 'geometry' | 'arrival';
 }
 
 export type RunRouteStatus =
@@ -44,10 +54,17 @@ export interface RunRouteSession {
   status: RunRouteStatus;
   provider: 'amap-jsapi-v2';
   start?: RoutePoint;
-  start_source?: 'gps' | 'sample';
+  start_source?: 'gps' | 'sample' | 'place';
+  start_label?: string;
   destination?: RoutePoint;
   destination_label?: string;
   planned_path: RoutePoint[];
+  cues?: RunRouteCue[];
+  actual_shape?: RunRouteShape;
+  route_evidence?: { candidates: number; via: string[]; crossings: number; turns: number };
+  navigation_owner?: 'native' | 'web';
+  navigation_revision?: string;
+  navigation_message?: string;
   actual_track: RunRouteTrackPoint[];
   metrics: {
     target_distance_m?: number;
@@ -165,6 +182,9 @@ function inputFromUnknown(value: Record<string, unknown>, source: RunRouteInput[
     shape,
     preferences,
     source,
+    ...(value.start === 'place' && typeof value.start_query === 'string' && value.start_query.trim()
+      ? { start: 'place', start_query: value.start_query.trim().slice(0, 80) } : {}),
+    ...(value.auto_start === true ? { auto_start: true } : {}),
     ...(typeof value.source_task_id === 'string' ? { source_task_id: value.source_task_id } : {}),
     ...(typeof value.user_text === 'string' && value.user_text.trim()
       ? { request_text: value.user_text.trim().slice(0, 240) }
@@ -181,6 +201,9 @@ export function runRouteTaskInput(input: RunRouteInput): Record<string, unknown>
   return {
     ...goal,
     activity: input.activity,
+    start: input.start,
+    ...(input.start_query ? { start_query: input.start_query } : {}),
+    ...(input.auto_start ? { auto_start: true } : {}),
     shape: input.shape,
     preferences: [...input.preferences],
     ...(input.request_text ? { user_text: input.request_text.slice(0, 240) } : {}),
@@ -188,6 +211,9 @@ export function runRouteTaskInput(input: RunRouteInput): Record<string, unknown>
 }
 
 export function createRunRouteSession(input: RunRouteInput): RunRouteSession {
+  const activeId = getActiveRunRouteSessionId();
+  const active = activeId ? readRunRouteSession(activeId) : null;
+  if (active && ['navigating', 'off_route'].includes(active.status)) throw new Error('已有路线正在导航，请先在行动地图暂停或结束当前路线；蓝牙无需断开。');
   const now = new Date().toISOString();
   const id = sessionId();
   const session: RunRouteSession = {

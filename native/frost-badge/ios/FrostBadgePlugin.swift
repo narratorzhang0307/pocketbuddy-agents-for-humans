@@ -5,13 +5,13 @@ import Speech
 @preconcurrency import AVFoundation
 
 /// Add to the iOS App target, then registerPluginInstance(FrostBadgePlugin()) in CAPBridgeViewController.capacitorDidLoad().
-/// Voice remains the existing foreground flow; the opt-in bird session also works natively in background.
+/// Voice planning enters the foreground Agent; active route guidance and birds also run natively when locked.
 @objc(FrostBadgePlugin)
 @MainActor
 public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @preconcurrency CBCentralManagerDelegate, @preconcurrency CBPeripheralDelegate, @preconcurrency StreamDelegate {
     public let identifier = "FrostBadgePlugin"
     public let jsName = "FrostBadge"
-    public let pluginMethods: [CAPPluginMethod] = ["scan", "connect", "disconnect", "write", "playPcm", "stopAudio", "transcribePcm", "cancelTranscription", "synthesizeSpeech", "cancelSynthesis", "configureBirdListening", "startBirdSession", "stopBirdSession", "birdStatus"].map {
+    public let pluginMethods: [CAPPluginMethod] = ["scan", "connect", "disconnect", "write", "playPcm", "stopAudio", "transcribePcm", "cancelTranscription", "synthesizeSpeech", "cancelSynthesis", "configureBirdListening", "startBirdSession", "stopBirdSession", "birdStatus", "startRunNavigation", "pauseRunNavigation", "stopRunNavigation", "runNavigationStatus"].map {
         CAPPluginMethod(name: $0, returnType: CAPPluginReturnPromise)
     }
     private let identity = CBUUID(string: "ab883c83-3fcc-4a0f-a951-e18d0c944da4")
@@ -41,6 +41,40 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
     private var synthesisPCM = Data()
     private var birdWrite: ((Error?) -> Void)?
     private var birdWriteId: UUID?
+    private var routeAudio: ((Error?) -> Void)?
+    private var routeAudioId: UUID?
+    private var routeWrite: ((Error?) -> Void)?
+    private var routeWriteId: UUID?
+    private var routeWriteSequence: UInt8 = 192
+    private var routeWriteCommand: UInt8 = 0
+    private var routeWriteAck = false, routeWriteCompleted = false
+    private var routeControlBlocked = false
+    private var routeOutputOwned = false, routeStopPending = false
+    private var reconnectTarget: CBPeripheral?
+    private var reconnectToken: UUID?
+    private lazy var runNavigation: FrostRunNavigation = {
+        let nav = FrostRunNavigation()
+        nav.emit = { [weak self] state in self?.notifyListeners("runNavigation", data: state) }
+        nav.badgeReady = { [weak self] in self?.ready == true }
+        nav.playBadge = { [weak self] data, done in self?.playRouteAudio(data, done: done) }
+        nav.stopBadgeAudio = { [weak self] in self?.stopRouteOutput() }
+        return nav
+    }()
+    @objc func startRunNavigation(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        guard !self.bird.active, !self.bird.busy else { call.reject("请先结束识鸟或录音，再开始跑步导航"); return }
+        self.finishAudio("已进入跑步导航"); self.finishSynthesis(error: "已进入跑步导航")
+        do { try self.runNavigation.start(call.options as? [String: Any] ?? [:]); call.resolve(self.runNavigation.snapshot(includeTrack: true)) }
+        catch { call.reject(error.localizedDescription) }
+    } }
+    @objc func pauseRunNavigation(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        self.runNavigation.pause(); call.resolve(self.runNavigation.snapshot(includeTrack: true))
+    } }
+    @objc func stopRunNavigation(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        self.runNavigation.stop(); call.resolve(self.runNavigation.snapshot(includeTrack: true))
+    } }
+    @objc func runNavigationStatus(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        call.resolve(self.runNavigation.snapshot(includeTrack: true))
+    } }
     private lazy var bird: FrostBirdSession = {
         let session = FrostBirdSession()
         session.emit = { [weak self] state in self?.notifyListeners("birdStatus", data: state) }
@@ -49,7 +83,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
         session.write = { [weak self] data, done in
             guard let self, self.ready, let p = self.peripheral, let c = self.command,
-                  self.writeCall == nil, self.birdWrite == nil,
+                  self.writeCall == nil, self.birdWrite == nil, self.routeWrite == nil, !self.routeControlBlocked, !self.routeStopPending, !self.runNavigation.active,
                   data.count <= p.maximumWriteValueLength(for: .withResponse) else {
                 done(BirdFailure.invalid("蓝牙控制通道忙或未连接")); return
             }
@@ -68,6 +102,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
     } }
     @objc func startBirdSession(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        guard !self.runNavigation.active else { call.reject("跑步导航中，请先暂停导航再识鸟；蓝牙无需断开"); return }
         do {
             try self.bird.start()
             self.finishAudio("已进入识鸟"); self.finishSpeech(error: "已进入识鸟"); self.finishSynthesis(error: "已进入识鸟")
@@ -188,7 +223,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
         speechPCM.removeAll()
         let request = SFSpeechAudioBufferRecognitionRequest()
-        request.contextualStrings = ["帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式", "帮我打开下健康咨询agent", "打开健康咨询", "打开医院agent", "退出健康咨询"]
+        request.contextualStrings = ["帮我规划下跑步路线", "帮我规划五公里跑步路线", "西湖", "环线", "少路口", "风景好", "帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式", "帮我打开下健康咨询agent", "打开健康咨询", "打开医院agent", "退出健康咨询"]
         request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = false
         request.taskHint = .dictation
@@ -234,7 +269,11 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
     } }
     public func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        if central.state != .poweredOn, peripheral != nil { close("蓝牙不可用") }
+        if central.state != .poweredOn, let p = peripheral {
+            if runNavigation.active { reconnect(p, reason: "系统蓝牙暂不可用，等待恢复") }
+            else { close("蓝牙不可用") }
+        }
+        if central.state == .poweredOn, let p = reconnectTarget { central.connect(p, options: nil) }
         startScanIfReady()
     }
     private func startScanIfReady() {
@@ -267,10 +306,14 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         guard p === peripheral else { return }; p.discoverServices([control, voiceService])
     }
     public func centralManager(_ central: CBCentralManager, didFailToConnect p: CBPeripheral, error: Error?) {
-        if p === peripheral { close(error?.localizedDescription ?? "连接失败") }
+        if p === reconnectTarget { reconnect(p, reason: "硬件重连尚未成功，GPS 继续记录") }
+        else if p === peripheral { close(error?.localizedDescription ?? "连接失败") }
     }
     public func centralManager(_ central: CBCentralManager, didDisconnectPeripheral p: CBPeripheral, error: Error?) {
-        if p === peripheral { close(error?.localizedDescription ?? "吧唧已断开") }
+        if p === peripheral {
+            if runNavigation.active || reconnectTarget != nil { reconnect(p, reason: "硬件意外断连，正在重连；GPS 继续记录") }
+            else { close(error?.localizedDescription ?? "吧唧已断开") }
+        }
     }
     public func peripheral(_ p: CBPeripheral, didDiscoverServices error: Error?) {
         guard p === peripheral else { return }
@@ -298,14 +341,26 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         let all = (p.services ?? []).flatMap { $0.characteristics ?? [] }.filter { [commandID, eventID, voiceID].contains($0.uuid) }
         guard all.count == 3, all.allSatisfy({ $0.isNotifying }) else { return }
         ready = true
+        let reconnected = reconnectTarget != nil
+        reconnectTarget = nil; reconnectToken = nil
         let maxWrite = p.maximumWriteValueLength(for: .withResponse)
         bird.connected = true; bird.maxWrite = maxWrite
         connectCall?.resolve(["id": p.identifier.uuidString, "mtu": maxWrite + 3, "maxWriteBytes": maxWrite]); connectCall = nil
-        notifyListeners("connection", data: ["connected": true])
+        notifyListeners("connection", data: ["connected": true, "reconnected": reconnected, "id": p.identifier.uuidString, "maxWriteBytes": maxWrite])
+        runNavigation.connectionChanged()
+        flushRouteStop()
     }
     public func peripheral(_ p: CBPeripheral, didUpdateValueFor c: CBCharacteristic, error: Error?) {
         guard p === peripheral, error == nil, let data = c.value else { return }
-        if bird.receive(data) {
+        if data.count >= 10, data[0] == 1, data[1] == 2, data[3] == routeWriteSequence, routeWrite != nil, data[6] == routeWriteCommand {
+            if data[7] != 0 || data[8] != 0 || data[9] != 0 { finishRouteWrite("硬件拒绝导航音频命令") }
+            else { routeWriteAck = true; if routeWriteCompleted { finishRouteWrite(nil) } }
+            return
+        }
+        if data.count == 18, data[0] == 1, data[1] == 3, data[2] == 0x64, data[6] == 1, data[7] == 3 || data[7] == 6 {
+            runNavigation.captureChanged(data[8] == 1)
+        }
+        if !runNavigation.active && bird.receive(data) {
             if data.count == 18, data[1] == 3, data[2] == 0x64, data[8] == 1 {
                 finishAudio("新的实体录音已开始"); finishSpeech(error: "新的实体录音已开始"); finishSynthesis(error: "新的实体录音已开始")
             }
@@ -314,21 +369,42 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         notifyListeners("packet", data: ["channel": c.uuid.uuidString, "data": data.base64EncodedString()])
     }
     @objc func write(_ call: CAPPluginCall) { DispatchQueue.main.async {
-        guard self.ready, !self.bird.busy, let p = self.peripheral, let c = self.command, self.writeCall == nil, self.birdWrite == nil,
+        guard self.ready, !self.bird.busy, !self.routeControlBlocked, !self.routeStopPending, let p = self.peripheral, let c = self.command, self.writeCall == nil, self.birdWrite == nil, self.routeWrite == nil, self.routeAudio == nil,
               let text = call.getString("data"), let data = Data(base64Encoded: text),
               data.count >= 6, data.count <= p.maximumWriteValueLength(for: .withResponse) else {
             call.reject("未连接、控制通道忙或数据超过 MTU"); return
         }
+        // Chat cleanup on visibilitychange must not stop or replace native turn audio.
+        // Volume (operation 2) remains user-controllable during navigation.
+        if self.runNavigation.active || self.runNavigation.ownsAudio, data[2] == 0x33, data.count >= 16,
+           data[6] == 8, String(data: data.subdata(in: 7..<15), encoding: .utf8) == "speaker0", data[15] != 2 {
+            call.reject("导航正在管理硬件语音，请使用导航的暂停或结束按钮"); return
+        }
         self.writeCall = call; p.writeValue(data, for: c, type: .withResponse)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 8) { if self.writeCall === call { self.close("控制写入超时") } }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+            guard self.writeCall === call else { return }
+            if self.runNavigation.active {
+                // A suspended chat/control caller must not tear down active run BLE.
+                self.writeCall = nil; self.routeControlBlocked = true
+                call.reject("控制写入超时；保持蓝牙连接，等待原生写入完成")
+            } else { self.close("控制写入超时") }
+        }
     } }
     public func peripheral(_ p: CBPeripheral, didWriteValueFor c: CBCharacteristic, error: Error?) {
         guard p === peripheral, c.uuid == commandID else { return }
-        if let done = birdWrite { birdWrite = nil; birdWriteId = nil; done(error); return }
+        if routeControlBlocked { routeControlBlocked = false; flushRouteStop(); return }
+        if let done = birdWrite { birdWrite = nil; birdWriteId = nil; done(error); flushRouteStop(); return }
+        if routeWrite != nil {
+            routeWriteCompleted = true
+            if let error { finishRouteWrite(error.localizedDescription) }
+            else if routeWriteAck { finishRouteWrite(nil) }
+            return
+        }
         if let error { writeCall?.reject(error.localizedDescription) } else { writeCall?.resolve() }; writeCall = nil
+        flushRouteStop()
     }
     @objc func playPcm(_ call: CAPPluginCall) { DispatchQueue.main.async {
-        guard self.ready, !self.bird.active, !self.bird.busy, let p = self.peripheral, self.audioCall == nil,
+        guard self.ready, !self.bird.active, !self.bird.busy, !self.runNavigation.active, self.routeAudio == nil, let p = self.peripheral, self.audioCall == nil,
               let text = call.getString("data"), let data = Data(base64Encoded: text),
               !data.isEmpty, data.count <= 960000, data.count % 2 == 0 else {
             call.reject("未连接、正在播放或音频不是 30 秒内的 PCM16"); return
@@ -342,7 +418,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         }
     } }
     public func peripheral(_ p: CBPeripheral, didOpen channel: CBL2CAPChannel?, error: Error?) {
-        guard p === peripheral, audioCall != nil else { channel?.inputStream.close(); channel?.outputStream.close(); return }
+        guard p === peripheral, audioCall != nil || routeAudio != nil else { channel?.inputStream.close(); channel?.outputStream.close(); return }
         guard error == nil, let channel else { finishAudio(error?.localizedDescription ?? "音频通道不可用"); return }
         self.channel = channel
         channel.outputStream.delegate = self; channel.outputStream.schedule(in: .main, forMode: .common); channel.outputStream.open()
@@ -372,10 +448,86 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         pcm.removeAll(); offset = 0
         let call = audioCall; audioCall = nil
         if let error { call?.reject(error) } else { call?.resolve() }
+        let done = routeAudio; routeAudio = nil; routeAudioId = nil
+        if let done {
+            // Same protocol as foreground speech: finish the hardware PCM stream.
+            if let error { done(BirdFailure.invalid(error)) }
+            else { writeRouteCommand(5, payload: [0, 0, 0, 0, 3], done: done) }
+        }
     }
-    @objc func stopAudio(_ call: CAPPluginCall) { DispatchQueue.main.async { self.finishAudio("用户停止播放"); call.resolve() } }
-    @objc func disconnect(_ call: CAPPluginCall) { DispatchQueue.main.async { self.close("用户断开"); call.resolve() } }
+    @objc func stopAudio(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        // Hiding a WebView cancels chat audio, never the native route producer.
+        if self.routeAudio == nil { self.finishAudio("用户停止播放") }; call.resolve()
+    } }
+    @objc func disconnect(_ call: CAPPluginCall) { DispatchQueue.main.async {
+        self.runNavigation.stop(); self.close("用户主动断开"); call.resolve()
+    } }
+    private func playRouteAudio(_ data: Data, done: @escaping (Error?) -> Void) {
+        guard ready, !runNavigation.recording, !bird.busy, !routeControlBlocked, !routeStopPending, writeCall == nil, birdWrite == nil, audioCall == nil, routeAudio == nil, routeWrite == nil,
+              let p = peripheral, !data.isEmpty, data.count <= 480000 else { done(BirdFailure.invalid("导航音频通道忙或未连接")); return }
+        let id = UUID(); routeAudioId = id; routeAudio = done; routeOutputOwned = true; pcm = data; offset = 0
+        p.openL2CAPChannel(0x81)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) { [weak self] in
+            if self?.routeAudioId == id { self?.finishAudio("导航音频传输超时") }
+        }
+    }
+    private func writeRouteCommand(_ command: UInt8, payload: [UInt8], done: @escaping (Error?) -> Void) {
+        guard ready, !routeControlBlocked, let p = peripheral, let c = self.command, writeCall == nil, birdWrite == nil, routeWrite == nil else {
+            done(BirdFailure.invalid("导航控制通道忙")); return
+        }
+        routeWriteSequence = routeWriteSequence == 255 ? 192 : routeWriteSequence + 1
+        routeWriteCommand = command; routeWrite = done; routeWriteAck = false; routeWriteCompleted = false
+        let id = UUID(); routeWriteId = id
+        let data = Data([1, 1, command, routeWriteSequence, UInt8(payload.count), 0] + payload)
+        p.writeValue(data, for: c, type: .withResponse)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5) { [weak self] in
+            guard let self, self.routeWriteId == id else { return }
+            // Retain the GATT barrier after a timeout; a late completion must never
+            // be mistaken for the completion of the next writer. Do not disconnect.
+            if !self.routeWriteCompleted { self.routeControlBlocked = true }
+            self.finishRouteWrite("导航控制回执超时")
+        }
+    }
+    private func finishRouteWrite(_ message: String?) {
+        if routeWrite != nil && !routeWriteCompleted { routeControlBlocked = true }
+        let done = routeWrite; routeWrite = nil; routeWriteId = nil
+        done?(message.map { BirdFailure.invalid($0) })
+        flushRouteStop()
+    }
+    private func stopRouteOutput() {
+        guard routeOutputOwned else { return }
+        routeOutputOwned = false; routeStopPending = true
+        finishAudio("转弯语音已取消")
+        flushRouteStop()
+    }
+    private func flushRouteStop() {
+        guard routeStopPending, ready, !routeControlBlocked, writeCall == nil, birdWrite == nil, routeWrite == nil else { return }
+        routeStopPending = false
+        // Stop/reset only our speaker queue, never the BLE connection or recording.
+        writeRouteCommand(0x33, payload: [8] + Array("speaker0".utf8) + [0]) { error in
+            if let error { NSLog("[FrostRun] speaker_stop_failed %@", error.localizedDescription) }
+        }
+    }
+    private func reconnect(_ p: CBPeripheral, reason: String) {
+        ready = false; command = nil; subscriptions.removeAll()
+        reconnectTarget = p; peripheral = p
+        finishAudio(reason); finishRouteWrite(reason)
+        routeControlBlocked = false
+        writeCall?.reject(reason); writeCall = nil
+        let done = birdWrite; birdWrite = nil; birdWriteId = nil; done?(BirdFailure.invalid(reason)); bird.disconnected()
+        runNavigation.connectionChanged()
+        notifyListeners("connection", data: ["connected": false, "reason": reason])
+        let token = UUID(); reconnectToken = token
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in
+            guard let self, self.reconnectToken == token, self.central?.state == .poweredOn, p.state == .disconnected else { return }
+            p.delegate = self; self.central?.connect(p, options: nil)
+        }
+    }
     private func close(_ reason: String) {
+        ready = false
+        reconnectTarget = nil; reconnectToken = nil
+        finishRouteWrite(reason)
+        routeControlBlocked = false; routeStopPending = false; routeOutputOwned = false
         let done = birdWrite; birdWrite = nil; birdWriteId = nil; done?(BirdFailure.invalid(reason)); bird.disconnected()
         ready = false; command = nil; subscriptions.removeAll()
         central?.stopScan(); scanCall?.reject(reason); scanCall = nil
@@ -383,6 +535,7 @@ public class FrostBadgePlugin: CAPPlugin, @preconcurrency CAPBridgedPlugin, @pre
         finishAudio(reason)
         finishSpeech(error: reason); finishSynthesis(error: reason)
         if let p = peripheral { peripheral = nil; p.delegate = nil; central?.cancelPeripheralConnection(p) }
+        runNavigation.connectionChanged()
         notifyListeners("connection", data: ["connected": false, "reason": reason])
     }
 }

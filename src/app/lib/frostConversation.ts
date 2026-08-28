@@ -15,8 +15,11 @@ import { resolveSkillRunTarget } from './plaza/skillRoutes';
 import { answerFrostSkill, selectFrostAnswerSkill, type FrostSkillAnswer } from './frostSkillAnswer';
 import { askHealthAdvice, healthSettings, isHealthAdviceRequest, readHealthMemory, type HealthAdvice } from './frostHealthMemory';
 import { HEALTH_GREETING } from './health/healthConsultation';
+import { advanceRunRouteDialogue, isRunRouteCancellation, isRunRouteFollowup, isRunRouteRequest, type RunRouteDialogue } from './runRouteDialogue';
+import { startRunRouteTask } from './frostHealthTaskmaster';
+import { getActiveRunRouteSessionId, readRunRouteSession } from './runRouteSkill';
 
-const REPLY_TOOLS = new Set(['frost.skill_answer', 'frost.skill_plan', 'frost.memory', 'frost.schedule', 'frost.health_advice']);
+const REPLY_TOOLS = new Set(['frost.skill_answer', 'frost.skill_plan', 'frost.memory', 'frost.schedule', 'frost.health_advice', 'frost.run_route_dialogue']);
 const HEALTH_SUBAGENTS: Record<string, string> = {
   'frost.her-motion-warmup': 'pocket.her-motion', 'frost.nutrition-log': 'frost.meal-lens',
   'frost.run-route': 'frost.run-route', 'frost.phone-free-run': 'frost.running-coach',
@@ -32,6 +35,16 @@ export interface FrostConversationReply {
   plan?: FrostPlan;
   delegations?: SkillDelegationResult[];
   healthDecision?: Pick<HealthAdvice, 'revision' | 'expires_at' | 'next_skill' | 'evidence_ids'>;
+  routeDialogue?: RunRouteDialogue;
+  routeSessionId?: string;
+  routeTaskId?: string;
+}
+
+function pendingRunRoute(events: FrostAgentEvent[]): RunRouteDialogue | undefined {
+  const previous = [...events].reverse().find(event => event.type === 'tool.result');
+  const reply = previous?.data.tool === 'frost.run_route_dialogue'
+    ? (previous.data.result as { data?: FrostConversationReply })?.data : undefined;
+  return reply?.routeDialogue?.needsInput && isRunRouteFollowup(inputText(events)) ? reply.routeDialogue : undefined;
 }
 
 function pendingSkillQuestion(events: FrostAgentEvent[]): { plan: FrostPlan; delegations: SkillDelegationResult[]; child: SkillDelegationResult } | null {
@@ -186,6 +199,7 @@ export class FrostConversationModel implements FrostAgentModelAdapter {
     const pending = pendingFrostTask(context.events);
     if (pending && isExplicitTaskConfirmation(text)) return this.taskModel.decide(context);
     if (workspaceLaunchInput(context.events)) return toolDecision('frost.skill_plan');
+    if (input?.event.data.source === 'user' && (isRunRouteRequest(text) || pendingRunRoute(context.events))) return toolDecision('frost.run_route_dialogue');
     // A concrete read-only Skill query keeps its data adapter and speech ticket.
     // Broad advice words (today/exercise/steps/calories) must not steal it.
     if (answerRequest(context.events)) return toolDecision('frost.skill_answer');
@@ -227,6 +241,35 @@ function answerRequest(events: FrostAgentEvent[]): { id: string; question: strin
 /** Host tools derive text from the inbox, never from model-supplied replacement instructions. */
 export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentToolDefinition[] {
   return [
+    {
+      name: 'frost.run_route_dialogue', description: '在同一 Frost 对话补齐跑步条件，再交给 Taskmaster 和高德；不把模型文字当作道路。',
+      read_only: false, risk: 'low', model_visible: false, timeout_ms: 30000,
+      async execute(_input, context): Promise<FrostAgentToolResult> {
+        const inbox = latestFrostInput(context.events);
+        if (inbox?.event.data.source !== 'user') return { status: 'error', data: {}, message: 'user_request_required' };
+        const text = inputText(context.events);
+        if (isRunRouteCancellation(text)) return { status: 'success', data: { reply: '已取消这次路线规划，没有开启定位或导航。', trace: ['RUN ROUTE · cancelled'] } };
+        const dialogue = await advanceRunRouteDialogue(text, pendingRunRoute(context.events)?.draft, inbox.content.input_channel === 'badge_voice', context.signal);
+        context.signal.throwIfAborted();
+        let routeSessionId: string | undefined;
+        let routeTaskId: string | undefined;
+        if (dialogue.input) {
+          const activeId = getActiveRunRouteSessionId();
+          const active = activeId ? readRunRouteSession(activeId) : null;
+          if (active && ['navigating', 'off_route'].includes(active.status)) return { status: 'success', data: { reply: '已有路线正在导航，请先在中间的行动地图暂停或结束，再规划新路线；蓝牙无需断开。', trace: ['RUN ROUTE · existing navigation preserved'] } };
+          const task = await startRunRouteTask(dialogue.input, `${context.session.session_id}:route:${inbox.event.seq}`);
+          routeTaskId = task.task_id;
+          routeSessionId = task.actions.map(action => action.result?.route_session_id).find((id): id is string => typeof id === 'string');
+          if (!routeSessionId) return { status: 'success', data: { reply: '条件已收齐，但路线任务未创建，请重试。没有开启导航。', trace: ['RUN ROUTE · handoff failed'] } };
+        }
+        return { status: 'success', data: {
+          reply: dialogue.reply, needsInput: dialogue.needsInput,
+          routeDialogue: dialogue as unknown as JsonObject,
+          ...(routeSessionId ? { routeSessionId, routeTaskId: routeTaskId! } : {}),
+          trace: [dialogue.parser, routeSessionId ? `ROUTE SESSION · ${routeSessionId} · 高德待计算` : 'RUN ROUTE · waiting for conditions'],
+        } };
+      },
+    },
     {
       name: 'frost.health_advice', description: '读取已确认的今日/长期记忆，让Qwen提出建议；仅明确接受后交接Skill。',
       read_only: true, risk: 'low', model_visible: false, timeout_ms: 90000,

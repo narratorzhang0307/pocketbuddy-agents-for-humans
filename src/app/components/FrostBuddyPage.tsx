@@ -23,6 +23,7 @@ interface Turn {
   plan?: FrostPlan;
   userText?: string;
   taskmasterTaskId?: string;
+  routeChoices?: string[];
 }
 
 interface Props {
@@ -107,7 +108,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
       if (seen.has(key)) return;
       seen.add(key);
       setTurns(current => [...current, { role: 'frost', text: view.text, trace: view.trace, plan: view.plan,
-        userText: input?.text, taskmasterTaskId: view.taskmasterTaskId }]);
+        userText: input?.text, taskmasterTaskId: view.taskmasterTaskId, routeChoices: view.routeChoices }]);
     });
     if (hasActiveFrostAgentSession()) void readFrostAgentSnapshot().then((snapshot) => {
       if (!active) return;
@@ -121,7 +122,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
       setTurns(current => current.length ? current : [
         ...(text ? [{ role: 'user' as const, text }] : []),
         ...(completed ? [{ role: 'frost' as const, text: view.text, trace: ['SESSION RESTORED · 本地事件日志', ...view.trace],
-          plan: view.plan, userText: text, taskmasterTaskId: view.taskmasterTaskId }] : []),
+          plan: view.plan, userText: text, taskmasterTaskId: view.taskmasterTaskId, routeChoices: view.routeChoices }] : []),
       ]);
     }).catch(() => {});
     return () => { active = false; unobserve(); unruns(); };
@@ -259,7 +260,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                     <div className="frost-encounter__line-content">
                       <p>{FROST_OPENING_LINE}</p>
                       <div className="frost-encounter__examples">
-                        试试：「把这份书单整理后落地图」「规划京都两天行程」「用看展搭子整理这张展签」
+                        试试：「帮我规划下西湖的跑步路线」「规划 5 公里跑步路线，风景好、少路口」
                       </div>
                     </div>
                   </div>
@@ -270,6 +271,10 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                     <span>{turn.role === 'user' ? '你' : 'FROST'}</span>
                     <div className="frost-encounter__line-content">
                       {turn.text && <p>{turn.text}</p>}
+                      {turn.routeChoices?.length && i === turns.length - 1 ? <div className="mt-3 flex flex-wrap gap-2" aria-label="跑步路线条件">
+                        {turn.routeChoices.map(choice => <button key={choice} type="button" disabled={busy} onClick={() => void send(choice)} className="min-h-10 border-2 border-black bg-[#e3f7ed] px-3 py-2 text-[12px] font-bold disabled:opacity-40">{choice}</button>)}
+                        <button type="button" disabled={busy} onClick={() => void send('取消规划')} className="min-h-10 px-2 text-[12px] underline disabled:opacity-40">取消</button>
+                      </div> : null}
 
                       {turn.plan && (
                         <section className="frost-encounter__plan" aria-label="Frost Skill 计划">

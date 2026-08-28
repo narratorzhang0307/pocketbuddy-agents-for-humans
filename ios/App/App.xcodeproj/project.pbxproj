@@ -50,6 +50,8 @@
 		}; name = Release; };
 
 /* Begin PBXBuildFile section */
+		F02808280000000000000101 /* FrostRunNavigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02808280000000000000102 /* FrostRunNavigation.swift */; };
+		F02808280000000000000103 /* FrostRouteProgress.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02808280000000000000104 /* FrostRouteProgress.swift */; };
 		FB1D20260828000000000005 /* BirdCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = FB1D20260828000000000006 /* BirdCatalog.json */; };
 		FB1D20260828000000000003 /* FrostBirdSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1D20260828000000000004 /* FrostBirdSession.swift */; };
 		FB1D20260828000000000001 /* FrostBirdProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1D20260828000000000002 /* FrostBirdProtocol.swift */; };
@@ -68,6 +70,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		F02808280000000000000102 /* FrostRunNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FrostRunNavigation.swift; path = "../../native/frost-badge/ios/FrostRunNavigation.swift"; sourceTree = SOURCE_ROOT; };
+		F02808280000000000000104 /* FrostRouteProgress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FrostRouteProgress.swift; path = "../../native/frost-badge/ios/FrostRouteProgress.swift"; sourceTree = SOURCE_ROOT; };
 		FB1D20260828000000000006 /* BirdCatalog.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = BirdCatalog.json; path = "../../native/frost-badge/ios/BirdCatalog.json"; sourceTree = SOURCE_ROOT; };
 		FB1D20260828000000000004 /* FrostBirdSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FrostBirdSession.swift; path = "../../native/frost-badge/ios/FrostBirdSession.swift"; sourceTree = SOURCE_ROOT; };
 		FB1D20260828000000000002 /* FrostBirdProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = FrostBirdProtocol.swift; path = "../../native/frost-badge/ios/FrostBirdProtocol.swift"; sourceTree = SOURCE_ROOT; };
@@ -126,6 +130,8 @@
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				F05B00012026082700000003 /* PocketBuddyViewController.swift */,
 				F05B00012026082700000004 /* FrostBadgePlugin.swift */,
+				F02808280000000000000102 /* FrostRunNavigation.swift */,
+				F02808280000000000000104 /* FrostRouteProgress.swift */,
 				FB1D20260828000000000006 /* BirdCatalog.json */,
 				FB1D20260828000000000004 /* FrostBirdSession.swift */,
 				FB1D20260828000000000002 /* FrostBirdProtocol.swift */,
@@ -283,6 +289,8 @@
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				F05B00012026082700000001 /* PocketBuddyViewController.swift in Sources */,
 				F05B00012026082700000002 /* FrostBadgePlugin.swift in Sources */,
+				F02808280000000000000101 /* FrostRunNavigation.swift in Sources */,
+				F02808280000000000000103 /* FrostRouteProgress.swift in Sources */,
 				F08A00012026082800000001 /* FrostHealthPlugin.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

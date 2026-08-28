@@ -5,6 +5,12 @@ import * as production from './qwen-provider.mjs';
 import * as development from './qwen-health-provider.mjs';
 
 describe.each([['production', production], ['development', development]])('%s Qwen subagent configuration', (_name, api) => {
+  it('bounds route extraction and honors the configured route model on both servers', () => {
+    const provider = api.createQwenProvider({ QWEN_MODEL_ROUTE: 'route-test' });
+    expect(api.buildQwenChatBody(provider, { task: 'run-route-intent', prompt: '跑三公里', json: true })).toMatchObject({
+      model: 'route-test', max_tokens: 512, enable_thinking: false, response_format: { type: 'json_object' },
+    });
+  });
   it('reuses the existing API key but routes all subagents to the flagship model', () => {
     const provider = api.createQwenProvider({ DASHSCOPE_API_KEY: 'test-only', QWEN_MODEL: 'existing-model' });
     expect(provider.key).toBe('test-only');

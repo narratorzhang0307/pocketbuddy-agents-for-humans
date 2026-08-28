@@ -442,3 +442,17 @@ body { font-family: Inter, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
   .domainTabs b { font-size: 9px; }
   .cameraPanel, .cyberCamera { min-height: 48vh; }
 }
+
+
+/* Prerecorded video stays local and is separate from camera workout recording. */
+.videoUploadPanel { grid-column: span 2; min-height: 0; overflow-y: auto; padding: 18px; }
+.videoUploadPanel h2, .videoUploadPanel h3 { margin: 8px 0; font-weight: 750; }
+.videoUploadPanel p { margin: 10px 0; font-size: 13px; line-height: 1.7; }
+.videoUploadPanel label { display: block; margin: 14px 0 8px; font-size: 14px; font-weight: 700; }
+.videoUploadPanel input { display: block; width: 100%; max-width: 100%; font-size: 13px; }
+.videoUploadPanel video { display: block; width: 100%; max-height: 320px; background: #111; object-fit: contain; }
+.videoUploadPanel progress { width: 100%; accent-color: #20833e; }
+.videoUploadPanel [role="alert"] { padding: 10px; border: 2px solid #ad3225; color: #842419; }
+.videoUploadPanel button:disabled { opacity: .45; cursor: not-allowed; }
+@media (max-width: 1050px) { .videoUploadPanel { grid-column: auto; } }
+@media (max-width: 760px) { .videoUploadPanel { order: -1; overflow: visible; } }

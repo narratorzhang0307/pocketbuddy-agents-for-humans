@@ -21,7 +21,7 @@ import {
 import type { FrostTaskSession, JsonObject } from '../../../frost-agent/taskmaster';
 import { getFrostHealthRuntime } from './frostHealthTaskmaster';
 import { isExplicitTaskConfirmation, pendingFrostTask, pendingTaskConfirmation, taskFromEvents } from '../../../frost-agent/runtime/turnContext';
-import { createFrostConversationTools, FrostConversationModel } from './frostConversation';
+import { createFrostConversationTools, FrostConversationModel, readFrostConversationReply } from './frostConversation';
 import { stageTaskHandoff, type FrostTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
 import type { FrostPlan, FrostPlanStep } from '../../../frost-agent/harness/skillRouter';
 import type { FrostSkillPageResult } from '../../../frost-agent/harness/skillPageResult';
@@ -177,7 +177,8 @@ export async function sendFrostAgentMessage(text: string, origin: FrostMessageOr
     await client.loop.whenIdle();
     const events = await client.log.list(client.loop.getSession().session_id, cursor);
     const prior = isExplicitTaskConfirmation(text) ? pendingFrostTask(before) : null;
-    const task = taskFromEvents(events) || (prior ? await getFrostHealthRuntime().taskmaster.get(prior.task_id) : null);
+    const routeTaskId = readFrostConversationReply(events)?.routeTaskId;
+    const task = taskFromEvents(events) || (routeTaskId ? await getFrostHealthRuntime().taskmaster.get(routeTaskId) : prior ? await getFrostHealthRuntime().taskmaster.get(prior.task_id) : null);
     const result = { session: client.loop.getSession(), events, task };
     publishRun({ result, input: { text: text.trim(), origin } });
     return result;

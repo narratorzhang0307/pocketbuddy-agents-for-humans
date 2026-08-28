@@ -38,7 +38,7 @@ export type CityWildlifeCardDetails = {
   orderLabel?: string;
   description: string;
   locationLabel: string;
-  confidence: number;
+  confidence?: number;
   detectedAtLabel: string;
   activeTimeLabel?: string;
   soundProfile?: string;
@@ -49,6 +49,8 @@ export type CityWildlifeCardDetails = {
   evidenceLabel: string;
   evidenceUrl?: string;
   referenceAudioUrl?: string;
+  referenceAudioLabel?: string;
+  deckLabel?: string;
   statusLabel?: string;
   recognized?: boolean;
   observations?: readonly NatureSoundObservation[];
@@ -183,6 +185,10 @@ export default function CityCharacterCard({
     return [POCKET_PLANT_ASSETS[firstIndex], POCKET_PLANT_ASSETS[secondIndex]] as const;
   }, [id]);
   const serial = cityCharacterSerial(id);
+  const wildlifeConfidence = wildlife?.confidence;
+  const wildlifeConfidenceLabel = wildlifeConfidence !== undefined && Number.isFinite(wildlifeConfidence) && wildlifeConfidence >= 0 && wildlifeConfidence <= 1
+    ? `模型置信度 ${Math.round(wildlifeConfidence * 100)}%`
+    : '模型未提供有效置信度';
   const normalizedSceneVariant = sceneVariant === undefined ? undefined : Math.abs(sceneVariant);
   const sceneVariantClasses = normalizedSceneVariant === undefined
     ? ''
@@ -281,12 +287,12 @@ export default function CityCharacterCard({
               {botanical
                 ? botanical.statusLabel ?? 'ROOTED'
                 : wildlife
-                  ? wildlife.statusLabel ?? `${Math.round(wildlife.confidence * 100)}%`
+                  ? wildlife.statusLabel ?? wildlifeConfidenceLabel
                   : `LV.${level}`}
             </span>
           </div>
           <footer>
-            <small>{wildlife ? '生声不息 · WILDLIFE DECK' : `CARRY THE COSMOS · ${botanical ? 'BOTANICAL DECK' : 'CITY DECK'}`}</small>
+            <small>{wildlife ? wildlife.deckLabel ?? '生声不息 · WILDLIFE DECK' : `CARRY THE COSMOS · ${botanical ? 'BOTANICAL DECK' : 'CITY DECK'}`}</small>
             <h2>{name}</h2>
             <p>{botanical?.scientificName ?? wildlife?.scientificName ?? role}</p>
             <div>
@@ -300,7 +306,7 @@ export default function CityCharacterCard({
                 <>
                   {wildlife.familyLabel && <span>{wildlife.familyLabel}</span>}
                   {wildlife.activeTimeLabel && <span>{wildlife.activeTimeLabel}</span>}
-                  <span>声音证据 {Math.round(wildlife.confidence * 100)}%</span>
+                  <span>{wildlife.recognized === false ? wildlife.statusLabel ?? '等待听见' : wildlifeConfidenceLabel}</span>
                 </>
               ) : currentSheet.skills.slice(0, 3).map((skillId) => (
                   <span key={skillId}>
@@ -323,7 +329,7 @@ export default function CityCharacterCard({
 
             <div className="ccc-wildlife-specimen" aria-hidden="true">
               {portrait}
-              <span className="ccc-wildlife-specimen-status">{wildlife.recognized === false ? '等待在苏堤被听见' : `模型判断 ${Math.round(wildlife.confidence * 100)}%`}</span>
+              <span className="ccc-wildlife-specimen-status">{wildlife.recognized === false ? wildlife.statusLabel ?? '等待在苏堤被听见' : wildlifeConfidenceLabel}</span>
             </div>
 
             <section className="ccc-wildlife-intro">
@@ -432,7 +438,7 @@ export default function CityCharacterCard({
                 )}
                 {wildlife.referenceAudioUrl && (
                   <div className="ccc-wildlife-player">
-                    <small>官方标准声音 · 物种模板参考</small>
+                    <small>{wildlife.referenceAudioLabel ?? '官方标准声音 · 物种模板参考'}</small>
                     <audio className="ccc-wildlife-audio" controls preload="metadata" src={wildlife.referenceAudioUrl}>
                       当前浏览器不支持音频播放。
                     </audio>

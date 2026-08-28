@@ -10,14 +10,13 @@ import { createWorldSuggestionPrompt, parseWorldSuggestion, suggestWorldLocally,
 import { getAgentWorldPocketBuddyBlueprint } from '../lib/pocket-buddy';
 import { isNativeMnnPlatform } from '../../../frost-agent/edge/capacitorMnnEdge';
 import { runEdgeChatEvidence } from '../../../frost-agent/edge/httpEdge';
-import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
+import { CORE_SKILL_TARGETS } from '../data/coreSkills';
 import { listCanvasSkills, subscribeCanvasSkills } from '../../../frost-agent/skill-canvas';
 import { FROST_AVATAR } from '../lib/skill/avatars';
 import SkillCanvasPage from './SkillCanvasPage';
 
 const MusicAgentsTab = lazy(() => import('./MusicAgentsTab'));
 const PocketBuddyForge = lazy(() => import('./PocketBuddyForge'));
-const VISIBLE_SKILL_COUNT = BUILTIN_SKILLS.filter((skill) => resolveSkillRunTarget(skill.entry.target)).length;
 
 interface Props {
   initialMode?: 'worlds' | 'skills' | 'myagent' | 'canvas';
@@ -63,7 +62,7 @@ type NetworkMode = 'worlds' | 'skills' | 'myagent' | 'canvas';
 function NetworkHeader({ active, canvasSkillCount, onChange }: { active: NetworkMode; canvasSkillCount: number; onChange: (value: NetworkMode) => void }) {
   const title = active === 'skills' ? 'MY SKILLS' : active === 'canvas' ? '技能画布' : active === 'myagent' ? 'MY AGENT' : 'AGENT WORLD';
   const subtitle = active === 'skills'
-    ? '已加载到这台设备的 Skills · 随时装备与运行'
+    ? `${CORE_SKILL_TARGETS.length} 项核心能力 · 更多 Skills 与工具在下方`
     : active === 'canvas'
       ? '定义目标、组合能力模块与选择技能形象'
     : active === 'myagent'
@@ -83,7 +82,7 @@ function NetworkHeader({ active, canvasSkillCount, onChange }: { active: Network
           {active === 'worlds' && <span className="grid h-11 w-11 shrink-0 place-items-center border-2 border-black bg-[#00ff88]"><Globe2 className="h-6 w-6" strokeWidth={2.5} /></span>}
           {active === 'myagent' && <span className="grid h-11 w-11 shrink-0 place-items-center border-2 border-black bg-[#ffd34e]"><PawPrint className="h-6 w-6" strokeWidth={2.5} /></span>}
           {active === 'canvas' && <span className="grid h-11 w-11 shrink-0 rotate-3 place-items-center border-2 border-black bg-[#ffd34e] shadow-[2px_2px_0_#000]"><Blocks className="h-6 w-6" strokeWidth={2.5} /></span>}
-          {active === 'skills' && <span className="shrink-0 border-2 border-black bg-[#E8F8EF] px-2 py-1.5 font-pixel text-[7px] tracking-wider text-[#087C49]">{VISIBLE_SKILL_COUNT} CORE{canvasSkillCount > 0 ? ` + ${canvasSkillCount} MINE` : ''}</span>}
+          {active === 'skills' && <span className="shrink-0 border-2 border-black bg-[#E8F8EF] px-2 py-1.5 font-pixel text-[7px] tracking-wider text-[#087C49]">{CORE_SKILL_TARGETS.length} CORE{canvasSkillCount > 0 ? ` + ${canvasSkillCount} MINE` : ''}</span>}
         </div>
       </div>
       <div className="shrink-0 border-b-2 border-black bg-black px-3 py-2">

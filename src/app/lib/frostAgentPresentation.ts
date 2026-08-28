@@ -45,10 +45,11 @@ function replyText(result: FrostAgentRunResult): string {
 /** UI projection only: no model calls, task execution, permission requests or navigation. */
 export function presentFrostAgentRun(result: FrostAgentRunResult, userText: string): {
   text: string; trace: string[]; plan?: FrostPlan; taskmasterTaskId?: string; autoStep?: FrostPlanStep;
+  routeChoices?: string[];
 } {
   const reply = readFrostConversationReply(result.events);
   const closed = result.session.status === 'failed' || result.session.status === 'stopped';
-  const plan = closed ? undefined : reply?.plan || taskPlan(result, userText);
+  const plan = closed || reply?.routeSessionId ? undefined : reply?.plan || taskPlan(result, userText);
   const trace = result.events.flatMap((event) => {
     if (event.type === 'decision.recorded' && typeof event.data.decision === 'object' && event.data.decision) {
       const action = (event.data.decision as { next_action?: { type?: string } }).next_action?.type;
@@ -64,5 +65,6 @@ export function presentFrostAgentRun(result: FrostAgentRunResult, userText: stri
     ? plan.steps.find((step) => step.availability === 'equipped' && !step.requiresConfirmation
       && (!step.subagent || step.subagent.status === 'waiting_external') && resolveSkillRunTarget(step.target))
     : undefined;
-  return { text: replyText(result), trace: [...trace, ...(reply?.trace || [])].slice(-10), plan, taskmasterTaskId: result.task?.task_id, autoStep };
+  return { text: replyText(result), trace: [...trace, ...(reply?.trace || [])].slice(-10), plan, taskmasterTaskId: result.task?.task_id, autoStep,
+    routeChoices: reply?.needsInput ? reply.routeDialogue?.choices : undefined };
 }

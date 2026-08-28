@@ -10,8 +10,9 @@ import { subscribeVoiceMapMode } from '../../../vendor/legacy-city/src/app/lib/l
  */
 export default function EarthActionMapTab() {
   const [routeSessionId, setRouteSessionId] = useState(getActiveRunRouteSessionId);
+  const [routeHidden, setRouteHidden] = useState(false);
 
-  useEffect(() => subscribeRunRouteOpen(setRouteSessionId), []);
+  useEffect(() => subscribeRunRouteOpen(id => { setRouteSessionId(id); setRouteHidden(false); }), []);
   useEffect(() => subscribeVoiceMapMode(request => {
     if (request?.status === 'opening') setRouteSessionId(null);
   }), []);
@@ -22,7 +23,7 @@ export default function EarthActionMapTab() {
       journalContent="nature-deck"
       pocketEarthMode
       renderMapOverlay={(map) => routeSessionId
-        ? <RunRouteOverlay map={map} sessionId={routeSessionId} onClose={() => setRouteSessionId(null)} />
+        ? <RunRouteOverlay key={routeSessionId} map={map} sessionId={routeSessionId} collapsed={routeHidden} onExpand={() => setRouteHidden(false)} onClose={() => setRouteHidden(true)} />
         : null}
     />
   );

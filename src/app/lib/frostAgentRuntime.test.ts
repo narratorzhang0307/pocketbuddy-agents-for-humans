@@ -94,8 +94,11 @@ describe('PWA Frost Agent Runtime', () => {
   });
 
   it('lets Frost plan a real route session and hand it to the Earth tab without logging a fake run', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ text: '{}', model: 'qwen-test' }) })));
     const healthEventsBefore = await getFrostHealthRuntime().store.listHealthEvents('local-user');
-    const planned = await sendFrostAgentMessage('帮我规划一条 5 公里沿湖、少爬坡的跑步路线');
+    const first = await sendFrostAgentMessage('帮我规划一条 5 公里沿湖、少爬坡的跑步路线');
+    expect(first.session.status).toBe('waiting_user'); expect(first.task).toBeNull();
+    const planned = await sendFrostAgentMessage('环线');
     expect(planned.task).toEqual(expect.objectContaining({
       skill_id: 'frost.run-route',
       status: 'completed',
@@ -114,5 +117,15 @@ describe('PWA Frost Agent Runtime', () => {
       actual_track: [],
     }));
     await expect(getFrostHealthRuntime().store.listHealthEvents('local-user')).resolves.toHaveLength(healthEventsBefore.length);
+  });
+
+  it('hands a physical voice request to the same Earth route without follow-up questions or fabricated GPS', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ text: '{}', model: 'qwen-test' }) })));
+    const result = await sendFrostAgentMessage('帮我规划下西湖的跑步路线', { channel: 'badge_voice', inputId: 'run-voice-1' });
+    const id = getActiveRunRouteSessionId()!;
+    expect(result.task?.request.kind).toBe('plan_run_route');
+    expect(result.session.status).not.toBe('waiting_user');
+    expect(readRunRouteSession(id)).toMatchObject({ input: { start: 'place', start_query: '西湖', auto_start: true, goal: { distance_m: 3000 } }, planned_path: [], actual_track: [] });
+    await expect(sendFrostAgentMessage('帮我规划下西湖的跑步路线', { channel: 'badge_voice', inputId: 'run-voice-1' })).rejects.toThrow('已发送');
   });
 });

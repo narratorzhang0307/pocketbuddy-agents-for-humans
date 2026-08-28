@@ -76,6 +76,7 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
     finally { setBusy(false); }
   };
   const button = 'flex items-center justify-center gap-1 border-2 border-black bg-white p-2 text-[11px] font-bold disabled:opacity-40';
+  const photoAction = 'inline-flex min-h-11 items-center gap-2 rounded-full border-0 bg-transparent py-1 pr-2 text-[12px] font-bold transition-opacity hover:opacity-70 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-black disabled:cursor-not-allowed disabled:opacity-40';
   const changeDemoVisibility = (visible: boolean) => {
     setDemoVisible(visible);
     const saved = saveFoodDemoVisible(visible);
@@ -88,7 +89,16 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
     <div className="grid shrink-0 grid-cols-2 gap-2 border-b-2 border-black bg-black p-2">{(['photo', 'memory'] as const).map(value => <button key={value} className={'p-2 text-[12px] ' + (tab === value ? 'bg-[#7cff6b]' : 'bg-white')} onClick={() => setTab(value)}>{value === 'photo' ? '餐食识别' : '今天记忆 / 长期信息'}</button>)}</div>
     <main className={(embedded ? '' : 'min-h-0 flex-1 overflow-y-auto ') + 'space-y-3 p-3 pb-8'}>
       {tab === 'memory' ? <HealthMemoryPanel /> : <>
-        <div className="grid grid-cols-2 gap-2"><button className={button} disabled={busy} onClick={() => camera.current?.click()}><Camera size={16} />拍一餐</button><button className={button} disabled={busy} onClick={() => file.current?.click()}><ImagePlus size={16} />从相册选择</button></div>
+        <div role="group" aria-label="添加餐食照片" className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 py-2">
+          <button type="button" className={photoAction} disabled={busy} onClick={() => camera.current?.click()}>
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black text-[#7cff6b]"><Camera size={20} aria-hidden="true" /></span>
+            拍一餐
+          </button>
+          <button type="button" className={photoAction} disabled={busy} onClick={() => file.current?.click()}>
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-black"><ImagePlus size={20} aria-hidden="true" /></span>
+            从相册选择
+          </button>
+        </div>
         {image ? <section className="overflow-hidden border-2 border-black bg-white"><img src={image} alt="本次选择的餐食照片" className="max-h-[300px] w-full object-contain" /><p className="p-2 text-[10px]">本机预览 · 最长边 1024 像素 · 不附带照片定位</p></section>
           : !manual && (demoVisible ? <FoodPhotoDemo onRemove={() => changeDemoVisibility(false)} /> : <section className="space-y-3 border-2 border-black bg-[#f5f0e4] p-5 text-[12px]"><p>选择你实际吃过的一餐，识别并核对后再记入今天。示例已移除，不会自动恢复。</p><button type="button" className={button + ' w-full'} onClick={() => changeDemoVisibility(true)}>恢复餐食示例预览</button></section>)}
         {demoNotice && !image && !manual && <p role="status" className="text-[10px] text-black/55">{demoNotice}</p>}

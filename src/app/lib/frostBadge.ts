@@ -24,9 +24,11 @@ interface NativeBadge {
   addListener(event: 'birdStatus', callback: (e: BirdStatus) => void): Promise<PluginListenerHandle>;
   addListener(event: 'nativeVoice', callback: (e: { data: string; text: string; id: string; peak: number }) => void): Promise<PluginListenerHandle>;
   addListener(event: 'packet', callback: (e: { data: string; channel: string }) => void): Promise<PluginListenerHandle>;
-  addListener(event: 'connection', callback: (e: { connected: boolean; reason?: string }) => void): Promise<PluginListenerHandle>;
+  addListener(event: 'connection', callback: (e: { connected: boolean; reason?: string; reconnected?: boolean; id?: string; maxWriteBytes?: number }) => void): Promise<PluginListenerHandle>;
 }
 const native = registerPlugin<NativeBadge>('FrostBadge');
+// All features share one Capacitor proxy and one native BLE owner.
+export const nativeFrostBadge = native;
 export interface BadgeStatus {
   bird?: BirdStatus;
   nativeTranscript?: { inputId: string; text: string };
@@ -89,7 +91,14 @@ class FrostBadgeClient {
       await native.addListener('packet', e => {
         try { this.packet(badgeBytes(e.data)); } catch (error) { this.update({ error: String(error) }); }
       });
-      await native.addListener('connection', e => { if (!e.connected) this.disconnected(e.reason); });
+      await native.addListener('connection', e => {
+        if (!e.connected) this.disconnected(e.reason);
+        else if (e.reconnected && e.id && e.maxWriteBytes) {
+          this.maxWrite = e.maxWriteBytes; this.manifest.reset();
+          this.update({ status: 'connected', deviceId: e.id, connectionId: `badge:${crypto.randomUUID()}`, error: undefined });
+          void this.command(0x34, new Uint8Array(), '重连后能力查询').catch(error => this.update({ error: String(error) }));
+        }
+      });
       await native.addListener('birdStatus', bird => {
         this.update({ bird, recording: bird.state === 'recording', ...(bird.state === 'recording' ? { pcm: undefined, pcmId: undefined, nativeTranscript: undefined } : {}) });
       });

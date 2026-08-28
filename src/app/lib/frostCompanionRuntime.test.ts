@@ -188,7 +188,9 @@ describe('badge inputs use the main Frost runtime', () => {
     expect(voice).toHaveLength(1);
     expect(voice[0].session_id).toBe(before[0].session_id);
     expect(voice[0].data.content).toMatchObject({ input_id: origin.inputId });
-    expect(events.filter(event => event.type === 'tool.called').some(event => event.data.tool === 'taskmaster.start_intent')).toBe(true);
+    expect(events.slice(before.length).filter(event => event.type === 'tool.called').some(event => event.data.tool === 'frost.run_route_dialogue')).toBe(true);
+    const delivered = results.find(result => result.status === 'fulfilled');
+    expect(delivered?.status === 'fulfilled' && delivered.value.task?.status).toBe('completed');
     await expect(sendFrostAgentMessage('再次发送', origin)).rejects.toThrow('已发送');
   });
   it('does not turn a recognized affirmative into a Taskmaster permission receipt', async () => {
