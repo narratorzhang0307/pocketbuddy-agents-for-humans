@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>Heritage OCR Benchmark</title></head>
+  <body>
+    <button id="run-document" type="button">运行 PP-OCRv6 文档 OCR</button>
+    <button id="run-heritage" type="button">运行 PP-OCRv5 碑拓 OCR</button>
+    <button id="run-real-world" type="button">运行真实书页画线验收</button>
+    <button id="run-reading-edge" type="button">运行端侧 Qwen 整理验收</button>
+    <pre id="output">等待测试</pre>
+    <script type="module" src="/src/ocr-benchmark.ts"></script>
+  </body>
+</html>

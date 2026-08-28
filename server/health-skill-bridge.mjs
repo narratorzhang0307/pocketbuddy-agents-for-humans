@@ -1,3 +1,4 @@
+import { readOutdoorWindow } from './outdoor-window.mjs'
 import { spawn } from 'node:child_process'
 import { createWriteStream, existsSync } from 'node:fs'
 import { mkdtemp, rm } from 'node:fs/promises'
@@ -219,6 +220,10 @@ export function createHealthSkillBridge({ env = process.env, fetchImpl = fetch, 
     try {
       if (pathname === '/api/health-skills/status' && req.method === 'GET') {
         sendJson(res, await getStatus())
+        return true
+      }
+      if (pathname === '/api/health-skills/outdoor' && req.method === 'GET') {
+        sendJson(res, await readOutdoorWindow(url.searchParams.get('city'), { fetcher: fetchImpl, dayOffset: Number(url.searchParams.get('dayOffset') || 0) }))
         return true
       }
       if (pathname === '/api/health-skills/openfoodfacts' && req.method === 'GET') {

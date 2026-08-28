@@ -1,0 +1,251 @@
+.city-planting-map {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #eef1e8;
+  border-top: 2px solid #111;
+}
+
+.city-planting-map::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 0 34px rgba(57, 75, 55, 0.13);
+}
+
+.city-planting-map__summary {
+  position: absolute;
+  z-index: 30;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: grid;
+  grid-template-columns: 1fr 36px;
+  gap: 8px;
+  padding: 11px 11px 9px;
+  border: 2px solid #111;
+  border-radius: 18px 18px 9px 9px;
+  background: rgba(247, 243, 229, 0.94);
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.9);
+  backdrop-filter: blur(7px);
+}
+
+.city-planting-map__summary small,
+.city-planting-map__copy small {
+  display: block;
+  color: #55705e;
+  font-family: var(--font-pixel, monospace);
+  font-size: 7px;
+  letter-spacing: 0.12em;
+}
+
+.city-planting-map__summary strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.city-planting-map__summary > button,
+.city-planting-map__close {
+  display: grid;
+  place-items: center;
+  border: 2px solid #111;
+  background: #fff;
+  color: #111;
+}
+
+.city-planting-map__summary > button {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+
+.city-planting-map__summary dl {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  margin: 1px 0 0;
+  border-top: 1px solid rgba(17, 17, 17, 0.18);
+  padding-top: 7px;
+}
+
+.city-planting-map__summary dl div {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+  border-right: 1px solid rgba(17, 17, 17, 0.18);
+  padding-left: 8px;
+}
+
+.city-planting-map__summary dl div:first-child { padding-left: 0; }
+.city-planting-map__summary dl div:last-child { border-right: 0; }
+.city-planting-map__summary dt { font: 700 12px/1 var(--font-pixel, monospace); }
+.city-planting-map__summary dd { margin: 0; color: rgba(17, 17, 17, 0.55); font-size: 7px; }
+
+.city-planting-marker {
+  width: 216px;
+  height: 282px;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.city-planting-marker__visual {
+  position: relative;
+  display: flex;
+  width: 216px;
+  height: 282px;
+  align-items: flex-end;
+  justify-content: center;
+  transform: scale(var(--garden-map-scale, 0.72));
+  transform-origin: 50% 100%;
+  transition: transform 160ms ease, filter 160ms ease;
+}
+
+.city-planting-marker__visual img {
+  display: block;
+  width: 204px;
+  height: 264px;
+  object-fit: contain;
+  object-position: center bottom;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 5px 3px rgba(40, 53, 36, 0.28));
+  animation: city-planting-sway var(--plant-sway, 6s) ease-in-out var(--plant-delay, 0s) infinite alternate;
+}
+
+.city-planting-marker__root {
+  position: absolute;
+  left: 50%;
+  bottom: -3px;
+  width: 30px;
+  height: 12px;
+  border: 2px solid #111;
+  border-radius: 50%;
+  background: #7cff6b;
+  transform: translateX(-50%);
+}
+
+.city-planting-marker[data-selected='true'] .city-planting-marker__visual {
+  filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.75));
+  transform: scale(calc(var(--garden-map-scale, 0.72) * 1.12));
+}
+
+@keyframes city-planting-sway {
+  0% { transform: rotate(-1.6deg); }
+  55% { transform: rotate(0.7deg); }
+  100% { transform: rotate(1.8deg); }
+}
+
+.city-planting-map__hint {
+  position: absolute;
+  z-index: 28;
+  left: 50%;
+  bottom: 17px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: max-content;
+  max-width: calc(100% - 34px);
+  padding: 7px 11px;
+  transform: translateX(-50%);
+  border: 1.5px solid #56695c;
+  border-radius: 999px;
+  background: rgba(247, 243, 229, 0.92);
+  color: #4b5f51;
+  box-shadow: 2px 3px 0 rgba(55, 66, 57, 0.55);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.city-planting-map__empty {
+  position: absolute;
+  z-index: 31;
+  top: 50%;
+  left: 50%;
+  width: min(278px, calc(100% - 36px));
+  padding: 18px;
+  transform: translate(-50%, -42%);
+  border: 2px solid #111;
+  border-radius: 22px 22px 10px 10px;
+  background: rgba(247, 243, 229, 0.96);
+  box-shadow: 4px 4px 0 #111;
+  text-align: center;
+}
+
+.city-planting-map__empty svg { color: #55705e; }
+.city-planting-map__empty strong { display: block; margin-top: 8px; font-size: 12px; }
+.city-planting-map__empty p { margin: 6px 0 12px; color: rgba(17, 17, 17, 0.55); font-size: 8px; line-height: 1.55; }
+.city-planting-map__empty button { border: 2px solid #111; background: #111; color: #7cff6b; padding: 8px 13px; font: 700 8px/1 var(--font-pixel, monospace); }
+
+.city-planting-map__card {
+  position: absolute;
+  z-index: 35;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: grid;
+  grid-template-columns: 86px 1fr;
+  gap: 10px;
+  min-height: 112px;
+  padding: 9px;
+  border: 2px solid #111;
+  border-radius: 18px 18px 8px 8px;
+  background: rgba(247, 243, 229, 0.97);
+  box-shadow: 4px 4px 0 rgba(17, 17, 17, 0.9);
+  backdrop-filter: blur(8px);
+}
+
+.city-planting-map__close {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+}
+
+.city-planting-map__portrait {
+  display: flex;
+  min-height: 94px;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 12px 12px 5px 5px;
+  background: #e9eddf;
+}
+
+.city-planting-map__portrait img { width: 82px; height: 92px; object-fit: contain; object-position: center bottom; }
+.city-planting-map__copy { min-width: 0; padding: 4px 28px 2px 0; }
+.city-planting-map__copy h3 { margin: 4px 0 3px; font-size: 13px; }
+.city-planting-map__copy > em { display: block; overflow: hidden; color: #55705e; font-family: Georgia, serif; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.city-planting-map__copy p { display: flex; align-items: center; gap: 3px; margin: 0; color: rgba(17, 17, 17, 0.56); font-size: 8px; }
+.city-planting-map__copy p.city-planting-map__intro { display: -webkit-box; margin: 4px 0; overflow: hidden; color: rgba(17, 17, 17, 0.7); line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.city-planting-map__copy blockquote { margin: 7px 0 0; border-left: 2px solid #55705e; padding-left: 6px; color: #33483a; font-size: 8px; line-height: 1.4; }
+
+.city-planting-map__facts {
+  display: flex;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.city-planting-map__facts span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  border: 1px solid rgba(17, 17, 17, 0.35);
+  border-radius: 999px;
+  padding: 3px 6px;
+  color: #415849;
+  font-size: 7px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .city-planting-marker__visual img { animation: none; }
+}

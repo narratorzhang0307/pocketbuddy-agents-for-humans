@@ -1,0 +1,38 @@
+{
+  "schema": "pocketearth.exhibit-alpha-policy/v1",
+  "policy": "museum_structure_guard_fail_closed_v1",
+  "fusion": {
+    "required_specialist": "museum-exhibit-matting-v1",
+    "required_structure_guard": "general-structure-matting",
+    "method": "maximum confidence inside the verified main-component support",
+    "remove_edge_connected_components": true,
+    "support_expansion_pixels": 15,
+    "specialist_may_create_support": false
+  },
+  "single_view": {
+    "foreground_ratio_min": 0.04,
+    "foreground_ratio_max": 0.85,
+    "bbox_fill_ratio_min": 0.18,
+    "halo_to_foreground_ratio_max": 0.20,
+    "largest_component_ratio_min": 0.88
+  },
+  "sequence": {
+    "foreground_vs_median_min": 0.48,
+    "bbox_fill_vs_median_min": 0.58,
+    "accepted_views_min": 4,
+    "accepted_yaw_gap_max_deg": 100,
+    "review_halo_ratio_above": 0.12,
+    "review_bbox_fill_below": 0.36,
+    "publish_requires_every_view_pass": true
+  },
+  "evidence": {
+    "preserve_original_bytes": true,
+    "record_original_sha256": true,
+    "require_original_vs_cutout_comparison": true
+  },
+  "publication": {
+    "builder_fail_closed": true,
+    "viewer_disable_depth_on_reject": true,
+    "allow_quality_failure_for_evidence_only": true
+  }
+}

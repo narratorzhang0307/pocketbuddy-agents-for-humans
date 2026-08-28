@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  SERVER_HEALTH_CONTROL_PLANE,
+  QWEN4B_HEALTH_CONTROL_PLANE,
   assessReadiness,
   assessReadinessFromPersonalBaseline,
   auditEndurancePrescription,
@@ -13,11 +13,10 @@ import {
 } from './foundation';
 
 describe('Frost health foundation skills', () => {
-  it('keeps the authenticated server model as a control plane instead of a source of health facts', () => {
-    expect(SERVER_HEALTH_CONTROL_PLANE.runtime).toBe('authenticated-server-api');
-    expect(SERVER_HEALTH_CONTROL_PLANE.provider).toBe('pocketbuddy-api');
-    expect(SERVER_HEALTH_CONTROL_PLANE.forbidden).toContain('invent-health-facts');
-    expect(SERVER_HEALTH_CONTROL_PLANE.forbidden).toContain('override-safety-gate');
+  it('keeps Qwen3-4B as a control plane instead of a source of health facts', () => {
+    expect(QWEN4B_HEALTH_CONTROL_PLANE.assetStatus).toBe('installable-device-validation-required');
+    expect(QWEN4B_HEALTH_CONTROL_PLANE.forbidden).toContain('invent-health-facts');
+    expect(QWEN4B_HEALTH_CONTROL_PLANE.forbidden).toContain('override-safety-gate');
   });
 
   it('safe-stops on danger and caps a conflicting prescription', () => {

@@ -1,0 +1,1 @@
+只回复一行严格 JSON，不要 Markdown：{"model":"Qwen3-VL-2B","status":"ready","city":"杭州"}

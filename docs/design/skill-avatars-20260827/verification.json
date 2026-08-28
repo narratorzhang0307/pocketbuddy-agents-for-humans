@@ -1,0 +1,129 @@
+{
+  "assets": {
+    "count": 17,
+    "originalSize": [
+      1254,
+      1254
+    ],
+    "webSize": [
+      256,
+      256
+    ],
+    "hardwareSize": [
+      240,
+      240
+    ],
+    "hardwareFormat": "Frost baseline JPEG in flash; other JPEGs from OSS via phone to volatile PSRAM",
+    "jpegBytes": 203046,
+    "displayRamBytes": 361472,
+    "originalsByteIdenticalToSources": true,
+    "legacy128ExportsRetained": true,
+    "residentJpegBytes": 14126,
+    "residentAvatarCount": 1,
+    "remoteAvatarCount": 16
+  },
+  "tests": {
+    "vitestFiles": 4,
+    "vitestPassed": 108,
+    "protocolHost": "passed",
+    "firmwareBuild": "passed",
+    "webIntegrationPreviousVerification": "verification-0.2.12.json",
+    "typecheck": "passed",
+    "sourceSnapshot": "2026-08-28 01:37 CST, before concurrent bird integration"
+  },
+  "browser": {
+    "galleryButtonsChecked": 17,
+    "galleryBrokenImages": 0,
+    "allImagesFullScreen": true,
+    "transientStatusVisibleOnSelection": true,
+    "statusHiddenAfter3500ms": true,
+    "circularCropsVisuallyReviewed": 17,
+    "previewIsNotPhysicalEvidence": true,
+    "ossWebImagesLoaded": 16,
+    "ossRoundImagesLoaded": 16,
+    "localFrostImagesLoaded": true
+  },
+  "firmware": {
+    "version": "0.2.14-ojbadge-oss",
+    "bytes": 2312752,
+    "sha256": "8c0a6f5a303496dbb3cf2b20aaaa5ae9beb70d1f73932c5537eaf94da3ac1cf9",
+    "residentAvatarCount": 1,
+    "remoteAvatarCount": 16,
+    "residentJpegBytes": 14126,
+    "displaySize": [
+      240,
+      240
+    ],
+    "avatarRamBytes": 361472,
+    "freeAppBytes": 832976,
+    "port": "/dev/cu.usbmodem1101",
+    "mac": "94:a9:90:2b:39:44",
+    "offset": 65536,
+    "previousVersion": "0.2.13-ojbadge-fullbleed",
+    "rollbackSha256": "5c431e1134823a6118e09042321c8a8bd1fd7eac2b8d8636ba3809882abd7bd9",
+    "factoryBackupVerified": true,
+    "appBackupVerified": true,
+    "physicalReadbackVerified": true,
+    "partitionUnchanged": true,
+    "otaSelectionUnchanged": true,
+    "bootVerified": true,
+    "displayVisuallyConfirmed": false,
+    "residentFrostInitialized": true,
+    "peripheralsVerified": true,
+    "firstLcdTransferVerified": true,
+    "remoteAvatarsDecoded": 16,
+    "cachedSelectionVerified": true,
+    "disconnectFrostFallbackVerified": true,
+    "microphoneCommandsSentByTests": false,
+    "verifiedAt": "2026-08-27T17:53:12.665507+00:00",
+    "readbackMethod": "nine 256KiB-or-smaller chunks, each byte-compared to immutable candidate",
+    "sdk": "ESP-IDF v5.5.4",
+    "target": "ESP32-S3 OJBadge",
+    "appPartitionBytes": 3145728,
+    "flashed": true,
+    "avatarSwitchesVerified": 16,
+    "physicalDisplayVerified": false,
+    "previousVerifiedFirmware": "0.2.13-ojbadge-fullbleed",
+    "previousVerification": "verification-0.2.13.json"
+  },
+  "notes": [
+    "16 public OSS JPEG downloads passed SHA-256, length, device CRC and decode receipt checks; every rendering index matched serial logs.",
+    "Only Frost is compiled in Flash. Remote images are held in volatile PSRAM; one cached remote image and disconnect fallback were physically exercised.",
+    "BLE test client was macOS Bleak, not the installed phone app. iPhone integration is handed over for a single coordinated bird/avatars install.",
+    "No new physical photo has been received. Browser previews and device logs are not claims of visual color/orientation confirmation.",
+    "Shared source continues into v0.2.15 bird work. Immutable v0.2.14 candidate and private backups preserve exactly the tested binary."
+  ],
+  "oss": {
+    "objects": 32,
+    "remoteAvatars": 16,
+    "bytes": 258970,
+    "allDownloadSha256Verified": true,
+    "capacitorCorsVerified": true,
+    "immutablePrefix": "pocket-earth/skill-avatars/20260828-round-v1",
+    "frostUploaded": false
+  },
+  "deployment": {
+    "hardwareVerifiedVersion": "0.2.14-ojbadge-oss",
+    "deviceReleasedToBirdTask": true,
+    "iphoneInstalledThisTask": false,
+    "iphoneEndToEndVerifiedThisTask": false,
+    "phoneOwnerTask": "构建开发板B板识鸟链路",
+    "webReleaseReportedByCoordinator": "20260828-photos-sam-v1",
+    "webCommitReportedByCoordinator": "0d689b80",
+    "webClientAssetsIndependentlyVerified": true,
+    "latestHandoff": {
+      "sourceTask": "构建开发板B板识鸟链路",
+      "evidence": "../bird-skill-20260828/verification.json",
+      "evidenceCreatedAt": "2026-08-28T02:12:27.459087+08:00",
+      "firmwareVersion": "0.2.15-ojbadge-birds",
+      "firmwareSha256": "857b02ac52ff2da865b97129b58b38bf30329abc82cd0e06e333cfca7da4693e",
+      "existingRemoteAvatarsRetested": 16,
+      "additionalRemoteAvatarsTested": 13,
+      "iphoneCandidateBuild": "2026082804",
+      "iphoneInstalled": false,
+      "iphoneLockscreenVerified": false,
+      "physicalDisplayVisuallyConfirmed": false,
+      "thisTaskPerformedNewDeviceOperations": false
+    }
+  }
+}

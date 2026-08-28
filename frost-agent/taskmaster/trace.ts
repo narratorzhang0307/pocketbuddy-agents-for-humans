@@ -1,9 +1,5 @@
 import type { JsonObject } from './contracts';
-
-interface TraceStore {
-  appendTrace(event: FrostTraceEvent): Promise<void>;
-  listTraces(runId: string): Promise<FrostTraceEvent[]>;
-}
+import type { TaskmasterStore } from './store';
 
 export type TraceEventType =
   | 'task.created'
@@ -46,7 +42,7 @@ export class InMemoryTraceSink implements TraceSink {
 
 /** 浏览器/本地服务共用的持久 Trace；与任务和 Effect 使用同一事实库。 */
 export class PersistentTraceSink implements TraceSink {
-  constructor(private readonly store: TraceStore) {}
+  constructor(private readonly store: TaskmasterStore) {}
   append(event: FrostTraceEvent): Promise<void> { return this.store.appendTrace(event); }
   list(runId: string): Promise<FrostTraceEvent[]> { return this.store.listTraces(runId); }
 }

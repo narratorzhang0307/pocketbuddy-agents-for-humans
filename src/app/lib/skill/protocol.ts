@@ -17,9 +17,9 @@ const SHA256 = /^[a-f0-9]{64}$/;
 const HOST = /^(?:localhost|(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63})$/i;
 const KINDS: SkillKind[] = ['markdown', 'lora', 'hybrid'];
 const EXECUTIONS: SkillExecution[] = ['declarative', 'mnn'];
-const PLATFORMS: SkillPlatform[] = ['web', 'android-arm64'];
+const PLATFORMS: SkillPlatform[] = ['web', 'android-arm64', 'ios'];
 const SCOPES: SkillScope[] = ['location', 'photos', 'audio', 'camera', 'network', 'clipboard', 'public-sources', 'health-data', 'wearables'];
-const TOOLS: SkillTool[] = ['enrich', 'geocode', 'edge_tag', 'mark_place', 'data_pack', 'vision', 'restore', 'health_query', 'wearable_query', 'readiness', 'prescription', 'food_lookup', 'pose', 'weather_lookup', 'activity_import', 'sleep_analysis', 'body_context', 'route_plan', 'route_follow'];
+const TOOLS: SkillTool[] = ['bird_identify', 'enrich', 'geocode', 'edge_tag', 'mark_place', 'data_pack', 'vision', 'restore', 'health_query', 'wearable_query', 'readiness', 'prescription', 'food_lookup', 'pose', 'weather_lookup', 'activity_import', 'sleep_analysis', 'body_context', 'route_plan', 'route_follow'];
 const FALLBACK_STEPS: SkillFallbackStep[] = ['adapter', 'base', 'rules', 'user-confirmation', 'stop'];
 
 export class SkillProtocolError extends Error {

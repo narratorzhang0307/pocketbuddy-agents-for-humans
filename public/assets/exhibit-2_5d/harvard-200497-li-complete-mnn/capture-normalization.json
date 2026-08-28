@@ -1,0 +1,175 @@
+{
+  "schema": "pocketearth.exhibit-capture-normalization/v1",
+  "method": "first-pass MNN support bbox; immutable source; centered square RGB",
+  "padding_ratio": 0.12,
+  "views": [
+    {
+      "id": "view-00-000",
+      "source": "source-originals/li-view-01.jpg",
+      "source_sha256": "bbcab4a5b67c1aee493986d63229e1b22d3f7e13106751ff34d1d9b9254efdb8",
+      "source_size": [
+        1800,
+        2236
+      ],
+      "subject_bbox": [
+        187,
+        534,
+        1614,
+        2069
+      ],
+      "crop_box": [
+        3,
+        350,
+        1798,
+        2236
+      ],
+      "normalized": "originals/view-00-000.jpg",
+      "normalized_sha256": "e3f9ee327d3330e3a7d7357925940c876b151cf04c736249d80cbf84f112fe0d",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    },
+    {
+      "id": "view-01-060",
+      "source": "source-originals/li-view-02.jpg",
+      "source_sha256": "9e86d306b2177a8624cb62bd7c40302c337622fd50a840573100998f8cbf8d8c",
+      "source_size": [
+        1800,
+        2336
+      ],
+      "subject_bbox": [
+        172,
+        402,
+        1608,
+        2196
+      ],
+      "crop_box": [
+        0,
+        187,
+        1800,
+        2336
+      ],
+      "normalized": "originals/view-01-060.jpg",
+      "normalized_sha256": "a2b2c15f34f3c65de1d436443045f9a5410d60419f2f0f1d54f679ebe0e24af0",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    },
+    {
+      "id": "view-02-120",
+      "source": "source-originals/li-view-04.jpg",
+      "source_sha256": "400fff8f7353be73e70f6750ee277855198b783a4f888a51cb034e6c73fcfd7d",
+      "source_size": [
+        1800,
+        2322
+      ],
+      "subject_bbox": [
+        171,
+        361,
+        1639,
+        2204
+      ],
+      "crop_box": [
+        0,
+        140,
+        1800,
+        2322
+      ],
+      "normalized": "originals/view-02-120.jpg",
+      "normalized_sha256": "a8d21334c2b83cb909360d360f14d24664bc7a2107fdc7dd92298f0b194dcd31",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    },
+    {
+      "id": "view-03-180",
+      "source": "source-originals/li-view-05.jpg",
+      "source_sha256": "bf2de2663b4bafd05965fb6ae0b978fee7a70f1ffe5e1976b97d2c98cc91bd81",
+      "source_size": [
+        1800,
+        2245
+      ],
+      "subject_bbox": [
+        203,
+        374,
+        1603,
+        2141
+      ],
+      "crop_box": [
+        0,
+        162,
+        1800,
+        2245
+      ],
+      "normalized": "originals/view-03-180.jpg",
+      "normalized_sha256": "38d0564a6b006320b071f416f0d1f3affc19f48c31d8340a11c9d3eb8ab6161f",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    },
+    {
+      "id": "view-04-240",
+      "source": "source-originals/li-view-06.jpg",
+      "source_sha256": "302e9bb203e3a792fdf3c05cf678a51be72f5064f468b789646f92a9f621003c",
+      "source_size": [
+        1800,
+        2159
+      ],
+      "subject_bbox": [
+        189,
+        529,
+        1610,
+        2060
+      ],
+      "crop_box": [
+        5,
+        345,
+        1794,
+        2159
+      ],
+      "normalized": "originals/view-04-240.jpg",
+      "normalized_sha256": "4e96492a93f79182cd85d41ca328ae76f3c25bf5014b2c7a537832072af95647",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    },
+    {
+      "id": "view-05-300",
+      "source": "source-originals/li-view-07.jpg",
+      "source_sha256": "40b29980b1a40dcf789328e269cdd34549d7519d24913d7584335311d4cb025c",
+      "source_size": [
+        1800,
+        1462
+      ],
+      "subject_bbox": [
+        445,
+        232,
+        1405,
+        1365
+      ],
+      "crop_box": [
+        309,
+        96,
+        1541,
+        1462
+      ],
+      "normalized": "originals/view-05-300.jpg",
+      "normalized_sha256": "d017543e0e521171e598d5acbf4f33f719998339f2f48d7bd1acc46564f38ca9",
+      "normalized_size": [
+        1600,
+        1600
+      ],
+      "subject_complete": true
+    }
+  ]
+}

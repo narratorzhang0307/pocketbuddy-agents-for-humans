@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, Check, PackageOpen, Play, Workflow } from 'lucide-react';
 import type { FrostPlan, FrostPlanStep } from '../../../frost-agent/harness/skillRouter';
-import { stageTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
 import { expertForSkill } from '../../../frost-agent/harness/expertRouter';
-import { answerFrostMemoryRecallRequest } from '../../../frost-agent/harness/longTermMemory';
 import { getSuggestion, subscribeHeartbeat, adoptSuggestion } from '../../../frost-agent/harness/heartbeat';
 import { derive, STATE_LABEL, type FrostState } from '../../../frost-agent/buddy/poses';
 import { themeFor, THEME_LABEL, type FrostTheme } from '../../../frost-agent/buddy/themes';
 import FrostMemoryPanel from './FrostMemoryPanel';
-import { startHerMotionTask, startMealTask } from '../lib/healthTaskmasterRuntime';
-import { hasActiveFrostAgentSession, readFrostAgentEvents, scheduleFrostAgentGoal, sendFrostAgentMessage, type FrostAgentRunResult } from '../lib/fitnessAgentRuntime';
+import FrostBadgePanel from './FrostBadgePanel';
+import { hasActiveFrostAgentSession, readFrostAgentSnapshot, sendFrostAgentMessage, subscribeFrostAgentEvents, subscribeFrostAgentRuns, type FrostMessageOrigin } from '../lib/frostAgentRuntime';
+import { createFrostAutoNavigation, prepareFrostAgentHandoff } from '../lib/frostAgentNavigation';
+import { presentFrostAgentRun } from '../lib/frostAgentPresentation';
+import { FROST_AVATAR } from '../lib/skill/avatars';
 import './FrostBuddyPage.css';
 
-// FROST · 总编排入口。
-// 用户只和 Frost 对话；Frost 读取 Skill 目录，生成可审计计划，并把明确、低风险的任务直接交给目标 Skill。
+// Frost 的展示与页面导航；所有对话只进入同一个 Agent Runtime。
 
 interface Turn {
   role: 'user' | 'frost';
@@ -21,6 +21,7 @@ interface Turn {
   trace?: string[];
   plan?: FrostPlan;
   userText?: string;
+  taskmasterTaskId?: string;
 }
 
 interface Props {
@@ -43,89 +44,8 @@ const QUICK: { label: string; target: string }[] = [
   { label: '饮食镜头', target: 'frost-meal-lens' },
 ];
 
-// 这些 Skill 打开工作区本身没有外部副作用；摄像头等权限仍由目标 Skill 向用户申请。
-const AUTO_DISPATCH_TARGETS = new Set([
-  'her-motion',
-  'lianlema-coach',
-  'frost-meal-lens',
-  'frost-wger-planner',
-  'frost-mealie-kitchen',
-]);
-
-const FROST_DACHSHUND_AVATAR = '/assets/pocket-buddy/packages/holiday-christmas-dachshund/portrait-frost-no-hat-v2.png';
+const FROST_DACHSHUND_AVATAR = FROST_AVATAR.src;
 const FROST_OPENING_LINE = '我是 Frost。你说目标，我会先在已装备的 Skills 里选择能力、列出计划和权限，再把任务交到正确入口；没有把握时，我不会擅自执行。';
-const TASK_SKILL_UI: Record<string, { id: string; name: string; target: string }> = {
-  'frost.running-coach': { id: 'frost.running-coach', name: '跑步决策教练', target: 'frost-running-coach' },
-  'frost.run-route': { id: 'frost.run-route', name: '跑步路线规划', target: 'frost-run-route' },
-  'frost.her-motion-warmup': { id: 'pocket.her-motion', name: 'Her Motion 热身', target: 'her-motion' },
-  'frost.nutrition-log': { id: 'frost.meal-lens', name: '饮食镜头', target: 'frost-meal-lens' },
-  'frost.phone-free-run': { id: 'frost.running-coach', name: '无手机跑步', target: 'frost-running-coach' },
-  'frost.nature-moment': { id: 'frost.nature-moment', name: '自然时刻', target: 'earth' },
-  'frost.daily-review': { id: 'frost.daily-review', name: '每日健康总结', target: 'agent-skills' },
-};
-
-function dailyGoalRunAt(text: string, now = new Date()): string | null {
-  if (!text.includes('每天')) return null;
-  const match = text.match(/每天(?:早上|上午|中午|下午|晚上)?\s*(\d{1,2})\s*点/);
-  if (!match) return new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString();
-  let hour = Math.max(0, Math.min(23, Number(match[1])));
-  if (/(下午|晚上)/.test(match[0]) && hour < 12) hour += 12;
-  const next = new Date(now);
-  next.setHours(hour, 0, 0, 0);
-  if (next.getTime() <= now.getTime()) next.setDate(next.getDate() + 1);
-  return next.toISOString();
-}
-
-function harnessPlan(result: FrostAgentRunResult, userText: string): FrostPlan | undefined {
-  if (!result.task) return undefined;
-  const ui = TASK_SKILL_UI[result.task.skill_id];
-  if (!ui) return undefined;
-  const step: FrostPlanStep = {
-    id: `${result.task.task_id}:step`, skillId: ui.id, skillName: ui.name, target: ui.target,
-    objective: userText.slice(0, 240), reason: `Taskmaster 已选择 ${result.task.skill_id}`,
-    availability: 'equipped',
-    permissions: [...new Set(result.task.actions.flatMap((action) => action.permissions?.length ? action.permissions : [action.permission]))],
-    requiresConfirmation: result.task.status === 'waiting_confirmation',
-  };
-  return {
-    id: result.task.task_id, mode: 'single', source: 'local-fallback', summary: `Taskmaster · ${ui.name}`,
-    steps: [step], ready: true, createdAt: result.task.created_at,
-  };
-}
-
-function harnessReply(result: FrostAgentRunResult): string {
-  const assistant = [...result.events].reverse().find((event) => event.type === 'assistant.message' && typeof event.data.text === 'string');
-  if (!result.task) {
-    if (assistant && typeof assistant.data.text === 'string') return assistant.data.text;
-    return result.session.status === 'failed' ? 'Taskmaster 没有安全完成这次决策。' : 'Frost 已处理这次目标。';
-  }
-  if (result.task.status === 'waiting_confirmation') return 'Taskmaster 已准备好任务，需要你明确确认后继续。';
-  if (result.task.status === 'waiting_external') {
-    const action = result.task.actions[result.task.next_action_index];
-    const reason = typeof action?.result?.waiting_reason === 'string'
-      ? action.result.waiting_reason
-      : `正在等待 ${action?.tool || '外部 Provider'} 返回真实结果`;
-    return `Taskmaster 已暂停在「${action?.purpose || action?.tool || '当前步骤'}」：${reason}。恢复后对我说“继续”。`;
-  }
-  if (result.task.status === 'completed') return 'Taskmaster 已完成任务，并只写入了经过校验的事实。';
-  if (result.task.status === 'failed' || result.task.status === 'safe_stopped') return `Taskmaster 已停止：${result.task.error || result.task.status}`;
-  if (assistant && typeof assistant.data.text === 'string') return assistant.data.text;
-  return `Taskmaster 正在处理 ${TASK_SKILL_UI[result.task.skill_id]?.name || result.task.skill_id}。`;
-}
-
-function harnessTrace(result: FrostAgentRunResult): string[] {
-  return result.events.flatMap((event) => {
-    if (event.type === 'decision.recorded' && typeof event.data.decision === 'object' && event.data.decision) {
-      const action = (event.data.decision as { next_action?: { type?: string } }).next_action?.type;
-      return action ? [`DECISION · ${action}`] : [];
-    }
-    if (event.type === 'tool.called' && typeof event.data.tool === 'string') return [`TOOL · ${event.data.tool}`];
-    if (event.type === 'tool.result' && typeof event.data.tool === 'string') return [`OBSERVATION · ${event.data.tool}`];
-    if (event.type === 'session.status_changed' && typeof event.data.status === 'string') return [`STATE · ${event.data.status}`];
-    return [];
-  }).slice(-10);
-}
-
 function FrostDachshundAvatar({ size, className = '' }: { size: number; className?: string }) {
   return (
     <span
@@ -142,28 +62,67 @@ function FrostDachshundAvatar({ size, className = '' }: { size: number; classNam
 export default function FrostBuddyPage({ onBack, onRun }: Props) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [input, setInput] = useState('');
-  const [busy, setBusy] = useState(false);
+  const [inputOrigin, setInputOrigin] = useState<FrostMessageOrigin>({ channel: 'phone' });
+  const [sending, setBusy] = useState(false);
+  const [runtimeBusy, setRuntimeBusy] = useState(false);
+  const [navigating, setNavigating] = useState(false);
+  const busy = sending || runtimeBusy || navigating;
   const [flash, setFlash] = useState<FrostState | null>(null);   // 一次性脉冲：celebrate / dizzy
   const [theme, setTheme] = useState<FrostTheme>('none');         // 当前聊天主题（换装）
   const [sug, setSug] = useState(getSuggestion());
   const endRef = useRef<HTMLDivElement>(null);
   const flashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const onRunRef = useRef(onRun);
+  onRunRef.current = onRun;
 
   useEffect(() => subscribeHeartbeat(() => setSug(getSuggestion())), []);
   useEffect(() => {
-    if (!hasActiveFrostAgentSession()) return;
     let active = true;
-    void readFrostAgentEvents().then((events) => {
+    const seen = new Set<string>();
+    const navigate = createFrostAutoNavigation({
+      isActive: () => active && !!onRunRef.current && document.visibilityState !== 'hidden',
+      open: target => onRunRef.current?.(target),
+    });
+    const unobserve = subscribeFrostAgentEvents(event => {
+      if (event.type === 'session.status_changed') setRuntimeBusy(event.data.status === 'running');
+      if (event.type === 'user.message' && event.data.source === 'user') {
+        const text = (event.data.content as { text?: string })?.text;
+        if (typeof text === 'string') setTurns(current => [...current, { role: 'user', text }]);
+      }
+    });
+    const unruns = subscribeFrostAgentRuns(notice => {
+      const { result, input } = notice;
+      const last = [...result.events].reverse().find(event => event.type === 'assistant.message');
+      const key = last?.event_id || `${result.session.session_id}:${result.events.at(-1)?.seq}`;
+      const view = presentFrostAgentRun(result, input?.text || '');
+      // Badge navigation lives at the App root so it also works when this conversation is not mounted.
+      if (input?.origin.channel === 'phone' && view.autoStep) {
+        setNavigating(true);
+        void navigate(notice).catch(error => {
+          if (active) setTurns(current => [...current, { role: 'frost', text: `能力页面未打开：${error instanceof Error ? error.message : String(error)}。可在计划中重试。` }]);
+        }).finally(() => { if (active) setNavigating(false); });
+      }
+      if (seen.has(key)) return;
+      seen.add(key);
+      setTurns(current => [...current, { role: 'frost', text: view.text, trace: view.trace, plan: view.plan,
+        userText: input?.text, taskmasterTaskId: view.taskmasterTaskId }]);
+    });
+    if (hasActiveFrostAgentSession()) void readFrostAgentSnapshot().then((snapshot) => {
       if (!active) return;
-      const completed = [...events].reverse().find((event) => event.type === 'assistant.message' && typeof event.data.text === 'string');
-      if (!completed || typeof completed.data.text !== 'string') return;
-      const completedText = completed.data.text;
-      setTurns((current) => current.length > 0 ? current : [{
-        role: 'frost', text: completedText,
-        trace: ['SESSION RESTORED · 本地事件日志', `EVENT · ${completed.event_id}`],
-      }]);
+      const user = [...snapshot.events].reverse().find(event => event.type === 'user.message' && event.data.source === 'user');
+      const text = (user?.data.content as { text?: string })?.text || '';
+      const events = snapshot.events.filter(event => event.seq >= (user?.seq || 0));
+      const view = presentFrostAgentRun({ ...snapshot, events }, text);
+      const completed = [...events].reverse().find(event => event.type === 'assistant.message');
+      if (completed) seen.add(completed.event_id);
+      setRuntimeBusy(snapshot.session.status === 'running');
+      setTurns(current => current.length ? current : [
+        ...(text ? [{ role: 'user' as const, text }] : []),
+        ...(completed ? [{ role: 'frost' as const, text: view.text, trace: ['SESSION RESTORED · 本地事件日志', ...view.trace],
+          plan: view.plan, userText: text, taskmasterTaskId: view.taskmasterTaskId }] : []),
+      ]);
     }).catch(() => {});
-    return () => { active = false; };
+    return () => { active = false; unobserve(); unruns(); };
   }, []);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [turns.length, busy]);
   useEffect(() => () => { if (flashTimer.current) clearTimeout(flashTimer.current); }, []);
@@ -178,95 +137,41 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
     flashTimer.current = setTimeout(() => setFlash(null), ms);
   };
 
-  const handoffStep = async (plan: FrostPlan, step: FrostPlanStep, userText: string) => {
-    let taskmasterTaskId: string | undefined;
-    if (step.skillId === 'pocket.her-motion') {
-      const task = await startHerMotionTask({
-        taskId: `${plan.id}:${step.id}`,
-        planId: plan.id,
-        stepId: step.id,
-        objective: step.objective,
-      });
-      if (task.status === 'failed' || task.status === 'safe_stopped') throw new Error(task.error || 'taskmaster_start_failed');
-      taskmasterTaskId = task.task_id;
-    } else if (step.skillId === 'frost.meal-lens') {
-      const task = await startMealTask({
-        taskId: `${plan.id}:${step.id}`,
-        planId: plan.id,
-        stepId: step.id,
-        objective: step.objective,
-      });
-      if (task.status === 'failed' || task.status === 'safe_stopped') throw new Error(task.error || 'taskmaster_start_failed');
-      taskmasterTaskId = task.task_id;
-    }
-    stageTaskHandoff(plan, step, userText, taskmasterTaskId);
-    onRun?.(step.target);
+  const handoffStep = async (plan: FrostPlan, step: FrostPlanStep, userText: string, existingTaskId?: string) => {
+    await prepareFrostAgentHandoff(plan, step, userText, existingTaskId);
+    onRunRef.current?.(step.target);
   };
 
   const send = async (preset?: string) => {
     const text = (preset ?? input).trim();
     if (!text || busy) return;
+    const origin: FrostMessageOrigin = preset === undefined ? inputOrigin : { channel: 'phone' };
     setInput('');
-    setTurns((t) => [...t, { role: 'user', text }]);
+    setInputOrigin({ channel: 'phone' });
     setBusy(true);
     try {
-      const memoryReply = await answerFrostMemoryRecallRequest(text);
-      if (memoryReply !== null) {
-        setTurns((t) => [...t, {
-          role: 'frost',
-          text: memoryReply,
-          trace: ['本机长期记忆检索 · 未调用模型服务', '只读取已确认交接摘要 · 不含聊天、图片与 OCR 正文'],
-        }]);
-        pulse('celebrate', 1200);
-        return;
-      }
-      const runAt = dailyGoalRunAt(text);
-      if (runAt) {
-        const goalId = await scheduleFrostAgentGoal({
-          objective: text.replace(/^每天(?:早上|上午|中午|下午|晚上)?\s*\d{0,2}\s*点?/, '').trim() || text,
-          run_at: runAt,
-          interval_ms: 24 * 60 * 60 * 1000,
-          max_rounds: 30,
-        });
-        setTurns((t) => [...t, {
-          role: 'frost',
-          text: `已创建本地自主目标。Frost 会在 ${new Date(runAt).toLocaleString()} 由 Goal Driver 唤醒，最多执行 30 轮。`,
-          trace: [`GOAL · ${goalId}`, 'SCHEDULE · 24H', 'BUDGET · 30 ROUNDS'],
-        }]);
-        pulse('celebrate', 1600);
-        return;
-      }
-
-      const result = await sendFrostAgentMessage(text);
-      const plan = harnessPlan(result, text);
-      setTurns((t) => [...t, { role: 'frost', text: harnessReply(result), trace: harnessTrace(result), plan, userText: text }]);
+      const result = await sendFrostAgentMessage(text, origin);
       setTheme(themeFor(text, 'general'));
-      pulse(result.session.status === 'failed' ? 'dizzy' : 'celebrate', 1600);
-      const step = plan?.steps[0];
-      if (result.task?.status === 'waiting_external' && step && AUTO_DISPATCH_TARGETS.has(step.target) && onRun) {
-        stageTaskHandoff(plan!, step, text, result.task.task_id);
-        onRun(step.target);
-      }
-    } catch (cause) {
-      const message = cause instanceof Error ? cause.message : String(cause || 'unknown_error');
-      console.error('[Frost Agent] taskmaster turn failed', cause);
-      setTurns((t) => [...t, {
-        role: 'frost',
-        text: '我这边断了一下，再说一遍？',
-        trace: [`ERROR · ${message.slice(0, 160)}`],
-      }]);
+      pulse(result.session.status === 'failed' || result.session.status === 'stopped' ? 'dizzy' : 'celebrate', 1600);
+    } catch (error) {
+      setInput(text); setInputOrigin(origin);
+      setTurns((t) => [...t, { role: 'frost', text: error instanceof Error ? error.message : '这次未完成，请检查后重试。' }]);
       pulse('dizzy', 1500);
     } finally {
       setBusy(false);
     }
   };
 
-  const dispatchStep = async (plan: FrostPlan, step: FrostPlanStep, userText: string) => {
+  const dispatchStep = async (plan: FrostPlan, step: FrostPlanStep, userText: string, taskmasterTaskId?: string) => {
     if (busy) return;
-    if (step.availability !== 'equipped') { onRun?.('agent-plaza'); return; }
+    if (step.availability !== 'equipped') {
+      setTurns(t => [...t, { role: 'frost', text: `${step.skillName} 尚未装备，请先在 Skills 中加载。未跳转主页。` }]);
+      return;
+    }
     try {
-      await handoffStep(plan, step, userText);
-    } catch {
+      await handoffStep(plan, step, userText, taskmasterTaskId);
+    } catch (error) {
+      setTurns(t => [...t, { role: 'frost', text: error instanceof Error ? error.message : 'Skill 页面未能打开。' }]);
       pulse('dizzy', 1500);
     }
   };
@@ -278,7 +183,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#EAEAEA] font-sans">
+    <div className="frost-buddy-page h-full min-h-0 min-w-0 flex flex-col bg-[#EAEAEA] font-sans">
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2.5 border-b-2 border-black bg-white shrink-0">
         <button onClick={onBack} className="w-8 h-8 border-2 border-black bg-white flex items-center justify-center shadow-[1px_1px_0_#000] active:translate-y-px">
@@ -290,6 +195,9 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
         </div>
       </div>
 
+      <FrostBadgePanel reply={[...turns].reverse().find(turn => turn.role === 'frost')?.text} onVoiceDraft={draft => {
+        setInput(draft.text); setInputOrigin({ channel: 'badge_voice', inputId: draft.inputId });
+      }} />
       {/* Frost 的常用 Skill 快捷入口。 */}
       <div className="shrink-0 overflow-hidden border-b-2 border-black bg-white px-3 py-2">
         <div className="flex w-full flex-wrap items-center gap-2">
@@ -356,7 +264,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                             <Workflow className="h-4 w-4 shrink-0" strokeWidth={2.5} />
                             <div>
                               <div className="frost-encounter__plan-title">SKILL PLAN · {turn.plan.mode.toUpperCase()}</div>
-                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'server-model' ? '服务端模型语义规划' : 'Frost 确定性恢复编排'} · {turn.plan.steps.length} 步</div>
+                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '云端 Qwen 语义规划' : turn.plan.source === 'mnn' ? '端侧 Qwen / MNN 规划' : 'Frost 端侧编排'} · {turn.plan.steps.length} 步</div>
                             </div>
                             <span className="frost-encounter__plan-status">{turn.plan.ready ? '可运行' : '待装备'}</span>
                           </header>
@@ -375,7 +283,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                                   </details>
                                   <button
                                     type="button"
-                                    onClick={() => { void dispatchStep(turn.plan!, step, turn.userText || step.objective); }}
+                                    onClick={() => { void dispatchStep(turn.plan!, step, turn.userText || step.objective, turn.taskmasterTaskId); }}
                                     aria-label={step.availability === 'equipped' ? `运行 ${step.skillName}` : `装备 ${step.skillName}`}
                                   >
                                     {step.availability === 'equipped' ? <span><Play className="inline h-3 w-3" fill="currentColor" /> 运行</span> : <span><PackageOpen className="inline h-3 w-3" /> 装备</span>}
@@ -419,11 +327,12 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
 
           <FrostMemoryPanel />
 
+          {inputOrigin.channel === 'badge_voice' && <p className="px-3 text-xs">吧唧语音草稿 · 请核对后发送，不能代替权限确认。 <button type="button" onClick={() => { setInput(''); setInputOrigin({ channel: 'phone' }); }}>清除草稿，改用手机输入</button></p>}
           <form className="frost-encounter__composer" onSubmit={(e) => { e.preventDefault(); send(); }}>
             <input
               type="text"
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => { setInput(e.target.value); if (!e.target.value) setInputOrigin({ channel: 'phone' }); }}
               disabled={busy}
               placeholder="对 FROST 说一句……"
               aria-label="对 FROST 说一句"

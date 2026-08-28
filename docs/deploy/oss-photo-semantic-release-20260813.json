@@ -1,0 +1,37 @@
+{
+  "schema": "pocket-earth.oss-release.v1",
+  "release": "picquery-clip-vit-b32-ort-int8-v1",
+  "bucket": "last-night-on-earth",
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "publicBase": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com",
+  "objects": [
+    {
+      "local": "android/app/src/main/assets/photo-semantic/clip-image-int8.ort",
+      "key": "pocket-earth/models/photo-semantic/picquery-clip-vit-b32-ort-int8-v1/clip-image-int8.ort",
+      "bytes": 95876592,
+      "sha256": "977f817cd83a37dbad50ac2629476f3792fe334c76f95ad8873434bb9faa6090",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "local": "android/app/src/main/assets/photo-semantic/clip-text-int8.ort",
+      "key": "pocket-earth/models/photo-semantic/picquery-clip-vit-b32-ort-int8-v1/clip-text-int8.ort",
+      "bytes": 64545680,
+      "sha256": "fb5277500358c43f6309e588da7e30b4aaf0e976ba559ad8b3af481985457ee5",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "local": "android/app/src/main/assets/photo-semantic/bpe_vocab_gz",
+      "key": "pocket-earth/models/photo-semantic/picquery-clip-vit-b32-ort-int8-v1/bpe_vocab_gz",
+      "bytes": 1356917,
+      "sha256": "924691ac288e54409236115652ad4aa250f48203de50a9e4722a6ecd48d6804a",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "local": "android/app/src/main/assets/photo-semantic/bundle-manifest.json",
+      "key": "pocket-earth/models/photo-semantic/picquery-clip-vit-b32-ort-int8-v1/bundle-manifest.json",
+      "bytes": 1354,
+      "sha256": "e5511c07613719269eb0592922c0f8d695461bad746bafba2e76c37407670c7a",
+      "contentType": "application/json; charset=utf-8"
+    }
+  ]
+}

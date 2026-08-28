@@ -6,7 +6,7 @@ function sendJson(response, status, payload) {
   if (response.headersSent) return;
   response.writeHead(status, {
     "Content-Type": "application/json; charset=utf-8",
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": response.getHeader("Access-Control-Allow-Origin") || "*",
     "Access-Control-Allow-Headers": "Content-Type,X-Pet-Name,X-File-Name,X-Forge-Mode,X-Rig-Template",
     "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
     "Cache-Control": "private, no-store",
@@ -17,7 +17,7 @@ function sendJson(response, status, payload) {
 function sendBinary(response, payload, contentType) {
   response.writeHead(200, {
     "Content-Type": contentType,
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": response.getHeader("Access-Control-Allow-Origin") || "*",
     "Cache-Control": "private, no-store",
     "X-Content-Type-Options": "nosniff",
   });

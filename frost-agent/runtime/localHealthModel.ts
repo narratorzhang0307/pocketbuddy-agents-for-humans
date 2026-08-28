@@ -7,7 +7,7 @@ import {
   type FrostAgentModelContext,
   type NextAction,
 } from './contracts';
-import type { FrostSkillCatalogItem, FrostSkillProvider } from './skillCatalog';
+import { isExplicitTaskConfirmation } from './turnContext';
 
 function record(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -46,12 +46,14 @@ function taskResult(event: FrostAgentEvent): Record<string, unknown> | null {
 function relevantTask(events: FrostAgentEvent[], text: string): Record<string, unknown> | null {
   let inputSeq = 0;
   let inputHasSignal = false;
+  let signalTaskId: string | undefined;
   for (let index = events.length - 1; index >= 0; index -= 1) {
     const event = events[index];
     if (event.type !== 'user.message' && event.type !== 'context.injected') continue;
     inputSeq = event.seq;
     const content = record(event.data.content) ? event.data.content : event.data;
     inputHasSignal = typeof content.signal_id === 'string';
+    signalTaskId = typeof content.task_id === 'string' ? content.task_id : undefined;
     break;
   }
   for (let index = events.length - 1; index >= 0; index -= 1) {
@@ -59,10 +61,11 @@ function relevantTask(events: FrostAgentEvent[], text: string): Record<string, u
     const task = taskResult(events[index]);
     if (task) return task;
   }
-  if (!inputHasSignal && !/(确认|同意|开始|可以|继续)/.test(text)) return null;
+  if (!inputHasSignal && !isExplicitTaskConfirmation(text)) return null;
   for (let index = events.length - 1; index >= 0; index -= 1) {
     const task = taskResult(events[index]);
-    if (task && (task.status === 'waiting_confirmation' || task.status === 'waiting_external' || task.status === 'running')) return task;
+    if (task && (!signalTaskId || task.task_id === signalTaskId)
+      && (task.status === 'waiting_confirmation' || task.status === 'waiting_external' || task.status === 'running')) return task;
   }
   return null;
 }
@@ -97,7 +100,7 @@ function hasSignalAfterTask(events: FrostAgentEvent[]): boolean {
   return lastSignalSeq > lastTaskResultSeq;
 }
 
-function route(text: string): { kind: FrostTaskKind; skill: string; input: JsonObject; goal: string } | null {
+export function routeHealthIntent(text: string): { kind: FrostTaskKind; skill: string; input: JsonObject; goal: string } | null {
   const minutes = Number(text.match(/(\d{1,3})\s*分钟/)?.[1] || 10);
   if (/(胸痛|眩晕|呼吸困难|剧烈疼痛|晕厥)/.test(text)) {
     return { kind: 'start_workout', skill: 'frost.her-motion-warmup', input: {}, goal: 'safe_stop' };
@@ -124,14 +127,6 @@ function route(text: string): { kind: FrostTaskKind; skill: string; input: JsonO
     else { input.goal_type = 'distance'; input.distance_m = 5000; }
     return { kind: 'plan_run_route', skill: 'frost.run-route', input, goal: '生成跑步路线并打开行动地图' };
   }
-  if (/(轻松跑|恢复跑|跑步处方|安全强度|训练强度|今天.*(?:能不能|适不适合).*跑|安排.*跑)/.test(text)) {
-    return {
-      kind: 'run_skill',
-      skill: 'frost.running-coach',
-      input: { skill_id: 'frost.running-coach', user_text: text.slice(0, 240) },
-      goal: '评估恢复状态并生成有安全上限的跑步处方',
-    };
-  }
   if (/(瑜伽|普拉提|热身|健身|训练|运动)/.test(text)) {
     const exercise = text.includes('普拉提') ? '普拉提' : text.includes('瑜伽') ? '瑜伽' : '热身';
     return { kind: 'start_workout', skill: 'frost.her-motion-warmup', input: { exercise, duration_sec: Math.max(60, Math.min(minutes, 120) * 60) }, goal: `完成${exercise}` };
@@ -148,46 +143,11 @@ function route(text: string): { kind: FrostTaskKind; skill: string; input: JsonO
   return null;
 }
 
-function compact(value: string): string {
-  return value.toLocaleLowerCase().replace(/[\s\p{P}\p{S}]+/gu, '');
-}
-
-function catalogMatchScore(text: string, item: FrostSkillCatalogItem): number {
-  const candidate = compact(text);
-  const title = compact(item.title);
-  if (!candidate || !title) return 0;
-  let score = candidate.includes(title) ? 12 : title.includes(candidate) && candidate.length >= 4 ? 7 : 0;
-  for (const phrase of item.when_to_use) {
-    const normalized = compact(phrase);
-    if (normalized.length >= 3 && candidate.includes(normalized)) score = Math.max(score, 10);
-  }
-  if (candidate.includes(item.skill_id.toLocaleLowerCase())) score = Math.max(score, 12);
-  return score;
-}
-
-function routeCatalogSkill(text: string, provider?: FrostSkillProvider): ReturnType<typeof route> {
-  if (!provider) return null;
-  const ranked = provider.catalog()
-    .filter((item) => item.task_kind === 'run_skill')
-    .map((item) => ({ item, score: catalogMatchScore(text, item) }))
-    .sort((left, right) => right.score - left.score || left.item.skill_id.localeCompare(right.item.skill_id));
-  const match = ranked[0];
-  if (!match || match.score < 7) return null;
-  return {
-    kind: 'run_skill',
-    skill: match.item.skill_id,
-    input: { skill_id: match.item.skill_id, user_text: text.slice(0, 240) },
-    goal: `运行${match.item.title}`,
-  };
-}
-
 /** Deterministic offline control plane. It never invents observations and only emits Taskmaster-safe actions. */
 export class LocalHealthFallbackModel implements FrostAgentModelAdapter {
-  constructor(private readonly skills?: FrostSkillProvider) {}
-
   async decide(context: FrostAgentModelContext): Promise<FrostAgentDecision> {
     const text = userText(context.events);
-    const routed = route(text) || routeCatalogSkill(text, this.skills);
+    const routed = context.task_intent || routeHealthIntent(text);
     if (routed?.goal === 'safe_stop') return decision({ type: 'safe_stop', reason: '检测到危险身体信号，不开始运动。' }, '安全停止', ['用户文本包含危险信号']);
 
     const task = relevantTask(context.events, text);
@@ -199,16 +159,13 @@ export class LocalHealthFallbackModel implements FrostAgentModelAdapter {
       }
       if (task.status === 'waiting_confirmation') {
         const action = waitingAction(task);
-        if (/(确认|同意|开始|可以|继续)/.test(text) && action && typeof action.action_id === 'string') {
+        if (isExplicitTaskConfirmation(text) && action && typeof action.action_id === 'string') {
           return decision({ type: 'call_tool', tool: 'taskmaster.confirm', arguments: { task_id: id, action_id: action.action_id } }, routed?.goal || '确认任务', ['用户已明确确认']);
         }
         return decision({ type: 'ask_user', question: '任务已准备好，是否确认继续？', reason: 'taskmaster_waiting_confirmation' }, routed?.goal || '等待确认', ['Taskmaster 需要确认']);
       }
       if (task.status === 'waiting_external') {
         if (hasSignalAfterTask(context.events)) return decision({ type: 'call_tool', tool: 'taskmaster.get', arguments: { task_id: id } }, routed?.goal || '恢复任务', ['收到外部 Skill 完成信号']);
-        if (/(重试|恢复|继续|已连接|已授权|好了|可以了)/.test(text)) {
-          return decision({ type: 'call_tool', tool: 'taskmaster.resume', arguments: { task_id: id } }, routed?.goal || '恢复任务', ['用户确认外部条件已恢复']);
-        }
         return decision({ type: 'wait_external', reason: 'Taskmaster 正在等待 Skill 或设备结果。' }, routed?.goal || '等待外部结果', ['Taskmaster waiting_external']);
       }
       if (task.status === 'failed' || task.status === 'safe_stopped') {

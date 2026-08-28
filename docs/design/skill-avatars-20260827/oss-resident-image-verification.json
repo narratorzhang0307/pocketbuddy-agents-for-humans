@@ -1,0 +1,87 @@
+[
+  {
+    "id": "frost",
+    "resident": true,
+    "bytes": 14126
+  },
+  {
+    "id": "pocket.her-motion",
+    "resident": false,
+    "bytes": 12947
+  },
+  {
+    "id": "pocket.lianlema",
+    "resident": false,
+    "bytes": 12209
+  },
+  {
+    "id": "frost.run-route",
+    "resident": false,
+    "bytes": 12531
+  },
+  {
+    "id": "frost.running-coach",
+    "resident": false,
+    "bytes": 9447
+  },
+  {
+    "id": "frost.healthsync",
+    "resident": false,
+    "bytes": 10309
+  },
+  {
+    "id": "frost.mediapipe-motion",
+    "resident": false,
+    "bytes": 13428
+  },
+  {
+    "id": "frost.endurance-guard",
+    "resident": false,
+    "bytes": 10597
+  },
+  {
+    "id": "frost.openfoodfacts",
+    "resident": false,
+    "bytes": 10446
+  },
+  {
+    "id": "frost.garmin-readonly",
+    "resident": false,
+    "bytes": 13361
+  },
+  {
+    "id": "frost.cn-health-library",
+    "resident": false,
+    "bytes": 11546
+  },
+  {
+    "id": "frost.outdoor-window",
+    "resident": false,
+    "bytes": 14594
+  },
+  {
+    "id": "frost.strava-replay",
+    "resident": false,
+    "bytes": 13145
+  },
+  {
+    "id": "frost.sleep-detective",
+    "resident": false,
+    "bytes": 10784
+  },
+  {
+    "id": "frost.meal-lens",
+    "resident": false,
+    "bytes": 9577
+  },
+  {
+    "id": "frost.wger-planner",
+    "resident": false,
+    "bytes": 11525
+  },
+  {
+    "id": "frost.mealie-kitchen",
+    "resident": false,
+    "bytes": 12474
+  }
+]

@@ -1,0 +1,2 @@
+<img>/Users/zhangcheng/Desktop/pocket earth 决赛/public/assets/heritage-demo/xihu-mengxun-jingci-page-source.jpg</img>
+逐字转录这张古籍书页。保持竖排栏序、正文与夹注层级；版框、印章、水印和页眉不得混入正文。不总结、不翻译、不补字；不能确认的单字写作□。只输出原始转录。

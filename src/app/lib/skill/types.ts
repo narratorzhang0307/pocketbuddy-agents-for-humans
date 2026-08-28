@@ -3,7 +3,7 @@ export const SKILL_RUNTIME_VERSION = '1.0.0';
 
 export type SkillKind = 'markdown' | 'lora' | 'hybrid';
 export type SkillExecution = 'declarative' | 'mnn';
-export type SkillPlatform = 'web' | 'android-arm64';
+export type SkillPlatform = 'web' | 'android-arm64' | 'ios';
 export type SkillScope =
   | 'location'
   | 'photos'
@@ -15,6 +15,7 @@ export type SkillScope =
   | 'health-data'
   | 'wearables';
 export type SkillTool =
+  | 'bird_identify'
   | 'enrich'
   | 'geocode'
   | 'edge_tag'

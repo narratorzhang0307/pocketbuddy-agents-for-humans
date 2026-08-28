@@ -1,0 +1,87 @@
+[
+  {
+    "id": "frost.mediapipe-motion",
+    "sha256": "9c95b57a5ebbf8f781d96145dbba60300f6468528e3d084fe4fd5b8fa3ad8bed",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.endurance-guard",
+    "sha256": "9e881569fd93478625377dfa4a044a450b3017d8d2c62dab229fc489332b1293",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.openfoodfacts",
+    "sha256": "596c9a4bc44671ba3373e7c59765a28dd437d9e3b8b29233c0459874b410ef21",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.garmin-readonly",
+    "sha256": "34a8803d5bf2eae88df36a7e05093f5bdb344423724991a2dbd8ae79db377482",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.cn-health-library",
+    "sha256": "237bab5b339cb5681280a978bc2df2866e7a43b272c81d9982b835a0559cb46f",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost",
+    "sha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.mealie-kitchen",
+    "sha256": "55cde45e2b9fe508e75b642a59430121cc9011412322623859c62e27d08c822c",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "pocket.her-motion",
+    "sha256": "9688ad9bdf518a42e9233cee28c421628d7d7a06ff9fa418ca65777864c1deea",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "pocket.lianlema",
+    "sha256": "74246b05223e6ae2662e8db11a3b2d79ac2b2625cd7ca539a56ddc6278dee4a8",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.run-route",
+    "sha256": "fdfb44507229560b4c44485562b621576b4421e1122ecdcfb932d2bb6880ffb0",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.running-coach",
+    "sha256": "4c1ecad419cef8eda9dc53a5303be3471a7467b223a4631e4013c9937dad3c6e",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.healthsync",
+    "sha256": "4beb1bc8b8df07d91f637856d77ea1a08aaf34f76f7d24908cb618f569a50106",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.outdoor-window",
+    "sha256": "0e7f896f9683761a235c22e9e951db97bc71470751c22c02aeca65f5d50fb734",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.strava-replay",
+    "sha256": "623e43b8a5ef6e1e9244133c1394b4d144137a18e61bfaab2eb05ee5052d81aa",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.sleep-detective",
+    "sha256": "566030ac1268d781644bae67cc80079132a458f4299bf3b06cd3600db4e0bcb1",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.meal-lens",
+    "sha256": "238fe597d91e4c75214bfc61c6afcc89b2742f934875458ac968ed63cd08018a",
+    "byteIdenticalToGeneratedSource": true
+  },
+  {
+    "id": "frost.wger-planner",
+    "sha256": "92c7a9d32b60267a84d45135e03039865b5d66135ad9ec1034b2f1ead0762d35",
+    "byteIdenticalToGeneratedSource": true
+  }
+]

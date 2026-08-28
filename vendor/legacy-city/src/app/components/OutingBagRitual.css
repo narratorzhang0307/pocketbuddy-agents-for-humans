@@ -1,0 +1,154 @@
+.outing-bag-ritual {
+  margin-top: 4px;
+  padding: 7px;
+  color: #1d1a13;
+  border: 1px solid rgba(29, 26, 19, .12);
+  border-radius: 16px;
+  background: #faf6ef;
+  box-shadow: 0 4px 12px rgba(28, 25, 17, .07);
+}
+
+.outing-bag-ritual__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 2px 5px;
+}
+
+.outing-bag-ritual__header span {
+  color: #b77b43;
+  font-size: 5.5px;
+  font-weight: 950;
+  letter-spacing: .1em;
+}
+
+.outing-bag-ritual__header strong {
+  color: #46765e;
+  font-size: 5.5px;
+  font-weight: 950;
+}
+
+.outing-bag-ritual__seed-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.outing-bag-ritual__seed-grid > button {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  min-height: 47px;
+  grid-template-columns: 29px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px;
+  padding: 4px 13px 4px 4px;
+  color: #1d1a13;
+  text-align: left;
+  border: 1px solid rgba(29, 26, 19, .12);
+  border-radius: 10px;
+  background: #fffaf0;
+  cursor: pointer;
+}
+
+.outing-bag-ritual__seed-grid > button.is-packed {
+  color: #fffaf0;
+  border-color: #29483a;
+  background: #29483a;
+}
+
+.outing-bag-ritual__seed-grid > button:disabled {
+  cursor: not-allowed;
+  opacity: .52;
+}
+
+.outing-bag-ritual__seed-grid img {
+  width: 29px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 7px;
+  background: #edf2df;
+}
+
+.outing-bag-ritual__seed-grid span {
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+
+.outing-bag-ritual__seed-grid strong,
+.outing-bag-ritual__seed-grid small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outing-bag-ritual__seed-grid strong {
+  font-size: 6px;
+  font-weight: 950;
+}
+
+.outing-bag-ritual__seed-grid small {
+  color: #7b7468;
+  font-size: 4.5px;
+  font-weight: 850;
+}
+
+.outing-bag-ritual__seed-grid .is-packed small { color: rgba(255, 250, 240, .7); }
+
+.outing-bag-ritual__seed-grid button > i {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: grid;
+  width: 11px;
+  height: 11px;
+  place-items: center;
+  color: transparent;
+  border: 1px solid rgba(29, 26, 19, .25);
+  border-radius: 4px;
+}
+
+.outing-bag-ritual__seed-grid .is-packed > i {
+  color: #29483a;
+  border-color: #d9f48f;
+  background: #d9f48f;
+}
+
+.outing-bag-ritual > footer {
+  display: flex;
+  min-height: 25px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-top: 5px;
+  padding: 4px 2px 0;
+  border-top: 1px solid rgba(29, 26, 19, .09);
+}
+
+.outing-bag-ritual > footer > span {
+  min-width: 0;
+  overflow: hidden;
+  color: #6f6a61;
+  font-size: 5px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.outing-bag-ritual > footer button {
+  display: flex;
+  min-height: 24px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 2px;
+  padding: 0 7px;
+  color: #fffaf0;
+  border: 0;
+  border-radius: 8px;
+  background: #29483a;
+  font-size: 5.5px;
+  font-weight: 900;
+  cursor: pointer;
+}

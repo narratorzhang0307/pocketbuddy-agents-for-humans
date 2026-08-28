@@ -1,0 +1,12 @@
+{
+  "schema": "pocketearth.exhibit_matting_mnn_image_parity/v1",
+  "createdAt": "2026-08-05T14:16:36.755680+00:00",
+  "input": "/Users/zhangcheng/Documents/上街去/exhibit-2_5d-skill/data/processed/exhibit-matting-v1/blind/images/ego-18-10-17-0021.jpg",
+  "resolution": 768,
+  "reference": "PyTorch trained checkpoint",
+  "actual": "MNN 3.6.1 FP16",
+  "maxAbsError": 0.1611219048500061,
+  "meanAbsError": 0.0022866325452923775,
+  "foregroundRatio": 0.6324123806423612,
+  "acceptedByQualityGate": true
+}

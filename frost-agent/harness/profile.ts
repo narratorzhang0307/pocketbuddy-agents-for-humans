@@ -4,7 +4,7 @@
 // 不存任何原文 / 隐私内容。每个 agent 跑完一次就把信号追加进来，越用越懂你。
 //
 // 隐私边界（重要）：本模块只在【云脑侧】(httpBrain / 对话注入) 读取使用，
-// 模型路由层一律不接触本模块，长期画像不会被塞进临时模型上下文。
+// 端侧 Qwen/MNN Selector 一律不接触本模块，长期画像不会被塞进端侧模型上下文。
 
 import type { FrostBrain } from './types';
 import { HUMAN_VOICE, cleanVoice } from './persona';

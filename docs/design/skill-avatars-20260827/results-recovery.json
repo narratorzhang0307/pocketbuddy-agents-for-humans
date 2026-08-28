@@ -1,0 +1,193 @@
+[
+  {
+    "id": "frost.outdoor-window",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-9ed7-7843-ad24-f6b1f3ed5407/exec-6e09de92-0195-4a84-89dd-1680758b5d8c.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.outdoor-window.png",
+    "nativeDimensions": {
+      "width": 1254,
+      "height": 1254
+    },
+    "provider": "unknown",
+    "model": "unknown",
+    "constraintDelivery": "main-prompt constraints",
+    "originalPreserved": true,
+    "sha256": "0e7f896f9683761a235c22e9e951db97bc71470751c22c02aeca65f5d50fb734",
+    "status": "complete",
+    "tool": "image_gen__imagegen",
+    "generationMode": "built-in",
+    "providerMetadata": "Tool exposes only image_url and output_hint; provider/model version not returned.",
+    "name": "户外运动窗口",
+    "subject": "cheerful personified sunflower",
+    "rationale": "向日葵把天气、日照和适合出门的时间窗口联系起来。",
+    "corner": "lower-right",
+    "background": "muted cornflower blue #567CAA",
+    "colors": [
+      "sunny marigold #F3C44F",
+      "deep chocolate #574236"
+    ],
+    "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 by 1536 pixels.\nBackground: fill the entire square with solid muted cornflower blue #567CAA. Keep that color visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing cheerful personified sunflower IP character on the background, reduced to one soft rounded continuous silhouette. Its identifying feature is one large round face surrounded by a single continuous scalloped crown of broad blunt petals.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 by 32.\nColor behavior: use exactly three semantic colors in the complete image: sunny marigold #F3C44F and deep chocolate #574236 for the character, plus muted cornflower blue #567CAA for the background. Organize the two character colors into broad purposeful masses and reuse them for facial marks. Keep the character, facial marks, and background clearly separated. Do not introduce additional colors for the eyes or mouth. The background should feel gently muted and restrained while remaining clearly chromatic, clean, and intentional rather than gray or muddy.\nComposition: keep the character upright and emerging from the lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "complete",
+        "imageProduced": true
+      }
+    ],
+    "bytes": 1325272
+  },
+  {
+    "id": "frost.strava-replay",
+    "status": "complete",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-9ed7-7843-ad24-f6b1f3ed5407/exec-508cd1b0-cf96-4d74-b7ee-a2519ee7ea36.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.strava-replay.png",
+    "nativeDimensions": {
+      "width": 1254,
+      "height": 1254
+    },
+    "provider": "unknown",
+    "tool": "image_gen__imagegen",
+    "model": "unknown",
+    "constraintDelivery": "main-prompt constraints",
+    "originalPreserved": true,
+    "sha256": "623e43b8a5ef6e1e9244133c1394b4d144137a18e61bfaab2eb05ee5052d81aa",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "transport-failed",
+        "error": "image generation failed: connection failed: error sending request",
+        "imageProduced": false
+      },
+      {
+        "attempt": 2,
+        "status": "complete",
+        "imageProduced": true
+      }
+    ],
+    "generationMode": "built-in",
+    "providerMetadata": "Tool exposes only image_url and output_hint; provider/model version not returned.",
+    "name": "Strava 训练回放",
+    "subject": "lively baby fox",
+    "rationale": "活泼狐狸对应训练回顾，用独立动物形象避开 Strava 商标。",
+    "corner": "lower-left",
+    "background": "muted lagoon teal #69ACA8",
+    "colors": [
+      "burnt orange #DE763F",
+      "warm cream #F6DFB4"
+    ],
+    "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 by 1536 pixels.\nBackground: fill the entire square with solid muted lagoon teal #69ACA8. Keep that color visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing lively baby fox IP character on the background, reduced to one soft rounded continuous silhouette. Its identifying feature is one broad pale cheek region and two short ears with very blunt rounded ends.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 by 32.\nColor behavior: use exactly three semantic colors in the complete image: burnt orange #DE763F and warm cream #F6DFB4 for the character, plus muted lagoon teal #69ACA8 for the background. Organize the two character colors into broad purposeful masses and reuse them for facial marks. Keep the character, facial marks, and background clearly separated. Do not introduce additional colors for the eyes or mouth. The background should feel gently muted and restrained while remaining clearly chromatic, clean, and intentional rather than gray or muddy.\nComposition: keep the character upright and emerging from the lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "bytes": 1207317
+  },
+  {
+    "id": "frost.sleep-detective",
+    "status": "complete",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-9ed7-7843-ad24-f6b1f3ed5407/exec-4b192f2d-e82c-496d-955b-08f69247e6b2.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.sleep-detective.png",
+    "nativeDimensions": {
+      "width": 1254,
+      "height": 1254
+    },
+    "provider": "unknown",
+    "model": "unknown",
+    "constraintDelivery": "main-prompt constraints",
+    "originalPreserved": true,
+    "sha256": "566030ac1268d781644bae67cc80079132a458f4299bf3b06cd3600db4e0bcb1",
+    "tool": "image_gen__imagegen",
+    "generationMode": "built-in",
+    "providerMetadata": "Tool exposes only image_url and output_hint; provider/model version not returned.",
+    "name": "睡眠侦探",
+    "subject": "sleepy baby owl",
+    "rationale": "夜行猫头鹰对应睡眠观察，保持安静而非侦探装扮。",
+    "corner": "lower-right",
+    "background": "soft lavender #ABA0CD",
+    "colors": [
+      "midnight indigo #424569",
+      "moonlight cream #F3E4BD"
+    ],
+    "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 by 1536 pixels.\nBackground: fill the entire square with solid soft lavender #ABA0CD. Keep that color visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing sleepy baby owl IP character on the background, reduced to one soft rounded continuous silhouette. Its identifying feature is one broad merged binocular-shaped face disk with no feather markings.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 by 32.\nColor behavior: use exactly three semantic colors in the complete image: midnight indigo #424569 and moonlight cream #F3E4BD for the character, plus soft lavender #ABA0CD for the background. Organize the two character colors into broad purposeful masses and reuse them for facial marks. Keep the character, facial marks, and background clearly separated. Do not introduce additional colors for the eyes or mouth. The background should feel gently muted and restrained while remaining clearly chromatic, clean, and intentional rather than gray or muddy.\nComposition: keep the character upright and emerging from the lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "complete",
+        "imageProduced": true
+      }
+    ],
+    "bytes": 1223885
+  },
+  {
+    "id": "frost.meal-lens",
+    "status": "complete",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-9ed7-7843-ad24-f6b1f3ed5407/exec-910c2113-fa2c-4645-a19e-bd7c2aa9a141.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.meal-lens.png",
+    "nativeDimensions": {
+      "width": 1254,
+      "height": 1254
+    },
+    "provider": "unknown",
+    "model": "unknown",
+    "constraintDelivery": "main-prompt constraints",
+    "originalPreserved": true,
+    "sha256": "238fe597d91e4c75214bfc61c6afcc89b2742f934875458ac968ed63cd08018a",
+    "tool": "image_gen__imagegen",
+    "generationMode": "built-in",
+    "providerMetadata": "Tool exposes only image_url and output_hint; provider/model version not returned.",
+    "name": "中国饮食镜头",
+    "subject": "personified little rice bowl",
+    "rationale": "米饭碗对应拍餐食、确认菜名与份量。",
+    "corner": "lower-left",
+    "background": "muted brick coral #CD7163",
+    "colors": [
+      "deep jade #2F7669",
+      "rice cream #F8E7BD"
+    ],
+    "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 by 1536 pixels.\nBackground: fill the entire square with solid muted brick coral #CD7163. Keep that color visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing personified little rice bowl IP character on the background, reduced to one soft rounded continuous silhouette. Its identifying feature is a broad half-circle bowl face topped by one single smooth mound of rice with no individual grains.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 by 32.\nColor behavior: use exactly three semantic colors in the complete image: deep jade #2F7669 and rice cream #F8E7BD for the character, plus muted brick coral #CD7163 for the background. Organize the two character colors into broad purposeful masses and reuse them for facial marks. Keep the character, facial marks, and background clearly separated. Do not introduce additional colors for the eyes or mouth. The background should feel gently muted and restrained while remaining clearly chromatic, clean, and intentional rather than gray or muddy.\nComposition: keep the character upright and emerging from the lower-left, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "complete",
+        "imageProduced": true
+      }
+    ],
+    "bytes": 955497
+  },
+  {
+    "id": "frost.wger-planner",
+    "status": "complete",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-9ed7-7843-ad24-f6b1f3ed5407/exec-14028bb8-6cdf-4dac-a68c-0937d8a18d1e.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.wger-planner.png",
+    "nativeDimensions": {
+      "width": 1254,
+      "height": 1254
+    },
+    "provider": "unknown",
+    "model": "unknown",
+    "constraintDelivery": "main-prompt constraints",
+    "originalPreserved": true,
+    "sha256": "92c7a9d32b60267a84d45135e03039865b5d66135ad9ec1034b2f1ead0762d35",
+    "tool": "image_gen__imagegen",
+    "generationMode": "built-in",
+    "providerMetadata": "Tool exposes only image_url and output_hint; provider/model version not returned.",
+    "name": "wger 训练计划",
+    "subject": "strong gentle baby gorilla",
+    "rationale": "温和的大猩猩代表有计划的力量训练，与练了吗的小熊区分。",
+    "corner": "lower-right",
+    "background": "muted terracotta #D28467",
+    "colors": [
+      "deep cobalt #3B5688",
+      "soft periwinkle #BFCBDF"
+    ],
+    "prompt": "Create one complete full-bleed 1:1 square image, approximately 1536 by 1536 pixels.\nBackground: fill the entire square with solid muted terracotta #D28467. Keep that color visible in every open area and in the corners not occupied by the character; the assigned emergence corner must be occupied by the character.\nSubject: place one extremely simplified, cute, endearing strong gentle baby gorilla IP character on the background, reduced to one soft rounded continuous silhouette. Its identifying feature is one broad rounded head and a single pale face region.\nComplexity: use only 4–7 large basic shapes and at most two broad internal color regions. Use two simple eyes and add one tiny mouth only when it helps the expression. Remove every nonessential line, outline, anatomical detail, texture, and decoration. Keep the character readable at 32 by 32.\nColor behavior: use exactly three semantic colors in the complete image: deep cobalt #3B5688 and soft periwinkle #BFCBDF for the character, plus muted terracotta #D28467 for the background. Organize the two character colors into broad purposeful masses and reuse them for facial marks. Keep the character, facial marks, and background clearly separated. Do not introduce additional colors for the eyes or mouth. The background should feel gently muted and restrained while remaining clearly chromatic, clean, and intentional rather than gray or muddy.\nComposition: keep the character upright and emerging from the lower-right, filling about 85–95% of the square so it remains visually dominant. Cropping at the bottom or assigned side is welcome when it strengthens the corner emergence. Preserve both paired identifying features. Never center or bottom-center the character.\nStyle: make simplification, cuteness, and lovable baby-like appeal the strongest qualities. Use large soft forms, compact proportions, thick rounded contours, and an ultra-clean graphic treatment. Prefer one clear shape over several explanatory details. Add an extremely, extremely subtle, almost imperceptible sense of depth through a barely-there neo-skeuomorphic treatment.\nFinish: show only the character on the full-canvas background, with clean surfaces and normal square outer corners.\nConstraints: Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "constraints": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation.",
+    "attempts": [
+      {
+        "attempt": 1,
+        "status": "complete",
+        "imageProduced": true
+      }
+    ],
+    "bytes": 1068579
+  }
+]

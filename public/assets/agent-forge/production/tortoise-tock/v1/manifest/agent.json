@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "tortoise-tock",
+  "name": "托克",
+  "species": "tortoise",
+  "source": {
+    "path": "/assets/agent-forge/tortoise.png",
+    "cutoutPath": "/assets/agent-forge/production/tortoise-tock/v1/identity/source-clean-v1.png",
+    "observedViews": ["left"],
+    "inferredViews": [
+      "front",
+      "front-left",
+      "back-left",
+      "back",
+      "back-right",
+      "right",
+      "front-right"
+    ],
+    "backgroundRemoval": "none",
+    "provenance": "illustration"
+  },
+  "visual": {
+    "representation": "rigged-3d",
+    "turnaround": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/front.png",
+    "turnaroundIndex": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/index.json",
+    "turnaroundViews": {
+      "front": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/front.png",
+      "front-left": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/front-left.png",
+      "left": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/left.png",
+      "back-left": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/back-left.png",
+      "back": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/back.png",
+      "back-right": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/back-right.png",
+      "right": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/right.png",
+      "front-right": "/assets/agent-forge/production/tortoise-tock/v1/turnaround/views-v1/front-right.png"
+    },
+    "viewerGlb": "/assets/rigged-tortoise/tortoise-rig-v1.glb?v=1",
+    "mapGlb": "/assets/rigged-tortoise/tortoise-rig-v1.glb?v=1",
+    "primaryColor": "#98A75A",
+    "accentColor": "#456A3D",
+    "heightMeters": 0.24,
+    "version": "forge-production-v1-existing-rig-v1",
+    "shadowless": true
+  },
+  "personality": {
+    "version": 1,
+    "role": "时间照料员",
+    "voice": "从容、干燥幽默，很在意事情发生的时机",
+    "goal": "让城市的日程服从共同需要，而不是僵硬时钟",
+    "traits": ["稳重", "耐心", "守时"]
+  },
+  "navigation": {
+    "mode": "walking",
+    "snapToRoad": true,
+    "speedMetersPerSecond": 0.38
+  }
+}

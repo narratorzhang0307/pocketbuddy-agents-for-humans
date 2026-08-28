@@ -41,7 +41,11 @@ export type FrostAgentEventType =
   | 'decision.recorded'
   | 'decision.invalid'
   | 'tool.called'
-  | 'tool.result';
+  | 'tool.result'
+  | 'subagent.report'
+  | 'skill.dispatched'
+  | 'skill.result'
+  | 'peripheral.input';
 
 export interface FrostAgentEvent<T extends JsonObject = JsonObject> {
   protocol: typeof FROST_AGENT_EVENT_PROTOCOL;
@@ -78,6 +82,8 @@ export interface FrostAgentModelContext {
   turn: number;
   step: number;
   signal: AbortSignal;
+  /** Host-normalized task facts after a child clarification, never a model-authored instruction. */
+  task_intent?: { kind: FrostTaskKind; skill: string; input: JsonObject; goal: string };
 }
 
 export interface FrostAgentModelAdapter {
@@ -168,7 +174,7 @@ function validateNextAction(value: unknown, errors: string[]): value is NextActi
       break;
     case 'start_task':
       exactKeys(value, ['type', 'task_kind', 'input'], errors, 'next_action');
-      if (!['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review', 'run_skill'].includes(String(value.task_kind))) {
+      if (!['log_meal', 'start_workout', 'plan_run_route', 'complete_run', 'capture_nature', 'daily_review'].includes(String(value.task_kind))) {
         errors.push('task_kind 不受 Taskmaster 支持');
       }
       if (!isJsonObject(value.input)) errors.push('input 必须是 JSON 对象');

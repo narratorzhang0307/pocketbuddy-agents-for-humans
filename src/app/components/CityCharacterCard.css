@@ -830,8 +830,7 @@
 
 .ccc-portrait > img,
 .ccc-portrait > svg,
-.ccc-portrait > .pbf-catalog-portrait,
-.ccc-portrait > .pbf-portrait-fallback {
+.ccc-portrait > .pbf-catalog-portrait {
   width: 100%;
   height: 100%;
   object-fit: contain;

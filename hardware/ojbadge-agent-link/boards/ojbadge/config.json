@@ -1,0 +1,6 @@
+{
+  "manufacturer": "OJBadge",
+  "type": "ojbadge",
+  "target": "esp32s3",
+  "description": "Organizer B board: GC9A01 240x240, CST816D, USB/BLE bring-up; no audio yet"
+}

@@ -1,0 +1,335 @@
+{
+  "createdAt": "2026-08-28T02:12:27.459087+08:00",
+  "completeEndToEnd": false,
+  "remaining": "Connect trusted iPhone, install candidate, verify actual physical key/touch audio while locked and confirm visible display",
+  "firmware": {
+    "version": "0.2.15-ojbadge-birds",
+    "bytes": 2314784,
+    "sha256": "857b02ac52ff2da865b97129b58b38bf30329abc82cd0e06e333cfca7da4693e",
+    "previousVersion": "0.2.14-ojbadge-oss",
+    "appSlotBytes": 3145728,
+    "appSlotFreeBytes": 830944,
+    "physicalReadbackVerified": true,
+    "partitionUnchanged": true,
+    "otaSelectionUnchanged": true,
+    "factoryBackupVerified": true,
+    "appBackupVerified": true
+  },
+  "boot": {
+    "verified": true,
+    "peripheralsReady": true,
+    "requiredGlyphs": "96/96",
+    "lcdFirstDmaComplete": true,
+    "visualConfirmation": false
+  },
+  "birdOssBle": {
+    "avatars": [
+      {
+        "index": 17,
+        "id": "frost.bird-listener",
+        "bytes": 9157,
+        "sha256": "14372e6ef53dc3bf4e60f8d9986198c1bf1168a0e1c66d0b18398ef4e47f1d28",
+        "crc32": 1716949509,
+        "decoded_receipt": true,
+        "seconds": 3.48
+      },
+      {
+        "index": 18,
+        "id": "pycnonotus-sinensis",
+        "bytes": 8287,
+        "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce",
+        "crc32": 223303708,
+        "decoded_receipt": true,
+        "seconds": 2.99
+      },
+      {
+        "index": 19,
+        "id": "cuculus-canorus",
+        "bytes": 6755,
+        "sha256": "fe3f860352f9d6828b0e32f1af6e2d5142f979a5e96ad5a3e1201746e4db634f",
+        "crc32": 2988288161,
+        "decoded_receipt": true,
+        "seconds": 2.61
+      },
+      {
+        "index": 20,
+        "id": "urocissa-erythroryncha",
+        "bytes": 7996,
+        "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6",
+        "crc32": 3086496058,
+        "decoded_receipt": true,
+        "seconds": 2.91
+      },
+      {
+        "index": 21,
+        "id": "passer-montanus",
+        "bytes": 7837,
+        "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb",
+        "crc32": 828859574,
+        "decoded_receipt": true,
+        "seconds": 2.8
+      },
+      {
+        "index": 22,
+        "id": "caprimulgus-indicus",
+        "bytes": 7742,
+        "sha256": "0d06d699768fe34689ba23b5bbb22b4b13b68817b712b531f47f0238c89f3e21",
+        "crc32": 1895360797,
+        "decoded_receipt": true,
+        "seconds": 2.88
+      },
+      {
+        "index": 23,
+        "id": "horornis-fortipes",
+        "bytes": 7157,
+        "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67",
+        "crc32": 3901191552,
+        "decoded_receipt": true,
+        "seconds": 2.69
+      },
+      {
+        "index": 24,
+        "id": "copsychus-saularis",
+        "bytes": 7650,
+        "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c",
+        "crc32": 2865161107,
+        "decoded_receipt": true,
+        "seconds": 2.89
+      },
+      {
+        "index": 25,
+        "id": "turdus-mandarinus",
+        "bytes": 6735,
+        "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920",
+        "crc32": 4144567126,
+        "decoded_receipt": true,
+        "seconds": 2.31
+      },
+      {
+        "index": 26,
+        "id": "pica-serica",
+        "bytes": 7807,
+        "sha256": "65d1380e4f65d5a3655cc2830861320b7e4a500d26aaa37d06b25fb26fe82c64",
+        "crc32": 3245859419,
+        "decoded_receipt": true,
+        "seconds": 2.85
+      },
+      {
+        "index": 27,
+        "id": "spilopelia-chinensis",
+        "bytes": 8047,
+        "sha256": "6f9f41c985b801f584458ef93516451d2d3602b429f631cca75836e787892745",
+        "crc32": 1085801736,
+        "decoded_receipt": true,
+        "seconds": 2.54
+      },
+      {
+        "index": 28,
+        "id": "lanius-schach",
+        "bytes": 7122,
+        "sha256": "c2c64ecbc33243455f785ec344d79505b275239cb7d50b5ec2ad65f7246347be",
+        "crc32": 1175294248,
+        "decoded_receipt": true,
+        "seconds": 2.65
+      },
+      {
+        "index": 29,
+        "id": "abroscopus-albogularis",
+        "bytes": 7979,
+        "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3",
+        "crc32": 1022348544,
+        "decoded_receipt": true,
+        "seconds": 2.96
+      }
+    ],
+    "remote_count": 13,
+    "resident_frost": true,
+    "microphone_commands_sent": false,
+    "physical_display_seen_by_test": false
+  },
+  "existingAvatarOssBle": {
+    "avatars": [
+      {
+        "index": 1,
+        "id": "pocket.her-motion",
+        "bytes": 12947,
+        "sha256": "2294c8fe8ed51d92187d287b9ea12dfa1d32eedf1f3242ddff2dbfc8dadfe219",
+        "crc32": 631035994,
+        "decoded_receipt": true,
+        "seconds": 3.78
+      },
+      {
+        "index": 2,
+        "id": "pocket.lianlema",
+        "bytes": 12209,
+        "sha256": "18aaaa77d4a6b11057dc4b736a3d724cc56359d273721130f69a0ab10600c3a4",
+        "crc32": 1745701010,
+        "decoded_receipt": true,
+        "seconds": 3.74
+      },
+      {
+        "index": 3,
+        "id": "frost.run-route",
+        "bytes": 12531,
+        "sha256": "50cfa217d6ed60c3ba2757b860883c090667f3d1dfbb8eff42a558231a0e8e2a",
+        "crc32": 2814685162,
+        "decoded_receipt": true,
+        "seconds": 3.8
+      },
+      {
+        "index": 4,
+        "id": "frost.running-coach",
+        "bytes": 9447,
+        "sha256": "569ed8f67648bd2555d217372d59e67698be81610b12fa346fd9e8911043c9e5",
+        "crc32": 557232044,
+        "decoded_receipt": true,
+        "seconds": 2.92
+      },
+      {
+        "index": 5,
+        "id": "frost.healthsync",
+        "bytes": 10309,
+        "sha256": "7c4ec9c0ef788d45e86aa2791f34bd932411d2fc9bba17c8d4c90d426c13c402",
+        "crc32": 909956676,
+        "decoded_receipt": true,
+        "seconds": 3.21
+      },
+      {
+        "index": 6,
+        "id": "frost.mediapipe-motion",
+        "bytes": 13428,
+        "sha256": "7c2c81dec0858507a9cfad279283510e73caadfaa33c255adddf89d57ffe176b",
+        "crc32": 200881733,
+        "decoded_receipt": true,
+        "seconds": 4.01
+      },
+      {
+        "index": 7,
+        "id": "frost.endurance-guard",
+        "bytes": 10597,
+        "sha256": "34aea07bb19e71af0e9cd5be3422986009f3fdfce299d36ff6b720639c26458e",
+        "crc32": 2784361108,
+        "decoded_receipt": true,
+        "seconds": 3.1
+      },
+      {
+        "index": 8,
+        "id": "frost.openfoodfacts",
+        "bytes": 10446,
+        "sha256": "ab3385b5e4eb9ed22b0f795cad517e12433d8482dbf8e57c6a2f9c616599b4b7",
+        "crc32": 1827380370,
+        "decoded_receipt": true,
+        "seconds": 3.32
+      },
+      {
+        "index": 9,
+        "id": "frost.garmin-readonly",
+        "bytes": 13361,
+        "sha256": "8a9cbab4e11f2bb16e49f49b4796b13a8c0d7abb889485e3d288412526fc8062",
+        "crc32": 584327233,
+        "decoded_receipt": true,
+        "seconds": 4.15
+      },
+      {
+        "index": 10,
+        "id": "frost.cn-health-library",
+        "bytes": 11546,
+        "sha256": "ec485bc559b94c34491804fbd56fb0717c64068cd303ad0d651654e6f969519b",
+        "crc32": 1419058197,
+        "decoded_receipt": true,
+        "seconds": 3.46
+      },
+      {
+        "index": 11,
+        "id": "frost.outdoor-window",
+        "bytes": 14594,
+        "sha256": "13c61d2c83c4f2a59f4c46b75419e6f906933d578478b57b5362991662d08a06",
+        "crc32": 3137564574,
+        "decoded_receipt": true,
+        "seconds": 4.62
+      },
+      {
+        "index": 12,
+        "id": "frost.strava-replay",
+        "bytes": 13145,
+        "sha256": "01c2ea3866b2df213a2aee038e5155b14cbd08dded1a8d51fa6ed7f62c5f7fee",
+        "crc32": 3150951455,
+        "decoded_receipt": true,
+        "seconds": 4.17
+      },
+      {
+        "index": 13,
+        "id": "frost.sleep-detective",
+        "bytes": 10784,
+        "sha256": "e227d7ff9f826219c2afaf038f9b006d5746cec109fc4bb1c0d01e262912d7aa",
+        "crc32": 391421129,
+        "decoded_receipt": true,
+        "seconds": 3.46
+      },
+      {
+        "index": 14,
+        "id": "frost.meal-lens",
+        "bytes": 9577,
+        "sha256": "454baa797c1a34169c955bd4db13c81bdf3d848fa360b66ae2702e343bd5230a",
+        "crc32": 345986784,
+        "decoded_receipt": true,
+        "seconds": 3.15
+      },
+      {
+        "index": 15,
+        "id": "frost.wger-planner",
+        "bytes": 11525,
+        "sha256": "dfcbd4dd15f1e8beef87abd09d95743eb63a8289e28dc78dee458b92f55c7ee7",
+        "crc32": 77863401,
+        "decoded_receipt": true,
+        "seconds": 3.7
+      },
+      {
+        "index": 16,
+        "id": "frost.mealie-kitchen",
+        "bytes": 12474,
+        "sha256": "792717e80cf58a51ef27066562e7004ca99c3a6c116c15becfab76dbaf5bfb5f",
+        "crc32": 1719966570,
+        "decoded_receipt": true,
+        "seconds": 4.05
+      }
+    ],
+    "remote_count": 16,
+    "resident_frost": true,
+    "microphone_commands_sent": false,
+    "physical_display_seen_by_test": false
+  },
+  "eachImageDecodedExactlyOnceDespiteCommitReplay": true,
+  "remoteModesStartedMicrophone": false,
+  "remoteOnlyMicGatePassed": true,
+  "model": {
+    "requestCount": 17,
+    "uniqueSpeciesWithCorrectResult": 12,
+    "initialHttpErrors": 5,
+    "phoneOrMicrophoneTest": false
+  },
+  "checks": {
+    "frontendTestsPassed": 151,
+    "frontendTestFiles": 13,
+    "typecheckPassed": true,
+    "swiftProtocolPassed": true,
+    "cppProtocolPassed": true
+  },
+  "iphone": {
+    "bundleId": "art.throughtheglass.pocketbuddy",
+    "build": "2026082804",
+    "backgroundModes": [
+      "bluetooth-central"
+    ],
+    "executableSha256": "c3084c4931d42d59fb3507485da98d11eda98a2a9de5dc071a2391e44dae5270",
+    "catalogSha256": "11a412c5f7dc23df8867ad2ed51c2bad54be238cfcdcc7dbc8d4d53b7194ecfc",
+    "webPage": "BirdSkillPage-9WDy_uNU.js",
+    "codeSignatureVerified": true,
+    "installed": false,
+    "phoneLockscreenVerified": false,
+    "blockingDeviceState": "unavailable"
+  },
+  "modifiedMainServer": false,
+  "deployedMainSite": false,
+  "modifiedT5Firmware": false
+}

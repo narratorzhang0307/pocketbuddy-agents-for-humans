@@ -1,0 +1,232 @@
+{
+  "schema": "pocket-earth.oss-release/v1",
+  "release": "skill-avatars-20260828-round-v1",
+  "bucket": "last-night-on-earth",
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "objects": [
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/pocket.her-motion.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/pocket.her-motion.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 12947,
+      "sha256": "2294c8fe8ed51d92187d287b9ea12dfa1d32eedf1f3242ddff2dbfc8dadfe219"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/pocket.her-motion.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/pocket.her-motion.webp",
+      "contentType": "image/webp",
+      "bytes": 4758,
+      "sha256": "3e9ac748a95d2d83516051c28eb899b4f40c1dd617d91b3286ecfe350e208a9b"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/pocket.lianlema.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/pocket.lianlema.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 12209,
+      "sha256": "18aaaa77d4a6b11057dc4b736a3d724cc56359d273721130f69a0ab10600c3a4"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/pocket.lianlema.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/pocket.lianlema.webp",
+      "contentType": "image/webp",
+      "bytes": 4688,
+      "sha256": "04ac0741de34358af0957757afc6b59df331f74f5ff4dc78e578773ee1ab95ba"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.run-route.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.run-route.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 12531,
+      "sha256": "50cfa217d6ed60c3ba2757b860883c090667f3d1dfbb8eff42a558231a0e8e2a"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.run-route.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.run-route.webp",
+      "contentType": "image/webp",
+      "bytes": 4746,
+      "sha256": "a0513343ddb28b74b22381c036973fd17defcdf7f559f96302a52eb401970a7c"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.running-coach.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.running-coach.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 9447,
+      "sha256": "569ed8f67648bd2555d217372d59e67698be81610b12fa346fd9e8911043c9e5"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.running-coach.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.running-coach.webp",
+      "contentType": "image/webp",
+      "bytes": 3576,
+      "sha256": "aae32180d4a45eab27c30029591a88b7192a124a411b8c1cdb791cc52ddc2b81"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.healthsync.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.healthsync.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 10309,
+      "sha256": "7c4ec9c0ef788d45e86aa2791f34bd932411d2fc9bba17c8d4c90d426c13c402"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.healthsync.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.healthsync.webp",
+      "contentType": "image/webp",
+      "bytes": 3464,
+      "sha256": "eaa52881156fc0a668a52b9091cd5bf2d3c02c149eb61e17fd3679ea9e770cd3"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.mediapipe-motion.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.mediapipe-motion.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 13428,
+      "sha256": "7c2c81dec0858507a9cfad279283510e73caadfaa33c255adddf89d57ffe176b"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.mediapipe-motion.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.mediapipe-motion.webp",
+      "contentType": "image/webp",
+      "bytes": 4986,
+      "sha256": "f131c6bdedf93a9722de2c6b0dc8a9780b3d9624b72de6fed9008474f03371a1"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.endurance-guard.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.endurance-guard.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 10597,
+      "sha256": "34aea07bb19e71af0e9cd5be3422986009f3fdfce299d36ff6b720639c26458e"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.endurance-guard.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.endurance-guard.webp",
+      "contentType": "image/webp",
+      "bytes": 3826,
+      "sha256": "a859f6caa518c47776a9b0a852c21836df603820c69412bd6912da7ad25b9db1"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.openfoodfacts.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.openfoodfacts.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 10446,
+      "sha256": "ab3385b5e4eb9ed22b0f795cad517e12433d8482dbf8e57c6a2f9c616599b4b7"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.openfoodfacts.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.openfoodfacts.webp",
+      "contentType": "image/webp",
+      "bytes": 3646,
+      "sha256": "12fb1d849bde4dc23cbe1cfedcb7480dd696757c5d5e8b44d14adcc5ca66f6e8"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.garmin-readonly.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.garmin-readonly.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 13361,
+      "sha256": "8a9cbab4e11f2bb16e49f49b4796b13a8c0d7abb889485e3d288412526fc8062"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.garmin-readonly.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.garmin-readonly.webp",
+      "contentType": "image/webp",
+      "bytes": 5538,
+      "sha256": "5216bb5ae76e08a89ac13a86377b7115ee118061f6a9f179b07c35a1b3d534fe"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.cn-health-library.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.cn-health-library.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 11546,
+      "sha256": "ec485bc559b94c34491804fbd56fb0717c64068cd303ad0d651654e6f969519b"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.cn-health-library.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.cn-health-library.webp",
+      "contentType": "image/webp",
+      "bytes": 4256,
+      "sha256": "5c1dab4050ef85d46e54eb6532968cc764a9855d0d2403ab3bd2141c7db3b669"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.outdoor-window.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.outdoor-window.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 14594,
+      "sha256": "13c61d2c83c4f2a59f4c46b75419e6f906933d578478b57b5362991662d08a06"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.outdoor-window.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.outdoor-window.webp",
+      "contentType": "image/webp",
+      "bytes": 5304,
+      "sha256": "83d2b8b3229b28a3d4deadbe131064e32ddd3208dcd6959136ea6a7ef2eac7d6"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.strava-replay.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.strava-replay.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 13145,
+      "sha256": "01c2ea3866b2df213a2aee038e5155b14cbd08dded1a8d51fa6ed7f62c5f7fee"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.strava-replay.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.strava-replay.webp",
+      "contentType": "image/webp",
+      "bytes": 4636,
+      "sha256": "5a416229bbde3518e10827ac5a56d299c2dc51b6abb496a66978abe0a3400ab9"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.sleep-detective.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.sleep-detective.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 10784,
+      "sha256": "e227d7ff9f826219c2afaf038f9b006d5746cec109fc4bb1c0d01e262912d7aa"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.sleep-detective.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.sleep-detective.webp",
+      "contentType": "image/webp",
+      "bytes": 4370,
+      "sha256": "d4754a8ce811eaadc5db40d952f7de923b549f77e914211c904c3b82a32607b7"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.meal-lens.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.meal-lens.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 9577,
+      "sha256": "454baa797c1a34169c955bd4db13c81bdf3d848fa360b66ae2702e343bd5230a"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.meal-lens.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.meal-lens.webp",
+      "contentType": "image/webp",
+      "bytes": 3440,
+      "sha256": "b306566016783d442159c2d4c050de2fc1fb90a7c8c22beefec0c5ec4ba2cdfe"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.wger-planner.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.wger-planner.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 11525,
+      "sha256": "dfcbd4dd15f1e8beef87abd09d95743eb63a8289e28dc78dee458b92f55c7ee7"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.wger-planner.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.wger-planner.webp",
+      "contentType": "image/webp",
+      "bytes": 4362,
+      "sha256": "d5e2d455f11ddbcfd2860b01da6a43990f71afc7660c6c6b3bb1737fad7dbc61"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/hardware-round/frost.mealie-kitchen.jpg",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.mealie-kitchen.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 12474,
+      "sha256": "792717e80cf58a51ef27066562e7004ca99c3a6c116c15becfab76dbaf5bfb5f"
+    },
+    {
+      "local": "public/assets/skill-avatars/20260827/web/frost.mealie-kitchen.webp",
+      "key": "pocket-earth/skill-avatars/20260828-round-v1/web/frost.mealie-kitchen.webp",
+      "contentType": "image/webp",
+      "bytes": 4454,
+      "sha256": "5357b5f18a7f8c393df498c848fa88226ab53bc08fedfde435535115a362c3ac"
+    }
+  ]
+}

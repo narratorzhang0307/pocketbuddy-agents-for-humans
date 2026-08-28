@@ -1,0 +1,231 @@
+.sg-giant-plant {
+  z-index: 7;
+}
+
+.sg-giant-plant .sg-plant-aura {
+  width: 48px;
+  height: 22px;
+}
+
+.sg-giant-flower-sprite.is-white-star {
+  filter: drop-shadow(0 5px 0 rgba(69, 91, 83, 0.18));
+}
+
+.sg-giant-flower-sprite.is-orange-crown {
+  filter: drop-shadow(0 5px 0 rgba(98, 67, 39, 0.2));
+}
+
+.sg-giant-sway-rig {
+  position: absolute;
+  inset: 0;
+  animation: sg-sprite-sway var(--plant-duration) ease-in-out
+    var(--plant-delay) infinite;
+  transform-origin: var(--plant-root-x, 82px) 96%;
+  will-change: transform;
+}
+
+.sg-game-sprite .sg-giant-sway-rig > img {
+  animation: none;
+  transform: none;
+  will-change: auto;
+}
+
+.sg-giant-hangings {
+  position: absolute;
+  z-index: 6;
+  left: var(--plant-root-x, 82px);
+  bottom: 71px;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.sg-giant-location-tag {
+  position: absolute;
+  z-index: 9;
+  left: 50%;
+  bottom: -22px;
+  display: none;
+  width: max-content;
+  max-width: 82px;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+  border: 1.5px solid #111;
+  border-radius: 2px;
+  color: #111;
+  background: #fffdf1;
+  box-shadow: 2px 2px 0 rgba(17, 17, 17, 0.78);
+  transform: translateX(-50%) scale(var(--giant-story-scale, 1));
+  transform-origin: 50% 0;
+}
+
+.sg-regional-flower.is-city-overview .sg-giant-location-tag {
+  display: grid;
+}
+
+.sg-giant-location-tag b {
+  padding: 4px;
+  color: #00ff88;
+  background: #111;
+  font: 900 5px/1 "Press Start 2P", ui-monospace, monospace;
+}
+
+.sg-giant-location-tag em {
+  overflow: hidden;
+  padding: 4px;
+  font: 900 6px/1 "Songti SC", "STSong", serif;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sg-giant-hangings::after {
+  position: absolute;
+  z-index: 3;
+  left: -3px;
+  top: -3px;
+  width: 6px;
+  height: 6px;
+  border: 1px solid #40514c;
+  border-radius: 50%;
+  background: #d9bc78;
+  box-shadow: 0 1px 0 rgba(57, 70, 65, 0.45);
+  content: "";
+}
+
+.sg-giant-hanging {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: var(--giant-hanging-drop);
+}
+
+.sg-giant-hanging-thread {
+  position: absolute;
+  left: -23px;
+  top: 0;
+  display: block;
+  width: 46px;
+  height: var(--giant-hanging-thread-length);
+  overflow: visible;
+}
+
+.sg-giant-hanging-thread path {
+  fill: none;
+  stroke: #667756;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.sg-giant-postcard-stack {
+  position: absolute;
+  left: 0;
+  top: calc(var(--giant-hanging-drop) - 2px);
+  width: 46px;
+  height: 30px;
+  transform: translateX(-50%);
+}
+
+.sg-giant-postcard {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: 29px 1fr;
+  overflow: hidden;
+  color: #302e28;
+  border: 1.5px solid #40514c;
+  border-radius: 1px;
+  background: #f7f4dc;
+  box-shadow: 2px 2px 0 rgba(57, 70, 65, 0.68);
+  transform-origin: 50% 2px;
+}
+
+.sg-giant-postcard.is-stack-1 {
+  z-index: 3;
+}
+
+.sg-giant-postcard.is-stack-2 {
+  z-index: 2;
+  transform: translate(4px, -3px) rotate(5deg);
+}
+
+.sg-giant-postcard.is-stack-3 {
+  z-index: 1;
+  transform: translate(-4px, -2px) rotate(-5deg);
+}
+
+.sg-giant-postcard-image {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  border-right: 1px solid rgba(64, 81, 76, 0.48);
+  background:
+    radial-gradient(
+      circle at 72% 28%,
+      #fff6c5 0 4px,
+      transparent 4.5px
+    ),
+    linear-gradient(
+      154deg,
+      transparent 0 47%,
+      rgba(247, 244, 220, 0.84) 48% 58%,
+      transparent 59%
+    ),
+    linear-gradient(145deg, var(--giant-hanging-accent), #40514c);
+}
+
+.sg-giant-postcard-image b {
+  position: absolute;
+  left: 3px;
+  bottom: 3px;
+  display: grid;
+  width: 10px;
+  height: 10px;
+  place-items: center;
+  color: #fff8df;
+  border-radius: 50%;
+  background: rgba(52, 67, 63, 0.88);
+  font: 900 5px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.sg-giant-postcard em {
+  display: -webkit-box;
+  align-self: center;
+  padding: 0 2px;
+  overflow: hidden;
+  font: normal 900 5px/1.25 "Songti SC", "STSong", "SimSun", serif;
+  text-align: center;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.sg-giant-postcard::after {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 7px;
+  border: 1px dotted #40514c;
+  background: color-mix(in srgb, var(--giant-hanging-accent) 72%, #f7f4dc);
+  content: "";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sg-giant-sway-rig {
+    animation: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .sg-giant-sway-rig {
+    animation-play-state: paused;
+    will-change: auto;
+  }
+
+  .sg-map-plant.is-in-viewport .sg-giant-sway-rig {
+    animation-play-state: running;
+    will-change: transform;
+  }
+}

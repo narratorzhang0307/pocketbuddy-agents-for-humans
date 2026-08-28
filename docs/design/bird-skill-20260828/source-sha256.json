@@ -1,0 +1,142 @@
+{
+  "createdAt": "2026-08-28T02:16:51.747971+08:00",
+  "note": "Includes preserved integration dependencies; not a list of files exclusively modified by this task. Shared worktree has unrelated changes.",
+  "files": [
+    {
+      "path": "src/app/components/BirdSkillPage.tsx",
+      "sha256": "2271860ebfc31b2f2f1655a0785fb4a66af7c91da39b0a3c80ab021d6494d24e"
+    },
+    {
+      "path": "src/app/components/MusicAgentsTab.tsx",
+      "sha256": "ff2cbb6e754eb71a92c783539dbc42f2985bf50547a6ca5c486dc73df9cfb820"
+    },
+    {
+      "path": "src/app/components/SkillAvatar.tsx",
+      "sha256": "2a0309278a49bdb09c92fd73a6d420c9064017b68f6f00157f8775d84055dec2"
+    },
+    {
+      "path": "src/app/lib/birdListener.ts",
+      "sha256": "35b550bf2ce27a6d8f51ceeee469af8b179fb2681468a2d84adde7fdb02f5f37"
+    },
+    {
+      "path": "src/app/lib/frostBadge.ts",
+      "sha256": "4f65164f0689f420dc4d42c61cfd9afb895dfb255d0a4c90c06d11c77ec79065"
+    },
+    {
+      "path": "src/app/lib/frostCompanion.ts",
+      "sha256": "9b2d4694505b43a122d1532f6026d6f430be0e00e2d8a1b9f2fc3c47881a284f"
+    },
+    {
+      "path": "src/app/lib/frostAvatarCloud.ts",
+      "sha256": "42c56ca785c3f61651001b2cce522083581c10bed64d0d91d1ffed53c6fa8767"
+    },
+    {
+      "path": "src/app/lib/skill/birdListenerBuiltin.ts",
+      "sha256": "e9d1575e19333f691ce257155473fe4f0c7bf87b495fa1f54a3b5d05f77d364c"
+    },
+    {
+      "path": "src/app/lib/skill/birdCatalog.json",
+      "sha256": "11a412c5f7dc23df8867ad2ed51c2bad54be238cfcdcc7dbc8d4d53b7194ecfc"
+    },
+    {
+      "path": "src/app/lib/skill/avatarCloudCatalog.json",
+      "sha256": "532640be9487cd3648c49f18c2a8b55bcccf2a21295b59c1dac4896cc636c829"
+    },
+    {
+      "path": "src/app/lib/skill/avatars.ts",
+      "sha256": "7fb73f19c2837d2c0a596e1a44e35fd9b92d0ea9ab7a543fae461a1f41d07216"
+    },
+    {
+      "path": "src/app/lib/skill/builtins.ts",
+      "sha256": "13043b844869389c1be91b7c641fad415baa9926d1f8adb7f36c6d12cc2bda99"
+    },
+    {
+      "path": "src/app/lib/skill/onDeviceCoverage.ts",
+      "sha256": "6531fc934104f2474abc136f4f13a626bbeca49ca04c1a430dfa62a0a6d1ab07"
+    },
+    {
+      "path": "src/app/lib/skill/types.ts",
+      "sha256": "174538191cd252f02a9c404461a56008f309dd0b233d405cff2950b53d3ee876"
+    },
+    {
+      "path": "src/app/lib/skill/protocol.ts",
+      "sha256": "781dba125e00aacfccb4b3d69952616b35d5413c6029761083c71f985677acb4"
+    },
+    {
+      "path": "src/app/lib/plaza/skillRoutes.ts",
+      "sha256": "9690c513a536b556e196165fa9a07a632e976b88bde204b4acef81663a3afc97"
+    },
+    {
+      "path": "native/frost-badge/ios/FrostBirdProtocol.swift",
+      "sha256": "af8bbbd9252566d5889bd467c9ebe9f77453368aee72711a2010adc4194d4585"
+    },
+    {
+      "path": "native/frost-badge/ios/FrostBirdSession.swift",
+      "sha256": "a69792f6308b3c54cfc30718bea372946b9312518fda80bfda9558d1fa277e2b"
+    },
+    {
+      "path": "native/frost-badge/ios/FrostBadgePlugin.swift",
+      "sha256": "576267921a11eddabe77872ae5b8361b74d4b91cbc39bded313305f1b125455a"
+    },
+    {
+      "path": "native/frost-badge/ios/BirdCatalog.json",
+      "sha256": "11a412c5f7dc23df8867ad2ed51c2bad54be238cfcdcc7dbc8d4d53b7194ecfc"
+    },
+    {
+      "path": "ios/App/App/Info.plist",
+      "sha256": "d652397fc0d58393b8ef4be4583ec0166f263b36fea95479f84b30bb4fb1a1a8"
+    },
+    {
+      "path": "ios/App/App.xcodeproj/project.pbxproj",
+      "sha256": "6ec482e4da4ed52a5dd380f5141719a913812a5dc53f997fa6808e72e462794f"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/CMakeLists.txt",
+      "sha256": "f0c3f8cc4488c1dd6cb2c414f8a163b21db70ab53d888c53794b323aa875007c"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/ojbadge.cc",
+      "sha256": "283fac308cf79a5ecef3567001100c9f35fef41ca4eee194b56755bbf9421204"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/ojbadge_audio.cc",
+      "sha256": "7397b4708c3f17cda039f5b337b290ae142f3d9ad613b5a46424cad020c21356"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/ojbadge_audio.h",
+      "sha256": "01f57b1ce883abbf78cc246b4a234c0fe541dd37259691ca5e81adf51d261d6e"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_avatar_assets.cc",
+      "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_avatar_assets.h",
+      "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/ojbadge_zh_22.c",
+      "sha256": "87a9ee353cbc6d1fe0a9009e23467d328ed11a20ab9182cb5227d61016b35217"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/fonts/gb2312_symbols.txt",
+      "sha256": "d91f7766fd552a572f46819f817628d00f82eccd1400b6b24289d3d9c5e1fd79"
+    },
+    {
+      "path": "scripts/hardware/build-bird-assets.mjs",
+      "sha256": "9ccd87aa528bf608df3c2b5d6508f1f7acec38b81a01c07aa2625c11c3a95981"
+    },
+    {
+      "path": "scripts/hardware/build-skill-avatar-assets.mjs",
+      "sha256": "7430802059dcdab790226b451b5d7ed2fe2fa2d4ad5b41b5db198909b63345cc"
+    },
+    {
+      "path": "scripts/hardware/verify-bird-service.py",
+      "sha256": "b0c69c644fb7aa854a6df92f7ff1e7032cf52cf4db963576706bcfa758fdf60b"
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/tests/ble_smoke.py",
+      "sha256": "f1c4e37e3b4e1c04431a637825bb98b6daf4ce6baf72549d952f1dbc9dbe01cc"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 // Frost Harness · 可插拔 LLM「大脑」
-// stub 仅作为无网/无身份回退；应用启动时 main.tsx 会注入受控服务端 httpBrain。
+// stub 仅作为无网/无密钥回退；应用启动时 main.tsx 会注入真实 Qwen httpBrain。
 // 调用方检测空串后走确定性 fallback，避免把“云端不可用”伪装成模型结果。
 import { FrostBrain } from './types';
 

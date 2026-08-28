@@ -20,8 +20,8 @@ function lazyRetry<T extends ComponentType<any>>(factory: () => Promise<{ defaul
 
 // 三个 tab 懒加载：首屏只下载当前 tab 的 chunk（地球默认），Photos/Skills 按需加载。
 const PhotosTab = lazyRetry(() => import('./components/FoodPhotosTab'));
-const AgentsTab = lazyRetry(() => import('./components/AgentsTab'));
-const EarthTab = lazyRetry(() => import('./components/EarthSoundWalkTab'));
+const PlazaTab = lazyRetry(() => import('./components/PlazaTab'));
+const MyMapTab = lazyRetry(() => import('./components/EarthActionMapTab'));
 
 type Tab = 'photos' | 'earth' | 'skills';
 
@@ -71,6 +71,28 @@ function usePhoneViewport() {
 // · 原生 App / 已安装 PWA：铺满 100dvw×100dvh，保留系统安全区
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('earth');
+  const [voiceSkillTarget, setVoiceSkillTarget] = useState<string | null>(null);
+  const [voiceNavigationId, setVoiceNavigationId] = useState(0);
+  const [voiceNavigationError, setVoiceNavigationError] = useState('');
+  useEffect(() => {
+    let active = true, release: (() => void) | undefined;
+    void Promise.all([import('./lib/frostAgentRuntime'), import('./lib/frostAgentNavigation')]).then(([runtime, routing]) => {
+      if (!active) return;
+      const navigation = {
+        isActive: () => active && document.visibilityState !== 'hidden',
+        open: (target: string) => { setVoiceNavigationError(''); setVoiceSkillTarget(target); setVoiceNavigationId(value => value + 1); setActiveTab('skills'); },
+      };
+      const navigate = routing.createFrostAutoNavigation(navigation);
+      const showConversation = routing.createFrostVoiceConversation(navigation);
+      const unobserve = runtime.subscribeFrostAgentEvents(event => { showConversation(event); });
+      const unruns = runtime.subscribeFrostAgentRuns(notice => {
+        if (notice.input?.origin.channel !== 'badge_voice') return;
+        void navigate(notice).catch(error => { if (active) setVoiceNavigationError(`硬件指令未打开页面：${String(error)}`); });
+      });
+      release = () => { unobserve(); unruns(); };
+    }).catch(() => { if (active) setVoiceNavigationError('硬件导航尚未就绪，请重开 App。'); });
+    return () => { active = false; release?.(); };
+  }, []);
   // 记一笔等入口钉完会请求地图焦点 → 自动切到地球 tab，并由 MyMap 消费焦点。
   useEffect(() => subscribeMapFocus(() => setActiveTab('earth')), []);
   // 路线 Skill 只发出可逆的 UI handoff；定位与持续 GPS 权限仍由 Earth 执行面处理。
@@ -141,13 +163,18 @@ export default function App() {
         }}
       >
         {/* 每个 tab 各包一层 ErrorBoundary（key=activeTab 切 tab 自动复位）：单 tab 崩溃 tab bar 仍在、可切走 */}
+        {voiceNavigationError && <div role="alert" className="border-b border-black bg-[#fff0b5] p-2 text-xs">{voiceNavigationError}<button type="button" className="ml-2 underline" onClick={() => setVoiceNavigationError('')}>关闭提示</button></div>}
         <ErrorBoundary key={activeTab}>
           <Suspense fallback={<TabFallback />}>
             {activeTab === 'photos' && <PhotosTab />}
-            {activeTab === 'earth' && <EarthTab />}
+            {activeTab === 'earth' && <MyMapTab />}
             {activeTab === 'skills' && (
-              <AgentsTab
+              <PlazaTab
+                key={voiceNavigationId}
                 initialMode="skills"
+                externalSkillTarget={voiceSkillTarget}
+                externalSkillBackLabel="返回 Skills"
+                onExternalSkillTargetHandled={() => setVoiceSkillTarget(null)}
               />
             )}
           </Suspense>

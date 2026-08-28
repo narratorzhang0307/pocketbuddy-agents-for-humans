@@ -1,0 +1,189 @@
+{
+  "release": "bird-skill-20260828-v1",
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "bucket": "last-night-on-earth",
+  "objects": [
+    {
+      "local": "public/assets/bird-skill/20260828/frost.bird-listener.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/frost.bird-listener.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 9157,
+      "sha256": "14372e6ef53dc3bf4e60f8d9986198c1bf1168a0e1c66d0b18398ef4e47f1d28"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/frost.bird-listener.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/frost.bird-listener.webp",
+      "contentType": "image/webp",
+      "bytes": 4762,
+      "sha256": "5618e62e06b9bf0fd3f638ebe3acd14970c78ee4d903bd1160475ce0bc5390d6"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/pycnonotus-sinensis.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/pycnonotus-sinensis.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 8287,
+      "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/pycnonotus-sinensis.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/pycnonotus-sinensis.webp",
+      "contentType": "image/webp",
+      "bytes": 11678,
+      "sha256": "73df688745293070614b335d6b09c66bfa1dca98b1cb224fefd74e5186d4750e"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/cuculus-canorus.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/cuculus-canorus.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 6755,
+      "sha256": "fe3f860352f9d6828b0e32f1af6e2d5142f979a5e96ad5a3e1201746e4db634f"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/cuculus-canorus.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/cuculus-canorus.webp",
+      "contentType": "image/webp",
+      "bytes": 10686,
+      "sha256": "a408ba5e219cf383d9335c7ac45a3ad52c2a7507cdb5315a0bd8e86de5102f1c"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/urocissa-erythroryncha.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/urocissa-erythroryncha.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7996,
+      "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/urocissa-erythroryncha.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/urocissa-erythroryncha.webp",
+      "contentType": "image/webp",
+      "bytes": 12250,
+      "sha256": "f9559ab080c4f6007c5d559887ca1941b8d65cb20c96a49a542d18dacbc8ffed"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/passer-montanus.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/passer-montanus.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7837,
+      "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/passer-montanus.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/passer-montanus.webp",
+      "contentType": "image/webp",
+      "bytes": 10908,
+      "sha256": "4933ea044588b95423e02ef38f534a0ea87e7f53be8c6ffcd7e2d4c32f0c5924"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/caprimulgus-indicus.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/caprimulgus-indicus.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7742,
+      "sha256": "0d06d699768fe34689ba23b5bbb22b4b13b68817b712b531f47f0238c89f3e21"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/caprimulgus-indicus.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/caprimulgus-indicus.webp",
+      "contentType": "image/webp",
+      "bytes": 10264,
+      "sha256": "d8f4160d88053ef083bbf9d04e996932df31cacc423fefb04c7ef250abdd2eeb"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/horornis-fortipes.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/horornis-fortipes.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7157,
+      "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/horornis-fortipes.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/horornis-fortipes.webp",
+      "contentType": "image/webp",
+      "bytes": 11480,
+      "sha256": "d8d41ebdd234eaa6347b25d508bca76b3428e2e471b68f9668925f20e3416452"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/copsychus-saularis.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/copsychus-saularis.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7650,
+      "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/copsychus-saularis.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/copsychus-saularis.webp",
+      "contentType": "image/webp",
+      "bytes": 11586,
+      "sha256": "d97f3599c014dbeaa05196c54f3e3e34510de40af86a7f6c5514c5f0a09f0731"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/turdus-mandarinus.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/turdus-mandarinus.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 6735,
+      "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/turdus-mandarinus.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/turdus-mandarinus.webp",
+      "contentType": "image/webp",
+      "bytes": 9624,
+      "sha256": "1ff996cfa3fe3ce85963018e010934717b3adff5d8043b0bf89c9524a8e1149e"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/pica-serica.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/pica-serica.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7807,
+      "sha256": "65d1380e4f65d5a3655cc2830861320b7e4a500d26aaa37d06b25fb26fe82c64"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/pica-serica.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/pica-serica.webp",
+      "contentType": "image/webp",
+      "bytes": 12332,
+      "sha256": "4d5c47a24b2585b0641148879343fa3d739ade9b9cfa9f5bd7c49eba51035be3"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/spilopelia-chinensis.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/spilopelia-chinensis.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 8047,
+      "sha256": "6f9f41c985b801f584458ef93516451d2d3602b429f631cca75836e787892745"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/spilopelia-chinensis.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/spilopelia-chinensis.webp",
+      "contentType": "image/webp",
+      "bytes": 12238,
+      "sha256": "94e0ab4fcd7c28a331bd1ad003002d6232ae9ef32506102848088ff1c9c55815"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/lanius-schach.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/lanius-schach.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7122,
+      "sha256": "c2c64ecbc33243455f785ec344d79505b275239cb7d50b5ec2ad65f7246347be"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/lanius-schach.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/lanius-schach.webp",
+      "contentType": "image/webp",
+      "bytes": 11128,
+      "sha256": "e31f74167123d3ce012427887763273509393ce162d17af901323a62c132a86e"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/abroscopus-albogularis.jpg",
+      "key": "pocket-earth/bird-skill/20260828-v1/abroscopus-albogularis.jpg",
+      "contentType": "image/jpeg",
+      "bytes": 7979,
+      "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3"
+    },
+    {
+      "local": "public/assets/bird-skill/20260828/abroscopus-albogularis.webp",
+      "key": "pocket-earth/bird-skill/20260828-v1/abroscopus-albogularis.webp",
+      "contentType": "image/webp",
+      "bytes": 11514,
+      "sha256": "61ff525ad3103adcd219a8e25607afe44164e43471f8ec2ffbc1c6241aa2cf84"
+    }
+  ]
+}

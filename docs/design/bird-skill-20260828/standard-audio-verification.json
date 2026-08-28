@@ -1,0 +1,141 @@
+{
+  "scope": "public standard audio -> actual native preprocessing -> existing T5 backend; no hardware microphone or iPhone",
+  "requestCount": 17,
+  "firstBatch": {
+    "requests": 12,
+    "correct": 7,
+    "httpErrors": 5,
+    "httpStatusCodesRecorded": false
+  },
+  "focusedFollowup": {
+    "requests": 5,
+    "correct": 5,
+    "imagesActuallyVerified": 5
+  },
+  "uniqueSpeciesWithCorrectResult": 12,
+  "fieldAccuracyMeasured": false,
+  "attempts": [
+    {
+      "expected": "pycnonotus-sinensis",
+      "matched": true,
+      "actual": "pycnonotus-sinensis",
+      "confidence": 0.936078,
+      "correct": true,
+      "elapsed": 1.23
+    },
+    {
+      "expected": "cuculus-canorus",
+      "matched": true,
+      "actual": "cuculus-canorus",
+      "confidence": 0.991692,
+      "correct": true,
+      "elapsed": 1.58
+    },
+    {
+      "expected": "urocissa-erythroryncha",
+      "matched": true,
+      "actual": "urocissa-erythroryncha",
+      "confidence": 0.997711,
+      "correct": true,
+      "elapsed": 0.99
+    },
+    {
+      "expected": "passer-montanus",
+      "matched": true,
+      "actual": "passer-montanus",
+      "confidence": 0.999972,
+      "correct": true,
+      "elapsed": 1.03
+    },
+    {
+      "expected": "caprimulgus-indicus",
+      "matched": true,
+      "actual": "caprimulgus-indicus",
+      "confidence": 0.999842,
+      "correct": true,
+      "elapsed": 0.97
+    },
+    {
+      "expected": "horornis-fortipes",
+      "matched": true,
+      "actual": "horornis-fortipes",
+      "confidence": 0.96197,
+      "correct": true,
+      "elapsed": 0.96
+    },
+    {
+      "expected": "copsychus-saularis",
+      "correct": false,
+      "error": "HTTPError"
+    },
+    {
+      "expected": "turdus-mandarinus",
+      "correct": false,
+      "error": "HTTPError"
+    },
+    {
+      "expected": "pica-serica",
+      "matched": true,
+      "actual": "pica-serica",
+      "confidence": 0.954768,
+      "correct": true,
+      "elapsed": 1.52
+    },
+    {
+      "expected": "spilopelia-chinensis",
+      "correct": false,
+      "error": "HTTPError"
+    },
+    {
+      "expected": "lanius-schach",
+      "correct": false,
+      "error": "HTTPError"
+    },
+    {
+      "expected": "abroscopus-albogularis",
+      "correct": false,
+      "error": "HTTPError"
+    },
+    {
+      "expected": "copsychus-saularis",
+      "matched": true,
+      "actual": "copsychus-saularis",
+      "confidence": 0.997076,
+      "correct": true,
+      "elapsed": 0.68
+    },
+    {
+      "expected": "turdus-mandarinus",
+      "matched": true,
+      "actual": "turdus-mandarinus",
+      "confidence": 0.92751,
+      "correct": true,
+      "elapsed": 1.21
+    },
+    {
+      "expected": "spilopelia-chinensis",
+      "matched": true,
+      "actual": "spilopelia-chinensis",
+      "confidence": 0.999998,
+      "correct": true,
+      "elapsed": 0.71
+    },
+    {
+      "expected": "lanius-schach",
+      "matched": true,
+      "actual": "lanius-schach",
+      "confidence": 0.994803,
+      "correct": true,
+      "elapsed": 0.89
+    },
+    {
+      "expected": "abroscopus-albogularis",
+      "matched": true,
+      "actual": "abroscopus-albogularis",
+      "confidence": 0.952701,
+      "correct": true,
+      "elapsed": 0.69
+    }
+  ],
+  "metadataCorrection": "The original follow-up report hardcoded imagesVerified=13. That focused run verified five JPEGs. The independent hardware run verified all thirteen; no source results were rewritten."
+}

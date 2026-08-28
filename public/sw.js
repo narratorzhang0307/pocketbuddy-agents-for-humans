@@ -7,7 +7,7 @@
  * 升级：改 VERSION 即弃用旧缓存（只弃用本应用自己的旧缓存，见 activate）。
  * 注意：模型、LoRA、Splat 和 Data Pack 都不在 SHELL；只在用户主动访问/安装后进入各自缓存。
  */
-const VERSION = 'pb-v1-health-route';
+const VERSION = 'pb-v3-real-assets-only';
 const CACHE = `pocket-buddy-${VERSION}`;
 const SHELL = [
   '/',

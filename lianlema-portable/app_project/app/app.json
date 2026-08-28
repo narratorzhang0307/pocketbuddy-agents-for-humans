@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "练了吗",
+    "slug": "lian-le-ma",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "lianlema",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#FFFFFF"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lianlema.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "练了吗需要使用摄像头进行实时动作姿势矫正。"
+      }
+    },
+    "android": {
+      "package": "com.lianlema.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "练了吗需要使用摄像头进行实时动作姿势矫正。"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}

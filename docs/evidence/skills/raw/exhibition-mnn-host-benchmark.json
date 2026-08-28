@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-08-05T14:13:58.509671+00:00",
+  "model": "/Users/zhangcheng/Documents/上街去/exhibit-2_5d-skill/deliverables/exhibit-matting-mnn-v1/mobile-export/exhibit-matting-fp16.mnn",
+  "runner": "/Users/zhangcheng/Documents/上街去/exhibit-2_5d-skill/.runtime/MNN-3.6.1/build/MNNV2Basic.out",
+  "host": {
+    "platform": "macOS-26.5.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "capabilities": {
+      "i8sdot": true,
+      "fp16": true,
+      "i8mm": true,
+      "sve2": false,
+      "sme2": false
+    }
+  },
+  "input": {
+    "shape": [
+      1,
+      3,
+      768,
+      768
+    ],
+    "kind": "zero smoke input"
+  },
+  "output": {
+    "name": "alpha",
+    "status": "produced"
+  },
+  "session": {
+    "memoryMB": 507.801819,
+    "flopsM": 157175.046875,
+    "backendType": 13
+  },
+  "benchmark": {
+    "loops": 3,
+    "averageMs": 1461.392944,
+    "operatorSumMs": 1456.441895,
+    "minimumMs": 1436.281006,
+    "maximumMs": 1490.859985
+  },
+  "claimBoundary": "This proves the final FP16 .mnn graph loads and executes on the local ARM64 Mac CPU. The host reports SME2 unavailable, so an SME2 on/off speed comparison still requires a compatible phone."
+}

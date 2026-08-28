@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pocket Earth · Photos 端侧语义塔证据</title>
+  <style>
+    :root { --green:#00ef86; --ink:#111; --paper:#f4f4f1; --cream:#fffceb; --muted:#666; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#d9d9d9; color:var(--ink); font-family:Inter,"PingFang SC",system-ui,sans-serif; }
+    main { width:1440px; min-height:900px; margin:0 auto; padding:44px 54px 38px; background:var(--paper); }
+    header { display:grid; grid-template-columns:1fr auto; gap:32px; align-items:start; padding-bottom:24px; border-bottom:5px solid var(--ink); }
+    h1 { margin:0; font:900 48px/1.05 ui-monospace,SFMono-Regular,Menlo,monospace; letter-spacing:2px; }
+    .lead { margin:13px 0 0; color:#363636; font-size:21px; }
+    .pass { padding:14px 18px; border:4px solid var(--ink); background:var(--green); font:900 22px ui-monospace,monospace; box-shadow:7px 7px 0 var(--ink); }
+    .facts { display:grid; grid-template-columns:repeat(4,1fr); border:4px solid var(--ink); margin:24px 0 22px; background:#fff; }
+    .fact { padding:15px 18px; border-right:2px solid #bbb; }
+    .fact:last-child { border-right:0; }
+    .fact b { display:block; font:900 24px ui-monospace,monospace; }
+    .fact span { display:block; margin-top:3px; color:var(--muted); font-size:14px; }
+    .grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+    article { display:grid; grid-template-columns:120px 1fr; min-height:174px; overflow:hidden; border:4px solid var(--ink); background:#fff; }
+    article img { width:120px; height:100%; min-height:174px; object-fit:cover; border-right:4px solid var(--ink); }
+    .copy { padding:14px 15px 12px; }
+    .query { min-height:43px; font:800 17px/1.25 ui-monospace,monospace; }
+    .rank { margin-top:8px; color:#178253; font:900 13px ui-monospace,monospace; }
+    .label { margin-top:5px; font-size:17px; font-weight:800; }
+    .score { margin-top:5px; color:var(--muted); font:700 13px ui-monospace,monospace; }
+    footer { display:grid; grid-template-columns:1fr auto; gap:30px; align-items:end; margin-top:22px; padding:17px 20px; border:4px solid var(--ink); background:var(--cream); }
+    footer p { margin:0; font-size:15px; line-height:1.6; }
+    footer code { font-size:12px; }
+    .privacy { font:900 16px ui-monospace,monospace; color:#178253; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>PHOTOS · SEMANTIC TOWER E2E</h1>
+      <p class="lead">同一对图像塔 / 文本塔 · 32 张公开任务照片 · 只读像素与查询文本 · 不使用文件名和人工标签排序</p>
+    </div>
+    <div class="pass">8 / 8 TOP‑1 PASS</div>
+  </header>
+
+  <section class="facts">
+    <div class="fact"><b>32</b><span>照片向量 · 512D</span></div>
+    <div class="fact"><b>224 × 224</b><span>RGB 图像输入</span></div>
+    <div class="fact"><b>77 TOKENS</b><span>CLIP BPE 文本输入</span></div>
+    <div class="fact"><b>INT8 + SQLITE</b><span>Android 私有本地索引</span></div>
+  </section>
+
+  <section class="grid">
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20251005_162004_PE_TASK_07_.jpg" /><div class="copy"><div class="query">a photo of a cat</div><div class="rank">TOP‑1</div><div class="label">去年杭州的猫</div><div class="score">cosine 0.2709 · 前五均为猫</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20260803_142600_PE_TASK_25_.jpg" /><div class="copy"><div class="query">a receipt document</div><div class="rank">TOP‑1</div><div class="label">咖啡票据</div><div class="score">cosine 0.2501</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20260718_130800_PE_TASK_27_.jpg" /><div class="copy"><div class="query">a QR code</div><div class="rank">TOP‑1</div><div class="label">停车票 · 二维码</div><div class="score">cosine 0.2797</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20251220_073500_PE_TASK_28_.jpg" /><div class="copy"><div class="query">a boarding pass</div><div class="rank">TOP‑1</div><div class="label">杭州 → 东京登机牌</div><div class="score">cosine 0.2926</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20220402_082418_PE_TASK_18_.jpg" /><div class="copy"><div class="query">a lighthouse</div><div class="rank">TOP‑1</div><div class="label">灯塔 · 重复照片</div><div class="score">cosine 0.2979 · 两张灯塔占前二</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20250822_184600_PE_TASK_32_.jpg" /><div class="copy"><div class="query">people at the beach</div><div class="rank">TOP‑1</div><div class="label">同行朋友</div><div class="score">cosine 0.2578</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20260109_091800_PE_TASK_30_GPS.jpg" /><div class="copy"><div class="query">a lake landscape</div><div class="rank">TOP‑1</div><div class="label">无 GPS 湖景</div><div class="score">cosine 0.2255</div></div></article>
+    <article><img src="../../../deliverables/pocket-earth-competition-photo-task-pack/photos/20260807_110200_PE_TASK_21_.jpg" /><div class="copy"><div class="query">a blurry accidental photo</div><div class="rank">TOP‑1</div><div class="label">误拍 · 严重模糊</div><div class="score">cosine 0.2674</div></div></article>
+  </section>
+
+  <footer>
+    <p><b>运行身份：</b>PicQuery 配对 CLIP ViT‑B/32 ORT INT8。图像塔 SHA <code>977f817cd83a…</code>；文本塔 SHA <code>fb5277500358…</code>。Qwen3‑VL‑2B + MNN 只处理 top‑k 难例和结构化理解，不承担全相册逐张扫描。</p>
+    <div class="privacy">ORIGINALS COPIED 0 · UPLOADS 0</div>
+  </footer>
+</main>
+</body>
+</html>

@@ -1,11 +1,15 @@
+import { rememberStravaAnswer } from '../lib/frostSkillAnswer';
 import { useEffect, useMemo, useState } from 'react';
 import { Activity, Camera, ChefHat, CloudSun, Dumbbell, ExternalLink, FileJson, Moon, Search, Utensils } from 'lucide-react';
 import { searchCnFoods } from '../../../frost-agent/skills/health/cnFoodLibrary';
-import { recordMealWithTaskmaster } from '../lib/healthTaskmasterRuntime';
+import { recordMealWithTaskmaster } from '../lib/frostHealthTaskmaster';
+import type { FrostSkillPageReporter } from '../../../frost-agent/harness/skillPageResult';
+import FrostSkillResultButton from './FrostSkillResultButton';
 
 interface Props {
   skillId: string;
   taskmasterTaskId?: string;
+  report?: FrostSkillPageReporter;
 }
 
 type OutdoorResult = {
@@ -33,7 +37,7 @@ function Button({ children, onClick, disabled = false }: { children: React.React
   return <button type="button" onClick={onClick} disabled={disabled} className="border-2 border-black px-3 py-2 text-[9px] font-black disabled:cursor-not-allowed disabled:opacity-35 active:translate-y-px" style={{ background: disabled ? '#ddd' : ACCENT }}>{children}</button>;
 }
 
-function OutdoorWindowPanel() {
+function OutdoorWindowPanel({ report }: { report?: FrostSkillPageReporter }) {
   const [city, setCity] = useState('杭州');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -94,10 +98,12 @@ function OutdoorWindowPanel() {
       <div className="mt-2 grid grid-cols-3 gap-2 text-[9px]"><span>{result.temperature}°C</span><span>AQI {result.aqi ?? '?'}</span><span>UV {result.uv ?? '?'}</span><span>体感 {result.apparent}°C</span><span>降水 {result.precipitation}mm</span><span>风 {result.wind}km/h</span></div>
       <p className="mt-2 text-[9px] font-bold">{result.recommendation}</p>{result.reasons.length > 0 && <p className="mt-1 text-[8px]">触发：{result.reasons.join(' · ')}</p>}
     </div>}
+    <FrostSkillResultButton report={report} result={error ? { status: 'failed', summary: '户外实时数据查询失败，没有生成可靠运动窗口。' }
+      : result && !busy ? { status: 'completed', summary: `${result.city.slice(0, 30)}户外查询：${result.temperature}度，AQI ${result.aqi ?? '缺失'}。${result.recommendation}仅为当前查询，不代表已完成运动。` } : undefined} />
   </section>;
 }
 
-function StravaReplayPanel() {
+function StravaReplayPanel({ report }: { report?: FrostSkillPageReporter }) {
   const [activity, setActivity] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState('');
   const read = async (file?: File) => {
@@ -109,26 +115,29 @@ function StravaReplayPanel() {
       if (!raw || typeof raw !== 'object') throw new Error('没有可读取的活动');
       const seconds = Number(raw.moving_time ?? raw.elapsed_time ?? 0);
       const meters = Number(raw.distance ?? 0);
-      setActivity({
+      const summary = {
         name: String(raw.name ?? '未命名活动'), type: String(raw.sport_type ?? raw.type ?? 'Activity'),
         distanceKm: meters ? Number((meters / 1000).toFixed(2)) : null,
         durationMin: seconds ? Number((seconds / 60).toFixed(1)) : null,
         averageHeartrate: raw.average_heartrate ?? null, averageSpeed: raw.average_speed ?? null,
         elevationGain: raw.total_elevation_gain ?? null, activityId: raw.id ?? null,
         privacy: '精确 GPS、起终点与轨迹字段已从页面摘要中排除',
-      });
+      };
+      setActivity(summary); rememberStravaAnswer(summary);
     } catch (cause) { setError(cause instanceof Error ? cause.message : '活动 JSON 无法读取'); }
   };
   return <section className={CARD}>
     <div className="flex items-center gap-2"><FileJson className="h-5 w-5" /><h2 className="font-pixel text-[8px]">STRAVA LOCAL REPLAY</h2></div>
-    <p className="mt-2 text-[8px] text-black/55">选择 Strava API/导出 JSON。本页只读取活动摘要，不显示路线坐标，也不会连接或修改你的账号。</p>
+    <p className="mt-2 text-[8px] text-black/55">选择 Strava API/导出 JSON。本页只读取活动摘要，不显示路线坐标，也不会连接或修改你的账号。摘要保存在本机，供你向 Frost 提问时分析；分析只发送摘要，不发送轨迹。</p>
     <input type="file" accept="application/json,.json" onChange={(event) => void read(event.target.files?.[0])} className="mt-3 w-full border-2 border-black bg-[#f7f1df] p-2 text-[8px]" />
     {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}
     {activity && <pre className="mt-3 max-h-64 overflow-auto whitespace-pre-wrap border-2 border-black bg-[#111] p-3 text-[9px] leading-relaxed text-[#7dffb8]">{JSON.stringify(activity, null, 2)}</pre>}
+    <FrostSkillResultButton report={report} result={error ? { status: 'failed', summary: '活动 JSON 解析失败，没有读取或修改 Strava 账号。' }
+      : activity ? { status: 'completed', summary: '已在手机解析所选 JSON 的活动摘要；来源为用户导入，未独立核实，也未读取或修改在线账号。' } : undefined} />
   </section>;
 }
 
-function SleepDetectivePanel() {
+function SleepDetectivePanel({ report }: { report?: FrostSkillPageReporter }) {
   const [entries, setEntries] = useState<SleepEntry[]>(() => { try { return JSON.parse(localStorage.getItem(SLEEP_KEY) || '[]') as SleepEntry[]; } catch { return []; } });
   const [hours, setHours] = useState(7.5);
   const [quality, setQuality] = useState(7);
@@ -152,6 +161,7 @@ function SleepDetectivePanel() {
     <div className="mt-3 flex items-center gap-2"><Button onClick={save}>保存这一晚</Button><span className="text-[8px] text-black/45">本机记录 {entries.length}/30 晚</span></div>
     <div className="mt-3 grid gap-2 sm:grid-cols-3">{labels.map(([key, label]) => { const value = compare(key); return <div key={key} className="border-2 border-black bg-[#f5f1e8] p-2 text-[8px]"><b>{label}</b><div className="mt-1">有：{value.yes?.toFixed(1) ?? '?'} ({value.yesN}晚)</div><div>无：{value.no?.toFixed(1) ?? '?'} ({value.noN}晚)</div></div>; })}</div>
     <p className="mt-2 text-[8px] text-black/50">{entries.length < 7 ? '样本不足 7 晚：只展示记录，不输出趋势。' : '这里只比较分组均值；相关性不代表因果。'}</p>
+    <FrostSkillResultButton report={report} result={entries.length ? { status: 'completed', summary: `手机有 ${entries.length} 晚用户录入的记录。${entries.length < 7 ? '样本不足7晚，只能展示记录，不输出趋势。' : '已在页面展示分组均值，相关性不代表因果。'}不代表传感器测量。` } : undefined} />
   </section>;
 }
 
@@ -200,7 +210,7 @@ function MealLensPanel({ taskmasterTaskId }: { taskmasterTaskId?: string }) {
   </section>;
 }
 
-function OssConnectorPanel({ kind }: { kind: 'wger' | 'mealie' }) {
+function OssConnectorPanel({ kind, report }: { kind: 'wger' | 'mealie'; report?: FrostSkillPageReporter }) {
   const config = kind === 'wger' ? {
     icon: Dumbbell,
     title: 'WGER · TRAINING PLANS',
@@ -226,6 +236,7 @@ function OssConnectorPanel({ kind }: { kind: 'wger' | 'mealie' }) {
       <p className="mt-2 border-t border-black/20 pt-2 text-[8px] font-bold text-[#8a4b00]">{config.pending}</p>
     </div>
     <a href={config.source} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 border-2 border-black bg-white px-3 py-2 text-[8px] font-black active:translate-y-px">查看开源项目 <ExternalLink className="h-3.5 w-3.5" /></a>
+    <FrostSkillResultButton report={report} result={{ status: 'blocked', summary: config.pending }} />
   </section>;
 }
 
@@ -234,12 +245,12 @@ export const LIFESTYLE_SKILL_IDS = new Set([
   'frost.meal-lens', 'frost.wger-planner', 'frost.mealie-kitchen',
 ]);
 
-export default function LifestyleSkillRuntimePanel({ skillId, taskmasterTaskId }: Props) {
-  if (skillId === 'frost.outdoor-window') return <OutdoorWindowPanel />;
-  if (skillId === 'frost.strava-replay') return <StravaReplayPanel />;
-  if (skillId === 'frost.sleep-detective') return <SleepDetectivePanel />;
+export default function LifestyleSkillRuntimePanel({ skillId, taskmasterTaskId, report }: Props) {
+  if (skillId === 'frost.outdoor-window') return <OutdoorWindowPanel report={report} />;
+  if (skillId === 'frost.strava-replay') return <StravaReplayPanel report={report} />;
+  if (skillId === 'frost.sleep-detective') return <SleepDetectivePanel report={report} />;
   if (skillId === 'frost.meal-lens') return <MealLensPanel taskmasterTaskId={taskmasterTaskId} />;
-  if (skillId === 'frost.wger-planner') return <OssConnectorPanel kind="wger" />;
-  if (skillId === 'frost.mealie-kitchen') return <OssConnectorPanel kind="mealie" />;
+  if (skillId === 'frost.wger-planner') return <OssConnectorPanel kind="wger" report={report} />;
+  if (skillId === 'frost.mealie-kitchen') return <OssConnectorPanel kind="mealie" report={report} />;
   return <section className={CARD}><Activity className="mr-2 inline h-4 w-4" />Lifestyle Skill 尚未登记。</section>;
 }

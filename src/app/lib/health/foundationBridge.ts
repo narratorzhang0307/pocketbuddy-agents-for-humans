@@ -24,15 +24,15 @@ export async function getHealthSkillBridgeStatus(signal?: AbortSignal): Promise<
   return readJson(await fetch('/api/health-skills/status', { signal }));
 }
 
-export async function queryHealthsync(query: HealthsyncQuery): Promise<unknown> {
+export async function queryHealthsync(query: HealthsyncQuery, signal?: AbortSignal): Promise<unknown> {
   return readJson(await fetch('/api/health-skills/healthsync/query', {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(query),
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(query), signal,
   }));
 }
 
-export async function queryGarmin(query: GarminReadQuery): Promise<unknown> {
+export async function queryGarmin(query: GarminReadQuery, signal?: AbortSignal): Promise<unknown> {
   return readJson(await fetch('/api/health-skills/garmin/query', {
-    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(query),
+    method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(query), signal,
   }));
 }
 
@@ -58,9 +58,9 @@ export interface OpenFoodFactsProduct {
   source: 'Open Food Facts';
 }
 
-export async function lookupOpenFoodFacts(input: string): Promise<{ products: OpenFoodFactsProduct[]; count: number; retrievedAt: string }> {
+export async function lookupOpenFoodFacts(input: string, signal?: AbortSignal): Promise<{ products: OpenFoodFactsProduct[]; count: number; retrievedAt: string }> {
   const value = input.trim();
   const url = new URL('/api/health-skills/openfoodfacts', window.location.origin);
   url.searchParams.set(/^\d{8,14}$/.test(value) ? 'barcode' : 'query', value);
-  return readJson(await fetch(url));
+  return readJson(await fetch(url, { signal }));
 }

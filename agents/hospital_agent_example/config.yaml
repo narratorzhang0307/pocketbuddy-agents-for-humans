@@ -1,0 +1,24 @@
+# Baseline agent configuration.
+
+output_dir: outputs
+
+train:
+  selection: random
+  patient_count: 30
+  random_seed: 7
+  patient_ids: []
+
+test:
+  selection: random
+  patient_count: 5
+  random_seed: 42
+  patient_ids: []
+
+memory:
+  md_path: data/memory_data/memory.md
+  max_notes: 10
+  max_note_chars: 1200
+
+log_llm_prompts: false
+max_questions: 5
+max_exam_categories: 2

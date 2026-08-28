@@ -1,94 +1,59 @@
+import { answerSpeechTicket } from './server/frost-voice-ticket.mjs';
 import { defineConfig, loadEnv, type Plugin } from 'vite';
 import path from 'node:path';
-import { createReadStream, existsSync, readFileSync, stat } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
+import { frostEdge } from './frost-agent/edge/viteEdge';
+// @ts-expect-error Build-only ESM asset validation.
+import { verifyAvatarAssets } from './scripts/verify-avatar-assets.mjs';
+// @ts-expect-error Plain ESM is shared with the production Node server.
+import { buildQwenChatBody, createQwenProvider, qwenModelForTask } from './server/qwen-health-provider.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { createHealthSkillBridge } from './server/health-skill-bridge.mjs';
+// @ts-expect-error Plain ESM is shared with the production Node server.
+import { createFrostVoiceHandler } from './server/minimax-voice.mjs';
+// @ts-expect-error Plain ESM is shared with the production Node server.
+import { createHospitalAgentHandler } from './server/hospital-agent.mjs';
+// @ts-expect-error Shared server-only ESM; no provider keys enter the client bundle.
+import { createHealthMemoryHandler } from './server/health-memory.mjs';
+// @ts-expect-error Server-only real SAM gateway.
+import { createPhotoHarnessHandler } from './server/photo-harness.mjs';
 
-const publishPublic = path.resolve(__dirname, 'public');
-
-const STATIC_CONTENT_TYPES: Record<string, string> = {
-  '.css': 'text/css; charset=utf-8',
-  '.gif': 'image/gif',
-  '.jpeg': 'image/jpeg',
-  '.jpg': 'image/jpeg',
-  '.js': 'text/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.svg': 'image/svg+xml',
-  '.webp': 'image/webp',
-  '.woff2': 'font/woff2',
-};
-
-const INTEGRATED_PUBLIC_ASSETS = [
-  'fonts/fusion-pixel-sc.woff2',
-  'assets/street-garden/ui/archive-hand-grip-v2.png',
-] as const;
-
-/**
- * The publish worktree owns new Skill assets; the Pocket Earth workspace owns
- * the established SOUND WALK media library. Serve missing assets from configured
- * roots in development and emit the small shared runtime assets in production.
- * Neither source library is copied into or overwritten by this worktree.
- */
-function pocketEarthPublicIntegration(publicRoots: string[]): Plugin {
+function hospitalAgentDev(env: Record<string, string>): Plugin {
   return {
-    name: 'pocket-earth-public-integration',
+    name: 'hospital-agent-health',
     configureServer(server) {
-      server.middlewares.use((request, response, next) => {
-        if (publicRoots.length === 0) {
-          next();
-          return;
-        }
-        const pathname = decodeURIComponent(new URL(request.url || '/', 'http://local').pathname);
-        const relativePath = pathname.replace(/^\/+/, '');
-        const localCandidate = path.resolve(publishPublic, relativePath);
-        if (!localCandidate.startsWith(`${publishPublic}${path.sep}`)) {
-          next();
-          return;
-        }
-        const serveSharedCandidate = (index: number) => {
-          const root = publicRoots[index];
-          if (!root) {
-            next();
-            return;
-          }
-          const sharedCandidate = path.resolve(root, relativePath);
-          if (!sharedCandidate.startsWith(`${root}${path.sep}`)) {
-            serveSharedCandidate(index + 1);
-            return;
-          }
-          stat(sharedCandidate, (error, info) => {
-            if (error || !info.isFile()) {
-              serveSharedCandidate(index + 1);
-              return;
-            }
-            const contentType = STATIC_CONTENT_TYPES[path.extname(sharedCandidate).toLowerCase()];
-            if (contentType) response.setHeader('content-type', contentType);
-            createReadStream(sharedCandidate).pipe(response);
-          });
-        };
-        stat(localCandidate, (localError, localInfo) => {
-          if (!localError && localInfo.isFile()) {
-            next();
-            return;
-          }
-          serveSharedCandidate(0);
-        });
+      const handle = createHospitalAgentHandler({ env: { ...env, ...process.env } });
+      const healthMemory = createHealthMemoryHandler({ env: { ...env, ...process.env }, localDev: true });
+      const photoHarness = createPhotoHarnessHandler({ env: { ...env, ...process.env }, localDev: true });
+      server.middlewares.use(async (req, res, next) => {
+        if (await healthMemory(req, res)) return;
+        if (await photoHarness(req, res)) return;
+        if (!await handle(req, res) && !res.writableEnded) next();
       });
     },
-    generateBundle() {
-      for (const relativePath of INTEGRATED_PUBLIC_ASSETS) {
-        if (existsSync(path.resolve(publishPublic, relativePath))) continue;
-        const source = publicRoots
-          .map((root) => path.resolve(root, relativePath))
-          .find((candidate) => existsSync(candidate));
-        if (!source) continue;
-        this.emitFile({ type: 'asset', fileName: relativePath, source: readFileSync(source) });
-      }
+  };
+}
+
+function frostVoiceDev(env: Record<string, string>): Plugin {
+  return {
+    name: 'frost-minimax-voice',
+    configureServer(server) {
+      const handle = createFrostVoiceHandler({ env: { ...env, ...process.env }, localDev: true });
+      server.middlewares.use(async (req, res, next) => {
+        if (!await handle(req, res) && !res.writableEnded) next();
+      });
     },
   };
+}
+
+function readBody(req: import('node:http').IncomingMessage): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    req.on('data', (chunk) => chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk)));
+    req.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    req.on('error', reject);
+  });
 }
 
 function petForgeApi(env: Record<string, string>): Plugin {
@@ -129,49 +94,60 @@ function healthSkillsDev(env: Record<string, string>): Plugin {
   };
 }
 
-export default defineConfig(({ mode }) => {
-  const env = loadEnv(mode, '.', '');
-  const configuredSoundWalkRoot = process.env.SOUND_WALK_ROOT?.trim()
-    || env.SOUND_WALK_ROOT?.trim();
-  const soundWalkRoot = configuredSoundWalkRoot
-    ? path.resolve(configuredSoundWalkRoot)
-    : null;
-  const soundWalkEntry = soundWalkRoot
-    ? path.join(soundWalkRoot, 'src/app/components/MyMapTab.tsx')
-    : '';
-  const hasSoundWalkWorkspace = !!soundWalkRoot && existsSync(soundWalkEntry);
-  const configuredPocketEarthPublic = process.env.POCKET_EARTH_PUBLIC_ROOT?.trim()
-    || env.POCKET_EARTH_PUBLIC_ROOT?.trim();
-  const pocketEarthPublic = configuredPocketEarthPublic
-    ? path.resolve(configuredPocketEarthPublic)
-    : null;
-  const soundWalkAlias = hasSoundWalkWorkspace
-    ? soundWalkEntry
-    : path.resolve(__dirname, './src/app/integrations/SoundWalkUnavailable.tsx');
-  const sharedPublicRoots = [
-    pocketEarthPublic,
-    hasSoundWalkWorkspace ? path.join(soundWalkRoot!, 'public') : null,
-  ].filter((root): root is string => !!root);
+function qwenChatDev(env: Record<string, string>): Plugin {
+  const qwen = createQwenProvider(env);
+  return {
+    name: 'frost-qwen-chat',
+    configureServer(server) {
+      server.middlewares.use('/api/frost-llm', async (req, res) => {
+        if (req.method !== 'POST') { res.statusCode = 405; res.end(); return; }
+        const send = (value: unknown, status = 200) => {
+          res.statusCode = status;
+          res.setHeader('content-type', 'application/json; charset=utf-8');
+          res.end(JSON.stringify(value));
+        };
+        try {
+          if (!qwen.key) { send({ text: '', error: 'no_qwen_key' }); return; }
+          const { prompt, system, json, task } = JSON.parse(await readBody(req) || '{}');
+          const taskName = String(task || 'default');
+          const upstream = await fetch(qwen.url, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', authorization: `Bearer ${qwen.key}` },
+            body: JSON.stringify(buildQwenChatBody(qwen, {
+              prompt, system, task: taskName, json: !!json, temperature: json ? 0 : 0.55,
+            })),
+            signal: AbortSignal.timeout(60_000),
+          });
+          const data = await upstream.json();
+          if (!upstream.ok) { send({ text: '', error: data?.error || `upstream_${upstream.status}` }, upstream.status); return; }
+          send({
+            text: data?.choices?.[0]?.message?.content || '',
+            ...answerSpeechTicket(taskName, data?.choices?.[0]?.message?.content || ''),
+            model: qwenModelForTask(qwen, taskName),
+            provider: qwen.provider,
+            modelOwner: qwen.owner,
+            transport: qwen.transport,
+          });
+        } catch (error) {
+          send({ text: '', error: error instanceof Error ? error.message : String(error) }, 502);
+        }
+      });
+    },
+  };
+}
 
+export default defineConfig(({ mode }) => {
+  verifyAvatarAssets(__dirname);
+  const env = loadEnv(mode, '.', '');
   return {
     base: '/',
-    server: {
-      host: process.env.DEV_HOST || '127.0.0.1',
-      port: process.env.PORT ? Number(process.env.PORT) : 5173,
-      hmr: { host: process.env.DEV_HOST || '127.0.0.1' },
-      fs: { allow: [__dirname, ...(hasSoundWalkWorkspace ? [soundWalkRoot!] : [])] },
-      proxy: {
-        '/v1': { target: env.POCKETBUDDY_API_DEV_URL || 'http://127.0.0.1:8787', changeOrigin: true },
-      },
-    },
-    plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), pocketEarthPublicIntegration(sharedPublicRoots)],
+    server: { port: process.env.PORT ? Number(process.env.PORT) : 5173 },
+    plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), hospitalAgentDev(env), frostVoiceDev(env), frostEdge(env), qwenChatDev(env)],
     resolve: {
-      alias: [
-        { find: '@', replacement: path.resolve(__dirname, './src') },
-        { find: '@soundwalk/app/components/MyMapTab', replacement: soundWalkAlias },
-        { find: 'frost-agent', replacement: path.resolve(__dirname, './frost-agent') },
-      ],
-      dedupe: ['react', 'react-dom'],
+      alias: {
+        '@': path.resolve(__dirname, './src'),
+        'frost-agent': path.resolve(__dirname, './frost-agent'),
+      },
     },
     build: {
       chunkSizeWarningLimit: 900,
@@ -179,7 +155,7 @@ export default defineConfig(({ mode }) => {
         output: {
           manualChunks(id: string) {
             if (!id.includes('node_modules')) return undefined;
-            if (id.includes('/react') || id.includes('react-dom') || id.includes('scheduler')) return 'react';
+            if (id.includes('/node_modules/react/') || id.includes('/node_modules/react-dom/') || id.includes('/node_modules/scheduler/')) return 'react';
             return 'vendor';
           },
         },

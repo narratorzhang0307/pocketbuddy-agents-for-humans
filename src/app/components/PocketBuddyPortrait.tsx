@@ -21,6 +21,7 @@ export default function PocketBuddyPortrait({
     buddy.visual.catalogId,
   );
   const [url, setUrl] = useState(buddy.visual.thumbnailUrl);
+  const [failedUrl, setFailedUrl] = useState('');
 
   useEffect(() => {
     let active = true;
@@ -31,6 +32,7 @@ export default function PocketBuddyPortrait({
       };
     }
     const id = buddy.visual.portraitBlobId;
+    setUrl(buddy.visual.thumbnailUrl);
     if (!id) {
       setUrl(buddy.visual.thumbnailUrl);
       return () => {
@@ -39,7 +41,7 @@ export default function PocketBuddyPortrait({
     }
     void getPocketBuddyPortraitUrl(id).then((next) => {
       if (active && next) setUrl(next);
-    });
+    }).catch(() => {});
     return () => {
       active = false;
     };
@@ -55,23 +57,16 @@ export default function PocketBuddyPortrait({
       />
     );
   }
-  if (url) {
+  if (url && url !== failedUrl) {
     return (
       <img
         className={className}
         style={style}
         src={url}
         alt={`${buddy.name}的口袋形象`}
+        onError={() => setFailedUrl(url)}
       />
     );
   }
-  return (
-    <span
-      className={`pbf-portrait-fallback ${className}`}
-      style={style}
-      aria-label={`${buddy.name}的形象占位`}
-    >
-      {buddy.name.slice(0, 1)}
-    </span>
-  );
+  return null;
 }

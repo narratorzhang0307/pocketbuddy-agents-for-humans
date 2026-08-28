@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pocket Earth · Android Evidence</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#e7e7e5;color:#0b0b0b;font-family:Arial,"PingFang SC",sans-serif}.page{width:430px;min-height:900px;margin:auto;background:#f7f7f4;border:2px solid #111}.top{padding:18px 20px 16px;border-bottom:3px solid #111}.eyebrow,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:1px}.eyebrow{font-size:11px;font-weight:800}.top h1{margin:7px 0 5px;font-size:30px;line-height:1}.top p{margin:0;color:#555;font-size:12px}.hero{margin:14px;border:2px solid #111;background:#f2ffeb;padding:14px}.pass{display:flex;align-items:center;justify-content:space-between}.pass strong{font-size:24px}.chip{border:1px solid #087a43;color:#087a43;background:white;padding:5px 8px;font:700 9px ui-monospace}.hero p{font-size:11px;line-height:1.55;margin:9px 0 0;color:#4b4b4b}.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 14px}.card{border:2px solid #111;background:#fff;padding:11px;min-height:104px}.card b{display:block;font:800 10px ui-monospace;color:#087a43}.card strong{display:block;font-size:16px;margin:7px 0 4px}.card span{font-size:10px;color:#666;line-height:1.4}.layers{margin:14px;border:2px solid #111;background:#fff}.layers h2{font:800 12px ui-monospace;margin:0;padding:10px;border-bottom:2px solid #111}.row{display:grid;grid-template-columns:28px 88px 1fr;gap:8px;align-items:center;padding:9px 10px;border-bottom:1px solid #bbb;font-size:10px}.row:last-child{border:0}.row i{font:800 10px ui-monospace;color:#087a43;font-style:normal}.row b{font-size:10px}.row span{color:#555}.hashes{margin:14px;border:2px solid #111;background:#fff8dc;padding:11px}.hashes h2{font:800 11px ui-monospace;margin:0 0 8px}.hash{font:8px/1.65 ui-monospace;word-break:break-all;color:#555}.foot{margin:0 14px 16px;border-left:3px solid #087a43;padding-left:9px;font-size:10px;line-height:1.5;color:#555}.green{color:#087a43;font-weight:700}
+  </style>
+</head>
+<body><main class="page">
+  <header class="top"><div class="eyebrow">POCKET EARTH · DEVICE EVIDENCE</div><h1>QWEN + MNN + SME2</h1><p>Android APK 原生合同验证 · 2026-08-12</p></header>
+  <section class="hero"><div class="pass"><div><div class="mono">APK CONTRACT</div><strong>14 / 14 PASS</strong></div><span class="chip">VERIFIED</span></div><p>真实 JNI exports（含双图视觉 A/B）、MNN LLM、CPU target 2/3、SME2/KleidiAI、arm64-only、16KiB 对齐与签名均通过；APK 不内置模型权重和演示原片。</p></section>
+  <section class="grid">
+    <div class="card"><b>01 · QWEN</b><strong>Qwen3-VL-2B</strong><span>照片理解 / OCR 路由 / 通用策展；LoRA 未过门时保留 Base。</span></div>
+    <div class="card"><b>02 · MNN</b><strong>Android JNI</strong><span>真实 Runtime 与 Session；网页结果不冒充手机端推理。</span></div>
+    <div class="card"><b>03 · SME2</b><strong>target 2 / 3</strong><span>切换释放旧 Session 并重建 CPU dispatch，支持固定样本 A/B。</span></div>
+    <div class="card"><b>04 · OFFLINE</b><strong>Network = 0</strong><span>飞行模式真机闭环由设备验收账本、RunTrace 与原始样本证明。</span></div>
+  </section>
+  <section class="layers"><h2>FIVE-LAYER PROOF</h2>
+    <div class="row"><i>01</i><b>编译证据</b><span>MNN / SME2 内核、版本、哈希</span></div>
+    <div class="row"><i>02</i><b>硬件证据</b><span>hardwareSme2=true 才可进入 target 3</span></div>
+    <div class="row"><i>03</i><b>配置证据</b><span>requested + target + dispatch 逐项落盘</span></div>
+    <div class="row"><i>04</i><b>生效证据</b><span>sme2Effective=true + 真实 decode</span></div>
+    <div class="row"><i>05</i><b>效果证据</b><span>同机固定输入 ABBA、质量门与温控</span></div>
+  </section>
+  <section class="hashes"><h2>ARTIFACT HASHES</h2><div class="hash"><span class="green">APK</span> 1b9791848092facb027661db4745cf9c8cbc1a81f49bfeac4463a020e8b6a7aa<br><span class="green">JNI</span> b2ee2db39c54342a9140e475d722030f2fb91bc7b2bb3b31e5649ccf41655346<br><span class="green">MNN</span> bbb09db8036d6c1f380af00f94d8a13939848ceceefcdd704ab2dd14c0cc7d44</div></section>
+  <p class="foot"><b>边界：</b>本页证明 APK 具备真实 MNN/SME2 链路；具体 SME2 增益必须在主办方专用手机上完成固定样本 A/B 后填写，不能由网页预览代签。</p>
+</main></body>
+</html>

@@ -1,0 +1,147 @@
+{
+  "checkedAt": "2026-08-28T10:10:52.053684+08:00",
+  "scope": "GET-only service and OSS preflight; zero recognition POST; no phone, BLE, serial, microphone or lockscreen evidence",
+  "health": {
+    "url": "https://hearnature.throughtheglass.art/health",
+    "status": 200,
+    "body": {
+      "ok": true,
+      "model": "PANNs CNN14 · 杭州常见 21 种",
+      "species_count": 21,
+      "device": "cpu"
+    }
+  },
+  "assets": [
+    {
+      "index": 17,
+      "id": "frost.bird-listener",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/frost.bird-listener.jpg",
+      "status": 200,
+      "bytes": 9157,
+      "sha256": "14372e6ef53dc3bf4e60f8d9986198c1bf1168a0e1c66d0b18398ef4e47f1d28",
+      "crc32": 1716949509,
+      "verified": true
+    },
+    {
+      "index": 18,
+      "id": "pycnonotus-sinensis",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pycnonotus-sinensis.jpg",
+      "status": 200,
+      "bytes": 8287,
+      "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce",
+      "crc32": 223303708,
+      "verified": true
+    },
+    {
+      "index": 19,
+      "id": "cuculus-canorus",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/cuculus-canorus.jpg",
+      "status": 200,
+      "bytes": 6755,
+      "sha256": "fe3f860352f9d6828b0e32f1af6e2d5142f979a5e96ad5a3e1201746e4db634f",
+      "crc32": 2988288161,
+      "verified": true
+    },
+    {
+      "index": 20,
+      "id": "urocissa-erythroryncha",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/urocissa-erythroryncha.jpg",
+      "status": 200,
+      "bytes": 7996,
+      "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6",
+      "crc32": 3086496058,
+      "verified": true
+    },
+    {
+      "index": 21,
+      "id": "passer-montanus",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/passer-montanus.jpg",
+      "status": 200,
+      "bytes": 7837,
+      "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb",
+      "crc32": 828859574,
+      "verified": true
+    },
+    {
+      "index": 22,
+      "id": "caprimulgus-indicus",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/caprimulgus-indicus.jpg",
+      "status": 200,
+      "bytes": 7742,
+      "sha256": "0d06d699768fe34689ba23b5bbb22b4b13b68817b712b531f47f0238c89f3e21",
+      "crc32": 1895360797,
+      "verified": true
+    },
+    {
+      "index": 23,
+      "id": "horornis-fortipes",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/horornis-fortipes.jpg",
+      "status": 200,
+      "bytes": 7157,
+      "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67",
+      "crc32": 3901191552,
+      "verified": true
+    },
+    {
+      "index": 24,
+      "id": "copsychus-saularis",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/copsychus-saularis.jpg",
+      "status": 200,
+      "bytes": 7650,
+      "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c",
+      "crc32": 2865161107,
+      "verified": true
+    },
+    {
+      "index": 25,
+      "id": "turdus-mandarinus",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/turdus-mandarinus.jpg",
+      "status": 200,
+      "bytes": 6735,
+      "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920",
+      "crc32": 4144567126,
+      "verified": true
+    },
+    {
+      "index": 26,
+      "id": "pica-serica",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pica-serica.jpg",
+      "status": 200,
+      "bytes": 7807,
+      "sha256": "65d1380e4f65d5a3655cc2830861320b7e4a500d26aaa37d06b25fb26fe82c64",
+      "crc32": 3245859419,
+      "verified": true
+    },
+    {
+      "index": 27,
+      "id": "spilopelia-chinensis",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/spilopelia-chinensis.jpg",
+      "status": 200,
+      "bytes": 8047,
+      "sha256": "6f9f41c985b801f584458ef93516451d2d3602b429f631cca75836e787892745",
+      "crc32": 1085801736,
+      "verified": true
+    },
+    {
+      "index": 28,
+      "id": "lanius-schach",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/lanius-schach.jpg",
+      "status": 200,
+      "bytes": 7122,
+      "sha256": "c2c64ecbc33243455f785ec344d79505b275239cb7d50b5ec2ad65f7246347be",
+      "crc32": 1175294248,
+      "verified": true
+    },
+    {
+      "index": 29,
+      "id": "abroscopus-albogularis",
+      "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/abroscopus-albogularis.jpg",
+      "status": 200,
+      "bytes": 7979,
+      "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3",
+      "crc32": 1022348544,
+      "verified": true
+    }
+  ],
+  "all13AssetsVerified": true
+}

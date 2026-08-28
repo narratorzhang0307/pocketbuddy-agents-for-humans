@@ -1,0 +1,65 @@
+import { readFileSync } from 'node:fs';
+import { createElement } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { describe, expect, it } from 'vitest';
+import HospitalAgentPage from './HospitalAgentPage';
+import HospitalAgentAvatar, { HOSPITAL_AGENT_AVATAR_SRC } from './HospitalAgentAvatar';
+import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
+import skillIndex from '../../../agents/hospital_agent_example/data/skills/skills_index.json';
+
+describe('Hospital Agent entry and local catalogue', () => {
+  it('adds a lazy, independently addressed page to the actual Agents tab', () => {
+    const source = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
+    expect(source).toContain("lazy(() => import('./HospitalAgentPage'))");
+    expect(source).toContain("runSkill('hospital-agent')");
+    expect(source).toContain("running === 'hospital'");
+    expect(source).toContain('<HospitalAgentPage onBack={closeRunning}');
+    expect(resolveSkillRunTarget('hospital-agent')).toBe('hospital');
+    expect(resolveSkillRunTarget('lianlema-coach')).toBe('lianlema');
+  });
+
+  it('uses the real 19-department / 67-skill index, matching the Python runtime data', () => {
+    const skills = JSON.parse(readFileSync(new URL('../../../agents/hospital_agent_example/data/skills/skills.json', import.meta.url), 'utf8'));
+    const indexed = Object.entries(skillIndex.skills_by_department).flatMap(([department, names]) => names.map((disease) => `${department}:${disease}`));
+    expect(indexed.sort()).toEqual(skills.map((skill: { department: string; disease: string }) => `${skill.department}:${skill.disease}`).sort());
+    expect(Object.keys(skillIndex.skills_by_department)).toHaveLength(19);
+    expect(indexed).toHaveLength(67);
+  });
+
+  it('uses the chosen local bear image for both the Agents entry and hospital header', () => {
+    const entry = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
+    expect(entry).toContain("import HospitalAgentAvatar from './HospitalAgentAvatar'");
+    expect(entry).toContain('<HospitalAgentAvatar />');
+    expect(entry).not.toContain('Stethoscope');
+    const avatar = renderToStaticMarkup(createElement(HospitalAgentAvatar));
+    expect(avatar).toContain(`src="${HOSPITAL_AGENT_AVATAR_SRC}"`);
+    expect(avatar).toContain('医院 Agent 小白熊医生头像');
+    expect(avatar).toContain('width="52" height="52"');
+    const page = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
+    expect(page).toContain(`src="${HOSPITAL_AGENT_AVATAR_SRC}"`);
+    expect(page).toContain('width="36" height="36"');
+    expect(page).not.toContain('lucide-stethoscope');
+  });
+
+  it('bundles the original square bear PNG locally so the avatar does not depend on network access', () => {
+    expect(HOSPITAL_AGENT_AVATAR_SRC).toBe('/assets/agent-avatars/20260828/hospital-agent-bear-v1.png');
+    const image = readFileSync(new URL(`../../../public${HOSPITAL_AGENT_AVATAR_SRC}`, import.meta.url));
+    expect(image.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+    expect(image.readUInt32BE(16)).toBe(1254);
+    expect(image.readUInt32BE(20)).toBe(1254);
+  });
+
+  it('renders a catalogue and explicit research boundary, not an invented chat or run result', () => {
+    const html = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
+    expect(html).toContain('医院 Agent');
+    expect(html).toContain('返回 Agents');
+    expect(html).toContain('覆盖科室');
+    expect(html).toContain('本地疾病 Skills');
+    expect(html).toContain('原发性高血压');
+    expect(html).toContain('HOSPITAL_AGENT_BASE_URL');
+    expect(html).toContain('不提供真实医疗诊断或处方');
+    expect(html).toContain('非实时运行进度');
+    expect(html).not.toContain('<textarea');
+    expect(html).not.toContain('评测成功');
+  });
+});

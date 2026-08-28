@@ -1,0 +1,230 @@
+{
+  "schema": "frost-talk-verification/v1",
+  "firmware": {
+    "version": "0.2.16-ojbadge-frost-talk",
+    "bytes": 2361616,
+    "sha256": "72e9ac3aef86429214259e732ee53946ed851ca59ccbc6d268eaad0b892a6b85",
+    "appPartitionBytes": 3145728,
+    "appPartitionFreeBytes": 784112,
+    "built": true,
+    "flashed": false
+  },
+  "assets": {
+    "schema": "frost-talk/v1",
+    "generator": "built-in image_gen edits + sharp format conversion",
+    "hardwareSize": 240,
+    "originalSha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8",
+    "addedFlashImageBytes": 45868,
+    "extraFramebuffers": 0,
+    "preview": "illustrative cadence, no recorded speech",
+    "sequence": [
+      [
+        0,
+        900
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        0,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        0,
+        200
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        0,
+        120
+      ],
+      [
+        3,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        0,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        0,
+        120
+      ],
+      [
+        1,
+        120
+      ],
+      [
+        2,
+        120
+      ],
+      [
+        0,
+        1400
+      ]
+    ],
+    "frames": [
+      {
+        "name": "rest",
+        "index": 0,
+        "bytes": 14126,
+        "sha256": "68d2cd757d571ebb4bb26b2e19755da2523ba2fda45c4873c4e74fbcc2090e3f",
+        "sourceSha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8"
+      },
+      {
+        "name": "small",
+        "index": 1,
+        "bytes": 15298,
+        "sha256": "7ec756053772e09b676c166d4f09e28c8db02c9d728abbf92f1aacfda13b60d7",
+        "sourceSha256": "e754bf1b62f5062e8788ffe3355cd9d03edfe7c8bb854fc1897a8e2d838c23df"
+      },
+      {
+        "name": "open",
+        "index": 2,
+        "bytes": 15630,
+        "sha256": "3b969f6182e43f59e3da457158d8fcda19d1fafb722381286a344586d6b7aa33",
+        "sourceSha256": "196be94bdafd03464e0fbccb300cee3caf623d018f012e3cc7c9f69d1c39833e"
+      },
+      {
+        "name": "blink",
+        "index": 3,
+        "bytes": 14940,
+        "sha256": "458d048a2d29bc057fbde97ff40c9b6e7546fdcafb847a1afee1f5198ec391c3",
+        "sourceSha256": "30a49f8d333077d88282c668bc077f5d7aa49e4284c0716d92edad8d6465d025"
+      }
+    ]
+  },
+  "checks": {
+    "hostTests": "passed",
+    "vitest": {
+      "files": 4,
+      "passed": 93
+    },
+    "browser": {
+      "animationLoaded": true,
+      "staticAndAnimatedToggle": true,
+      "pageErrors": [],
+      "horizontalOverflow": false
+    },
+    "generatedArraysMatchJpegs": true,
+    "sourceMatchesFrozenBuild": true,
+    "physicalHardwareVerified": false,
+    "deviceOperations": false
+  },
+  "preservedFiles": [
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_avatar_assets.h",
+      "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d",
+      "bytes": 523
+    },
+    {
+      "path": "hardware/ojbadge-agent-link/boards/ojbadge/frost_avatar_assets.cc",
+      "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc",
+      "bytes": 73109
+    },
+    {
+      "path": "src/app/lib/skill/avatarCloudCatalog.json",
+      "sha256": "532640be9487cd3648c49f18c2a8b55bcccf2a21295b59c1dac4896cc636c829",
+      "bytes": 7846
+    },
+    {
+      "path": "public/assets/skill-avatars/20260827/originals/frost.png",
+      "sha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8",
+      "bytes": 1416312
+    }
+  ],
+  "frozenSources": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "4cf8e6501093b4454ff828994e12e3ba7c71487fe3fc085a53cae79e87e2b8f0"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.h",
+      "sha256": "1b1a24d5023931ddfd0c1ce7d4055e1571ea0d23484d328f7ec0597be31ca6b7"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.cc",
+      "sha256": "774d54bcea89cd4347ff8f92c368671fb9d9a6c9aac79ee9a07aeaed63db60eb"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge.cc",
+      "sha256": "16fee6445a24007a5154c4eed806778f3070bac71b884105f3995f7bbce98941"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_display.h",
+      "sha256": "d0a4d8ab1c6685b5352d0a330856286946e5795ae6e40bcd50d34d5de68a71c6"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk.h",
+      "sha256": "cd03309235511122cbcdc3ffaea48707a0e5bf872867ae774051db6d54094e44"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.h",
+      "sha256": "d95426415e0742184230e82ed3569c87c81bff6319e2e4c12a2db16825ad710a"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.cc",
+      "sha256": "6ccdb03117720a9703a66d34df715271043c17dc3ce68d598dea57c5b302c01d"
+    },
+    {
+      "path": "tests/protocol_host_test.cpp",
+      "sha256": "2e0c0889a55211aa1d035b12f25394c9447be78809569ffa8a5ecc19ce08a996"
+    }
+  ]
+}

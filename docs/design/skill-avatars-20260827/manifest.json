@@ -1,0 +1,256 @@
+{
+  "version": 1,
+  "status": "generated-and-integrated",
+  "requestedModel": "gpt-image-2",
+  "styleSkill": "ip-as-logo",
+  "sourceCatalogs": [
+    "src/app/lib/skill/builtins.ts",
+    "src/app/lib/skill/externalHealthBuiltins.ts"
+  ],
+  "originalsDirectory": "public/assets/skill-avatars/20260827/originals",
+  "entries": [
+    {
+      "id": "frost",
+      "name": "Frost · 焦糖",
+      "target": "frost",
+      "subject": "baby caramel dachshund",
+      "feature": "two broad floppy rounded ears framing one elongated soft muzzle",
+      "rationale": "保留焦糖腊肠犬的身份，作为理解目标与分派任务的主伙伴。",
+      "corner": "lower-left",
+      "background": "ice blue #B9DFE3",
+      "colors": [
+        "caramel ochre #D89443",
+        "deep cocoa #44352D"
+      ]
+    },
+    {
+      "id": "pocket.her-motion",
+      "name": "Her Motion",
+      "target": "her-motion",
+      "subject": "baby flamingo",
+      "feature": "one broad curved neck folded into a soft upright S, with a blunt rounded beak",
+      "rationale": "柔软弧线呼应伸展、瑜伽与身体平衡。",
+      "corner": "lower-right",
+      "background": "dusty deep teal #245E62",
+      "colors": [
+        "warm coral pink #F29292",
+        "buttery cream #F9DFB7"
+      ]
+    },
+    {
+      "id": "pocket.lianlema",
+      "name": "练了吗",
+      "target": "lianlema-coach",
+      "subject": "sturdy friendly baby bear",
+      "feature": "two large rounded ears and a compact broad face",
+      "rationale": "结实但友善的小熊代表力量训练与耐心陪练。",
+      "corner": "lower-left",
+      "background": "golden apricot #E8B255",
+      "colors": [
+        "brick red #AE4944",
+        "warm ivory #FAE4BA"
+      ]
+    },
+    {
+      "id": "frost.run-route",
+      "name": "跑步路线规划",
+      "target": "frost-run-route",
+      "subject": "curious baby toucan",
+      "feature": "one oversized pill-shaped rounded beak pointing gently toward the open side",
+      "rationale": "探路的小鸟，用醒目的嘴形表达出发和方向。",
+      "corner": "lower-right",
+      "background": "muted sky blue #87BBD0",
+      "colors": [
+        "deep ocean blue #23485B",
+        "mango yellow #FFC44B"
+      ]
+    },
+    {
+      "id": "frost.running-coach",
+      "name": "跑步决策教练",
+      "target": "frost-running-coach",
+      "subject": "bright baby rabbit",
+      "feature": "two thick upright capsule-shaped ears",
+      "rationale": "轻快的小兔代表跑步，用稳定表情传达有节制的训练决策。",
+      "corner": "lower-left",
+      "background": "soft persimmon #D97B5D",
+      "colors": [
+        "buttery yellow #F7D47B",
+        "deep aubergine #4C3E56"
+      ]
+    },
+    {
+      "id": "frost.healthsync",
+      "name": "Apple Health 本地同步",
+      "target": "frost-healthsync",
+      "subject": "personified plump apple",
+      "feature": "a softly heart-shaped apple body with one broad blunt leaf, clearly not a corporate logo",
+      "rationale": "苹果承接健康数据入口；不是 Apple 官方标志。",
+      "corner": "lower-right",
+      "background": "mint jade #82C6AE",
+      "colors": [
+        "tomato red #ED625A",
+        "deep forest #24534C"
+      ]
+    },
+    {
+      "id": "frost.mediapipe-motion",
+      "name": "MediaPipe 动作信号",
+      "target": "frost-motion-vision",
+      "subject": "playful baby gecko",
+      "feature": "two oversized rounded eyes above a broad smooth head, with one simple broad bent forearm",
+      "rationale": "灵活的小壁虎代表姿态观察，避免把关键点画成复杂线路。",
+      "corner": "lower-left",
+      "background": "muted lilac #A896C9",
+      "colors": [
+        "fresh lime #C5DF64",
+        "deep pine #2D5D4C"
+      ]
+    },
+    {
+      "id": "frost.endurance-guard",
+      "name": "耐力训练校验器",
+      "target": "frost-endurance-guard",
+      "subject": "calm baby tortoise",
+      "feature": "one broad smooth domed shell with no shell pattern",
+      "rationale": "慢而稳的乌龟代表训练安全与耐力边界。",
+      "corner": "lower-right",
+      "background": "dusty blue #81A9BD",
+      "colors": [
+        "moss green #4D764C",
+        "pale lime #DCE59B"
+      ]
+    },
+    {
+      "id": "frost.openfoodfacts",
+      "name": "包装食品查询",
+      "target": "frost-openfoodfacts",
+      "subject": "friendly personified little milk carton",
+      "feature": "a squat soft rectangular body with a single broad folded top, rounded corners and no printing",
+      "rationale": "拟人包装盒让条码与营养标签查询一眼可认。",
+      "corner": "lower-left",
+      "background": "dusty raspberry #B9647F",
+      "colors": [
+        "buttery cream #F7DEA6",
+        "deep ink blue #284559"
+      ]
+    },
+    {
+      "id": "frost.garmin-readonly",
+      "name": "Garmin 只读同步",
+      "target": "frost-garmin-readonly",
+      "subject": "attentive baby penguin",
+      "feature": "one continuous pale face-and-belly region on a compact upright body",
+      "rationale": "整洁可靠的小企鹅代表可穿戴数据读取，不使用 Garmin 商标。",
+      "corner": "lower-right",
+      "background": "muted saffron #D8AB4E",
+      "colors": [
+        "navy blue #27455C",
+        "icy cream #E7F0DF"
+      ]
+    },
+    {
+      "id": "frost.cn-health-library",
+      "name": "中国食品与健康解析",
+      "target": "frost-cn-health-library",
+      "subject": "personified baby broccoli",
+      "feature": "a single merged cloud-shaped crown with only three broad rounded lobes and a short thick stalk face",
+      "rationale": "绿色蔬菜对应中国食品参考库与日常营养资料。",
+      "corner": "lower-left",
+      "background": "soft apricot #E9B080",
+      "colors": [
+        "forest green #2E7757",
+        "pale celery #DAE798"
+      ]
+    },
+    {
+      "id": "frost.outdoor-window",
+      "name": "户外运动窗口",
+      "target": "frost-outdoor-window",
+      "subject": "cheerful personified sunflower",
+      "feature": "one large round face surrounded by a single continuous scalloped crown of broad blunt petals",
+      "rationale": "向日葵把天气、日照和适合出门的时间窗口联系起来。",
+      "corner": "lower-right",
+      "background": "muted cornflower blue #567CAA",
+      "colors": [
+        "sunny marigold #F3C44F",
+        "deep chocolate #574236"
+      ]
+    },
+    {
+      "id": "frost.strava-replay",
+      "name": "Strava 训练回放",
+      "target": "frost-strava-replay",
+      "subject": "lively baby fox",
+      "feature": "one broad pale cheek region and two short ears with very blunt rounded ends",
+      "rationale": "活泼狐狸对应训练回顾，用独立动物形象避开 Strava 商标。",
+      "corner": "lower-left",
+      "background": "muted lagoon teal #69ACA8",
+      "colors": [
+        "burnt orange #DE763F",
+        "warm cream #F6DFB4"
+      ]
+    },
+    {
+      "id": "frost.sleep-detective",
+      "name": "睡眠侦探",
+      "target": "frost-sleep-detective",
+      "subject": "sleepy baby owl",
+      "feature": "one broad merged binocular-shaped face disk with no feather markings",
+      "rationale": "夜行猫头鹰对应睡眠观察，保持安静而非侦探装扮。",
+      "corner": "lower-right",
+      "background": "soft lavender #ABA0CD",
+      "colors": [
+        "midnight indigo #424569",
+        "moonlight cream #F3E4BD"
+      ]
+    },
+    {
+      "id": "frost.meal-lens",
+      "name": "中国饮食镜头",
+      "target": "frost-meal-lens",
+      "subject": "personified little rice bowl",
+      "feature": "a broad half-circle bowl face topped by one single smooth mound of rice with no individual grains",
+      "rationale": "米饭碗对应拍餐食、确认菜名与份量。",
+      "corner": "lower-left",
+      "background": "muted brick coral #CD7163",
+      "colors": [
+        "deep jade #2F7669",
+        "rice cream #F8E7BD"
+      ]
+    },
+    {
+      "id": "frost.wger-planner",
+      "name": "wger 训练计划",
+      "target": "frost-wger-planner",
+      "subject": "strong gentle baby gorilla",
+      "feature": "one broad rounded head and a single pale face region",
+      "rationale": "温和的大猩猩代表有计划的力量训练，与练了吗的小熊区分。",
+      "corner": "lower-right",
+      "background": "muted terracotta #D28467",
+      "colors": [
+        "deep cobalt #3B5688",
+        "soft periwinkle #BFCBDF"
+      ]
+    },
+    {
+      "id": "frost.mealie-kitchen",
+      "name": "Mealie 恢复厨房",
+      "target": "frost-mealie-kitchen",
+      "subject": "friendly personified little mushroom",
+      "feature": "one broad rounded dome cap over a single plump short stalk face, no spots",
+      "rationale": "朴实蘑菇代表食谱与恢复餐，保持可爱的食物形象。",
+      "corner": "lower-left",
+      "background": "muted evergreen #346F62",
+      "colors": [
+        "warm terracotta #E78C66",
+        "buttery cream #F5DDB1"
+      ]
+    }
+  ],
+  "provider": "built-in image_gen",
+  "actualModel": "unknown: model identifier not exposed by tool",
+  "authorization": "User approved built-in image generation after exact model availability was explained.",
+  "generatedCount": 17,
+  "firmwareStatus": "0.2.12 flashed and read back; all 17 BLE selections confirmed by render logs; restored Frost; visual confirmation pending"
+}

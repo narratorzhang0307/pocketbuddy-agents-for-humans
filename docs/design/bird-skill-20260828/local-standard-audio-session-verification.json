@@ -1,0 +1,532 @@
+{
+  "date": "2026-08-28",
+  "scope": "用户指定19段本地标准鸟声 -> Mac运行实际iOS原生会话接收/预处理/HTTPS/结果解析/OSS校验；UIKit/背景执行及BLE传输是测试替身，不是iPhone或麦克风实测",
+  "completed": true,
+  "phoneHardwareEndToEndVerified": false,
+  "summary": {
+    "files": 19,
+    "correct": 19,
+    "species": 12,
+    "httpErrors": 0,
+    "automaticRetries": 0,
+    "ossUniqueJpegs": 13,
+    "negativeCases": 7,
+    "frontendTestsPassed": 161,
+    "latencySeconds": {
+      "min": 0.738,
+      "median": 1.078,
+      "max": 10.301
+    }
+  },
+  "sourceAudioUnmodified": true,
+  "normalization": {
+    "rate": 16000,
+    "channels": 1,
+    "sampleBits": 16,
+    "inputMaximumSeconds": 10,
+    "window": "实际BirdWire.modelWave: 最响3秒，250ms步进，含尾窗口",
+    "directoryAlias": {
+      "普通夜莺": "普通夜鹰"
+    }
+  },
+  "build": {
+    "fixtures": 19,
+    "liveRequested": true,
+    "sourceSha256": "f3fabbce1905eacbb1f22ba2b88b44aa0b466e8d53cbf06aa0f9c386557b65a4",
+    "protocolSha256": "af8bbbd9252566d5889bd467c9ebe9f77453368aee72711a2010adc4194d4585",
+    "harnessSha256": "23488dbabe7e3db0b55c211ad81bfe367f58c5060b4fe3280a60f15c781cd9fb",
+    "onlyProductionSourceTransformation": "remove import UIKit; use explicit Mac test double",
+    "iphoneTest": false,
+    "hardwareMicTest": false,
+    "physicalBleTest": false,
+    "asrTest": false,
+    "lockscreenTest": false
+  },
+  "results": [
+    {
+      "file": "乌鸫/乌鸫(1).m4a",
+      "expected": "turdus-mandarinus",
+      "speciesId": "turdus-mandarinus",
+      "name": "乌鸫",
+      "confidence": 0.998728,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.4480360746383667,
+      "newImageCommits": [
+        {
+          "bytes": 6735,
+          "crc32": 4144567126,
+          "index": 25,
+          "macJpegDecode": true,
+          "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920"
+        }
+      ]
+    },
+    {
+      "file": "乌鸫/乌鸫.m4a",
+      "expected": "turdus-mandarinus",
+      "speciesId": "turdus-mandarinus",
+      "name": "乌鸫",
+      "confidence": 0.92751,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 292182,
+      "audioPackets": 1461,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.7553240060806274,
+      "newImageCommits": [
+        {
+          "bytes": 6735,
+          "crc32": 4144567126,
+          "index": 25,
+          "macJpegDecode": true,
+          "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920"
+        }
+      ]
+    },
+    {
+      "file": "喜鹊/喜鹊.m4a",
+      "expected": "pica-serica",
+      "speciesId": "pica-serica",
+      "name": "喜鹊",
+      "confidence": 0.954768,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.9233959913253784,
+      "newImageCommits": [
+        {
+          "bytes": 7807,
+          "crc32": 3245859419,
+          "index": 26,
+          "macJpegDecode": true,
+          "sha256": "65d1380e4f65d5a3655cc2830861320b7e4a500d26aaa37d06b25fb26fe82c64"
+        }
+      ]
+    },
+    {
+      "file": "大杜鹃/大杜鹃.m4a",
+      "expected": "cuculus-canorus",
+      "speciesId": "cuculus-canorus",
+      "name": "大杜鹃",
+      "confidence": 0.991692,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.7330800294876099,
+      "newImageCommits": [
+        {
+          "bytes": 6755,
+          "crc32": 2988288161,
+          "index": 19,
+          "macJpegDecode": true,
+          "sha256": "fe3f860352f9d6828b0e32f1af6e2d5142f979a5e96ad5a3e1201746e4db634f"
+        }
+      ]
+    },
+    {
+      "file": "强脚树莺/强脚树莺 (1).m4a",
+      "expected": "horornis-fortipes",
+      "speciesId": "horornis-fortipes",
+      "name": "强脚树莺",
+      "confidence": 0.96197,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 3.428460955619812,
+      "newImageCommits": [
+        {
+          "bytes": 7157,
+          "crc32": 3901191552,
+          "index": 23,
+          "macJpegDecode": true,
+          "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67"
+        }
+      ]
+    },
+    {
+      "file": "强脚树莺/强脚树莺 (2).m4a",
+      "expected": "horornis-fortipes",
+      "speciesId": "horornis-fortipes",
+      "name": "强脚树莺",
+      "confidence": 0.998248,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.0777450799942017,
+      "newImageCommits": [
+        {
+          "bytes": 7157,
+          "crc32": 3901191552,
+          "index": 23,
+          "macJpegDecode": true,
+          "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67"
+        }
+      ]
+    },
+    {
+      "file": "普通夜莺/普通夜鹰.m4a",
+      "expected": "caprimulgus-indicus",
+      "speciesId": "caprimulgus-indicus",
+      "name": "普通夜鹰",
+      "confidence": 0.999842,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.8668899536132812,
+      "newImageCommits": [
+        {
+          "bytes": 7742,
+          "crc32": 1895360797,
+          "index": 22,
+          "macJpegDecode": true,
+          "sha256": "0d06d699768fe34689ba23b5bbb22b4b13b68817b712b531f47f0238c89f3e21"
+        }
+      ]
+    },
+    {
+      "file": "棕背伯劳/棕背伯劳.m4a",
+      "expected": "lanius-schach",
+      "speciesId": "lanius-schach",
+      "name": "棕背伯劳",
+      "confidence": 0.994803,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.0366140604019165,
+      "newImageCommits": [
+        {
+          "bytes": 7122,
+          "crc32": 1175294248,
+          "index": 28,
+          "macJpegDecode": true,
+          "sha256": "c2c64ecbc33243455f785ec344d79505b275239cb7d50b5ec2ad65f7246347be"
+        }
+      ]
+    },
+    {
+      "file": "棕脸鹟莺/棕脸(1).m4a",
+      "expected": "abroscopus-albogularis",
+      "speciesId": "abroscopus-albogularis",
+      "name": "棕脸鹟莺",
+      "confidence": 0.999935,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 10.300564050674438,
+      "newImageCommits": [
+        {
+          "bytes": 7979,
+          "crc32": 1022348544,
+          "index": 29,
+          "macJpegDecode": true,
+          "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3"
+        }
+      ]
+    },
+    {
+      "file": "棕脸鹟莺/棕脸.m4a",
+      "expected": "abroscopus-albogularis",
+      "speciesId": "abroscopus-albogularis",
+      "name": "棕脸鹟莺",
+      "confidence": 0.952701,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.716994047164917,
+      "newImageCommits": [
+        {
+          "bytes": 7979,
+          "crc32": 1022348544,
+          "index": 29,
+          "macJpegDecode": true,
+          "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3"
+        }
+      ]
+    },
+    {
+      "file": "珠颈斑鸠/珠颈斑鸠.m4a",
+      "expected": "spilopelia-chinensis",
+      "speciesId": "spilopelia-chinensis",
+      "name": "珠颈斑鸠",
+      "confidence": 0.999998,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 4.904361009597778,
+      "newImageCommits": [
+        {
+          "bytes": 8047,
+          "crc32": 1085801736,
+          "index": 27,
+          "macJpegDecode": true,
+          "sha256": "6f9f41c985b801f584458ef93516451d2d3602b429f631cca75836e787892745"
+        }
+      ]
+    },
+    {
+      "file": "白头鹎/白头鹎(1).m4a",
+      "expected": "pycnonotus-sinensis",
+      "speciesId": "pycnonotus-sinensis",
+      "name": "白头鹎",
+      "confidence": 0.999803,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.9887629747390747,
+      "newImageCommits": [
+        {
+          "bytes": 8287,
+          "crc32": 223303708,
+          "index": 18,
+          "macJpegDecode": true,
+          "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce"
+        }
+      ]
+    },
+    {
+      "file": "白头鹎/白头鹎.m4a",
+      "expected": "pycnonotus-sinensis",
+      "speciesId": "pycnonotus-sinensis",
+      "name": "白头鹎",
+      "confidence": 0.936078,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.517253041267395,
+      "newImageCommits": [
+        {
+          "bytes": 8287,
+          "crc32": 223303708,
+          "index": 18,
+          "macJpegDecode": true,
+          "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce"
+        }
+      ]
+    },
+    {
+      "file": "红嘴蓝鹊/红嘴蓝鹊(1).m4a",
+      "expected": "urocissa-erythroryncha",
+      "speciesId": "urocissa-erythroryncha",
+      "name": "红嘴蓝鹊",
+      "confidence": 0.995433,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.8164870738983154,
+      "newImageCommits": [
+        {
+          "bytes": 7996,
+          "crc32": 3086496058,
+          "index": 20,
+          "macJpegDecode": true,
+          "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6"
+        }
+      ]
+    },
+    {
+      "file": "红嘴蓝鹊/红嘴蓝鹊.m4a",
+      "expected": "urocissa-erythroryncha",
+      "speciesId": "urocissa-erythroryncha",
+      "name": "红嘴蓝鹊",
+      "confidence": 0.997711,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.031121015548706,
+      "newImageCommits": [
+        {
+          "bytes": 7996,
+          "crc32": 3086496058,
+          "index": 20,
+          "macJpegDecode": true,
+          "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6"
+        }
+      ]
+    },
+    {
+      "file": "鹊鸲/鹊鸲(1).m4a",
+      "expected": "copsychus-saularis",
+      "speciesId": "copsychus-saularis",
+      "name": "鹊鸲",
+      "confidence": 0.999782,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.0792710781097412,
+      "newImageCommits": [
+        {
+          "bytes": 7650,
+          "crc32": 2865161107,
+          "index": 24,
+          "macJpegDecode": true,
+          "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c"
+        }
+      ]
+    },
+    {
+      "file": "鹊鸲/鹊鸲.m4a",
+      "expected": "copsychus-saularis",
+      "speciesId": "copsychus-saularis",
+      "name": "鹊鸲",
+      "confidence": 0.997076,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.7660130262374878,
+      "newImageCommits": [
+        {
+          "bytes": 7650,
+          "crc32": 2865161107,
+          "index": 24,
+          "macJpegDecode": true,
+          "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c"
+        }
+      ]
+    },
+    {
+      "file": "麻雀/麻雀(1).m4a",
+      "expected": "passer-montanus",
+      "speciesId": "passer-montanus",
+      "name": "麻雀",
+      "confidence": 0.997762,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 1.1085549592971802,
+      "newImageCommits": [
+        {
+          "bytes": 7837,
+          "crc32": 828859574,
+          "index": 21,
+          "macJpegDecode": true,
+          "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb"
+        }
+      ]
+    },
+    {
+      "file": "麻雀/麻雀.m4a",
+      "expected": "passer-montanus",
+      "speciesId": "passer-montanus",
+      "name": "麻雀",
+      "confidence": 0.999972,
+      "state": "result",
+      "correct": true,
+      "pcmBytes": 320000,
+      "audioPackets": 1600,
+      "tailBeforeAudioVerified": true,
+      "seconds": 0.7382569313049316,
+      "newImageCommits": [
+        {
+          "bytes": 7837,
+          "crc32": 828859574,
+          "index": 21,
+          "macJpegDecode": true,
+          "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb"
+        }
+      ]
+    }
+  ],
+  "negativeCases": [
+    {
+      "case": "sequence_gap",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "duplicate",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "mixed_session",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "reported_drop",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "disconnect_end",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "short",
+      "rejectedBeforeRecognition": true
+    },
+    {
+      "case": "silent",
+      "rejectedBeforeRecognition": true
+    }
+  ],
+  "blePhysical": {
+    "attempted": true,
+    "connected": false,
+    "result": "Expected exactly one Frost-OJBadge, found 0",
+    "followupDiscovery": "扫描可见2台广播同协议服务UUID的设备，但名称均非目标，不擅自连接",
+    "imageTransferredThisRun": false,
+    "microphoneCommandsSent": false
+  },
+  "verificationBoundary": {
+    "realHttpsToExistingServer": true,
+    "actualNativeSessionCode": true,
+    "actualNativeWavePreprocessing": true,
+    "realOssDownloads": true,
+    "imageShaCrcAndMacDecode": true,
+    "bleTransport": "test double",
+    "iosBackgroundScheduling": "test double",
+    "iphoneExecuted": false,
+    "asrExecuted": false,
+    "hardwareMicrophoneCaptured": false,
+    "lockscreenExecuted": false,
+    "fieldAccuracyMeasured": false
+  },
+  "productionChanges": false,
+  "testFiles": [
+    "native/frost-badge/tests/BirdSessionReplay.swift",
+    "scripts/hardware/verify-bird-session.py"
+  ],
+  "privateEvidenceDirectory": "/Users/zhangcheng/.local/share/pocketbuddy-esp/bird-skill-20260828/standard-session-replay-20260828",
+  "finalSourceAudit": {
+    "checkedAt": "2026-08-28T11:26:06.615001+08:00",
+    "testedSourceSha256": "f3fabbce1905eacbb1f22ba2b88b44aa0b466e8d53cbf06aa0f9c386557b65a4",
+    "workspaceSourceSha256": "377943fd5bbaaee1311fb7214d322fe16f917d0e38864458288bec82728d873e",
+    "fullFileIdentical": false,
+    "allCodeOutsideUnexecutedAsrMethodIdentical": true,
+    "difference": "Only the contextualStrings list in transcribe differs; ASR was not executed or validated in this replay.",
+    "protocolAndHarnessShaUnchanged": true
+  }
+}

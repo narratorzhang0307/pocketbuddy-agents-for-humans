@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { stubBrain, setFrostBrain } from './brain';
-import { parseCloudPlan, planFrostTask, runFrostOrchestrator } from './skillRouter';
-import { ensureBuiltinSkills, resetSkillRegistryForTests } from '../../src/app/lib/skill';
+import { listRoutableSkills, parseCloudPlan, planFrostTask, runFrostOrchestrator } from './skillRouter';
+import { BUILTIN_SKILLS, disableSkill, ensureBuiltinSkills, equipSkill, installSkillManifest, resetSkillRegistryForTests } from '../../src/app/lib/skill';
 
 describe('Frost cross-skill router', () => {
   beforeEach(() => {
@@ -11,6 +11,25 @@ describe('Frost cross-skill router', () => {
   });
 
   afterEach(() => setFrostBrain(stubBrain));
+
+  it('does not restore a stale built-in home target after an app update, or re-enable a disabled skill', () => {
+    resetSkillRegistryForTests();
+    const manifest = BUILTIN_SKILLS.find(skill => skill.identity.id === 'frost.healthsync')!;
+    const installed = installSkillManifest({ ...manifest, entry: { target: 'earth' } }, 'builtin');
+    equipSkill(installed.key);
+    ensureBuiltinSkills();
+    expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)).toMatchObject({ target: 'frost-healthsync', availability: 'equipped' });
+    disableSkill(manifest.identity.id);
+    ensureBuiltinSkills();
+    expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)?.availability).toBe('installed');
+  });
+
+  it('preserves an explicitly installed third-party entry instead of rewriting its manifest', () => {
+    resetSkillRegistryForTests();
+    const manifest = BUILTIN_SKILLS.find(skill => skill.identity.id === 'frost.healthsync')!;
+    installSkillManifest({ ...manifest, entry: { target: 'custom-health-view' } }, 'inline');
+    expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)?.target).toBe('custom-health-view');
+  });
 
   it('routes a form-correction request to the equipped Lianlema skill without cloud', async () => {
     const result = await runFrostOrchestrator({ now: new Date('2026-08-11T00:00:00Z'), surface: 'frost', userText: '用练了吗纠正我的深蹲' });
@@ -70,7 +89,7 @@ describe('Frost cross-skill router', () => {
     const { plan, trace } = await planFrostTask({ now: new Date(), surface: 'frost', userText: '帮我审慎评估这个选择' });
     expect(calls).toBe(1);
     expect(plan).toBeNull();
-    expect(trace.join('\n')).toContain('服务端模型规划 · 未形成合法计划');
+    expect(trace.join('\n')).toContain('Qwen 规划 · 未形成合法计划');
   });
 
   it('rejects unknown fields, invented skills and duplicated targets', () => {

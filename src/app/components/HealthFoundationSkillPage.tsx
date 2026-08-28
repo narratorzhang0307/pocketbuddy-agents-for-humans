@@ -2,13 +2,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronLeft, Database, ShieldCheck, Workflow } from 'lucide-react';
 import { HealthSkillRegistry } from '../../../frost-agent/taskmaster';
 import {
-  SERVER_HEALTH_CONTROL_PLANE,
+  QWEN4B_HEALTH_CONTROL_PLANE,
   assessReadiness,
   type ReadinessInput,
 } from '../../../frost-agent/skills/health/foundation';
 import HealthSkillRuntimePanel from './HealthSkillRuntimePanel';
+import HealthQwenMnnCard from './HealthQwenMnnCard';
 import LifestyleSkillRuntimePanel, { LIFESTYLE_SKILL_IDS } from './LifestyleSkillRuntimePanel';
-import { acceptTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
+import { acceptTaskHandoff, type FrostTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
+import { reportFrostSkillPageResult } from '../lib/frostAgentRuntime';
+import SkillAvatar from './SkillAvatar';
 
 interface Props {
   skillId: string;
@@ -27,13 +30,19 @@ export default function HealthFoundationSkillPage({ skillId, onBack }: Props) {
     fatigue: 3,
     pain: 0,
   });
+  const [healthQwenReady, setHealthQwenReady] = useState(false);
   const [taskmasterTaskId, setTaskmasterTaskId] = useState<string>();
+  const [handoff, setHandoff] = useState<FrostTaskHandoff | null>(null);
   const mainRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const target = skillId === 'frost.meal-lens' ? 'frost-meal-lens' : '';
-    if (!target) return;
-    void acceptTaskHandoff(target).then((handoff) => setTaskmasterTaskId(handoff?.taskmasterTaskId));
+    let active = true;
+    setHandoff(null); setTaskmasterTaskId(undefined);
+    const target = skillId.replace('frost.', 'frost-');
+    void acceptTaskHandoff(target).then(value => { if (active) { setHandoff(value); setTaskmasterTaskId(value?.taskmasterTaskId); } }).catch(() => {});
+    return () => { active = false; };
   }, [skillId]);
+  const report = handoff?.agentSessionId && !handoff.taskmasterTaskId
+    ? (result: Parameters<typeof reportFrostSkillPageResult>[1]) => reportFrostSkillPageResult(handoff, result) : undefined;
   const decision = useMemo(() => assessReadiness(readinessInput), [readinessInput]);
   const showReadiness = skillId === 'frost.running-coach' || skillId === 'frost.endurance-guard';
   const lifestyleSkill = LIFESTYLE_SKILL_IDS.has(skillId);
@@ -50,6 +59,7 @@ export default function HealthFoundationSkillPage({ skillId, onBack }: Props) {
         <button type="button" onClick={onBack} aria-label="返回 Skills" className="grid h-10 w-10 place-items-center border-2 border-black bg-white active:translate-y-px">
           <ChevronLeft className="h-5 w-5" strokeWidth={3} />
         </button>
+        <SkillAvatar skillId={skillId} size={42} />
         <div className="min-w-0 flex-1">
           <div className="font-pixel text-[10px] tracking-wider">FROST HEALTH SKILL</div>
           <h1 className="mt-0.5 truncate text-[17px] font-black">{skill.title}</h1>
@@ -68,10 +78,10 @@ export default function HealthFoundationSkillPage({ skillId, onBack }: Props) {
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             <div className="border-2 border-black bg-[#e8f8ef] p-2.5">
-              <div className="font-pixel text-[7px]">SERVER MODEL CONTROL PLANE</div>
-              <b className="mt-1 block text-[11px]">Gemma · {SERVER_HEALTH_CONTROL_PLANE.provider}</b>
+              <div className="font-pixel text-[7px]">QWEN CONTROL PLANE</div>
+              <b className="mt-1 block text-[11px]">{QWEN4B_HEALTH_CONTROL_PLANE.model}</b>
               <p className="mt-1 text-[8.5px] leading-relaxed text-black/55">只做路由、证据综合与草案；不生成健康事实，不覆盖安全门。</p>
-              <span className="mt-2 inline-block border border-black bg-white px-1.5 py-1 font-pixel text-[5px]">AUTHENTICATED SERVER</span>
+              <span className="mt-2 inline-block border border-black bg-white px-1.5 py-1 font-pixel text-[5px]">{healthQwenReady ? 'MNN 4B READY' : 'MNN 4B 可选安装'}</span>
             </div>
             <div className="border-2 border-black bg-[#fff5cc] p-2.5">
               <div className="font-pixel text-[7px]">DETERMINISTIC TOOLS</div>
@@ -101,8 +111,8 @@ export default function HealthFoundationSkillPage({ skillId, onBack }: Props) {
         )}
 
         {lifestyleSkill
-          ? <LifestyleSkillRuntimePanel skillId={skillId} taskmasterTaskId={taskmasterTaskId} />
-          : <HealthSkillRuntimePanel skillId={skillId} readiness={decision} />}
+          ? <LifestyleSkillRuntimePanel key={skillId} skillId={skillId} taskmasterTaskId={taskmasterTaskId} report={report} />
+          : <><HealthQwenMnnCard onReadyChange={setHealthQwenReady} /><HealthSkillRuntimePanel key={skillId} skillId={skillId} readiness={decision} healthQwenReady={healthQwenReady} report={report} /></>}
 
         <section className="mt-3 grid gap-3 md:grid-cols-2">
           <div className="border-2 border-black bg-white p-3">

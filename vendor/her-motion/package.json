@@ -1,0 +1,12 @@
+{
+  "name": "pocketbuddy-her-motion",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "node ../../node_modules/vite/bin/vite.js build --config vite.config.ts",
+    "typecheck": "node ../../node_modules/typescript/bin/tsc --project tsconfig.json"
+  },
+  "dependencies": { "@mediapipe/tasks-vision": "1.0.1" },
+  "devDependencies": { "tailwindcss": "3.4.17", "autoprefixer": "10.4.21" }
+}

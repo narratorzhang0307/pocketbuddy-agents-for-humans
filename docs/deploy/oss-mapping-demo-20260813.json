@@ -1,0 +1,17 @@
+{
+  "schema": "pocket-earth.oss-release/v1",
+  "release": "20260813-mapping-jinling-demo-v3",
+  "bucket": "last-night-on-earth",
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "publicBase": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com",
+  "status": "uploaded-and-verified",
+  "objects": [
+    {
+      "local": "output/pdf/jinling-shiji-partial-10-page-demo.pdf",
+      "key": "pocket-earth/assets/mapping-demo/20260813-jinling-shiji-partial-10-page-demo-665557a2a720.pdf",
+      "bytes": 389033,
+      "sha256": "665557a2a720e7d6bc757aebd4c35bddadd7d92c8a0ba318ce963ef0b7685c2a",
+      "contentType": "application/pdf"
+    }
+  ]
+}

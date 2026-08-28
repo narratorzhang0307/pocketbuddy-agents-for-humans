@@ -1,0 +1,39 @@
+[Unit]
+Description=PocketBuddy Photos real SAM 2.1 inference (private CPU worker)
+After=network.target
+
+[Service]
+Type=simple
+DynamicUser=yes
+WorkingDirectory=/opt/pocketbuddy-photos/current
+ExecStart=/opt/pocketbuddy-photos/venv/bin/python /opt/pocketbuddy-photos/current/service.py
+EnvironmentFile=/etc/pocketbuddy/photos-harness.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OMP_NUM_THREADS=1
+Environment=MKL_NUM_THREADS=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=TMPDIR=/tmp
+Restart=on-failure
+RestartSec=5
+MemoryMax=1900M
+MemorySwapMax=0
+CPUQuota=100%
+TasksMax=32
+TimeoutStopSec=10
+LimitCORE=0
+NoNewPrivileges=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_UNIX
+IPAddressDeny=any
+IPAddressAllow=localhost
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,133 @@
+{
+  "schema": "frost-blink-verification/v1",
+  "date": "2026-08-28T03:12:59.176159+00:00",
+  "firmware": {
+    "version": "0.2.18-ojbadge-frost-blink",
+    "sha256": "4a7bd4d993910b4f9b6321a27713f74d33db65ae3f877e7b3ee726cc7bceeb21",
+    "bytes": 2362016,
+    "partitionFreeBytes": 783712,
+    "offset": 65536,
+    "previousVersion": "0.2.17-ojbadge-frost-loop",
+    "physicalReadbackVerified": true,
+    "bootAndMetadataUnchanged": true,
+    "bootVerified": true,
+    "visibleDisplayConfirmed": false
+  },
+  "timing": {
+    "requestedHoldMs": 1600,
+    "blinkStartIntervalMs": 4800,
+    "previewHoldMs": 1600,
+    "observedHoldsMs": [
+      1601,
+      1598,
+      1598,
+      1597,
+      1598,
+      1601
+    ]
+  },
+  "tests": {
+    "host": true,
+    "avatarTestsPassed": 93,
+    "originalDogAndOssCatalogUnchanged": true
+  },
+  "runtime": {
+    "blinkHoldsMs": [
+      1601,
+      1598,
+      1598,
+      1597,
+      1598,
+      1601
+    ],
+    "blinkTimingVerified": true,
+    "durationSeconds": 30,
+    "samples": [
+      {
+        "frames": 1,
+        "mask": 2,
+        "maxDecodeUs": 104931
+      },
+      {
+        "frames": 22,
+        "mask": 15,
+        "maxDecodeUs": 105989
+      },
+      {
+        "frames": 45,
+        "mask": 15,
+        "maxDecodeUs": 106075
+      },
+      {
+        "frames": 68,
+        "mask": 15,
+        "maxDecodeUs": 106142
+      },
+      {
+        "frames": 91,
+        "mask": 15,
+        "maxDecodeUs": 106142
+      },
+      {
+        "frames": 114,
+        "mask": 15,
+        "maxDecodeUs": 106150
+      }
+    ],
+    "errors": [],
+    "allFourFramesDecoded": true,
+    "loopProgressVerified": true,
+    "versionInLog": true,
+    "firstLcdDmaInLog": true,
+    "visualConfirmation": false,
+    "serialReleased": true
+  },
+  "sourceSnapshot": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "2b7437e25e85d29eeff6d113453fccc9d924e61a1eaedec437475bee38ec8c34"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge.cc",
+      "sha256": "12a5d9437530d617cc37a84ae26bb75555d5df0f1c89df424224c64ae0cb74de"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.cc",
+      "sha256": "774d54bcea89cd4347ff8f92c368671fb9d9a6c9aac79ee9a07aeaed63db60eb"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.h",
+      "sha256": "1b1a24d5023931ddfd0c1ce7d4055e1571ea0d23484d328f7ec0597be31ca6b7"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_display.h",
+      "sha256": "9d3686ff939f9b3037e870ca429895fbd97f6eb333711f9899757fd062aecc06"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk.h",
+      "sha256": "536daf28785faa0531349aa8540a54c00634436952785b823a526adfcbd3b255"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.h",
+      "sha256": "d95426415e0742184230e82ed3569c87c81bff6319e2e4c12a2db16825ad710a"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.cc",
+      "sha256": "6ccdb03117720a9703a66d34df715271043c17dc3ce68d598dea57c5b302c01d"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.h",
+      "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.cc",
+      "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc"
+    },
+    {
+      "path": "tests/protocol_host_test.cpp",
+      "sha256": "f630ffd7e6905b45d4360ad844a22b7e67e8b611bfb4f41ee2149361391e1ae1"
+    }
+  ],
+  "phoneOperations": false,
+  "serialPortReleased": true
+}

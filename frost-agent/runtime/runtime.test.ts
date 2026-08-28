@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { HEALTH_EVENT_PROTOCOL, TASK_SIGNAL_PROTOCOL, type FrostTaskRequest, type HealthEvent, type JsonObject } from '../taskmaster/contracts';
 import { FrostHealthTaskmaster } from '../taskmaster/orchestrator';
 import { InMemoryTaskmasterStore } from '../taskmaster/store';
@@ -92,29 +92,6 @@ describe('Frost Harness session log and inbox', () => {
       type: 'session.restored', data: expect.objectContaining({ recovered_from: 'running', review_required: true }),
     }));
   });
-
-  it('continues inbox ids after a persisted session is restored', async () => {
-    const log = new InMemoryFrostSessionLog();
-    const session = FrostAgentLoop.createSession('restore-inbox', 'user-1', new Date(at));
-    await log.append({ session_id: session.session_id, type: 'session.created', data: session as unknown as JsonObject });
-    await log.append({
-      session_id: session.session_id,
-      event_id: `${session.session_id}:inbox:1:queued`,
-      type: 'inbox.queued',
-      data: { message_id: 'inbox:1', mode: 'followup', source: 'user', content: { text: '旧消息' } },
-    });
-    const restored = new FrostAgentLoop(
-      FrostAgentLoop.createSession(session.session_id, session.user_id, new Date(at)),
-      { async decide() { return decision({ type: 'complete', summary: '恢复后完成', evidence_ids: [] }); } },
-      new FrostAgentToolRegistry(),
-      log,
-    );
-    await restored.initialize();
-
-    await expect(restored.followup({ text: '新消息' })).resolves.toEqual(expect.objectContaining({ message_id: 'inbox:3' }));
-    await restored.whenIdle();
-    expect(restored.getSession().status).toBe('idle');
-  });
 });
 
 describe('Frost Agent Loop', () => {
@@ -179,67 +156,6 @@ describe('Frost Agent Loop', () => {
 
     expect(sawSteer).toBe(true);
     expect(loop.getSession().status).toBe('idle');
-  });
-
-  it('applies the tool-call ceiling per turn instead of exhausting a long-lived session', async () => {
-    let decisionInTurn = 0;
-    const model: FrostAgentModelAdapter = {
-      async decide() {
-        decisionInTurn += 1;
-        if (decisionInTurn % 2 === 1) return decision({ type: 'call_tool', tool: 'test.once', arguments: {} });
-        return decision({ type: 'complete', summary: '本轮完成', evidence_ids: [] });
-      },
-    };
-    const tools = new FrostAgentToolRegistry();
-    tools.register({
-      name: 'test.once', description: 'one call per turn', read_only: true, risk: 'low',
-      async execute() { return { status: 'success', data: {} }; },
-    });
-    const loop = new FrostAgentLoop(
-      FrostAgentLoop.createSession('long-lived-session', 'user-1', new Date(at)),
-      model,
-      tools,
-      new InMemoryFrostSessionLog(),
-      { max_tool_calls: 1 },
-    );
-    await loop.initialize();
-
-    await loop.followup({ text: '第一轮' });
-    await loop.whenIdle();
-    await loop.followup({ text: '第二轮' });
-    await loop.whenIdle();
-
-    expect(loop.getSession()).toEqual(expect.objectContaining({
-      status: 'idle',
-      counters: { turns: 2, steps: 4, tool_calls: 2 },
-    }));
-  });
-});
-
-describe('Frost deterministic recovery router', () => {
-  it('routes a safe-intensity running request to the registered running coach', async () => {
-    const provider = new TaskmasterSkillProvider();
-    const model = new LocalHealthFallbackModel(provider);
-    const session = FrostAgentLoop.createSession('running-coach-route', 'user-1', new Date(at));
-    const events = [{
-      protocol: 'frost-agent-event/v1' as const,
-      event_id: 'running-request',
-      session_id: session.session_id,
-      seq: 1,
-      type: 'user.message' as const,
-      occurred_at: at,
-      data: { content: { text: '帮我安排一节轻松跑，并解释今天的安全强度' } },
-    }];
-
-    await expect(model.decide({
-      session,
-      events,
-      turn: 1,
-      step: 1,
-      signal: new AbortController().signal,
-    })).resolves.toEqual(expect.objectContaining({
-      next_action: { type: 'load_skill', skill_id: 'frost.running-coach' },
-    }));
   });
 });
 
@@ -312,32 +228,6 @@ describe('Frost Skill disclosure and Qwen decision boundary', () => {
       protocol: FROST_AGENT_DECISION_PROTOCOL,
       next_action: { type: 'load_skill', skill_id: 'frost.her-motion-warmup' },
     }));
-  });
-
-  it('falls back before Taskmaster when server JSON violates the agent decision contract', async () => {
-    const provider = new TaskmasterSkillProvider();
-    const tools = new FrostAgentToolRegistry();
-    const session = FrostAgentLoop.createSession('invalid-contract-session', 'user-1', new Date(at));
-    const context = { session, events: [], turn: 1, step: 1, signal: new AbortController().signal };
-    const fallbackDecision = {
-      protocol: FROST_AGENT_DECISION_PROTOCOL,
-      goal: '询问用户',
-      observations: ['服务端决策不完整'],
-      next_action: { type: 'ask_user' as const, question: '请再描述一次你的目标。', reason: '需要完整目标' },
-      confidence: 1,
-      risk: 'low' as const,
-      success_condition: '用户补充目标。',
-    };
-    const fallback = { decide: vi.fn(async () => fallbackDecision) };
-    const model = new QwenFrostModelAdapter(
-      { async complete() { return '{"protocol":"frost-agent-decision/v1"}'; } },
-      tools,
-      provider,
-      { fallback },
-    );
-
-    await expect(model.decide(context)).resolves.toEqual(fallbackDecision);
-    expect(fallback.decide).toHaveBeenCalledOnce();
   });
 
   it('preserves a tool call and its result as one context unit during compaction', () => {

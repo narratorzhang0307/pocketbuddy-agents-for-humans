@@ -68,6 +68,7 @@ import {
   type PocketBuddyVisibility,
 } from '../lib/pocket-buddy';
 import AgentWorldPocketBuddyPortrait from './AgentWorldPocketBuddyPortrait';
+import SkillAvatar from './SkillAvatar';
 import PocketBuddyPortrait from './PocketBuddyPortrait';
 import CityCharacterCard, { type CityCharacterScene } from './CityCharacterCard';
 import PrivateSkillForgePanel from './PrivateSkillForgePanel';
@@ -246,8 +247,8 @@ export const MY_AGENT_CARDS: readonly MyAgentCard[] = [
     location: '池边慢路',
     bond: '长期守护中',
     skillRoutes: [
-      { id: 'her-motion', name: 'Her Motion', description: '女性运动、恢复与瑜伽动作陪伴', target: 'her-motion', source: 'Pocket Buddy · Vision API' },
-      { id: 'lianlema', name: '练了吗', description: '实时姿势矫正、动作计数与服务端文字教练', target: 'lianlema-coach', source: 'Pocket Buddy · RTMPose + ST-GCN' },
+      { id: 'her-motion', name: 'Her Motion', description: '女性运动、恢复与瑜伽动作陪伴', target: 'her-motion', source: 'Pocket Buddy · Local Vision' },
+      { id: 'lianlema', name: '练了吗', description: '实时姿势矫正、动作计数与本地文字教练', target: 'lianlema-coach', source: 'Pocket Buddy · RTMPose + ST-GCN' },
       { id: 'wger-planner', name: '训练计划', description: '读取训练动作和进度，由 Frost 复核当天强度', target: 'frost-wger-planner', source: 'Pocket Buddy · wger' },
       { id: 'mealie-kitchen', name: '恢复厨房', description: '从自己的食谱与餐食计划中选择恢复餐', target: 'frost-mealie-kitchen', source: 'Pocket Buddy · Mealie' },
     ],
@@ -587,12 +588,10 @@ export function PocketBuddyCaptureStudio({
     setPortraitUrl('');
     setVisualKind('local-cutout');
     setBackgroundRemoval('local');
-    let localPortrait = '';
     try {
       setStatus('正在本机校验格式、移除元数据并提取主体…');
       const local = await processAgentImage(file, { signal: controller.signal, maxEdge: 560 });
       setSourceUrl(local.sourceUrl);
-      localPortrait = local.portraitUrl;
       setStatus('照片将临时送往百炼：Qwen 先保留主体身份并萌化，再生成透明抠图…');
       const submitted = await submitPetCutout(file, {
         name: name.trim() || file.name.replace(/\.[^.]+$/, '').slice(0, 18) || '新伙伴',
@@ -624,13 +623,9 @@ export function PocketBuddyCaptureStudio({
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') {
         setStatus('已取消这次处理。');
-      } else if (localPortrait) {
-        setPortraitUrl(localPortrait);
-        setVisualKind('local-cutout');
-        setBackgroundRemoval('local');
-        setStatus(`${error instanceof Error ? error.message : '云端萌化失败'}；已保留本机抠图。`);
       } else {
-        setStatus(error instanceof Error ? error.message : '照片处理失败');
+        setPortraitUrl('');
+        setStatus(`${error instanceof Error ? error.message : '照片处理失败'}；形象留空，请重试。`);
       }
     } finally {
       if (jobRef.current) {
@@ -754,7 +749,7 @@ export function PocketBuddyCaptureStudio({
       </div>
       <p className="pbf-status">{status}</p>
       <p className="pbf-consent-note">
-        本张照片仅临时进入百炼 Qwen 生成链路；任务完成或超时后清理。若服务失败，则保留本机兜底结果。
+        本张照片仅临时进入百炼 Qwen 生成链路；任务完成或超时后清理。若服务失败，形象留空，不自动换成其他形象。
       </p>
 
       <div className="pbf-preset-row" aria-label="灵感形象">
@@ -1038,7 +1033,7 @@ export function SkillsPanel({ buddy }: { buddy: PocketBuddy }) {
   return (
     <section className="pbf-skills">
       <header className="pbf-panel-intro">
-        <span>技能能力</span>
+        <span>SKILL DECK</span>
         <h2>{buddy.name} 的能力卡</h2>
         <p>独立加载 · 证据升级 · 可暂停 · 可回滚</p>
       </header>
@@ -1475,7 +1470,7 @@ export default function PocketBuddyForge({
             <p>焦糖理解任务并拆解工作；Pip、Puff、Mossback 分别执行健康数据、运动路线与动作恢复 Skill；最终由焦糖汇总证据。</p>
             <div>
               <button type="button" className="is-master" onClick={() => setActiveAgentCardId('pet-caramel-dachshund')}>
-                <AgentWorldPocketBuddyPortrait blueprint={MY_AGENT_CARDS[0].blueprint} animated={false} />
+                <SkillAvatar skillId="frost" size={64} />
                 <span><b>焦糖</b><small>FROST 主 AGENT</small></span>
               </button>
               <span className="pbf-agent-network-arrow" aria-hidden="true">ROUTE ↓</span>
@@ -1502,7 +1497,8 @@ export default function PocketBuddyForge({
                     if (owned) setSelectedId(owned.id);
                   }}
                 >
-                  <AgentWorldPocketBuddyPortrait blueprint={blueprint} animated={false} />
+                  {blueprint.id === 'pet-caramel-dachshund' ? <SkillAvatar skillId="frost" size={52} />
+                    : <AgentWorldPocketBuddyPortrait blueprint={blueprint} animated={false} />}
                   <span>{blueprint.name}</span>
                   <small>{owned ? STATUS_LABEL[owned.status] : blueprint.role}</small>
                 </button>

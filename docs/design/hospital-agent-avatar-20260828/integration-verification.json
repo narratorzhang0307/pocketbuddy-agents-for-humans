@@ -1,0 +1,88 @@
+{
+  "verifiedAt": "2026-08-28T03:14:35.552Z",
+  "baselineCommit": "6fdb00375346d751e794107b350ca47a16caf982",
+  "baselineInstalledBuild": "2026082805",
+  "candidateRoot": "/Volumes/PocketBuddy-iOS-Dev/Artifacts/hospital-avatar-ios-20260828.qLVpII",
+  "candidateKind": "Web resources only; not signed or installed",
+  "sources": [
+    {
+      "path": "src/app/components/HospitalAgentAvatar.tsx",
+      "sha256": "b4b1e7e16a0c82966592442dfacbc857a363d000773838dcc7177cbd2770b0d3"
+    },
+    {
+      "path": "src/app/components/MusicAgentsTab.tsx",
+      "sha256": "d0c9214ef248b83795a34e8937d7e1e5aa5e4634e9f3e64e3d862a337ede0da4"
+    },
+    {
+      "path": "src/app/components/HospitalAgentPage.tsx",
+      "sha256": "ef0f6ddf5d7040872d0c540ab2df217979828209e17072f44159312a8763ba78"
+    },
+    {
+      "path": "src/app/components/HospitalAgentPage.test.ts",
+      "sha256": "230b8f494df2c10cf3b45ced4547facfd3a3e8bd1b07830819724553d8979052"
+    },
+    {
+      "path": "public/assets/agent-avatars/20260828/hospital-agent-bear-v1.png",
+      "sha256": "38c56dc0fb98f5b6062896e5e3a60fd7fe91418fda7ba474ef5f2f35ecd84fbf"
+    }
+  ],
+  "desktopAndCandidateSourcesMatch": true,
+  "checkedUnchangedFrom05": [
+    "native/frost-badge/ios/FrostBadgePlugin.swift",
+    "native/frost-badge/ios/FrostBirdSession.swift",
+    "native/frost-health/ios/FrostHealthPlugin.swift",
+    "ios/App/App/HealthKit.entitlements",
+    "ios/App/App.xcodeproj/project.pbxproj",
+    "src/app/lib/frostBadge.ts",
+    "src/app/lib/frostCompanion.ts"
+  ],
+  "web": {
+    "indexSha256": "df776d47de7659ad4d9bccfbcecfdd2e4c9d628e98e00d74c805811f92ec57de",
+    "avatarSha256": "38c56dc0fb98f5b6062896e5e3a60fd7fe91418fda7ba474ef5f2f35ecd84fbf",
+    "avatarBytes": 1167283,
+    "avatarDimensions": [
+      1254,
+      1254
+    ],
+    "referencingChunk": "MusicAgentsTab-Bdy85pvj.js",
+    "iosPreparePassed": true,
+    "coachRebuilt": true,
+    "herMotionRebuilt": true
+  },
+  "tests": {
+    "files": 3,
+    "passed": 24,
+    "typecheckPassed": true,
+    "desktopPassed": true,
+    "isolatedPassed": true
+  },
+  "browser": {
+    "surface": "local preview, not iPhone",
+    "viewport": [
+      430,
+      932
+    ],
+    "entry": {
+      "loaded": true,
+      "renderedSize": [
+        52,
+        52
+      ]
+    },
+    "header": {
+      "loaded": true,
+      "renderedSize": [
+        36,
+        36
+      ]
+    }
+  },
+  "phoneInstalled": false,
+  "phoneVisualVerified": false,
+  "deviceOwner": "01a04449-a3e8-7ff3-88e2-ff4e2e266262",
+  "blocker": "iOS developer verification unresolved; device owner awaiting explicit authorization for Apple 7-day offline development profile.",
+  "original05Unmodified": true,
+  "gitIndexUnmodified": true,
+  "pushed": false
+}
+

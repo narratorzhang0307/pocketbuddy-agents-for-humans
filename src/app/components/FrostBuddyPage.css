@@ -283,7 +283,13 @@
   outline: 0;
   background: #fffaf0;
   color: #151713;
-  font: 700 10px/1 monospace;
+  font: 700 16px/1 monospace;
+}
+
+/* iOS zooms the whole viewport when a small text control receives focus.
+   Include the badge draft / voice settings, while leaving pinch zoom available. */
+.frost-buddy-page :is(input:not([type="checkbox"]):not([type="range"]), textarea, select) {
+  font-size: max(16px, 1rem);
 }
 
 .frost-encounter__composer input:focus { border-color: var(--frost-accent); }

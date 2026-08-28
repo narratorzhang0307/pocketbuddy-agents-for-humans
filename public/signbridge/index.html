@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#ececec" />
+    <meta name="description" content="SignBridge —— 131 个中国手语词的浏览器本地实时识别。" />
+    <title>SignBridge · 手语桥</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Press+Start+2P&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/signbridge/style.css?v=20260816-pocket-ui-v1" />
+    <script defer src="/signbridge/runtime/ort.min.js"></script>
+    <script defer src="/signbridge/vendor/mediapipe/drawing_utils.js"></script>
+    <script defer src="/signbridge/vendor/mediapipe/holistic.js"></script>
+    <script defer src="/signbridge/app.js?v=20260816-camera-v2"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="back" href="/" aria-label="返回 Pocket Earth">← POCKET EARTH</a>
+        <span class="local-badge"><i></i> ON-DEVICE</span>
+      </header>
+
+      <section class="intro" aria-labelledby="page-title">
+        <p class="eyebrow">SIGN LANGUAGE · REAL-TIME VISION</p>
+        <h1 id="page-title">SIGN<span>BRIDGE</span></h1>
+        <p class="lede">131 个中国手语词的实时识别。画面、关键点和推理都留在你的设备上。</p>
+      </section>
+
+      <section class="camera-card" aria-label="手语识别画面">
+        <div class="viewfinder">
+          <video id="camera" autoplay playsinline muted></video>
+          <canvas id="overlay"></canvas>
+          <div class="scanline" aria-hidden="true"></div>
+          <span class="corner corner-a" aria-hidden="true"></span>
+          <span class="corner corner-b" aria-hidden="true"></span>
+          <span class="corner corner-c" aria-hidden="true"></span>
+          <span class="corner corner-d" aria-hidden="true"></span>
+
+          <div id="idle-panel" class="idle-panel">
+            <div class="hand-mark" aria-hidden="true">
+              <span class="finger f1"></span><span class="finger f2"></span><span class="finger f3"></span><span class="finger f4"></span><span class="palm"></span>
+            </div>
+            <strong>准备好后打开摄像头</strong>
+            <small>建议上半身入镜、光线充足，完成一个词后稍作停顿</small>
+          </div>
+
+          <div class="status-strip" aria-live="polite">
+            <span id="status-dot" class="status-dot"></span>
+            <span id="status-text">等待启动</span>
+            <span id="fps" class="fps"></span>
+          </div>
+        </div>
+
+        <div class="controls">
+          <button id="start-button" class="primary" type="button">
+            <span class="button-icon" aria-hidden="true">●</span>
+            <span><b>开始识别</b><small>首次使用会请求摄像头权限</small></span>
+          </button>
+          <button id="stop-button" class="secondary" type="button" hidden>停止</button>
+        </div>
+        <p id="camera-help" class="camera-help" role="alert" hidden></p>
+      </section>
+
+      <section class="result-grid" aria-label="识别结果">
+        <article class="live-result">
+          <span class="panel-label">LIVE PREDICTION</span>
+          <div class="prediction-line">
+            <strong id="prediction">—</strong>
+            <span id="confidence">0%</span>
+          </div>
+          <div class="meter"><i id="confidence-bar"></i></div>
+          <div id="top-three" class="top-three"></div>
+        </article>
+
+        <article class="transcript">
+          <div class="panel-title">
+            <span class="panel-label">RECOGNIZED WORDS</span>
+            <button id="clear-button" type="button">清空</button>
+          </div>
+          <ol id="history" aria-live="polite">
+            <li class="empty">完成手语动作后，识别结果会出现在这里</li>
+          </ol>
+        </article>
+      </section>
+
+      <section class="privacy-note">
+        <span aria-hidden="true">✦</span>
+        <p><strong>本地处理</strong>摄像头画面不会上传。MediaPipe 提取关键点后，SignFormer ONNX 模型直接在浏览器内运行。</p>
+      </section>
+
+      <details class="limitations">
+        <summary>识别范围与已知限制</summary>
+        <p>当前是单词孤立识别模型，词表以亲属、核心价值观、季节和中国城市/地区为主。训练数据为单一手语者词典视频，真人、连续句子、遮挡或弱光下的结果可能不稳定，不应用于紧急沟通或作为专业翻译替代。</p>
+      </details>
+
+      <footer>POCKET EARTH · AGENT WORLD / SIGNBRIDGE</footer>
+    </main>
+  </body>
+</html>

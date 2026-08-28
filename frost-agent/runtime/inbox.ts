@@ -30,12 +30,6 @@ export class FrostInbox {
   private readonly nextStep: FrostInboxItem[] = [];
   private sequence = 0;
 
-  /** Restored sessions must continue after historic inbox ids instead of reusing inbox:1. */
-  resumeSequence(sequence: number): void {
-    if (!Number.isFinite(sequence) || sequence < 0) throw new Error('inbox_sequence_invalid');
-    this.sequence = Math.max(this.sequence, Math.floor(sequence));
-  }
-
   enqueue(input: EnqueueFrostInboxItem): FrostInboxItem {
     const target = targetFor(input.mode);
     this.sequence += 1;

@@ -1,0 +1,152 @@
+{
+  "schema": "frost-wink-verification/v1",
+  "date": "2026-08-28T03:23:08.361599+00:00",
+  "firmware": {
+    "version": "0.2.19-ojbadge-frost-wink",
+    "sha256": "9457b1a931221723c2023434fcbbcb3172ec00b485c3db3a607ad308cf64a394",
+    "bytes": 2377984,
+    "partitionFreeBytes": 767744,
+    "offset": 65536,
+    "previousVersion": "0.2.18-ojbadge-frost-blink",
+    "physicalReadbackVerified": true,
+    "bootAndMetadataUnchanged": true,
+    "bootVerified": true,
+    "visibleDisplayConfirmed": false
+  },
+  "timing": {
+    "requestedBlinkHoldMs": 1600,
+    "requestedWinkHoldMs": 1600,
+    "eyeExpressionStartIntervalMs": 4800,
+    "previewHoldsMs": [
+      1600,
+      1600
+    ],
+    "previewEncodedFrames": 49,
+    "previewDurationMs": 9120,
+    "observedBlinkHoldsMs": [
+      1598,
+      1598,
+      1598
+    ],
+    "observedWinkHoldsMs": [
+      1595,
+      1595,
+      1598
+    ]
+  },
+  "assets": {
+    "generator": "built-in image_gen edit",
+    "modelVersionReturned": false,
+    "newWinkJpegBytes": 15852,
+    "allResidentExpressionJpegBytes": 61720,
+    "priorExpressionsUnchanged": true,
+    "originalDogAndOssCatalogUnchanged": true,
+    "firmwareArraysMatchExports": true
+  },
+  "tests": {
+    "host": true,
+    "avatarTestsPassed": 93
+  },
+  "runtime": {
+    "blinkHoldsMs": [
+      1598,
+      1598,
+      1598
+    ],
+    "winkHoldsMs": [
+      1595,
+      1595,
+      1598
+    ],
+    "blinkTimingVerified": true,
+    "winkTimingVerified": true,
+    "durationSeconds": 30,
+    "samples": [
+      {
+        "frames": 1,
+        "mask": 2,
+        "maxDecodeUs": 104891
+      },
+      {
+        "frames": 23,
+        "mask": 15,
+        "maxDecodeUs": 106005
+      },
+      {
+        "frames": 46,
+        "mask": 31,
+        "maxDecodeUs": 106593
+      },
+      {
+        "frames": 69,
+        "mask": 31,
+        "maxDecodeUs": 106593
+      },
+      {
+        "frames": 92,
+        "mask": 31,
+        "maxDecodeUs": 106742
+      },
+      {
+        "frames": 115,
+        "mask": 31,
+        "maxDecodeUs": 106742
+      }
+    ],
+    "errors": [],
+    "allFiveFramesDecoded": true,
+    "loopProgressVerified": true,
+    "versionInLog": true,
+    "firstLcdDmaInLog": true,
+    "visualConfirmation": false,
+    "serialReleased": true
+  },
+  "sourceSnapshot": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "65d447048f187fc32fb575ecc23f071696574de70e44e88dac284bdd14ca9ecc"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge.cc",
+      "sha256": "12a5d9437530d617cc37a84ae26bb75555d5df0f1c89df424224c64ae0cb74de"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.cc",
+      "sha256": "774d54bcea89cd4347ff8f92c368671fb9d9a6c9aac79ee9a07aeaed63db60eb"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.h",
+      "sha256": "1b1a24d5023931ddfd0c1ce7d4055e1571ea0d23484d328f7ec0597be31ca6b7"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_display.h",
+      "sha256": "4c8a8cabbcd2e297026fb81177d65af7a05a397350e6dbe57332a99560a647ce"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk.h",
+      "sha256": "20fd429ca8f1658937a3e4331fca82e9ed45ea74f3bbbf0eefd41c39b02b6bcb"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.h",
+      "sha256": "3d861177101b66028b9972b8477cedf42fdccb51999a6dd2806d60ba424d23b2"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.cc",
+      "sha256": "9e44067c97c1290cacea89cc8968a3b8d148c9991b14e4db3d05ff3ac7ba435e"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.h",
+      "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.cc",
+      "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc"
+    },
+    {
+      "path": "tests/protocol_host_test.cpp",
+      "sha256": "14d02555710173f9e67a8a3059a460729a4bbf6c48ca749af8903da14cadec9f"
+    }
+  ],
+  "phoneOperations": false,
+  "serialPortReleased": true
+}

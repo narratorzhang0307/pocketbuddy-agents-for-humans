@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { resolveSkillRunTarget } from '../plaza/skillRoutes';
 import { BUILTIN_SKILLS } from './builtins';
 import { SkillProtocolError, validateSkillManifest } from './protocol';
-import { disableSkill, ensureBuiltinSkills, equipSkill, getEquippedSkill, getInstalledSkill, installSkillManifest, listInstalledSkills, prepareAndEquipSkill, resetSkillRegistryForTests, rollbackSkill, uninstallSkill, uninstallSkillWithAssets } from './index';
+import { disableSkill, ensureBuiltinSkills, equipSkill, getEquippedSkill, getInstalledSkill, installSkillManifest, listInstalledSkills, resetSkillRegistryForTests, rollbackSkill, uninstallSkill, uninstallSkillWithAssets } from './index';
 
 describe('pocket-skill/v1', () => {
   beforeEach(() => resetSkillRegistryForTests());
@@ -22,13 +22,12 @@ describe('pocket-skill/v1', () => {
     const healthSkills = ids.map((id) => BUILTIN_SKILLS.find((item) => item.identity.id === id));
     expect(healthSkills.every(Boolean)).toBe(true);
     expect(healthSkills.every((item) => item?.runtime.execution === 'declarative')).toBe(true);
-    expect(healthSkills.every((item) => item?.data.schemas.includes('frost-server-control/v1'))).toBe(true);
-    expect(healthSkills.every((item) => item?.runtime.base === undefined && item?.assets.length === 0)).toBe(true);
+    expect(healthSkills.every((item) => item?.data.schemas.includes('frost-qwen-control/v1'))).toBe(true);
     expect(healthSkills.every((item) => item?.provenance.source.includes('https://github.com/'))).toBe(true);
     expect(BUILTIN_SKILLS.find((item) => item.identity.id === 'frost.garmin-readonly')?.quality_gate.checks.join(' ')).toContain('delete');
   });
 
-  it('publishes an exclusively sport, health and nutrition catalogue', () => {
+  it('publishes sport, health, nutrition and the explicit bird-listening extension', () => {
     expect(BUILTIN_SKILLS.map((item) => item.identity.id)).toEqual([
       'pocket.her-motion',
       'pocket.lianlema',
@@ -46,11 +45,12 @@ describe('pocket-skill/v1', () => {
       'frost.meal-lens',
       'frost.wger-planner',
       'frost.mealie-kitchen',
+      'frost.bird-listener',
     ]);
     expect(JSON.stringify(BUILTIN_SKILLS)).not.toMatch(/pocket\.(?:books|movies|music|travel|reading-jot|exhibition)/);
   });
 
-  it('registers the server-orchestrated Lianlema coach as a camera-scoped runnable Skill', () => {
+  it('registers the local Lianlema coach as a camera-scoped runnable Skill', () => {
     const lianlema = BUILTIN_SKILLS.find((item) => item.identity.id === 'pocket.lianlema');
     expect(lianlema).toMatchObject({
       entry: { target: 'lianlema-coach' },
@@ -58,25 +58,9 @@ describe('pocket-skill/v1', () => {
       permissions: { tools: ['pose'] },
     });
     expect(lianlema?.permissions.scopes).toEqual(expect.arrayContaining(['camera', 'audio', 'network']));
-    expect(lianlema?.permissions.network_hosts).toEqual([]);
-    expect(lianlema?.quality_gate.checks.join(' ')).toContain('受控姿态服务');
+    expect(lianlema?.quality_gate.checks.join(' ')).toContain('仅在用户同意后发往 Pocket Buddy 模型服务，不保存画面');
+    expect(lianlema?.permissions.network_hosts).toEqual(['localhost', 'pocketbuddy.throughtheglass.art']);
     expect(resolveSkillRunTarget(lianlema?.entry.target || '')).toBe('lianlema');
-  });
-
-  it('blocks legacy MNN manifests before downloading any asset', async () => {
-    const legacy = structuredClone(BUILTIN_SKILLS[0]);
-    legacy.identity.id = 'frost.legacy-edge';
-    legacy.kind = 'lora';
-    legacy.runtime.execution = 'mnn';
-    legacy.runtime.base = { id: 'legacy-base', revision: '1', sha256: 'a'.repeat(64) };
-    legacy.entry.adapter = 'legacy.adapter';
-    legacy.assets = [{
-      id: 'legacy.adapter', role: 'adapter', media_type: 'application/octet-stream',
-      bytes: 1, sha256: 'b'.repeat(64), url: 'https://example.com/legacy.bin',
-    }];
-    const installed = installSkillManifest(legacy);
-    await expect(prepareAndEquipSkill(installed.key)).rejects.toThrow(/服务端编排/);
-    expect(getInstalledSkill(installed.key)).toMatchObject({ status: 'failed' });
   });
 
   it('rejects unknown fields, incompatible bases and undeclared network', () => {

@@ -101,12 +101,6 @@
   border-radius: 18px;
   object-fit: contain;
 }
-.pbf-agent-world-vector { overflow: visible; }
-.pbf-agent-world-vector > g > g { transform-box: fill-box; transform-origin: center; }
-.pbf-agent-art--idle { animation: pbf-agent-idle 2.4s ease-in-out infinite; }
-.pbf-agent-art--float { animation: pbf-agent-float 3s ease-in-out infinite; }
-.pbf-agent-art--bounce { animation: pbf-agent-bounce 2s ease-in-out infinite; }
-.pbf-agent-art--hop { animation: pbf-agent-hop 1.8s ease-in-out infinite; }
 .pbf-agent-world-sprite.is-animated { animation: pbf-agent-idle 2.4s ease-in-out infinite; }
 .pbf-motion-portrait {
   position: relative;
@@ -115,7 +109,6 @@
   height: 100%;
   border-radius: 0;
 }
-.pbf-motion-portrait__fallback,
 .pbf-motion-portrait__frame {
   position: absolute;
   inset: 0;
@@ -132,14 +125,7 @@
   opacity: 1;
   visibility: visible;
 }
-.pbf-motion-portrait.has-active-motion .pbf-motion-portrait__fallback {
-  opacity: 0;
-  visibility: hidden;
-}
 @keyframes pbf-agent-idle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-@keyframes pbf-agent-float { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-4px) rotate(1deg); } }
-@keyframes pbf-agent-bounce { 0%, 100% { transform: translateY(0) scaleY(1); } 50% { transform: translateY(-5px) scaleY(1.05); } }
-@keyframes pbf-agent-hop { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-4px) rotate(-3deg); } 75% { transform: translateY(-4px) rotate(3deg); } }
 
 .pbf-agent-network-story {
   margin-top: 14px;
@@ -243,7 +229,6 @@
   box-shadow: 0 0 0 1px var(--pbf-rust) inset;
 }
 .pbf-buddy-strip img,
-.pbf-buddy-strip .pbf-portrait-fallback,
 .pbf-buddy-strip .pbf-catalog-portrait {
   grid-row: 1 / 3;
   width: 36px;
@@ -299,7 +284,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pbf-portrait-fallback { display: grid; place-items: center; border-radius: 50%; background: #e9dec9; }
 
 .pbf-nav {
   display: grid;
@@ -1089,7 +1073,6 @@
 .pbf-profile-art > span,
 .pbf-profile-art > small { color: var(--pbf-rust); font-size: 7px; }
 .pbf-profile-art img,
-.pbf-profile-art .pbf-portrait-fallback,
 .pbf-profile-art .pbf-catalog-portrait { width: 100%; height: 145px; object-fit: contain; }
 .pbf-profile-art .pbf-catalog-portrait { background: transparent !important; }
 .pbf-profile-copy { padding: 14px 12px; }
@@ -1318,10 +1301,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .pbf-spin,
-  .pbf-agent-art--idle,
-  .pbf-agent-art--float,
-  .pbf-agent-art--bounce,
-  .pbf-agent-art--hop,
   .pbf-agent-world-sprite.is-animated,
   .pbf-motion-portrait__frame { animation: none; }
 }

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Activity, Database, RefreshCw, Search, Upload } from 'lucide-react';
+import type { FrostSkillPageReporter } from '../../../frost-agent/harness/skillPageResult';
+import FrostSkillResultButton from './FrostSkillResultButton';
 import {
   auditEndurancePrescription,
   validateTrainingPrescription,
@@ -9,7 +11,7 @@ import {
 } from '../../../frost-agent/skills/health/foundation';
 import { CN_FOOD_LIBRARY, searchCnFoods } from '../../../frost-agent/skills/health/cnFoodLibrary';
 import { APPLE_HEALTH_FIELD_MAP } from '../../../frost-agent/skills/health/evidenceReport';
-import { explainHealthDecisionWithServerModel } from '../../../frost-agent/skills/health/serverModelControl';
+import { explainHealthDecisionWithQwen4B } from '../../../frost-agent/skills/health/qwenControl';
 import {
   getHealthSkillBridgeStatus,
   getHealthsyncImportStatus,
@@ -24,6 +26,8 @@ import {
 interface Props {
   skillId: string;
   readiness: ReadinessDecision;
+  healthQwenReady?: boolean;
+  report?: FrostSkillPageReporter;
 }
 
 const HEALTHSYNC_METRICS = ['sleep', 'steps', 'hrv', 'resting-heart-rate', 'heart-rate', 'workouts', 'vo2max', 'running-speed', 'running-power'];
@@ -43,7 +47,7 @@ function ConnectorBadge({ status }: { status?: { available: boolean; reason?: st
   return <span className="border border-black bg-white px-2 py-1 font-pixel text-[5px]">{status?.available ? 'LOCAL READY' : status?.reason === 'not_installed' ? 'CLI 未安装' : 'LOCAL OFF'}</span>;
 }
 
-export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
+export default function HealthSkillRuntimePanel({ skillId, readiness, healthQwenReady = false, report }: Props) {
   const needsConnector = skillId === 'frost.healthsync' || skillId === 'frost.garmin-readonly';
   const [bridge, setBridge] = useState<HealthSkillBridgeStatus | null>(null);
   const [busy, setBusy] = useState(false);
@@ -57,11 +61,12 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
   const [date, setDate] = useState('');
   const [foodQuery, setFoodQuery] = useState('');
   const [offProducts, setOffProducts] = useState<OpenFoodFactsProduct[]>([]);
+  const [foodQueried, setFoodQueried] = useState(false);
   const [cnQuery, setCnQuery] = useState('');
   const [intensity, setIntensity] = useState<TrainingIntensity>('moderate');
   const [duration, setDuration] = useState(45);
-  const [modelBusy, setModelBusy] = useState(false);
-  const [modelExplanation, setModelExplanation] = useState('');
+  const [qwenBusy, setQwenBusy] = useState(false);
+  const [qwenExplanation, setQwenExplanation] = useState('');
 
   useEffect(() => {
     if (!needsConnector) return;
@@ -73,7 +78,7 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
   useEffect(() => {
     if (importStatus?.status !== 'running' && importStatus?.status !== 'receiving') return;
     const timer = window.setInterval(() => {
-      getHealthsyncImportStatus().then(setImportStatus).catch(() => undefined);
+      getHealthsyncImportStatus().then(next => setImportStatus(current => current?.jobId === next.jobId ? next : current)).catch(() => undefined);
     }, 1500);
     return () => window.clearInterval(timer);
   }, [importStatus?.status]);
@@ -99,15 +104,15 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
 
   const explain = async () => {
     if (skillId !== 'frost.running-coach' && skillId !== 'frost.endurance-guard') return;
-    setModelBusy(true); setError(''); setModelExplanation('');
+    setQwenBusy(true); setError(''); setQwenExplanation('');
     try {
-      const response = await explainHealthDecisionWithServerModel({ skillId, readiness, validation: prescription });
-      if (response.backend !== 'server') throw new Error(response.error || 'server_model_unavailable');
-      setModelExplanation(response.text);
+      const response = await explainHealthDecisionWithQwen4B({ skillId, readiness, validation: prescription });
+      if (response.backend !== 'mnn') throw new Error(response.error || 'health_qwen3_4b_unavailable');
+      setQwenExplanation(response.text);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : String(cause));
     } finally {
-      setModelBusy(false);
+      setQwenBusy(false);
     }
   };
 
@@ -123,11 +128,12 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
         {!prescription.ok && <div className="mt-1 text-[8px]">{prescription.errors.join(' · ')}</div>}
       </div>
       <div className="mt-2 flex items-center gap-2">
-        <ActionButton disabled={modelBusy} onClick={() => void explain()}>{modelBusy ? '服务端生成中…' : '用服务端模型解释已校验结果'}</ActionButton>
-        <span className="text-[7px] text-black/45">模型只解释，PASS / DOWNGRADE 由上方规则确定。</span>
+        <ActionButton disabled={!healthQwenReady || qwenBusy} onClick={() => void explain()}>{qwenBusy ? '正在切换 4B…' : '用 Qwen3-4B 解释已校验结果'}</ActionButton>
+        <span className="text-[7px] text-black/45">4B 只解释，PASS / DOWNGRADE 由上方规则确定。</span>
       </div>
       {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}
-      {modelExplanation && <div className="mt-2 whitespace-pre-wrap border-2 border-black bg-[#111] p-2 text-[8px] leading-relaxed text-[#7dffb8]">{modelExplanation}</div>}
+      {qwenExplanation && <div className="mt-2 whitespace-pre-wrap border-2 border-black bg-[#111] p-2 text-[8px] leading-relaxed text-[#7dffb8]">{qwenExplanation}</div>}
+      <FrostSkillResultButton report={report} result={{ status: 'completed', summary: `根据手机表单中的数据，规则校验为 ${prescription.ok ? 'PASS' : 'DOWNGRADE'}，建议上限 ${prescription.conservative.intensity} / ${prescription.conservative.durationMin} 分钟；这不是已完成训练或传感器测量。` }} />
     </section>;
   }
 
@@ -140,6 +146,12 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
       {importStatus && <div className="mt-2 border border-black bg-[#fff5cc] p-2 text-[8px]">导入状态：{String(importStatus.status)} {importStatus.receivedBytes ? `· ${Math.round(Number(importStatus.receivedBytes) / 1024 / 1024)} MB` : ''}</div>}
       <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2"><select value={metric} onChange={(event) => setMetric(event.target.value)} className="border-2 border-black bg-[#f7f1df] px-2 text-[9px]">{HEALTHSYNC_METRICS.map((value) => <option key={value}>{value}</option>)}</select><input type="date" value={from} onChange={(event) => setFrom(event.target.value)} className="border-2 border-black bg-[#f7f1df] px-2 text-[9px]" /><ActionButton disabled={!available || busy} onClick={() => void run(() => queryHealthsync({ metric, from: from || undefined, limit: 50 }))}>查询</ActionButton></div>
       {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}<Result value={result} />
+      <FrostSkillResultButton report={report} result={error ? { status: 'failed', summary: 'Apple Health 操作失败，请检查手机页面；未宣称导入成功。' }
+        : bridge && !available ? { status: 'blocked', summary: 'Apple Health 本地连接器当前不可用，尚未导入或查询数据。' }
+        : importStatus?.status === 'complete' ? { status: 'completed', summary: '当前 Apple Health 导入作业已由连接器返回完成状态；数据详情留在手机页面。' }
+        : importStatus?.status === 'failed' ? { status: 'failed', summary: '当前 Apple Health 导入作业返回失败状态，没有宣称导入成功。' }
+        : result && !importStatus ? { status: 'completed', summary: 'Apple Health 只读查询已返回，数据详情留在手机页面，未上传原始健康资料。' }
+        : undefined} />
     </section>;
   }
 
@@ -150,15 +162,20 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
       <p className="mt-2 text-[8px] text-black/55">仅开放活动、睡眠、HRV、心率和训练状态读取；上传、删除、体重写入不在 API 中。</p>
       <div className="mt-3 grid grid-cols-[1fr_1fr_auto] gap-2"><select value={garminOperation} onChange={(event) => setGarminOperation(event.target.value as GarminReadOperation)} className="border-2 border-black bg-[#f7f1df] px-2 text-[9px]">{GARMIN_OPERATIONS.map((value) => <option key={value}>{value}</option>)}</select><input type="date" value={date} onChange={(event) => setDate(event.target.value)} className="border-2 border-black bg-[#f7f1df] px-2 text-[9px]" /><ActionButton disabled={!available || busy} onClick={() => void run(() => queryGarmin({ operation: garminOperation, date: date || undefined }))}>读取</ActionButton></div>
       {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}<Result value={result} />
+      <FrostSkillResultButton report={report} result={error ? { status: 'failed', summary: 'Garmin 只读查询失败，请检查手机页面。' }
+        : bridge && !available ? { status: 'blocked', summary: 'Garmin 连接器当前不可用，需要先在手机配置并授权。' }
+        : result ? { status: 'completed', summary: 'Garmin 只读查询已返回，详情留在手机页面；没有上传或删除账号数据。' } : undefined} />
     </section>;
   }
 
   if (skillId === 'frost.openfoodfacts') {
     return <section className="mt-3 border-2 border-black bg-white p-3">
       <div className="flex items-center gap-2"><Search className="h-5 w-5" /><h2 className="font-pixel text-[8px]">PACKAGED FOOD LOOKUP</h2></div>
-      <div className="mt-3 flex gap-2"><input value={foodQuery} onChange={(event) => setFoodQuery(event.target.value)} placeholder="条码或商品名" className="min-w-0 flex-1 border-2 border-black bg-[#f7f1df] px-2 py-2 text-[10px]" /><ActionButton disabled={!foodQuery.trim() || busy} onClick={() => void run(async () => { const response = await lookupOpenFoodFacts(foodQuery); setOffProducts(response.products); return null; })}>查询</ActionButton></div>
+      <div className="mt-3 flex gap-2"><input value={foodQuery} onChange={(event) => { setFoodQuery(event.target.value); setFoodQueried(false); }} placeholder="条码或商品名" className="min-w-0 flex-1 border-2 border-black bg-[#f7f1df] px-2 py-2 text-[10px]" /><ActionButton disabled={!foodQuery.trim() || busy} onClick={() => void run(async () => { setFoodQueried(false); const response = await lookupOpenFoodFacts(foodQuery); setOffProducts(response.products); setFoodQueried(true); return null; })}>查询</ActionButton></div>
       {error && <p className="mt-2 text-[8px] font-bold text-red-700">{error}</p>}
       <div className="mt-2 space-y-2">{offProducts.map((food) => <div key={`${food.barcode}-${food.name}`} className="border border-black p-2 text-[8px]"><b>{food.name || '未命名商品'}</b> · {food.brands || '品牌未知'}<div className="mt-1">每100g：{food.nutritionPer100g.energyKcal ?? '?'} kcal · 蛋白 {food.nutritionPer100g.proteinG ?? '?'}g · 脂肪 {food.nutritionPer100g.fatG ?? '?'}g · 碳水 {food.nutritionPer100g.carbsG ?? '?'}g</div><div className="mt-1 text-black/45">缺失：{food.missing.join(', ') || '无'} · Open Food Facts</div></div>)}</div>
+      <FrostSkillResultButton report={report} result={error ? { status: 'failed', summary: '包装食品查询失败，没有保存饮食记录。' }
+        : foodQueried && !busy ? { status: 'completed', summary: `Open Food Facts 查询返回 ${offProducts.length} 项。仅完成查询，没有保存饮食记录。` } : undefined} />
     </section>;
   }
 
@@ -169,8 +186,11 @@ export default function HealthSkillRuntimePanel({ skillId, readiness }: Props) {
       <div className="mt-3 flex gap-2"><input value={cnQuery} onChange={(event) => setCnQuery(event.target.value)} placeholder="例：伯牙绝弦、宫保鸡丁、Luckin" className="min-w-0 flex-1 border-2 border-black bg-[#f7f1df] px-2 py-2 text-[10px]" /><span className="grid place-items-center border-2 border-black px-2 font-pixel text-[6px]">{foods.length} HITS</span></div>
       <p className="mt-2 text-[8px] text-black/50">{CN_FOOD_LIBRARY.length} 条本地食品参考 · {Object.keys(APPLE_HEALTH_FIELD_MAP).length} 个 HealthKit 字段白名单 · 周报只汇总已确认事件。带 ~ 的数值为估算，不能替代包装标签或称重。</p>
       <div className="mt-2 space-y-2">{foods.map((food) => <div key={food.id} className="border border-black p-2 text-[8px]"><b>{food.name}</b> · {food.brand}<div className="mt-1">{food.portion || food.energyBasis}：{food.energyText} kcal {food.proteinText ? `· 蛋白 ${food.proteinText}g` : ''}</div><div className="mt-1 text-black/45">{food.category} · {food.approximate ? '估算参考' : '参考值'} · health-coach/cn-brands</div></div>)}</div>
+      <FrostSkillResultButton report={report} result={cnQuery.trim() ? { status: 'completed', summary: `本地食品库查询返回 ${foods.length} 条参考；估算不能替代包装标签或称重，没有记录餐食。` } : undefined} />
     </section>;
   }
 
-  return <section className="mt-3 border-2 border-black bg-white p-3 text-[9px]"><RefreshCw className="mr-2 inline h-4 w-4" />运行能力由现有 Her Motion 本地链路提供。</section>;
+  return <section className="mt-3 border-2 border-black bg-white p-3 text-[9px]"><RefreshCw className="mr-2 inline h-4 w-4" />运行能力由现有 Her Motion 本地链路提供。
+    <FrostSkillResultButton report={report} result={{ status: 'blocked', summary: '动作识别需要在 Her Motion 页面显式开启手机相机并通过连续帧校验；当前页面没有执行视觉检测。' }} />
+  </section>;
 }

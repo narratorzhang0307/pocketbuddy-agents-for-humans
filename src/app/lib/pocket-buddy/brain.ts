@@ -1,7 +1,6 @@
 import { getPocketBuddySkill } from './catalog';
 import { updatePocketBuddyMemoryDigest } from './store';
 import type { PocketBuddy } from './types';
-import { createDefaultPocketBuddyApiClient } from '../../../../frost-agent/skill-taskmaster/apiClient';
 
 export function buildPocketBuddySystemPrompt(buddy: PocketBuddy) {
   const memories = buddy.memories
@@ -38,15 +37,21 @@ export async function refreshPocketBuddyMemoryDigest(
 ) {
   if (!options.allowCloud || !interaction.trim()) return buddy.memoryDigest;
   try {
-    const payload = await createDefaultPocketBuddyApiClient(options.signal).generate({
-      system: '你负责维护一个城市 Agent 对主人和世界的长期印象摘要。不添加事件中没有的事实，只输出 JSON。',
-      prompt: `旧的长期印象：「${buddy.memoryDigest || '（空）'}」\n新的互动：「${interaction.trim().slice(0, 800)}」\n把新互动融进摘要，输出 {"memoryDigest":"80字以内的第一人称长期印象"}。`,
-      json: true,
-      task: 'narrative',
+    const response = await fetch('/api/frost-llm', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        system: '你负责维护一个城市 Agent 对主人和世界的长期印象摘要。不添加事件中没有的事实，只输出 JSON。',
+        prompt: `旧的长期印象：「${buddy.memoryDigest || '（空）'}」\n新的互动：「${interaction.trim().slice(0, 800)}」\n把新互动融进摘要，输出 {"memoryDigest":"80字以内的第一人称长期印象"}。`,
+        json: true,
+        task: 'narrative',
+      }),
+      signal: options.signal,
     });
+    const payload = (await response.json().catch(() => ({}))) as { text?: string };
     const jsonText = payload.text?.match(/\{[\s\S]*\}/)?.[0];
     const parsed = jsonText ? JSON.parse(jsonText) as { memoryDigest?: unknown } : undefined;
-    if (typeof parsed?.memoryDigest === 'string' && parsed.memoryDigest.trim()) {
+    if (response.ok && typeof parsed?.memoryDigest === 'string' && parsed.memoryDigest.trim()) {
       updatePocketBuddyMemoryDigest(buddy.id, parsed.memoryDigest);
       return parsed.memoryDigest.trim().slice(0, 160);
     }
@@ -77,12 +82,18 @@ export async function requestPocketBuddyReply(
   if (!prompt) return '';
   if (!options.allowCloud) return fallbackReply(buddy, prompt);
   try {
-    const payload = await createDefaultPocketBuddyApiClient(options.signal).generate({
-      system: buildPocketBuddySystemPrompt(buddy),
-      prompt,
-      task: 'narrative',
+    const response = await fetch('/api/frost-llm', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        system: buildPocketBuddySystemPrompt(buddy),
+        prompt,
+        task: 'narrative',
+      }),
+      signal: options.signal,
     });
-    if (payload.text?.trim()) return payload.text.trim().slice(0, 1200);
+    const payload = (await response.json().catch(() => ({}))) as { text?: string };
+    if (response.ok && payload.text?.trim()) return payload.text.trim().slice(0, 1200);
   } catch (error) {
     if (options.signal?.aborted) throw error;
   }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pause, Play, RefreshCw, Sparkles, Square, X } from 'lucide-react';
-import type { CityMapRuntime } from '../integrations/soundWalk';
+import type { CityMapRuntime } from '../../../vendor/legacy-city/src/app/lib/maps/runtime';
 import { loadAmapNamespace, planRunRouteSession, replanRunRouteFromPosition, toAmapPosition } from '../lib/amapRunRoute';
 import {
   appendRunRouteTrackPoint,
@@ -11,11 +11,12 @@ import {
   type RoutePoint,
   type RunRouteSession,
 } from '../lib/runRouteSkill';
-import { completeRunWithTaskmaster } from '../lib/healthTaskmasterRuntime';
+import { completeRunWithTaskmaster } from '../lib/frostHealthTaskmaster';
 
 interface Props {
   map: CityMapRuntime | null;
   sessionId: string;
+  onClose: () => void;
 }
 
 const HANGZHOU_SAMPLE_START: RoutePoint = [120.14703, 30.260901];
@@ -41,7 +42,7 @@ function routeCenter(points: RoutePoint[]): RoutePoint | null {
   return [total[0] / points.length, total[1] / points.length];
 }
 
-export default function RunRouteOverlay({ map, sessionId }: Props) {
+export default function RunRouteOverlay({ map, sessionId, onClose }: Props) {
   const [session, setSession] = useState<RunRouteSession | null>(() => readRunRouteSession(sessionId));
   const [mapRevision, redraw] = useState(0);
   const [finalizing, setFinalizing] = useState(false);
@@ -124,6 +125,7 @@ export default function RunRouteOverlay({ map, sessionId }: Props) {
   const close = () => {
     stopTracking();
     setActiveRunRouteSession(null);
+    onClose();
   };
 
   const retryRealLocation = () => {
@@ -196,7 +198,7 @@ export default function RunRouteOverlay({ map, sessionId }: Props) {
       {session.status === 'failed' && !session.start && <section className="pointer-events-auto absolute bottom-3 left-3 right-3 border-[3px] border-black bg-white p-4"><div className="flex items-start justify-between gap-3"><span><b className="font-pixel text-[7px] text-[#b3261e]">LOCATION NEEDED</b><p className="mt-2 text-[9px] leading-relaxed">{session.error}</p></span><button type="button" onClick={close} className="grid h-8 w-8 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={retryRealLocation} className="min-h-10 border-2 border-black bg-[#00ff88] px-2 font-pixel text-[6px]">重新定位</button><button type="button" onClick={useSampleStart} className="min-h-10 border-2 border-black bg-[#fff0b5] px-2 font-pixel text-[6px]">预览杭州示例</button></div></section>}
 
       {!busy && !(session.status === 'failed' && !session.start) && <section className="pointer-events-auto absolute bottom-3 left-3 right-3 border-[3px] border-black bg-white/95 p-3 backdrop-blur-sm">
-        <div className="flex items-start gap-2"><Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#087a43]" /><div className="min-w-0 flex-1"><div className="font-pixel text-[6px] text-[#087a43]">FROST → RUN ROUTE → SOUND WALK</div><p className="mt-1 truncate text-[9px] font-bold">你说·“{requestSummary(session)}”</p><small className="mt-1 block truncate text-[7px] text-black/45">{sample ? '杭州示例起点 · 仅预览' : session.destination_label || '真实 GPS 起点'}{session.input.source_task_id ? ` · TASK ${session.input.source_task_id.split(':').at(-1)}` : ''}</small></div><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${session.status === 'failed' ? 'bg-[#ff8f86]' : ['ready', 'navigating', 'completed'].includes(session.status) ? 'bg-[#7CFF6B]' : 'bg-[#fff0b5]'}`}>{statusCopy(session.status)}</span><button type="button" onClick={close} aria-label="收起路线规划" className="grid h-7 w-7 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div>
+        <div className="flex items-start gap-2"><Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#087a43]" /><div className="min-w-0 flex-1"><div className="font-pixel text-[6px] text-[#087a43]">FROST → RUN ROUTE → ACTION MAP</div><p className="mt-1 truncate text-[9px] font-bold">你说·“{requestSummary(session)}”</p><small className="mt-1 block truncate text-[7px] text-black/45">{sample ? '杭州示例起点 · 仅预览' : session.destination_label || '真实 GPS 起点'}{session.input.source_task_id ? ` · TASK ${session.input.source_task_id.split(':').at(-1)}` : ''}</small></div><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${session.status === 'failed' ? 'bg-[#ff8f86]' : ['ready', 'navigating', 'completed'].includes(session.status) ? 'bg-[#7CFF6B]' : 'bg-[#fff0b5]'}`}>{statusCopy(session.status)}</span><button type="button" onClick={close} aria-label="收起路线规划" className="grid h-7 w-7 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div>
         <div className="mt-2 grid grid-cols-3 border-2 border-black bg-[#f7f1df]"><div className="border-r-2 border-black px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">TARGET</small><b className="text-[10px]">{session.metrics.target_distance_m ? km(session.metrics.target_distance_m) : '--'}</b></div><div className="border-r-2 border-black px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">PLANNED</small><b className="text-[10px]">{session.metrics.planned_distance_m ? km(session.metrics.planned_distance_m) : '--'}</b></div><div className="px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">ACTUAL</small><b className="text-[10px]">{km(session.metrics.actual_distance_m)}</b></div></div>
         {session.error && <p className="mt-2 border-2 border-[#b3261e] bg-[#fff0ed] px-2 py-1.5 text-[8px] text-[#b3261e]">{session.error}</p>}
         <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">{!live ? <button type="button" disabled={finalizing || session.status === 'failed' || session.status === 'completed'} onClick={sample ? retryRealLocation : () => void startTracking()} className={`flex min-h-11 items-center justify-center gap-2 border-2 border-black px-3 font-pixel text-[7px] disabled:opacity-40 ${sample ? 'bg-[#fff0b5]' : 'bg-[#00ff88]'}`}><Play className="h-4 w-4" fill="currentColor" />{sample ? '获取真实定位后开始' : '开始沿线跑'}</button> : <button type="button" onClick={() => { stopTracking(); updateRunRouteSession(sessionId, { status: 'paused' }); }} className="flex min-h-11 items-center justify-center gap-2 border-2 border-black bg-[#ffd65a] px-3 font-pixel text-[7px]"><Pause className="h-4 w-4" fill="currentColor" />暂停</button>}<button type="button" disabled={finalizing || session.status === 'completed'} onClick={() => void finishTracking()} aria-label="结束跑步" className="grid min-h-11 w-11 place-items-center border-2 border-black bg-white disabled:opacity-40"><Square className="h-4 w-4" fill="currentColor" /></button></div>

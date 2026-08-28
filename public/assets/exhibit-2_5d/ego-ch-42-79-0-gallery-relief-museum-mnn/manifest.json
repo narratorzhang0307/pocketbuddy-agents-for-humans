@@ -1,0 +1,246 @@
+{
+  "schema_version": "pocket-earth.exhibit-2_5d/1.1",
+  "id": "ego-ch-42-79-0-gallery-relief-museum-mnn",
+  "title": "EGO-CH Object Segmentation 多视图 2.5D · 博物馆抠图 MNN",
+  "representation": "observed-multiview-predicted-depth-cards",
+  "reconstruction_type": "multi_view_2_5d",
+  "source": {
+    "dataset": "EGO-CH Object Segmentation",
+    "license": "dataset research terms; see https://iplab.dmi.unict.it/EGO-CH-OBJ-SEG/",
+    "object_id": "ego-ch-42-79-0-gallery-relief",
+    "input": "RGB only"
+  },
+  "coverage": {
+    "yaw": [
+      0,
+      60,
+      120,
+      180,
+      240,
+      300
+    ],
+    "back_missing": false,
+    "observed_views": 6
+  },
+  "models": {
+    "matting": "exhibit-matting-v1-fp16",
+    "matting_runtime": "MNN 3.6.1 FP16",
+    "matting_specialist": "exhibit-matting-v1-fp16",
+    "structure_guard": null,
+    "fusion_policy": "museum_structure_guard_fail_closed_v1",
+    "matting_model": "exhibit-matting-v1-fp16.mnn",
+    "matting_elapsed_ms_per_view": [
+      1293.543,
+      1321.095,
+      1445.546,
+      3792.235,
+      3830.434,
+      2711.499
+    ],
+    "depth": "depth-anything/Depth-Anything-V2-Small-hf",
+    "qwen": "Qwen3-VL-2B-Instruct-MNN (routing/OCR)",
+    "qwen_lora": null
+  },
+  "builder": {
+    "method": "nearest-observed-view + depth-displaced mesh",
+    "glb": {
+      "path": "exhibit.glb",
+      "scope": "observed front depth-card preview",
+      "vertices": 5184,
+      "triangles": 3752
+    }
+  },
+  "quality_boundary": {
+    "unseen_surface_policy": "do_not_invent",
+    "depth_type": "relative",
+    "large_rotation": "switch_to_nearest_observed_view",
+    "alpha_policy": "museum_structure_guard_fail_closed_v1",
+    "alpha_policy_file": "quality-policy.json"
+  },
+  "quality_gate": {
+    "status": "pass",
+    "eligible_for_2_5d": true,
+    "accepted_views": 6,
+    "rejected_view_indexes": [],
+    "review_view_indexes": [],
+    "max_accepted_yaw_gap_deg": 60.0,
+    "median_foreground_ratio": 0.588342,
+    "median_bbox_fill_ratio": 0.803687,
+    "reasons": [],
+    "policy": "museum_structure_guard_fail_closed_v1",
+    "policy_file": "quality-policy.json",
+    "evidence_complete": true
+  },
+  "viewer": {
+    "canvas": [
+      640,
+      640
+    ],
+    "parallax_strength": 0.035
+  },
+  "views": [
+    {
+      "id": "view-00-000",
+      "yaw_deg": 0,
+      "observed": true,
+      "color": "views/view-00-000.webp",
+      "alpha": "views/view-00-000-alpha.png",
+      "depth": "views/view-00-000-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0040.jpg",
+      "original": "originals/view-00-000.jpg",
+      "original_sha256": "9a619f21f5745235b685f87a78b23153273674d7e6f40710c3ca7d874014f496",
+      "specialist_alpha": "specialist-alpha/view-00-000.png",
+      "specialist_cutout": "specialist-cutout/view-00-000.webp",
+      "comparison": "comparisons/view-00-000-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.651545,
+        "visible_ratio": 0.671124,
+        "bbox_fill_ratio": 0.824038,
+        "halo_to_foreground_ratio": 0.025987,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-01-060",
+      "yaw_deg": 60,
+      "observed": true,
+      "color": "views/view-01-060.webp",
+      "alpha": "views/view-01-060-alpha.png",
+      "depth": "views/view-01-060-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0050.jpg",
+      "original": "originals/view-01-060.jpg",
+      "original_sha256": "817249e961997b198045b5fc190fb895e55c9a09eabfd67f9c2f0e403a188036",
+      "specialist_alpha": "specialist-alpha/view-01-060.png",
+      "specialist_cutout": "specialist-cutout/view-01-060.webp",
+      "comparison": "comparisons/view-01-060-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.675877,
+        "visible_ratio": 0.700711,
+        "bbox_fill_ratio": 0.744942,
+        "halo_to_foreground_ratio": 0.032129,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-02-120",
+      "yaw_deg": 120,
+      "observed": true,
+      "color": "views/view-02-120.webp",
+      "alpha": "views/view-02-120-alpha.png",
+      "depth": "views/view-02-120-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0110.jpg",
+      "original": "originals/view-02-120.jpg",
+      "original_sha256": "44a4045f2b67b5055f3a15a4802b0519dcc927cf986eab73758b15d77f87b8dd",
+      "specialist_alpha": "specialist-alpha/view-02-120.png",
+      "specialist_cutout": "specialist-cutout/view-02-120.webp",
+      "comparison": "comparisons/view-02-120-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.579752,
+        "visible_ratio": 0.596658,
+        "bbox_fill_ratio": 0.62441,
+        "halo_to_foreground_ratio": 0.024636,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-03-180",
+      "yaw_deg": 180,
+      "observed": true,
+      "color": "views/view-03-180.webp",
+      "alpha": "views/view-03-180-alpha.png",
+      "depth": "views/view-03-180-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0150.jpg",
+      "original": "originals/view-03-180.jpg",
+      "original_sha256": "b2eccc66d191a2069f36b823bd93290b964771c56f391cc563adcde9011e097c",
+      "specialist_alpha": "specialist-alpha/view-03-180.png",
+      "specialist_cutout": "specialist-cutout/view-03-180.webp",
+      "comparison": "comparisons/view-03-180-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.440259,
+        "visible_ratio": 0.452639,
+        "bbox_fill_ratio": 0.809328,
+        "halo_to_foreground_ratio": 0.023971,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-04-240",
+      "yaw_deg": 240,
+      "observed": true,
+      "color": "views/view-04-240.webp",
+      "alpha": "views/view-04-240-alpha.png",
+      "depth": "views/view-04-240-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0100.jpg",
+      "original": "originals/view-04-240.jpg",
+      "original_sha256": "0633f30c0856f479dc42dc39df860715ff1f1c5be9ac4582389342db364d50d6",
+      "specialist_alpha": "specialist-alpha/view-04-240.png",
+      "specialist_cutout": "specialist-cutout/view-04-240.webp",
+      "comparison": "comparisons/view-04-240-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.596931,
+        "visible_ratio": 0.622514,
+        "bbox_fill_ratio": 0.901899,
+        "halo_to_foreground_ratio": 0.03786,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-05-300",
+      "yaw_deg": 300,
+      "observed": true,
+      "color": "views/view-05-300.webp",
+      "alpha": "views/view-05-300-alpha.png",
+      "depth": "views/view-05-300-depth.png",
+      "source_rgb": "EGO-CH/train/images/ego-42-79-0-0170.jpg",
+      "original": "originals/view-05-300.jpg",
+      "original_sha256": "a8dc660c92eb291a4b41d4e1e9699aa72a5423d8df98a778b322625ebb930059",
+      "specialist_alpha": "specialist-alpha/view-05-300.png",
+      "specialist_cutout": "specialist-cutout/view-05-300.webp",
+      "comparison": "comparisons/view-05-300-original-vs-cutout.jpg",
+      "alpha_origin": "predicted",
+      "depth_origin": "predicted-relative",
+      "alpha_quality": {
+        "foreground_ratio": 0.421991,
+        "visible_ratio": 0.458643,
+        "bbox_fill_ratio": 0.798046,
+        "halo_to_foreground_ratio": 0.079608,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    }
+  ],
+  "elapsed_seconds": 50.375
+}

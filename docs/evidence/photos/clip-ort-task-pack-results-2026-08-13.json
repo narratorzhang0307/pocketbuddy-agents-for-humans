@@ -1,0 +1,264 @@
+{
+  "schema": "pocket-earth.photo-semantic-e2e.v1",
+  "model": "picquery-clip-vit-b32-ort-int8-v1",
+  "photoCount": 32,
+  "indexSecondsMacCpu": 1.085,
+  "queries": {
+    "a photo of a cat": [
+      {
+        "rank": 1,
+        "score": 0.2709,
+        "file": "20251005_162004_PE_TASK_07_.jpg",
+        "label": "去年杭州的猫·轻裁切"
+      },
+      {
+        "rank": 2,
+        "score": 0.2698,
+        "file": "20251005_162002_PE_TASK_06_.jpg",
+        "label": "去年杭州的猫·暖光"
+      },
+      {
+        "rank": 3,
+        "score": 0.2691,
+        "file": "20251005_162000_PE_TASK_05_.jpg",
+        "label": "去年杭州的猫·原片"
+      },
+      {
+        "rank": 4,
+        "score": 0.2689,
+        "file": "20251005_162006_PE_TASK_08_.jpg",
+        "label": "去年杭州的猫·轻微虚焦"
+      },
+      {
+        "rank": 5,
+        "score": 0.2528,
+        "file": "20260214_153000_PE_TASK_29_.jpg",
+        "label": "窗中猫·独立样本"
+      }
+    ],
+    "a receipt document": [
+      {
+        "rank": 1,
+        "score": 0.2501,
+        "file": "20260803_142600_PE_TASK_25_.jpg",
+        "label": "咖啡票据·清晰"
+      },
+      {
+        "rank": 2,
+        "score": 0.2464,
+        "file": "20251220_073500_PE_TASK_28_.jpg",
+        "label": "登机牌·杭州东京"
+      },
+      {
+        "rank": 3,
+        "score": 0.2442,
+        "file": "20260803_142800_PE_TASK_26_.jpg",
+        "label": "咖啡票据·反光难例"
+      },
+      {
+        "rank": 4,
+        "score": 0.2419,
+        "file": "20260718_130800_PE_TASK_27_.jpg",
+        "label": "停车票·二维码"
+      },
+      {
+        "rank": 5,
+        "score": 0.2167,
+        "file": "20260806_154400_PE_TASK_22_.jpg",
+        "label": "低对比·雾化"
+      }
+    ],
+    "a QR code": [
+      {
+        "rank": 1,
+        "score": 0.2797,
+        "file": "20260718_130800_PE_TASK_27_.jpg",
+        "label": "停车票·二维码"
+      },
+      {
+        "rank": 2,
+        "score": 0.2527,
+        "file": "20251220_073500_PE_TASK_28_.jpg",
+        "label": "登机牌·杭州东京"
+      },
+      {
+        "rank": 3,
+        "score": 0.2492,
+        "file": "20260803_142600_PE_TASK_25_.jpg",
+        "label": "咖啡票据·清晰"
+      },
+      {
+        "rank": 4,
+        "score": 0.2384,
+        "file": "20260807_110200_PE_TASK_21_.jpg",
+        "label": "误拍·严重模糊"
+      },
+      {
+        "rank": 5,
+        "score": 0.2309,
+        "file": "20260803_142800_PE_TASK_26_.jpg",
+        "label": "咖啡票据·反光难例"
+      }
+    ],
+    "a boarding pass": [
+      {
+        "rank": 1,
+        "score": 0.2926,
+        "file": "20251220_073500_PE_TASK_28_.jpg",
+        "label": "登机牌·杭州东京"
+      },
+      {
+        "rank": 2,
+        "score": 0.2578,
+        "file": "20260718_130800_PE_TASK_27_.jpg",
+        "label": "停车票·二维码"
+      },
+      {
+        "rank": 3,
+        "score": 0.2381,
+        "file": "20260803_142600_PE_TASK_25_.jpg",
+        "label": "咖啡票据·清晰"
+      },
+      {
+        "rank": 4,
+        "score": 0.2325,
+        "file": "20260803_142800_PE_TASK_26_.jpg",
+        "label": "咖啡票据·反光难例"
+      },
+      {
+        "rank": 5,
+        "score": 0.2268,
+        "file": "20260214_153000_PE_TASK_29_.jpg",
+        "label": "窗中猫·独立样本"
+      }
+    ],
+    "a lighthouse": [
+      {
+        "rank": 1,
+        "score": 0.2979,
+        "file": "20220402_082418_PE_TASK_18_.jpg",
+        "label": "灯塔·重复"
+      },
+      {
+        "rank": 2,
+        "score": 0.2974,
+        "file": "20220402_082400_PE_TASK_17_.jpg",
+        "label": "灯塔·原始"
+      },
+      {
+        "rank": 3,
+        "score": 0.2547,
+        "file": "20250822_184600_PE_TASK_32_.jpg",
+        "label": "同行朋友"
+      },
+      {
+        "rank": 4,
+        "score": 0.2436,
+        "file": "20260805_211800_PE_TASK_23_.jpg",
+        "label": "严重欠曝"
+      },
+      {
+        "rank": 5,
+        "score": 0.2422,
+        "file": "20260807_110200_PE_TASK_21_.jpg",
+        "label": "误拍·严重模糊"
+      }
+    ],
+    "people at the beach": [
+      {
+        "rank": 1,
+        "score": 0.2578,
+        "file": "20250822_184600_PE_TASK_32_.jpg",
+        "label": "同行朋友"
+      },
+      {
+        "rank": 2,
+        "score": 0.2402,
+        "file": "20260729_184206_PE_TASK_12_.jpg",
+        "label": "海边朋友连拍·轻微虚焦"
+      },
+      {
+        "rank": 3,
+        "score": 0.2399,
+        "file": "20260729_184202_PE_TASK_10_.jpg",
+        "label": "海边朋友连拍·暖光"
+      },
+      {
+        "rank": 4,
+        "score": 0.2395,
+        "file": "20260729_184204_PE_TASK_11_.jpg",
+        "label": "海边朋友连拍·轻裁切"
+      },
+      {
+        "rank": 5,
+        "score": 0.2372,
+        "file": "20260729_184200_PE_TASK_09_.jpg",
+        "label": "海边朋友连拍·原片"
+      }
+    ],
+    "a lake landscape": [
+      {
+        "rank": 1,
+        "score": 0.2255,
+        "file": "20260109_091800_PE_TASK_30_GPS.jpg",
+        "label": "无GPS湖景"
+      },
+      {
+        "rank": 2,
+        "score": 0.2231,
+        "file": "20260807_110200_PE_TASK_21_.jpg",
+        "label": "误拍·严重模糊"
+      },
+      {
+        "rank": 3,
+        "score": 0.223,
+        "file": "20250822_184600_PE_TASK_32_.jpg",
+        "label": "同行朋友"
+      },
+      {
+        "rank": 4,
+        "score": 0.2198,
+        "file": "20260811_093006_PE_TASK_04_.jpg",
+        "label": "上海江边连拍·轻微虚焦"
+      },
+      {
+        "rank": 5,
+        "score": 0.2147,
+        "file": "20260729_184206_PE_TASK_12_.jpg",
+        "label": "海边朋友连拍·轻微虚焦"
+      }
+    ],
+    "a blurry accidental photo": [
+      {
+        "rank": 1,
+        "score": 0.2674,
+        "file": "20260807_110200_PE_TASK_21_.jpg",
+        "label": "误拍·严重模糊"
+      },
+      {
+        "rank": 2,
+        "score": 0.2424,
+        "file": "20260806_154400_PE_TASK_22_.jpg",
+        "label": "低对比·雾化"
+      },
+      {
+        "rank": 3,
+        "score": 0.2399,
+        "file": "20260805_211800_PE_TASK_23_.jpg",
+        "label": "严重欠曝"
+      },
+      {
+        "rank": 4,
+        "score": 0.2355,
+        "file": "20251005_162006_PE_TASK_08_.jpg",
+        "label": "去年杭州的猫·轻微虚焦"
+      },
+      {
+        "rank": 5,
+        "score": 0.23,
+        "file": "20251005_162004_PE_TASK_07_.jpg",
+        "label": "去年杭州的猫·轻裁切"
+      }
+    ]
+  }
+}

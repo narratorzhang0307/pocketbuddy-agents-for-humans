@@ -15,6 +15,7 @@ import type { FrostSessionLog } from './sessionLog';
 import { FrostAgentToolRegistry } from './toolRegistry';
 
 export interface FrostAgentLoopOptions {
+  /** Per-turn budgets; session counters remain cumulative for audit and unique call IDs. */
   max_steps?: number;
   max_tool_calls?: number;
   deadline_ms?: number;
@@ -43,6 +44,8 @@ export class FrostAgentLoop {
   private currentAbort: AbortController | null = null;
   private cancelledReason: string | null = null;
   private initialized = false;
+  private turnToolCalls = 0;
+  private inboxSequence = 0;
   private readonly idleWaiters = new Set<() => void>();
 
   constructor(
@@ -75,7 +78,6 @@ export class FrostAgentLoop {
     if (this.initialized) return;
     const existing = await this.log.list(this.session.session_id);
     if (existing.length > 0) {
-      this.inbox.resumeSequence(existing.length);
       const created = existing.find((event) => event.type === 'session.created');
       if (created && typeof created.data.user_id === 'string' && created.data.user_id !== this.session.user_id) {
         throw new Error('agent_session_user_mismatch');
@@ -86,6 +88,7 @@ export class FrostAgentLoop {
       this.session.counters.turns = existing.reduce((max, event) => event.type === 'turn.started' && typeof event.data.turn === 'number' ? Math.max(max, event.data.turn) : max, 0);
       this.session.counters.steps = existing.reduce((max, event) => event.type === 'step.started' && typeof event.data.step === 'number' ? Math.max(max, event.data.step) : max, 0);
       this.session.counters.tool_calls = existing.filter((event) => event.type === 'tool.called').length;
+      this.inboxSequence = existing[existing.length - 1]?.seq || 0;
       this.session.updated_at = existing[existing.length - 1]?.occurred_at || this.session.updated_at;
       const recoveredFrom = this.session.status;
       if (this.session.status === 'running') await this.setStatus('waiting_user');
@@ -147,7 +150,7 @@ export class FrostAgentLoop {
 
   private async enqueue(mode: FrostInboxMode, content: JsonObject, source: FrostInboxSource, wake: boolean): Promise<FrostInboxItem> {
     if (this.session.status === 'stopped' || this.session.status === 'failed') throw new Error(`agent_session_closed:${this.session.status}`);
-    const item = this.inbox.enqueue({ mode, source, content });
+    const item = this.inbox.enqueue({ message_id: `inbox:${++this.inboxSequence}`, mode, source, content });
     await this.log.append({
       session_id: this.session.session_id,
       event_id: `${this.session.session_id}:${item.message_id}:queued`,
@@ -184,17 +187,39 @@ export class FrostAgentLoop {
   }
 
   private async runTurn(initialInput: FrostInboxItem[]): Promise<void> {
+    this.turnToolCalls = 0;
+    this.currentAbort = new AbortController();
+    const timer = setTimeout(() => this.currentAbort?.abort('agent_deadline_exceeded'), this.deadlineMs);
+    try { await this.runTurnSteps(initialInput); }
+    finally { clearTimeout(timer); this.currentAbort = null; }
+  }
+
+  private async decideModel(turn: number, step: number): Promise<unknown> {
+    const signal = this.currentAbort!.signal;
+    let stop = () => {};
+    const interrupted = new Promise<never>((_resolve, reject) => {
+      stop = () => reject(new Error(String(signal.reason || 'agent_cancelled')));
+      if (signal.aborted) stop();
+      else signal.addEventListener('abort', stop, { once: true });
+    });
+    try {
+      return await Promise.race([this.model.decide({
+        session: this.getSession(), events: await this.log.list(this.session.session_id), turn, step, signal,
+      }), interrupted]);
+    } finally { signal.removeEventListener('abort', stop); }
+  }
+
+  private async runTurnSteps(initialInput: FrostInboxItem[]): Promise<void> {
     const startedAt = this.now().getTime();
     this.session.counters.turns += 1;
     const turn = this.session.counters.turns;
     await this.setStatus('running');
     await this.log.append({ session_id: this.session.session_id, type: 'turn.started', data: { turn } });
     await this.recordInputs(initialInput);
-    const turnBudget = { toolCalls: 0 };
 
     for (let localStep = 1; localStep <= this.maxSteps; localStep += 1) {
       if (this.cancelledReason) return this.endCancelledTurn(turn, this.cancelledReason);
-      if (this.now().getTime() - startedAt > this.deadlineMs) return this.failTurn(turn, 'agent_deadline_exceeded');
+      if (this.currentAbort?.signal.aborted || this.now().getTime() - startedAt >= this.deadlineMs) return this.failTurn(turn, 'agent_deadline_exceeded');
 
       const injected = this.inbox.claim('next-step');
       if (injected.length > 0) {
@@ -205,17 +230,10 @@ export class FrostAgentLoop {
       this.session.counters.steps += 1;
       const step = this.session.counters.steps;
       await this.log.append({ session_id: this.session.session_id, type: 'step.started', data: { turn, step } });
-      this.currentAbort = new AbortController();
 
       let rawDecision: unknown;
       try {
-        rawDecision = await this.model.decide({
-          session: this.getSession(),
-          events: await this.log.list(this.session.session_id),
-          turn,
-          step,
-          signal: this.currentAbort.signal,
-        });
+        rawDecision = await this.decideModel(turn, step);
       } catch (error) {
         const message = error instanceof Error ? error.message : 'model_decision_failed';
         if (this.cancelledReason) return this.endCancelledTurn(turn, this.cancelledReason);
@@ -238,27 +256,22 @@ export class FrostAgentLoop {
         data: asJsonObject({ turn, step, decision }),
       });
 
-      const outcome = await this.applyDecision(turn, step, decision, turnBudget);
+      const outcome = await this.applyDecision(turn, step, decision);
       if (outcome !== 'continue') return;
     }
     await this.failTurn(turn, 'max_steps_exceeded');
   }
 
-  private async applyDecision(
-    turn: number,
-    step: number,
-    decision: FrostAgentDecision,
-    turnBudget: { toolCalls: number },
-  ): Promise<'continue' | 'ended'> {
+  private async applyDecision(turn: number, step: number, decision: FrostAgentDecision): Promise<'continue' | 'ended'> {
     const action = decision.next_action;
     const call = actionToolCall(action);
     if (call) {
-      if (turnBudget.toolCalls >= this.maxToolCalls) {
+      if (this.turnToolCalls >= this.maxToolCalls) {
         await this.failTurn(turn, 'max_tool_calls_exceeded');
         return 'ended';
       }
-      turnBudget.toolCalls += 1;
       this.session.counters.tool_calls += 1;
+      this.turnToolCalls += 1;
       const callId = `${this.session.session_id}:tool:${this.session.counters.tool_calls}`;
       await this.log.append({
         session_id: this.session.session_id,
@@ -283,7 +296,8 @@ export class FrostAgentLoop {
         return 'ended';
       }
       if (result.status === 'cancelled') {
-        await this.endCancelledTurn(turn, result.message || 'tool_cancelled');
+        if (this.currentAbort?.signal.reason === 'agent_deadline_exceeded') await this.failTurn(turn, 'agent_deadline_exceeded');
+        else await this.endCancelledTurn(turn, result.message || 'tool_cancelled');
         return 'ended';
       }
       return 'continue';
@@ -334,8 +348,6 @@ export class FrostAgentLoop {
     } catch (error) {
       if (this.currentAbort.signal.aborted) return { status: 'cancelled', data: {}, message: this.cancelledReason || 'tool_cancelled' };
       return { status: 'error', data: { tool: name }, message: error instanceof Error ? error.message : 'tool_execution_failed' };
-    } finally {
-      this.currentAbort = null;
     }
   }
 
@@ -373,6 +385,11 @@ export class FrostAgentLoop {
   }
 
   private async stopSession(reason: string, status: 'stopped' | 'failed'): Promise<void> {
+    this.cancelledReason = reason;
+    this.wakeLatched = false;
+    for (const item of this.inbox.clear()) {
+      await this.log.append({ session_id: this.session.session_id, type: 'inbox.discarded', data: { message_id: item.message_id, reason } });
+    }
     await this.setStatus(status);
     await this.log.append({ session_id: this.session.session_id, type: 'session.stopped', data: { reason, status } });
   }

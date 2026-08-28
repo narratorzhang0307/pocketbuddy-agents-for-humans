@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "agentId": "tortoise-tock",
+  "version": "v1",
+  "sourceMaster": "../turnaround-eight-view-v1.png",
+  "sourceMasterUsage": "audit-only",
+  "views": {
+    "front": "front.png",
+    "front-left": "front-left.png",
+    "left": "left.png",
+    "back-left": "back-left.png",
+    "back": "back.png",
+    "back-right": "back-right.png",
+    "right": "right.png",
+    "front-right": "front-right.png"
+  }
+}
+

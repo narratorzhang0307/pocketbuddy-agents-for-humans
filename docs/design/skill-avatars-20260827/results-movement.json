@@ -1,0 +1,102 @@
+{
+  "group": "movement",
+  "status": "complete",
+  "generatedCount": 5,
+  "requestedModel": "gpt-image-2",
+  "actualModel": "unknown",
+  "mode": "built-in",
+  "preservation": "All five independent calls returned one PNG each. Every output was preserved as-is; no filtering, retrying, or post-processing.",
+  "promptSet": "docs/design/skill-avatars-20260827/prompts.jsonl",
+  "entries": [
+    {
+      "id": "pocket.her-motion",
+      "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-5421-7fb2-bd24-4be0022f1f0a/exec-274abe45-6637-4e01-84d1-e8e68406380d.png",
+      "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/pocket.her-motion.png",
+      "provider": "built-in image_gen",
+      "actualModel": "unknown",
+      "promptId": "pocket.her-motion",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "width": 1254,
+      "height": 1254,
+      "byteLength": 1071379,
+      "format": "png",
+      "constraintDeliveryMode": "main-prompt constraints",
+      "constraintText": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation."
+    },
+    {
+      "id": "pocket.lianlema",
+      "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-5421-7fb2-bd24-4be0022f1f0a/exec-0f0c3121-210c-49af-bd86-507899b542ee.png",
+      "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/pocket.lianlema.png",
+      "provider": "built-in image_gen",
+      "actualModel": "unknown",
+      "promptId": "pocket.lianlema",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "width": 1254,
+      "height": 1254,
+      "byteLength": 990667,
+      "format": "png",
+      "constraintDeliveryMode": "main-prompt constraints",
+      "constraintText": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation."
+    },
+    {
+      "id": "frost.run-route",
+      "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-5421-7fb2-bd24-4be0022f1f0a/exec-c6ddd35e-f1ae-4d28-9dcf-79dd3af25e2c.png",
+      "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.run-route.png",
+      "provider": "built-in image_gen",
+      "actualModel": "unknown",
+      "promptId": "frost.run-route",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "width": 1254,
+      "height": 1254,
+      "byteLength": 1049113,
+      "format": "png",
+      "constraintDeliveryMode": "main-prompt constraints",
+      "constraintText": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation."
+    },
+    {
+      "id": "frost.running-coach",
+      "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-5421-7fb2-bd24-4be0022f1f0a/exec-cc181313-04a3-40f2-acdf-35426bc540c0.png",
+      "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.running-coach.png",
+      "provider": "built-in image_gen",
+      "actualModel": "unknown",
+      "promptId": "frost.running-coach",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "width": 1254,
+      "height": 1254,
+      "byteLength": 963213,
+      "format": "png",
+      "constraintDeliveryMode": "main-prompt constraints",
+      "constraintText": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation."
+    },
+    {
+      "id": "frost.healthsync",
+      "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043d0-5421-7fb2-bd24-4be0022f1f0a/exec-c9c361b8-3047-4f8b-bc30-4c9f2c7977ab.png",
+      "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.healthsync.png",
+      "provider": "built-in image_gen",
+      "actualModel": "unknown",
+      "promptId": "frost.healthsync",
+      "dimensions": {
+        "width": 1254,
+        "height": 1254
+      },
+      "width": 1254,
+      "height": 1254,
+      "byteLength": 1130674,
+      "format": "png",
+      "constraintDeliveryMode": "main-prompt constraints",
+      "constraintText": "Use no text or watermark. Add no borders, frames, cards, or presentation masks. Include one character only, with no extra subjects or scenery. Use no fragile lines, sharp tips, unnecessary outlines, tiny details, or decorative marks. Add no photorealistic material, dramatic bevel, glossy hotspot, deep occlusion, extrusion, strong three-dimensional rendering, or external cast shadow. Keep the background solid and uniform, with no texture, vignette, or lighting variation."
+    }
+  ]
+}

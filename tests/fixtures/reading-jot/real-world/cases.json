@@ -1,0 +1,54 @@
+{
+  "schema": "pocket-earth.reading-jot-real-world.v1",
+  "purpose": "Publicly licensed, genuinely photographed book pages. Red strokes are UI coordinates and are never baked into the OCR input.",
+  "cases": [
+    {
+      "id": "monaneng-underline",
+      "label": "现代中文版权页 · 单红线",
+      "file": "monaneng-page.jpg",
+      "annotatedFile": "monaneng-underline-preview.jpg",
+      "mode": "underline",
+      "strokes": [[[0.095, 0.425], [0.38, 0.427], [0.66, 0.429]]],
+      "expectedText": "出版者／人間出版社",
+      "source": {
+        "title": "Copyright page of A Taiwanese Aborigine's Experience by Monaneng 20160525.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Copyright_page_of_A_Taiwanese_Aborigine%27s_Experience_by_Monaneng_20160525.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/2/24/Copyright_page_of_A_Taiwanese_Aborigine%27s_Experience_by_Monaneng_20160525.jpg",
+        "license": "Public domain"
+      }
+    },
+    {
+      "id": "dictionary-underline",
+      "label": "摊开英汉辞典 · 书脊弯曲单红线",
+      "file": "dictionary-spread.jpg",
+      "annotatedFile": "dictionary-underline-preview.jpg",
+      "mode": "underline",
+      "strokes": [[[0.575, 0.618], [0.72, 0.617], [0.865, 0.619]]],
+      "expectedText": "發行人：蕭宗謀",
+      "source": {
+        "title": "Copyright page of A New Daily Use English-Chinese Dictionary owned by GIO 20250404.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Copyright_page_of_A_New_Daily_Use_English-Chinese_Dictionary_owned_by_GIO_20250404.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Copyright_page_of_A_New_Daily_Use_English-Chinese_Dictionary_owned_by_GIO_20250404.jpg",
+        "license": "CC BY-SA 4.0"
+      }
+    },
+    {
+      "id": "dictionary-brackets",
+      "label": "摊开英汉辞典 · 双竖线跨三行",
+      "file": "dictionary-spread.jpg",
+      "annotatedFile": "dictionary-brackets-preview.jpg",
+      "mode": "brackets",
+      "strokes": [
+        [[0.525, 0.65], [0.524, 0.755]],
+        [[0.885, 0.65], [0.884, 0.755]]
+      ],
+      "expectedText": "出版者：世界書局\n印刷者：世界書局\n發行所：世界書局",
+      "source": {
+        "title": "Copyright page of A New Daily Use English-Chinese Dictionary owned by GIO 20250404.jpg",
+        "url": "https://commons.wikimedia.org/wiki/File:Copyright_page_of_A_New_Daily_Use_English-Chinese_Dictionary_owned_by_GIO_20250404.jpg",
+        "downloadUrl": "https://upload.wikimedia.org/wikipedia/commons/b/ba/Copyright_page_of_A_New_Daily_Use_English-Chinese_Dictionary_owned_by_GIO_20250404.jpg",
+        "license": "CC BY-SA 4.0"
+      }
+    }
+  ]
+}

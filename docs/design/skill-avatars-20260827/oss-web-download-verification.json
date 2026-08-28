@@ -1,0 +1,114 @@
+[
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/pocket.her-motion.webp",
+    "bytes": 4758,
+    "sha256": "3e9ac748a95d2d83516051c28eb899b4f40c1dd617d91b3286ecfe350e208a9b",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/pocket.lianlema.webp",
+    "bytes": 4688,
+    "sha256": "04ac0741de34358af0957757afc6b59df331f74f5ff4dc78e578773ee1ab95ba",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.run-route.webp",
+    "bytes": 4746,
+    "sha256": "a0513343ddb28b74b22381c036973fd17defcdf7f559f96302a52eb401970a7c",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.running-coach.webp",
+    "bytes": 3576,
+    "sha256": "aae32180d4a45eab27c30029591a88b7192a124a411b8c1cdb791cc52ddc2b81",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.healthsync.webp",
+    "bytes": 3464,
+    "sha256": "eaa52881156fc0a668a52b9091cd5bf2d3c02c149eb61e17fd3679ea9e770cd3",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.mediapipe-motion.webp",
+    "bytes": 4986,
+    "sha256": "f131c6bdedf93a9722de2c6b0dc8a9780b3d9624b72de6fed9008474f03371a1",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.endurance-guard.webp",
+    "bytes": 3826,
+    "sha256": "a859f6caa518c47776a9b0a852c21836df603820c69412bd6912da7ad25b9db1",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.openfoodfacts.webp",
+    "bytes": 3646,
+    "sha256": "12fb1d849bde4dc23cbe1cfedcb7480dd696757c5d5e8b44d14adcc5ca66f6e8",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.garmin-readonly.webp",
+    "bytes": 5538,
+    "sha256": "5216bb5ae76e08a89ac13a86377b7115ee118061f6a9f179b07c35a1b3d534fe",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.cn-health-library.webp",
+    "bytes": 4256,
+    "sha256": "5c1dab4050ef85d46e54eb6532968cc764a9855d0d2403ab3bd2141c7db3b669",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.outdoor-window.webp",
+    "bytes": 5304,
+    "sha256": "83d2b8b3229b28a3d4deadbe131064e32ddd3208dcd6959136ea6a7ef2eac7d6",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.strava-replay.webp",
+    "bytes": 4636,
+    "sha256": "5a416229bbde3518e10827ac5a56d299c2dc51b6abb496a66978abe0a3400ab9",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.sleep-detective.webp",
+    "bytes": 4370,
+    "sha256": "d4754a8ce811eaadc5db40d952f7de923b549f77e914211c904c3b82a32607b7",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.meal-lens.webp",
+    "bytes": 3440,
+    "sha256": "b306566016783d442159c2d4c050de2fc1fb90a7c8c22beefec0c5ec4ba2cdfe",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.wger-planner.webp",
+    "bytes": 4362,
+    "sha256": "d5e2d455f11ddbcfd2860b01da6a43990f71afc7660c6c6b3bb1737fad7dbc61",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  },
+  {
+    "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/web/frost.mealie-kitchen.webp",
+    "bytes": 4454,
+    "sha256": "5357b5f18a7f8c393df498c848fa88226ab53bc08fedfde435535115a362c3ac",
+    "cors": "capacitor://localhost",
+    "contentVerified": true
+  }
+]

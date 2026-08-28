@@ -9,6 +9,10 @@ const TASKS = 'tasks';
 const SIGNALS = 'taskSignals';
 const EFFECTS = 'effects';
 const TRACES = 'traces';
+export const HEALTH_MEMORY_CHANGED = 'frost-health-memory-changed';
+export function notifyHealthMemoryChanged(): void {
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(HEALTH_MEMORY_CHANGED));
+}
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(',')}]`;
@@ -31,6 +35,8 @@ const transactionDone = (transaction: IDBTransaction): Promise<void> => new Prom
 export class IndexedDbTaskmasterStore implements TaskmasterStore {
   private readonly fallback = new InMemoryTaskmasterStore();
   private databasePromise: Promise<IDBDatabase | null> | null = null;
+
+  async persistence(): Promise<'indexeddb' | 'volatile'> { return await this.database() ? 'indexeddb' : 'volatile'; }
 
   private database(): Promise<IDBDatabase | null> {
     if (this.databasePromise) return this.databasePromise;
@@ -64,18 +70,34 @@ export class IndexedDbTaskmasterStore implements TaskmasterStore {
 
   async appendHealthEvent(event: HealthEvent): Promise<AppendResult> {
     const db = await this.database();
-    if (!db) return this.fallback.appendHealthEvent(event);
-    const existing = await this.getHealthEvent(event.event_id);
-    if (existing) {
-      if (canonical(existing) !== canonical(event)) throw new Error(`event_id_conflict:${event.event_id}`);
-      return { status: 'duplicate', event: existing };
+    if (!db) {
+      const result = await this.fallback.appendHealthEvent(event);
+      if (result.status === 'inserted') notifyHealthMemoryChanged();
+      return result;
     }
-    if (event.supersedes_event_id && !(await this.getHealthEvent(event.supersedes_event_id))) throw new Error(`superseded_event_not_found:${event.supersedes_event_id}`);
     const transaction = db.transaction(EVENTS, 'readwrite');
     const done = transactionDone(transaction);
-    transaction.objectStore(EVENTS).add(event);
-    await done;
-    return { status: 'inserted', event: structuredClone(event) };
+    try {
+      const records = transaction.objectStore(EVENTS);
+      const existing = await requestValue(records.get(event.event_id)) as HealthEvent | undefined;
+      if (existing) {
+        if (canonical(existing) !== canonical(event)) throw new Error(`event_id_conflict:${event.event_id}`);
+        await done;
+        return { status: 'duplicate', event: existing };
+      }
+      if (event.supersedes_event_id) {
+        const previous = await requestValue(records.get(event.supersedes_event_id)) as HealthEvent | undefined;
+        if (!previous || previous.user_id !== event.user_id) throw new Error(`superseded_event_not_found:${event.supersedes_event_id}`);
+      }
+      records.add(event);
+      await done;
+      notifyHealthMemoryChanged();
+      return { status: 'inserted', event: structuredClone(event) };
+    } catch (error) {
+      try { transaction.abort(); } catch { /* Already completed. */ }
+      await done.catch(() => {});
+      throw error;
+    }
   }
 
   async getHealthEvent(eventId: string): Promise<HealthEvent | null> {

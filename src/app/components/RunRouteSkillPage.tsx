@@ -1,11 +1,12 @@
 import { useState } from 'react';
+import SkillAvatar from './SkillAvatar';
 import { ArrowLeft, Footprints, MapPin, Route, Timer } from 'lucide-react';
 import {
   type RunRouteGoal,
   type RunRoutePreference,
   type RunRouteShape,
 } from '../lib/runRouteSkill';
-import { startRunRouteTask } from '../lib/healthTaskmasterRuntime';
+import { startRunRouteTask } from '../lib/frostHealthTaskmaster';
 
 interface Props { onBack: () => void }
 
@@ -68,6 +69,7 @@ export default function RunRouteSkillPage({ onBack }: Props) {
     <div className="flex h-full flex-col overflow-hidden bg-[#EAEAEA] text-black">
       <header className="flex items-center gap-3 border-b-[3px] border-black bg-white px-3 py-3">
         <button type="button" aria-label="返回 Skills" onClick={onBack} className="grid h-10 w-10 place-items-center border-2 border-black bg-white"><ArrowLeft className="h-5 w-5" strokeWidth={3} /></button>
+        <SkillAvatar skillId="frost.run-route" size={42} />
         <div className="min-w-0"><h1 className="font-pixel text-[13px]">RUN ROUTE</h1><p className="mt-1 text-[9px] font-bold text-black/50">高德路线规划 · GPS 轨迹跟随</p></div>
       </header>
 

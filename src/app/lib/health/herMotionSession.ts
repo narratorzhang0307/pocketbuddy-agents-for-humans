@@ -1,5 +1,6 @@
 import type { FrostTaskHandoff } from '../../../../frost-agent/harness/taskHandoff';
 import { validateHealthEvent, type HealthEvent, type JsonObject } from '../../../../frost-agent/taskmaster/contracts';
+import { shouldAutoStartHerMotion } from './herMotionLaunch';
 
 export const HER_MOTION_SESSION_PROTOCOL = 'pocket-skill-session/v1' as const;
 export const HER_MOTION_BRIDGE_PROTOCOL = 'pocket-her-motion-bridge/v1' as const;
@@ -218,7 +219,7 @@ export function applyHerMotionBridgeMessage(message: HerMotionBridgeMessage): He
       facts,
       confidence: next.confidence ?? (next.poseConfirmed ? 0.7 : 0.4),
       provenance: {
-        model_version: 'mediapipe-pose+yoga-82',
+        model_version: 'her-motion-bundled-mediapipe-pose/1.0',
         tool_version: 'her-motion-frost-adapter/1.0.0',
         input_hash: next.sessionId,
       },
@@ -230,27 +231,45 @@ export function applyHerMotionBridgeMessage(message: HerMotionBridgeMessage): He
   return next;
 }
 
-export function buildHerMotionSkillUrl(launchUrl: string, session: HerMotionSkillSession): string {
+export function buildHerMotionSkillUrl(launchUrl: string, session: HerMotionSkillSession, handoff?: FrostTaskHandoff | null): string {
   const url = new URL(launchUrl, window.location.href);
   url.searchParams.set('frost_session_id', session.sessionId);
   url.searchParams.set('frost_skill_id', session.skillId);
-  url.searchParams.set('frost_origin', window.location.origin);
+  const parent = new URL(window.location.href);
+  url.searchParams.set('frost_origin', parent.origin === 'null' ? `${parent.protocol}//${parent.host}` : parent.origin);
   url.searchParams.set('frost_return_url', window.location.href.split('#')[0]);
   url.searchParams.set('frost_embed', '1');
   if (session.planId) url.searchParams.set('frost_plan_id', session.planId);
   if (session.stepId) url.searchParams.set('frost_step_id', session.stepId);
   if (session.taskmasterTaskId) url.searchParams.set('frost_task_id', session.taskmasterTaskId);
+  for (const key of ['frost_auto_camera', 'frost_run_id', 'frost_requested_at']) url.searchParams.delete(key);
+  if (handoff && shouldAutoStartHerMotion(handoff)) {
+    url.searchParams.set('frost_auto_camera', '1');
+    url.searchParams.set('frost_run_id', handoff.runId);
+    url.searchParams.set('frost_requested_at', handoff.createdAt);
+  }
   return url.toString();
 }
 
-export function installHerMotionBridge(launchUrl: string, expectedSource?: () => MessageEventSource | null): () => void {
+export function isHerMotionFrameEvent(event: MessageEvent, launchUrl: string, expectedSource?: () => MessageEventSource | null): boolean {
+  const expectedUrl = new URL(launchUrl, window.location.href);
+  const nativeFrame = expectedUrl.protocol === 'capacitor:' && expectedUrl.host === 'localhost';
+  const expectedOrigin = nativeFrame ? 'capacitor://localhost' : expectedUrl.origin;
+  if (event.origin !== expectedOrigin && !(nativeFrame && expectedSource && event.origin === 'null')) return false;
+  if (expectedSource) {
+    const source = expectedSource();
+    if (!source || event.source !== source) return false;
+  }
+  return true;
+}
+
+export function installHerMotionBridge(launchUrl: string, expectedSource?: () => MessageEventSource | null, expectedSessionId?: string): () => void {
   if (typeof window === 'undefined') return () => undefined;
-  const expectedOrigin = new URL(launchUrl, window.location.href).origin;
   const onMessage = (event: MessageEvent<unknown>) => {
-    if (event.origin !== expectedOrigin || !event.data || typeof event.data !== 'object') return;
-    if (expectedSource && event.source !== expectedSource()) return;
+    if (!isHerMotionFrameEvent(event, launchUrl, expectedSource) || !event.data || typeof event.data !== 'object') return;
     const message = event.data as Partial<HerMotionBridgeMessage>;
     if (message.protocol !== HER_MOTION_BRIDGE_PROTOCOL || typeof message.sessionId !== 'string' || typeof message.type !== 'string' || typeof message.at !== 'string') return;
+    if (expectedSessionId && message.sessionId !== expectedSessionId) return;
     if (!['opened', 'workout-started', 'pose-confirmed', 'completed', 'cancelled'].includes(message.type)) return;
     applyHerMotionBridgeMessage(message as HerMotionBridgeMessage);
   };

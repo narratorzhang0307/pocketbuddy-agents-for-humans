@@ -1,0 +1,22 @@
+[
+  {
+    "id": "frost",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043c7-3f69-7f42-a5fd-405bef43f1cd/exec-f0b2e091-f480-4a11-8495-933316114562.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.png",
+    "width": 1254,
+    "height": 1254,
+    "provider": "built-in image_gen",
+    "actualModel": "unknown",
+    "sha256": "006e04e6b8fb7623a3c1aaf94dcacca438feca67e3b3b27bf529c7004db8c3e8"
+  },
+  {
+    "id": "frost.mealie-kitchen",
+    "generatedPath": "/Users/zhangcheng/.codex/generated_images/01a043c7-3f69-7f42-a5fd-405bef43f1cd/exec-32bd1d78-c987-4724-9cb8-152d922d147c.png",
+    "savedPath": "/Users/zhangcheng/Desktop/谷歌大赛/public/assets/skill-avatars/20260827/originals/frost.mealie-kitchen.png",
+    "width": 1254,
+    "height": 1254,
+    "provider": "built-in image_gen",
+    "actualModel": "unknown",
+    "sha256": "55cde45e2b9fe508e75b642a59430121cc9011412322623859c62e27d08c822c"
+  }
+]

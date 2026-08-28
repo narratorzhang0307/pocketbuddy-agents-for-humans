@@ -1,0 +1,192 @@
+{
+  "schema": "pocketearth.heritage-restoration-mnn-blind/v1",
+  "modelSha256": "c571f66050be527e7e531b9c116a417c4fece0ec4090cdaf5d2497a8c0eb5a87",
+  "samples": 12,
+  "improvedSamples": 12,
+  "meanDamageMae": 70.50342496236165,
+  "meanRestoredMae": 39.86248238881429,
+  "meanRelativeMaeChange": -0.3455814323902957,
+  "maxUnmaskedDelta": 0,
+  "items": [
+    {
+      "seed": 0,
+      "crop": [
+        247,
+        147,
+        256,
+        256
+      ],
+      "damageMae": 43.797645568847656,
+      "restoredMae": 35.75086975097656,
+      "relativeMaeChange": -0.18372621891790905,
+      "improved": true,
+      "maskCoverage": 0.344482421875,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 1,
+      "crop": [
+        723,
+        95,
+        256,
+        256
+      ],
+      "damageMae": 83.13580322265625,
+      "restoredMae": 48.23937225341797,
+      "relativeMaeChange": -0.4197521358611024,
+      "improved": true,
+      "maskCoverage": 0.341949462890625,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 2,
+      "crop": [
+        436,
+        90,
+        256,
+        256
+      ],
+      "damageMae": 115.25666046142578,
+      "restoredMae": 30.203330993652344,
+      "relativeMaeChange": -0.7379471965200586,
+      "improved": true,
+      "maskCoverage": 0.3008270263671875,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 3,
+      "crop": [
+        228,
+        120,
+        256,
+        256
+      ],
+      "damageMae": 46.270042419433594,
+      "restoredMae": 39.75621032714844,
+      "relativeMaeChange": -0.14077860645205117,
+      "improved": true,
+      "maskCoverage": 0.3617095947265625,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 4,
+      "crop": [
+        647,
+        267,
+        256,
+        256
+      ],
+      "damageMae": 55.66423797607422,
+      "restoredMae": 41.813541412353516,
+      "relativeMaeChange": -0.24882576439246423,
+      "improved": true,
+      "maskCoverage": 0.343353271484375,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 5,
+      "crop": [
+        362,
+        512,
+        256,
+        256
+      ],
+      "damageMae": 47.26943588256836,
+      "restoredMae": 39.68757629394531,
+      "relativeMaeChange": -0.16039665900516964,
+      "improved": true,
+      "maskCoverage": 0.2169952392578125,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 6,
+      "crop": [
+        382,
+        26,
+        256,
+        256
+      ],
+      "damageMae": 51.00501251220703,
+      "restoredMae": 40.60938262939453,
+      "relativeMaeChange": -0.20381584810560557,
+      "improved": true,
+      "maskCoverage": 0.3318023681640625,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 7,
+      "crop": [
+        27,
+        221,
+        256,
+        256
+      ],
+      "damageMae": 47.217132568359375,
+      "restoredMae": 34.972164154052734,
+      "relativeMaeChange": -0.25933316464270223,
+      "improved": true,
+      "maskCoverage": 0.22747802734375,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 8,
+      "crop": [
+        521,
+        559,
+        256,
+        256
+      ],
+      "damageMae": 156.072509765625,
+      "restoredMae": 36.26880645751953,
+      "relativeMaeChange": -0.7676156645908712,
+      "improved": true,
+      "maskCoverage": 0.195556640625,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 9,
+      "crop": [
+        52,
+        106,
+        256,
+        256
+      ],
+      "damageMae": 78.51083374023438,
+      "restoredMae": 48.258567810058594,
+      "relativeMaeChange": -0.3853260052016545,
+      "improved": true,
+      "maskCoverage": 0.335723876953125,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 10,
+      "crop": [
+        582,
+        112,
+        256,
+        256
+      ],
+      "damageMae": 58.99287033081055,
+      "restoredMae": 41.589813232421875,
+      "relativeMaeChange": -0.29500271813862694,
+      "improved": true,
+      "maskCoverage": 0.2725372314453125,
+      "unmaskedMaxDelta": 0
+    },
+    {
+      "seed": 11,
+      "crop": [
+        475,
+        323,
+        256,
+        256
+      ],
+      "damageMae": 62.848915100097656,
+      "restoredMae": 41.20015335083008,
+      "relativeMaeChange": -0.34445720685533265,
+      "improved": true,
+      "maskCoverage": 0.3755340576171875,
+      "unmaskedMaxDelta": 0
+    }
+  ]
+}

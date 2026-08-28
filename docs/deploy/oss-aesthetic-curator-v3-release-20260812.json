@@ -1,0 +1,31 @@
+{
+  "schema": "pocket-earth.oss-release/v1",
+  "release": "aesthetic-curator-v3-checkpoint-568-6228d2b5",
+  "bucket": "last-night-on-earth",
+  "endpoint": "https://oss-cn-hangzhou.aliyuncs.com",
+  "publicBase": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com",
+  "status": "research-candidate-for-phone-validation",
+  "objects": [
+    {
+      "local": "training/aesthetic-curator/mnn/outputs/aesthetic-curator-v3-checkpoint-568/visual-lora.mnn",
+      "key": "pocket-earth/models/aesthetic-curator-vision-lora/choice-v3-checkpoint-568-6228d2b5/visual-lora.mnn",
+      "bytes": 33584240,
+      "sha256": "5e6f8c0a1432ea437e2ca6e19f4fbcbbaa1b1ebae08c1209d6601c7de97422e8",
+      "contentType": "application/octet-stream"
+    },
+    {
+      "local": "training/aesthetic-curator/mnn/outputs/aesthetic-curator-v3-checkpoint-568/skill-manifest.json",
+      "key": "pocket-earth/models/aesthetic-curator-vision-lora/choice-v3-checkpoint-568-6228d2b5/skill-manifest.json",
+      "bytes": 1879,
+      "sha256": "e28e3809fe195e4addc20c112c324be4905cf161d090323ffffe2cc30b3a9158",
+      "contentType": "application/json; charset=utf-8"
+    },
+    {
+      "local": "training/aesthetic-curator/mnn/outputs/aesthetic-curator-v3-checkpoint-568/visual-lora-mapping.json",
+      "key": "pocket-earth/models/aesthetic-curator-vision-lora/choice-v3-checkpoint-568-6228d2b5/visual-lora-mapping.json",
+      "bytes": 137,
+      "sha256": "d74f2c4c1eb459de53f7ba566e99c5aa3d18ded9963229eb84819fd2ea3216e4",
+      "contentType": "application/json; charset=utf-8"
+    }
+  ]
+}

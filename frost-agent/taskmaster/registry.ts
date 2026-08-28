@@ -1,9 +1,4 @@
-import {
-  HEALTH_SKILL_PROTOCOL,
-  type FrostTaskKind,
-  type FrostTaskRequest,
-  type HealthSkillDefinition,
-} from './contracts';
+import { HEALTH_SKILL_PROTOCOL, type FrostTaskKind, type HealthSkillDefinition } from './contracts';
 import { EXTERNAL_HEALTH_SKILL_DEFINITIONS } from './externalSkills';
 
 const skills: HealthSkillDefinition[] = [
@@ -105,7 +100,7 @@ const skills: HealthSkillDefinition[] = [
   ...EXTERNAL_HEALTH_SKILL_DEFINITIONS,
 ];
 
-const taskToSkill: Record<Exclude<FrostTaskKind, 'run_skill'>, string> = {
+const taskToSkill: Record<FrostTaskKind, string> = {
   log_meal: 'frost.nutrition-log',
   start_workout: 'frost.her-motion-warmup',
   plan_run_route: 'frost.run-route',
@@ -128,25 +123,7 @@ export class HealthSkillRegistry {
     return skill ? structuredClone(skill) : null;
   }
 
-  taskKindForSkill(skillId: string): FrostTaskKind | null {
-    const legacy = Object.entries(taskToSkill).find(([, registered]) => registered === skillId)?.[0];
-    if (legacy) return legacy as Exclude<FrostTaskKind, 'run_skill'>;
-    return this.load(skillId) ? 'run_skill' : null;
-  }
-
-  /** 把请求解析为当次 Task 的不可变 Skill 定义。子类可在这里锁定动态 Graph。 */
-  resolveRequest(request: FrostTaskRequest): { request: FrostTaskRequest; skill: HealthSkillDefinition } {
-    if (request.kind === 'run_skill') {
-      const skillId = typeof request.input.skill_id === 'string' ? request.input.skill_id.trim() : '';
-      if (!skillId) throw new Error('run_skill_id_required');
-      const skill = this.load(skillId);
-      if (!skill) throw new Error(`skill_not_registered:${skillId}`);
-      return { request: structuredClone(request), skill };
-    }
-    return { request: structuredClone(request), skill: this.forTask(request.kind) };
-  }
-
-  forTask(kind: Exclude<FrostTaskKind, 'run_skill'>): HealthSkillDefinition {
+  forTask(kind: FrostTaskKind): HealthSkillDefinition {
     const skill = this.load(taskToSkill[kind]);
     if (!skill) throw new Error(`skill_not_registered:${kind}`);
     return skill;

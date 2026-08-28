@@ -1,0 +1,140 @@
+{
+  "raw_mnn_gate": {
+    "status": "reject",
+    "eligible_for_2_5d": false,
+    "accepted_views": 5,
+    "rejected_view_indexes": [
+      4
+    ],
+    "review_view_indexes": [],
+    "max_accepted_yaw_gap_deg": 120.0,
+    "median_foreground_ratio": 0.370683,
+    "median_bbox_fill_ratio": 0.675505,
+    "reasons": [
+      "one_or_more_views_rejected",
+      "accepted_yaw_gap_too_large"
+    ],
+    "policy": "museum_structure_guard_fail_closed_v1",
+    "policy_file": "quality-policy.json",
+    "evidence_complete": true
+  },
+  "models": {
+    "matting": "exhibit-matting-v1-fp16",
+    "matting_runtime": "MNN 3.6.1 FP16",
+    "matting_specialist": "exhibit-matting-v1-fp16",
+    "structure_guard": null,
+    "fusion_policy": "museum_structure_guard_fail_closed_v1",
+    "matting_model": "bundled MNN · SHA256 95f35d70763cd83f58e79d83ebba2c682853bee764906dce9b366d1d07ea4b10",
+    "matting_elapsed_ms_per_view": [
+      1564.012,
+      1346.744,
+      1505.013,
+      3204.291,
+      3162.021,
+      2318.428
+    ],
+    "depth": "depth-anything/Depth-Anything-V2-Small-hf",
+    "qwen": "Qwen3-VL-2B-Instruct-MNN (routing/OCR)",
+    "qwen_lora": null
+  },
+  "views": [
+    {
+      "id": "view-00-000",
+      "yaw_deg": 0,
+      "original_sha256": "e3f9ee327d3330e3a7d7357925940c876b151cf04c736249d80cbf84f112fe0d",
+      "alpha_quality": {
+        "foreground_ratio": 0.364734,
+        "visible_ratio": 0.405702,
+        "bbox_fill_ratio": 0.660265,
+        "halo_to_foreground_ratio": 0.093046,
+        "largest_component_ratio": 0.995748,
+        "component_count": 7,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-01-060",
+      "yaw_deg": 60,
+      "original_sha256": "a2b2c15f34f3c65de1d436443045f9a5410d60419f2f0f1d54f679ebe0e24af0",
+      "alpha_quality": {
+        "foreground_ratio": 0.376631,
+        "visible_ratio": 0.3944,
+        "bbox_fill_ratio": 0.703795,
+        "halo_to_foreground_ratio": 0.040726,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-02-120",
+      "yaw_deg": 120,
+      "original_sha256": "a8d21334c2b83cb909360d360f14d24664bc7a2107fdc7dd92298f0b194dcd31",
+      "alpha_quality": {
+        "foreground_ratio": 0.380737,
+        "visible_ratio": 0.397555,
+        "bbox_fill_ratio": 0.692776,
+        "halo_to_foreground_ratio": 0.037972,
+        "largest_component_ratio": 1.0,
+        "component_count": 1,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-03-180",
+      "yaw_deg": 180,
+      "original_sha256": "38d0564a6b006320b071f416f0d1f3affc19f48c31d8340a11c9d3eb8ab6161f",
+      "alpha_quality": {
+        "foreground_ratio": 0.376662,
+        "visible_ratio": 0.396568,
+        "bbox_fill_ratio": 0.68839,
+        "halo_to_foreground_ratio": 0.043948,
+        "largest_component_ratio": 0.999949,
+        "component_count": 2,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    },
+    {
+      "id": "view-04-240",
+      "yaw_deg": 240,
+      "original_sha256": "4e96492a93f79182cd85d41ca328ae76f3c25bf5014b2c7a537832072af95647",
+      "alpha_quality": {
+        "foreground_ratio": 0.341883,
+        "visible_ratio": 0.425754,
+        "bbox_fill_ratio": 0.646881,
+        "halo_to_foreground_ratio": 0.216215,
+        "largest_component_ratio": 0.990037,
+        "component_count": 8,
+        "status": "reject",
+        "accepted_for_2_5d": false,
+        "reasons": [
+          "smoky_low_confidence_alpha"
+        ]
+      }
+    },
+    {
+      "id": "view-05-300",
+      "yaw_deg": 300,
+      "original_sha256": "d017543e0e521171e598d5acbf4f33f719998339f2f48d7bd1acc46564f38ca9",
+      "alpha_quality": {
+        "foreground_ratio": 0.348244,
+        "visible_ratio": 0.390572,
+        "bbox_fill_ratio": 0.66262,
+        "halo_to_foreground_ratio": 0.100638,
+        "largest_component_ratio": 0.999945,
+        "component_count": 2,
+        "status": "pass",
+        "accepted_for_2_5d": true,
+        "reasons": []
+      }
+    }
+  ]
+}

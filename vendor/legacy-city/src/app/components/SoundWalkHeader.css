@@ -1,0 +1,143 @@
+@font-face {
+  font-family: "Fusion Pixel Walk Title";
+  src: url("/fonts/fusion-pixel-sc.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+.soundwalk-workspace-hero {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 21px 17px 17px;
+  border-bottom: 3px solid #171914;
+  color: #171914;
+  background:
+    radial-gradient(circle at 92% 16%, rgba(139, 227, 184, .24), transparent 26%),
+    #fff;
+  font-family: "Fusion Pixel 10px Monospaced SC", "PingFang SC", sans-serif;
+}
+
+.soundwalk-workspace-hero > div:first-child { min-width: 0; }
+
+.soundwalk-workspace-hero small {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #347458;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+
+.soundwalk-workspace-hero h1 {
+  margin: 7px 0 5px;
+  font-family: "Fusion Pixel Walk Title", "PingFang SC", sans-serif;
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.soundwalk-workspace-hero p {
+  margin: 0;
+  color: rgba(23, 25, 20, .62);
+  font-size: 7px;
+  line-height: 1.5;
+}
+
+.soundwalk-workspace-progress {
+  display: grid;
+  min-width: 74px;
+  padding: 10px 7px;
+  place-items: center;
+  border: 2px solid #171914;
+  color: #171914;
+  background: #f0c86a;
+}
+
+.soundwalk-workspace-progress strong { font-size: 17px; line-height: 1; }
+.soundwalk-workspace-progress strong i { margin: 0 2px; font-size: 9px; font-style: normal; opacity: .5; }
+.soundwalk-workspace-progress span { margin-top: 4px; font-size: 5px; font-weight: 900; }
+
+.soundwalk-workspace-hero.is-pocket-earth {
+  position: relative;
+  align-items: center;
+  padding: 17px 17px 14px;
+  border-top: 7px solid #087a43;
+  background:
+    linear-gradient(135deg, rgba(0, 255, 136, .08) 25%, transparent 25%) 0 0 / 18px 18px,
+    radial-gradient(circle at 88% 22%, rgba(0, 255, 136, .22), transparent 29%),
+    #fff;
+}
+
+.soundwalk-workspace-hero.is-pocket-earth h1 {
+  margin: 6px 0 4px;
+  font-size: 29px;
+  letter-spacing: .08em;
+}
+
+.soundwalk-workspace-hero.is-pocket-earth p {
+  max-width: 238px;
+  font-size: 7.5px;
+  font-weight: 700;
+}
+
+.soundwalk-workspace-hero.is-pocket-earth .soundwalk-workspace-progress {
+  min-width: 82px;
+  padding: 10px 7px 9px;
+  background: #fff0b5;
+  box-shadow: 3px 3px 0 #171914;
+}
+
+.soundwalk-workspace-hero.is-pocket-earth .soundwalk-workspace-progress.is-live {
+  background: #7cff6b;
+}
+
+.soundwalk-workspace-hero.is-pocket-earth .soundwalk-workspace-progress strong {
+  font-family: "Fusion Pixel Walk Title", "PingFang SC", sans-serif;
+  font-size: 14px;
+  letter-spacing: .04em;
+}
+
+.earth-ledger-strip {
+  display: grid;
+  flex: 0 0 auto;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-bottom: 2px solid #171914;
+  color: #171914;
+  background: #f6f1e6;
+}
+
+.earth-ledger-strip > div {
+  min-width: 0;
+  padding: 7px 6px 6px;
+  border-right: 1px solid rgba(23, 25, 20, .42);
+  text-align: center;
+}
+
+.earth-ledger-strip > div:last-child { border-right: 0; }
+
+.earth-ledger-strip small {
+  display: block;
+  overflow: hidden;
+  color: rgba(23, 25, 20, .48);
+  font-family: "Fusion Pixel 10px Monospaced SC", monospace;
+  font-size: 5px;
+  letter-spacing: .08em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.earth-ledger-strip strong {
+  display: block;
+  margin-top: 3px;
+  overflow: hidden;
+  color: #087a43;
+  font-size: 7.5px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

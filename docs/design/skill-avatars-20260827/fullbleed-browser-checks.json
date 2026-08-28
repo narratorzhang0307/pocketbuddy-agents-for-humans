@@ -1,0 +1,172 @@
+[
+  {
+    "height": 240,
+    "id": "frost",
+    "loaded": true,
+    "src": "hardware-round/frost.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "pocket.her-motion",
+    "loaded": true,
+    "src": "hardware-round/pocket.her-motion.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "pocket.lianlema",
+    "loaded": true,
+    "src": "hardware-round/pocket.lianlema.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.run-route",
+    "loaded": true,
+    "src": "hardware-round/frost.run-route.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.running-coach",
+    "loaded": true,
+    "src": "hardware-round/frost.running-coach.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.healthsync",
+    "loaded": true,
+    "src": "hardware-round/frost.healthsync.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.mediapipe-motion",
+    "loaded": true,
+    "src": "hardware-round/frost.mediapipe-motion.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.endurance-guard",
+    "loaded": true,
+    "src": "hardware-round/frost.endurance-guard.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.openfoodfacts",
+    "loaded": true,
+    "src": "hardware-round/frost.openfoodfacts.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.garmin-readonly",
+    "loaded": true,
+    "src": "hardware-round/frost.garmin-readonly.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.cn-health-library",
+    "loaded": true,
+    "src": "hardware-round/frost.cn-health-library.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.outdoor-window",
+    "loaded": true,
+    "src": "hardware-round/frost.outdoor-window.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.strava-replay",
+    "loaded": true,
+    "src": "hardware-round/frost.strava-replay.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.sleep-detective",
+    "loaded": true,
+    "src": "hardware-round/frost.sleep-detective.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.meal-lens",
+    "loaded": true,
+    "src": "hardware-round/frost.meal-lens.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.wger-planner",
+    "loaded": true,
+    "src": "hardware-round/frost.wger-planner.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  },
+  {
+    "height": 240,
+    "id": "frost.mealie-kitchen",
+    "loaded": true,
+    "src": "hardware-round/frost.mealie-kitchen.jpg",
+    "statusVisible": true,
+    "width": 240,
+    "x": 0,
+    "y": 0
+  }
+]

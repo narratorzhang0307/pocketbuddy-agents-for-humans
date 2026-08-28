@@ -1,0 +1,64 @@
+{
+  "assets": {
+    "count": 17,
+    "originalSize": [
+      1254,
+      1254
+    ],
+    "webSize": [
+      256,
+      256
+    ],
+    "hardwareSize": [
+      128,
+      128
+    ],
+    "hardwareFormat": "RGB565 little-endian",
+    "originalsByteIdenticalToSources": true
+  },
+  "tests": {
+    "vitestFiles": 7,
+    "vitestPassed": 79,
+    "protocolHost": "passed",
+    "webBuild": "passed",
+    "typecheck": "passed"
+  },
+  "browser": {
+    "galleryButtonsChecked": 17,
+    "galleryBrokenImages": 0,
+    "appViewportWidth": 390,
+    "appHorizontalOverflow": false,
+    "appSkillCardsChecked": 12,
+    "frostDialog": "checked",
+    "sleepSkillPage": "checked"
+  },
+  "firmware": {
+    "build": "passed",
+    "sdk": "ESP-IDF v5.5.4",
+    "target": "ESP32-S3 OJBadge",
+    "binary": "hardware/ojbadge-agent-link/build/agent_link.bin",
+    "bytes": 2850000,
+    "sha256": "37a0e9174aa5f6753f3a7daf856c9174fff26e62938c6f3507b7b70be26d5bbe",
+    "appPartitionBytes": 3145728,
+    "freeAppPartitionBytes": 295728,
+    "flashed": true,
+    "physicalDisplayVerified": false,
+    "version": "0.2.12-ojbadge-avatars",
+    "physicalReadbackVerified": true,
+    "bootVerified": true,
+    "avatarSwitchesVerified": 17,
+    "deviceEvidence": "docs/technical/OJBADGE-SKILL-AVATARS-2026-08-28.md",
+    "deviceRenderLogVerified": true,
+    "restoredFrost": true
+  },
+  "notes": [
+    "Initial typecheck encountered 3 errors in untouched frostSkillAnswer.ts; the final workspace typecheck passed.",
+    "Existing oversized web chunk and deprecated touch API warnings remain.",
+    "Browser device simulator is not physical hardware evidence."
+  ],
+  "userPhotoReview": {
+    "provided": true,
+    "oldSquareInsetVisible": true,
+    "requestedFullScreenLayout": true
+  }
+}

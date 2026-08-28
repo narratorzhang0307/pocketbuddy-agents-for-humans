@@ -1,0 +1,27 @@
+[Unit]
+Description=Pocket Buddy isolated RTMO and ST-GCN coach
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/pocketbuddy/coach/current
+Environment=OMP_NUM_THREADS=1
+Environment=OPENBLAS_NUM_THREADS=1
+Environment=MKL_NUM_THREADS=1
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/root/pocketbuddy/shared/lianlema-venv/bin/gunicorn --bind 127.0.0.1:4020 --workers 1 --threads 2 --timeout 60 --worker-tmp-dir /dev/shm coach_service:create_app()
+Restart=on-failure
+RestartSec=5
+Nice=10
+CPUQuota=100%
+MemoryMax=1200M
+TasksMax=32
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

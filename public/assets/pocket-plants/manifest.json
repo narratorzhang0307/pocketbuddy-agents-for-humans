@@ -1,0 +1,457 @@
+{
+  "version": 3,
+  "count": 50,
+  "curatedAt": "2026-08-06",
+  "plants": [
+    {
+      "id": "vintage-floral-01",
+      "name": "蝴蝶兰",
+      "scientificName": "Phalaenopsis spp.",
+      "description": "像一小群粉色蝴蝶，决定在窗边歇脚。",
+      "src": "/assets/pocket-plants/vintage-floral-01.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-02",
+      "name": "粉山茶",
+      "scientificName": "Camellia japonica",
+      "description": "它把冬天悄悄折成了一封粉色请柬。",
+      "src": "/assets/pocket-plants/vintage-floral-02.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-03",
+      "name": "美人蕉",
+      "scientificName": "Canna indica",
+      "description": "宽叶撑起一团火，盛夏路过也会被照亮。",
+      "src": "/assets/pocket-plants/vintage-floral-03.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-04",
+      "name": "天堂鸟",
+      "scientificName": "Strelitzia reginae",
+      "description": "花朵像刚落地的鸟，随时准备再次起飞。",
+      "src": "/assets/pocket-plants/vintage-floral-04.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-05",
+      "name": "木芙蓉",
+      "scientificName": "Hibiscus mutabilis",
+      "description": "清晨浅、傍晚深，它一天会换好几次心情。",
+      "src": "/assets/pocket-plants/vintage-floral-05.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-06",
+      "name": "针垫花",
+      "scientificName": "Leucospermum cordifolium",
+      "description": "一团橙色小针脚，把阳光牢牢别在枝头。",
+      "src": "/assets/pocket-plants/vintage-floral-06.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-07",
+      "name": "帝王花",
+      "scientificName": "Protea cynaroides",
+      "description": "花冠自带王座，但它更愿意统治一阵风。",
+      "src": "/assets/pocket-plants/vintage-floral-07.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-08",
+      "name": "西番莲",
+      "scientificName": "Passiflora edulis",
+      "description": "它把钟表、烟花和藤蔓装进了同一朵花。",
+      "src": "/assets/pocket-plants/vintage-floral-08.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-09",
+      "name": "倒挂金钟",
+      "scientificName": "Fuchsia hybrida",
+      "description": "一串倒悬的小灯笼，专门替黄昏点灯。",
+      "src": "/assets/pocket-plants/vintage-floral-09.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-11",
+      "name": "枇杷",
+      "scientificName": "Eriobotrya japonica",
+      "description": "叶子先写好冬信，初夏再寄来一篮金果。",
+      "src": "/assets/pocket-plants/vintage-floral-11.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-12",
+      "name": "咖啡树",
+      "scientificName": "Coffea arabica",
+      "description": "红果里藏着清晨，等烘焙之后才肯醒来。",
+      "src": "/assets/pocket-plants/vintage-floral-12.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-14",
+      "name": "杜鹃花",
+      "scientificName": "Rhododendron simsii",
+      "description": "它一开花，山路就像忽然调高了饱和度。",
+      "src": "/assets/pocket-plants/vintage-floral-14.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-15",
+      "name": "三色堇",
+      "scientificName": "Viola tricolor",
+      "description": "每张小花脸都像在认真思考一件春天的事。",
+      "src": "/assets/pocket-plants/vintage-floral-15.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-16",
+      "name": "香石竹",
+      "scientificName": "Dianthus caryophyllus",
+      "description": "锯齿花边像手写信，香气是它盖下的邮戳。",
+      "src": "/assets/pocket-plants/vintage-floral-16.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-17",
+      "name": "卷丹",
+      "scientificName": "Lilium lancifolium",
+      "description": "花瓣向后卷起，像一团不肯安静的橙色火焰。",
+      "src": "/assets/pocket-plants/vintage-floral-17.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-18",
+      "name": "紫松果菊",
+      "scientificName": "Echinacea purpurea",
+      "description": "它举着紫色小伞，等蜜蜂来参加圆桌会议。",
+      "src": "/assets/pocket-plants/vintage-floral-18.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-22",
+      "name": "鸢尾",
+      "scientificName": "Iris germanica",
+      "description": "紫色花瓣像旗帜，把潮湿的风领进花园。",
+      "src": "/assets/pocket-plants/vintage-floral-22.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-23",
+      "name": "圆叶牵牛",
+      "scientificName": "Ipomoea purpurea",
+      "description": "天一亮就吹响小喇叭，午后却偷偷收工。",
+      "src": "/assets/pocket-plants/vintage-floral-23.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-24",
+      "name": "银荆",
+      "scientificName": "Acacia dealbata",
+      "description": "金黄绒球挤满枝头，像春天突然有了气泡。",
+      "src": "/assets/pocket-plants/vintage-floral-24.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-26",
+      "name": "花菱草",
+      "scientificName": "Eschscholzia californica",
+      "description": "橙色花杯只盛阳光，阴天就把杯盖合上。",
+      "src": "/assets/pocket-plants/vintage-floral-26.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-27",
+      "name": "滨菊",
+      "scientificName": "Leucanthemum vulgare",
+      "description": "白色花瓣围着太阳，认真数每一次路过。",
+      "src": "/assets/pocket-plants/vintage-floral-27.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-28",
+      "name": "黄水仙",
+      "scientificName": "Narcissus pseudonarcissus",
+      "description": "金色小号朝着春天，吹出第一声早安。",
+      "src": "/assets/pocket-plants/vintage-floral-28.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-29",
+      "name": "酸浆",
+      "scientificName": "Physalis alkekengi",
+      "description": "橙红灯笼里住着一颗果实，也住着一点秋天。",
+      "src": "/assets/pocket-plants/vintage-floral-29.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-30",
+      "name": "铃兰",
+      "scientificName": "Convallaria majalis",
+      "description": "一排白色小铃铛，只在风经过时交换秘密。",
+      "src": "/assets/pocket-plants/vintage-floral-30.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-31",
+      "name": "五爪金龙",
+      "scientificName": "Ipomoea cairica",
+      "description": "藤蔓擅长翻墙，花朵负责假装若无其事。",
+      "src": "/assets/pocket-plants/vintage-floral-31.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-32",
+      "name": "紫菀",
+      "scientificName": "Aster tataricus",
+      "description": "晚秋还举着紫色星星，替花园延长营业时间。",
+      "src": "/assets/pocket-plants/vintage-floral-32.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-34",
+      "name": "月季",
+      "scientificName": "Rosa chinensis",
+      "description": "它把一年过成许多个花期，常常忘记休息。",
+      "src": "/assets/pocket-plants/vintage-floral-34.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-35",
+      "name": "蓝花丹",
+      "scientificName": "Plumbago auriculata",
+      "description": "一团清蓝贴在夏天边缘，专门给热风降温。",
+      "src": "/assets/pocket-plants/vintage-floral-35.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-36",
+      "name": "铁线莲",
+      "scientificName": "Clematis florida",
+      "description": "细藤会攀着墙写字，每一朵花都是句号。",
+      "src": "/assets/pocket-plants/vintage-floral-36.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-39",
+      "name": "矢车菊",
+      "scientificName": "Centaurea cyanus",
+      "description": "蓝色齿轮开在麦田边，转动一小块天空。",
+      "src": "/assets/pocket-plants/vintage-floral-39.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-40",
+      "name": "君子兰",
+      "scientificName": "Clivia miniata",
+      "description": "叶子排得端正，橙花却忍不住热闹起来。",
+      "src": "/assets/pocket-plants/vintage-floral-40.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-43",
+      "name": "卡特兰",
+      "scientificName": "Cattleya labiata",
+      "description": "它穿着紫色礼服，连空气都变得隆重一点。",
+      "src": "/assets/pocket-plants/vintage-floral-43.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-45",
+      "name": "红车轴草",
+      "scientificName": "Trifolium pratense",
+      "description": "三片叶子轮流值班，红花负责招呼蜂群。",
+      "src": "/assets/pocket-plants/vintage-floral-45.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-46",
+      "name": "硫华菊",
+      "scientificName": "Cosmos sulphureus",
+      "description": "细叶托着橙色小太阳，越晒越有精神。",
+      "src": "/assets/pocket-plants/vintage-floral-46.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-49",
+      "name": "旱金莲",
+      "scientificName": "Tropaeolum majus",
+      "description": "圆叶像荷叶缩小版，花朵却有一颗冒险心。",
+      "src": "/assets/pocket-plants/vintage-floral-49.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-50",
+      "name": "蒲公英",
+      "scientificName": "Taraxacum mongolicum",
+      "description": "它把种子交给风，是植物界最洒脱的旅行家。",
+      "src": "/assets/pocket-plants/vintage-floral-50.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-51",
+      "name": "绣球",
+      "scientificName": "Hydrangea macrophylla",
+      "description": "许多小花挤成一团，像一场不肯散席的聚会。",
+      "src": "/assets/pocket-plants/vintage-floral-51.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-52",
+      "name": "金合欢",
+      "scientificName": "Acacia pycnantha",
+      "description": "枝头挂满黄色绒球，风一来就集体点头。",
+      "src": "/assets/pocket-plants/vintage-floral-52.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-54",
+      "name": "蜀葵",
+      "scientificName": "Alcea rosea",
+      "description": "它沿着高茎一层层开花，像在攀登夏天。",
+      "src": "/assets/pocket-plants/vintage-floral-54.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-57",
+      "name": "洋甘菊",
+      "scientificName": "Matricaria chamomilla",
+      "description": "小白花看着普通，却很会把夜晚泡得柔软。",
+      "src": "/assets/pocket-plants/vintage-floral-57.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-58",
+      "name": "野草莓",
+      "scientificName": "Fragaria vesca",
+      "description": "白花先打招呼，红果随后送上一颗夏天。",
+      "src": "/assets/pocket-plants/vintage-floral-58.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-61",
+      "name": "金盏菊",
+      "scientificName": "Calendula officinalis",
+      "description": "橙色花盘像一枚小太阳，阴天也照常上班。",
+      "src": "/assets/pocket-plants/vintage-floral-61.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-62",
+      "name": "红郁金香",
+      "scientificName": "Tulipa gesneriana",
+      "description": "花杯收着一口春风，走近才肯慢慢打开。",
+      "src": "/assets/pocket-plants/vintage-floral-62.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-64",
+      "name": "勿忘草",
+      "scientificName": "Myosotis sylvatica",
+      "description": "蓝色小花把名字说了两遍，怕你真的忘记。",
+      "src": "/assets/pocket-plants/vintage-floral-64.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-65",
+      "name": "薰衣草",
+      "scientificName": "Lavandula angustifolia",
+      "description": "紫色花穗把风熏香，连脚步也自动放慢。",
+      "src": "/assets/pocket-plants/vintage-floral-65.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-67",
+      "name": "荷兰菊",
+      "scientificName": "Symphyotrichum novi-belgii",
+      "description": "紫色小星开到深秋，替季节坚持最后一班。",
+      "src": "/assets/pocket-plants/vintage-floral-67.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-68",
+      "name": "鸡蛋花",
+      "scientificName": "Plumeria rubra",
+      "description": "花心像一小勺阳光，香气却绕了很远的路。",
+      "src": "/assets/pocket-plants/vintage-floral-68.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-69",
+      "name": "虞美人",
+      "scientificName": "Papaver rhoeas",
+      "description": "薄花瓣看似怕风，摇起来却比谁都从容。",
+      "src": "/assets/pocket-plants/vintage-floral-69.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-71",
+      "name": "大花萱草",
+      "scientificName": "Hemerocallis hybrida",
+      "description": "每朵花只认真一天，所以从不浪费清晨。",
+      "src": "/assets/pocket-plants/vintage-floral-71.png",
+      "family": "botanical",
+      "fieldReady": true
+    },
+    {
+      "id": "vintage-floral-72",
+      "name": "忽地笑",
+      "scientificName": "Lycoris aurea",
+      "description": "细长花瓣突然舒展，像土地讲到一半笑出了声。",
+      "src": "/assets/pocket-plants/vintage-floral-72.png",
+      "family": "botanical",
+      "fieldReady": true
+    }
+  ]
+}

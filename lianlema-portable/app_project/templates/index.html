@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时健身动作纠错</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --bg: #f4f7fb;
+            --panel: #ffffff;
+            --panel-alt: #eef3f9;
+            --text: #162030;
+            --muted: #5b6677;
+            --border: #d9e0ea;
+            --accent: #1f6feb;
+            --accent-strong: #1553b7;
+            --success: #18794e;
+            --warn: #c37b05;
+            --danger: #c2413b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+        }
+
+        .app-shell {
+            width: min(1360px, calc(100vw - 32px));
+            margin: 16px auto;
+            display: grid;
+            grid-template-columns: minmax(0, 2.1fr) minmax(320px, 0.95fr);
+            gap: 16px;
+        }
+
+        .stage,
+        .rail-section {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .stage {
+            padding: 18px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr) auto;
+            min-height: calc(100vh - 32px);
+        }
+
+        .stage-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .stage-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stage-copy {
+            margin: 6px 0 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            background: var(--panel-alt);
+            font-size: 13px;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+
+        .pill.good {
+            color: var(--success);
+            border-color: rgba(24, 121, 78, 0.25);
+            background: rgba(24, 121, 78, 0.08);
+        }
+
+        .pill.warn {
+            color: var(--warn);
+            border-color: rgba(195, 123, 5, 0.25);
+            background: rgba(195, 123, 5, 0.09);
+        }
+
+        .pill.alert {
+            color: var(--danger);
+            border-color: rgba(194, 65, 59, 0.25);
+            background: rgba(194, 65, 59, 0.09);
+        }
+
+        .video-stage {
+            position: relative;
+            min-height: 0;
+            background: #0f1726;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #0c1320;
+        }
+
+        .video-stage video {
+            width: 100%;
+            height: 100%;
+            min-height: 520px;
+            object-fit: cover;
+            display: block;
+            background: #0f1726;
+        }
+
+        .stage-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 16px;
+        }
+
+        .overlay-top,
+        .overlay-bottom {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .overlay-stack {
+            display: grid;
+            gap: 10px;
+        }
+
+        .overlay-card {
+            max-width: min(460px, 100%);
+            background: rgba(12, 18, 30, 0.76);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            padding: 12px 14px;
+            backdrop-filter: blur(6px);
+        }
+
+        .overlay-label {
+            display: block;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.72);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .overlay-value {
+            color: #ffffff;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.25;
+        }
+
+        .overlay-sub {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+            line-height: 1.45;
+            margin-top: 6px;
+        }
+
+        .setup-strip {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 14px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--panel-alt);
+            flex-wrap: wrap;
+        }
+
+        .setup-copy {
+            display: grid;
+            gap: 4px;
+        }
+
+        .setup-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        .setup-tip {
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text);
+        }
+
+        .rail {
+            display: grid;
+            gap: 16px;
+            align-content: start;
+        }
+
+        .rail-section {
+            padding: 16px;
+        }
+
+        .section-heading {
+            margin: 0 0 12px;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .error-banner {
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: rgba(194, 65, 59, 0.1);
+            border: 1px solid rgba(194, 65, 59, 0.2);
+            color: var(--danger);
+            font-size: 14px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        select,
+        button {
+            font: inherit;
+        }
+
+        select {
+            width: 100%;
+            min-height: 44px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--panel);
+            padding: 10px 12px;
+            color: var(--text);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .button-grid button,
+        .summary-actions button {
+            min-height: 44px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+        }
+
+        .button-grid button:disabled,
+        .summary-actions button:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-strong);
+        }
+
+        .btn-secondary {
+            background: var(--panel);
+            color: var(--text);
+            border-color: var(--border);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: var(--panel-alt);
+        }
+
+        .status-copy {
+            margin: 12px 0 0;
+            min-height: 22px;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .metric {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--panel-alt);
+            min-height: 92px;
+        }
+
+        .metric-label {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .feedback-main {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.35;
+            margin: 0;
+        }
+
+        .feedback-sub {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+            margin: 8px 0 0;
+            min-height: 21px;
+        }
+
+        .cue-log {
+            list-style: none;
+            margin: 14px 0 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .cue-log li {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: var(--panel-alt);
+            font-size: 13px;
+            line-height: 1.45;
+        }
+
+        .summary-panel[hidden] {
+            display: none;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .summary-item {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px;
+            background: var(--panel-alt);
+        }
+
+        .summary-list {
+            list-style: none;
+            margin: 12px 0 0;
+            padding: 0;
+            display: grid;
+            gap: 10px;
+        }
+
+        .summary-list li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: var(--panel-alt);
+            font-size: 13px;
+        }
+
+        .legacy-result {
+            font-size: 13px;
+            line-height: 1.55;
+            color: var(--muted);
+        }
+
+        @media (max-width: 1120px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
+
+            .stage {
+                min-height: auto;
+            }
+
+            .video-stage video {
+                min-height: 420px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .app-shell {
+                width: calc(100vw - 20px);
+                margin: 10px auto;
+            }
+
+            .stage,
+            .rail-section {
+                padding: 14px;
+            }
+
+            .stage-title {
+                font-size: 24px;
+            }
+
+            .video-stage video {
+                min-height: 320px;
+            }
+
+            .metrics-grid,
+            .summary-grid,
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .overlay-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="app-shell">
+        <section class="stage">
+            <header class="stage-header">
+                <div>
+                    <h1 class="stage-title">实时健身动作纠错</h1>
+                    <p class="stage-copy">选择动作并打开摄像头，训练过程中就能实时收到识别、纠错和语音提醒。</p>
+                </div>
+                <div class="pill" id="cameraStatePill">摄像头未开启</div>
+            </header>
+
+            <div class="video-stage">
+                <video id="cameraPreview" autoplay playsinline muted></video>
+                <canvas id="frameCanvas" hidden></canvas>
+                <div class="stage-overlay">
+                    <div class="overlay-top">
+                        <div class="overlay-stack">
+                            <div class="pill warn" id="statusBadge">等待中</div>
+                            <div class="pill" id="exerciseBadge">请选择动作</div>
+                        </div>
+                        <div class="overlay-card">
+                            <span class="overlay-label">次数</span>
+                            <div class="overlay-value" id="repCountOverlay">0</div>
+                        </div>
+                    </div>
+                    <div class="overlay-bottom">
+                        <div class="overlay-card">
+                            <span class="overlay-label">主提示</span>
+                            <div class="overlay-value" id="primaryCueOverlay">打开摄像头后开始训练。</div>
+                            <div class="overlay-sub" id="secondaryCueOverlay">训练开始后，实时纠错会显示在这里。</div>
+                        </div>
+                        <div class="overlay-card">
+                            <span class="overlay-label">阶段</span>
+                            <div class="overlay-value" id="phaseOverlay">准备</div>
+                            <div class="overlay-sub" id="setStateOverlay">尚未开始训练</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="setup-strip">
+                <div class="setup-copy">
+                    <span class="setup-label">站位提示</span>
+                    <span class="setup-tip" id="exerciseTip">请选择动作，加载对应的入镜提示。</span>
+                </div>
+                <div class="setup-copy">
+                    <span class="setup-label">识别状态</span>
+                    <span class="setup-tip" id="recognizedAction">手动模式</span>
+                </div>
+                <label class="toggle">
+                    <input type="checkbox" id="voiceToggle" checked>
+                    开启语音提醒
+                </label>
+            </div>
+        </section>
+
+        <aside class="rail">
+            {% if error %}
+                <div class="error-banner">{{ error }}</div>
+            {% endif %}
+
+            <section class="rail-section">
+                <h2 class="section-heading">训练控制</h2>
+                <label class="field-label" for="modeSelect">识别模式</label>
+                <select id="modeSelect">
+                    <option value="manual">手动模式</option>
+                    <option value="auto">自动识别</option>
+                </select>
+
+                <label class="field-label" for="exerciseSelect">训练动作</label>
+                <select id="exerciseSelect">
+                    {% for exercise_id, meta in exercises.items() %}
+                        <option value="{{ exercise_id }}">{{ meta.label }}</option>
+                    {% endfor %}
+                </select>
+
+                <div class="button-grid">
+                    <button type="button" class="btn-secondary" id="openCameraBtn">打开摄像头</button>
+                    <button type="button" class="btn-primary" id="startSetBtn">开始训练</button>
+                    <button type="button" class="btn-secondary" id="pauseSetBtn" disabled>暂停训练</button>
+                    <button type="button" class="btn-secondary" id="endSetBtn" disabled>结束训练</button>
+                </div>
+
+                <p class="status-copy" id="cameraStatus">当前没有进行中的训练。开始前需要先允许浏览器访问摄像头。</p>
+            </section>
+
+            <section class="rail-section">
+                <h2 class="section-heading">实时状态</h2>
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <span class="metric-label">次数</span>
+                        <div class="metric-value" id="repCount">0</div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">阶段</span>
+                        <div class="metric-value" id="phaseText">准备</div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">状态</span>
+                        <div class="metric-value" id="statusText">空闲</div>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">识别模式</span>
+                        <div class="metric-value" id="recognizedActionMetric">手动</div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="rail-section">
+                <h2 class="section-heading">实时纠错</h2>
+                <p class="feedback-main" id="primaryCue">打开摄像头后开始训练。</p>
+                <p class="feedback-sub" id="secondaryCue">提示会尽量简短，方便你在动作过程中马上调整。</p>
+                <ul class="cue-log" id="cueLog"></ul>
+            </section>
+
+            <section class="rail-section summary-panel" id="summaryPanel" hidden>
+                <h2 class="section-heading">训练总结</h2>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="metric-label">完成次数</span>
+                        <div class="metric-value" id="summaryReps">0</div>
+                    </div>
+                    <div class="summary-item">
+                        <span class="metric-label">训练时长</span>
+                        <div class="metric-value" id="summaryDuration">0.0s</div>
+                    </div>
+                </div>
+                <p class="feedback-main" id="summaryNextFocus">下一组重点会显示在这里。</p>
+                <p class="feedback-sub" id="summaryEncouragement">完成一组训练后，这里会给你总结。</p>
+                <ul class="summary-list" id="summaryMistakes"></ul>
+            </section>
+
+            {% if result %}
+                <section class="rail-section">
+                    <h2 class="section-heading">视频上传结果</h2>
+                    <div class="legacy-result">
+                        <p><strong>动作：</strong> {{ result.action_name }}</p>
+                        <p><strong>评分：</strong> {{ result.score | round(2) }}</p>
+                        <p><strong>时长：</strong> {{ result.duration | round(1) }}秒</p>
+                    </div>
+                </section>
+            {% endif %}
+        </aside>
+    </main>
+
+    <script>
+        const exerciseCatalog = {{ exercises | tojson }};
+        const cameraPreview = document.getElementById("cameraPreview");
+        const frameCanvas = document.getElementById("frameCanvas");
+        const canvasContext = frameCanvas.getContext("2d");
+        const modeSelect = document.getElementById("modeSelect");
+        const exerciseSelect = document.getElementById("exerciseSelect");
+        const openCameraBtn = document.getElementById("openCameraBtn");
+        const startSetBtn = document.getElementById("startSetBtn");
+        const pauseSetBtn = document.getElementById("pauseSetBtn");
+        const endSetBtn = document.getElementById("endSetBtn");
+        const voiceToggle = document.getElementById("voiceToggle");
+        const cameraStatus = document.getElementById("cameraStatus");
+        const cameraStatePill = document.getElementById("cameraStatePill");
+        const exerciseTip = document.getElementById("exerciseTip");
+        const recognizedAction = document.getElementById("recognizedAction");
+        const recognizedActionMetric = document.getElementById("recognizedActionMetric");
+        const exerciseBadge = document.getElementById("exerciseBadge");
+        const repCount = document.getElementById("repCount");
+        const repCountOverlay = document.getElementById("repCountOverlay");
+        const phaseText = document.getElementById("phaseText");
+        const phaseOverlay = document.getElementById("phaseOverlay");
+        const statusText = document.getElementById("statusText");
+        const setStateOverlay = document.getElementById("setStateOverlay");
+        const statusBadge = document.getElementById("statusBadge");
+        const primaryCue = document.getElementById("primaryCue");
+        const primaryCueOverlay = document.getElementById("primaryCueOverlay");
+        const secondaryCue = document.getElementById("secondaryCue");
+        const secondaryCueOverlay = document.getElementById("secondaryCueOverlay");
+        const cueLog = document.getElementById("cueLog");
+        const summaryPanel = document.getElementById("summaryPanel");
+        const summaryReps = document.getElementById("summaryReps");
+        const summaryDuration = document.getElementById("summaryDuration");
+        const summaryNextFocus = document.getElementById("summaryNextFocus");
+        const summaryEncouragement = document.getElementById("summaryEncouragement");
+        const summaryMistakes = document.getElementById("summaryMistakes");
+
+        let mediaStream = null;
+        let activeSessionId = "";
+        let frameTimer = null;
+        let frameInFlight = false;
+        let paused = false;
+        let voiceEnabled = true;
+
+        const phaseLabels = {
+            ready: "准备",
+            bottom: "底部",
+            top: "顶点",
+            lowering: "下降",
+            rising: "上升",
+            pulling: "拉起",
+            curling: "弯举",
+        };
+
+        const statusLabels = {
+            idle: "空闲",
+            good: "稳定",
+            warn: "提醒",
+            alert: "警告",
+        };
+
+        const coachingModeLabels = {
+            auto: "自动识别",
+            manual: "手动",
+            generic: "通用指导",
+            specialized: "专项纠错",
+            fallback: "回退动作",
+            warming: "预热中",
+            offline: "模型离线",
+        };
+
+        function modeLabel() {
+            return modeSelect.value === "auto" ? "自动识别" : "手动模式";
+        }
+
+        function phaseLabel(phase) {
+            return phaseLabels[phase] || phase || "准备";
+        }
+
+        function statusLabel(status) {
+            return statusLabels[status] || status || "空闲";
+        }
+
+        function coachingModeLabel(mode) {
+            return coachingModeLabels[mode] || mode || "手动";
+        }
+
+        function setBadgeState(mode, text) {
+            statusBadge.textContent = text;
+            statusBadge.className = "pill";
+            if (mode) {
+                statusBadge.classList.add(mode);
+            }
+        }
+
+        function setCameraPill(text, mode) {
+            cameraStatePill.textContent = text;
+            cameraStatePill.className = "pill";
+            if (mode) {
+                cameraStatePill.classList.add(mode);
+            }
+        }
+
+        function updateExerciseTip() {
+            const selected = exerciseCatalog[exerciseSelect.value];
+            if (!selected) {
+                exerciseTip.textContent = "请选择动作，加载对应的入镜提示。";
+                exerciseBadge.textContent = "请选择动作";
+                recognizedAction.textContent = `${modeLabel()}`;
+                return;
+            }
+
+            exerciseTip.textContent = selected.tip;
+            exerciseBadge.textContent = selected.label;
+            if (modeSelect.value === "manual") {
+                recognizedAction.textContent = `手动模式 - ${selected.label}`;
+                recognizedActionMetric.textContent = "手动";
+            } else {
+                recognizedAction.textContent = `自动识别 - 回退动作 ${selected.label}`;
+                recognizedActionMetric.textContent = "回退动作";
+            }
+        }
+
+        function setButtonState(mode) {
+            if (mode === "idle") {
+                startSetBtn.disabled = false;
+                pauseSetBtn.disabled = true;
+                endSetBtn.disabled = true;
+                return;
+            }
+
+            if (mode === "running") {
+                startSetBtn.disabled = true;
+                pauseSetBtn.disabled = false;
+                endSetBtn.disabled = false;
+                return;
+            }
+
+            if (mode === "paused") {
+                startSetBtn.disabled = false;
+                pauseSetBtn.disabled = true;
+                endSetBtn.disabled = false;
+            }
+        }
+
+        function pushCueLog(text) {
+            if (!text) {
+                return;
+            }
+
+            const item = document.createElement("li");
+            const stamp = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+            item.textContent = `${stamp}  ${text}`;
+            cueLog.prepend(item);
+            while (cueLog.children.length > 6) {
+                cueLog.removeChild(cueLog.lastChild);
+            }
+        }
+
+        function speakCue(text) {
+            if (!voiceEnabled || !text || !window.speechSynthesis) {
+                return;
+            }
+
+            const speakable = text.includes("|") ? text.split("|")[1].trim() : text;
+            const utterance = new SpeechSynthesisUtterance(speakable);
+            utterance.lang = "zh-CN";
+            utterance.rate = 1.05;
+            window.speechSynthesis.cancel();
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function renderFeedback(payload) {
+            repCount.textContent = String(payload.rep_count ?? 0);
+            repCountOverlay.textContent = String(payload.rep_count ?? 0);
+            phaseText.textContent = phaseLabel(payload.phase);
+            phaseOverlay.textContent = phaseLabel(payload.phase);
+            statusText.textContent = statusLabel(payload.status_color);
+            setStateOverlay.textContent = activeSessionId ? "训练进行中" : "尚未开始训练";
+            primaryCue.textContent = payload.primary_cue || "这一下很稳，继续保持现在的节奏。";
+            primaryCueOverlay.textContent = payload.primary_cue || "这一下很稳，继续保持现在的节奏。";
+            secondaryCue.textContent = payload.secondary_cue || "继续保持现在的节奏，动作别着急。";
+            secondaryCueOverlay.textContent = payload.secondary_cue || "继续保持现在的节奏，动作别着急。";
+            setBadgeState(payload.status_color || "warn", statusLabel(payload.status_color || "warn"));
+            exerciseBadge.textContent = payload.active_exercise_label || exerciseBadge.textContent;
+
+            if ((payload.mode || "manual") === "auto") {
+                if (payload.recognition_state === "recognized" && payload.active_exercise_label) {
+                    const confidencePct = Math.round((payload.recognized_confidence || 0) * 100);
+                    if (payload.coaching_mode === "generic") {
+                        recognizedAction.textContent = `自动识别 - ${payload.active_exercise_label} - 通用指导 - ${confidencePct}%`;
+                        recognizedActionMetric.textContent = coachingModeLabel("generic");
+                    } else if (payload.coaching_mode === "specialized") {
+                        recognizedAction.textContent = `自动识别 - ${payload.active_exercise_label} - 专项纠错 - ${confidencePct}%`;
+                        recognizedActionMetric.textContent = coachingModeLabel("specialized");
+                    } else {
+                        recognizedAction.textContent = `自动识别 - ${payload.active_exercise_label} - 回退动作 - ${confidencePct}%`;
+                        recognizedActionMetric.textContent = coachingModeLabel("fallback");
+                    }
+                } else if (payload.recognition_state === "model_unavailable") {
+                    recognizedAction.textContent = "自动识别 - 模型未加载";
+                    recognizedActionMetric.textContent = coachingModeLabel("offline");
+                } else {
+                    recognizedAction.textContent = `自动识别 - 预热中 - 回退动作 ${payload.exercise_label || ""}`.trim();
+                    recognizedActionMetric.textContent = coachingModeLabel("warming");
+                }
+            } else {
+                recognizedAction.textContent = `手动模式 - ${payload.exercise_label || ""}`.trim();
+                recognizedActionMetric.textContent = coachingModeLabel("manual");
+            }
+
+            if (payload.speak_text) {
+                pushCueLog(payload.speak_text);
+                speakCue(payload.speak_text);
+            }
+        }
+
+        function renderSummary(summary) {
+            summaryPanel.hidden = false;
+            summaryReps.textContent = String(summary.rep_count ?? 0);
+            summaryDuration.textContent = `${summary.duration_seconds ?? 0}秒`;
+            summaryNextFocus.textContent = summary.next_focus || "下一组重点会显示在这里。";
+            summaryEncouragement.textContent = summary.encouragement || "训练总结已生成。";
+            summaryMistakes.innerHTML = "";
+
+            const mistakes = summary.top_mistakes || [];
+            if (!mistakes.length) {
+                const item = document.createElement("li");
+                item.innerHTML = "<span>这组没有明显重复错误。</span><strong>动作稳定</strong>";
+                summaryMistakes.appendChild(item);
+                return;
+            }
+
+            mistakes.forEach((mistake) => {
+                const item = document.createElement("li");
+                const count = `${mistake.count}帧`;
+                item.innerHTML = `<span>${mistake.label}</span><strong>${count}</strong>`;
+                summaryMistakes.appendChild(item);
+            });
+        }
+
+        async function openCamera() {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: { width: 1280, height: 720 }, audio: false });
+                cameraPreview.srcObject = mediaStream;
+                setCameraPill("摄像头已就绪", "good");
+                cameraStatus.textContent = "摄像头已开启。站到画面中间，然后开始训练。";
+            } catch (error) {
+                setCameraPill("摄像头不可用", "alert");
+                cameraStatus.textContent = "摄像头权限被拒绝，或者当前设备无法访问摄像头。";
+            }
+        }
+
+        async function ensureSession() {
+            if (activeSessionId) {
+                return activeSessionId;
+            }
+
+            const response = await fetch("/api/session/start", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    exercise: exerciseSelect.value,
+                    mode: modeSelect.value,
+                }),
+            });
+            const payload = await response.json();
+            if (!response.ok) {
+                throw new Error(payload.error || "启动训练失败。");
+            }
+
+            activeSessionId = payload.session_id;
+            exerciseBadge.textContent = payload.exercise_label;
+            cameraStatus.textContent = payload.tip || "训练已开始。";
+            setStateOverlay.textContent = "训练进行中";
+            recognizedAction.textContent = `${modeLabel()}已开启`;
+            return activeSessionId;
+        }
+
+        function startFrameLoop() {
+            if (frameTimer) {
+                window.clearInterval(frameTimer);
+            }
+            sendFrame();
+            frameTimer = window.setInterval(sendFrame, 450);
+        }
+
+        async function sendFrame() {
+            if (!activeSessionId || frameInFlight || paused) {
+                return;
+            }
+            if (!cameraPreview.videoWidth || !cameraPreview.videoHeight) {
+                return;
+            }
+
+            frameInFlight = true;
+            try {
+                frameCanvas.width = cameraPreview.videoWidth;
+                frameCanvas.height = cameraPreview.videoHeight;
+                canvasContext.drawImage(cameraPreview, 0, 0, frameCanvas.width, frameCanvas.height);
+                const imageData = frameCanvas.toDataURL("image/jpeg", 0.72);
+                const response = await fetch("/api/session/frame", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        session_id: activeSessionId,
+                        image_data: imageData,
+                        mode: modeSelect.value,
+                    }),
+                });
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || "当前帧分析失败。");
+                }
+
+                renderFeedback(payload);
+            } catch (error) {
+                cameraStatus.textContent = error.message;
+                setBadgeState("alert", "出错");
+            } finally {
+                frameInFlight = false;
+            }
+        }
+
+        async function startSet() {
+            if (!mediaStream) {
+                await openCamera();
+            }
+            if (!mediaStream) {
+                return;
+            }
+
+            summaryPanel.hidden = true;
+            paused = false;
+            await ensureSession();
+            setButtonState("running");
+            setCameraPill("训练进行中", "good");
+            cameraStatus.textContent = "训练进行中。系统会每隔几百毫秒更新一次识别和纠错。";
+            startFrameLoop();
+        }
+
+        function pauseSet() {
+            if (!activeSessionId) {
+                return;
+            }
+
+            paused = true;
+            setButtonState("paused");
+            setCameraPill("已暂停", "warn");
+            cameraStatus.textContent = "训练已暂停。点击“开始训练”继续。";
+            setStateOverlay.textContent = "训练已暂停";
+        }
+
+        async function endSet() {
+            if (frameTimer) {
+                window.clearInterval(frameTimer);
+                frameTimer = null;
+            }
+            if (window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+
+            if (!activeSessionId) {
+                paused = false;
+                setButtonState("idle");
+                return;
+            }
+
+            const sessionId = activeSessionId;
+            activeSessionId = "";
+            paused = false;
+            setButtonState("idle");
+            setCameraPill("摄像头已就绪", "good");
+            setStateOverlay.textContent = "训练已结束";
+            recognizedAction.textContent = `${modeLabel()}待命中`;
+            recognizedActionMetric.textContent = coachingModeLabel(modeSelect.value);
+
+            try {
+                const response = await fetch("/api/session/stop", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ session_id: sessionId }),
+                });
+                const payload = await response.json();
+                if (!response.ok) {
+                    throw new Error(payload.error || "结束训练失败。");
+                }
+
+                renderSummary(payload.summary);
+                cameraStatus.textContent = "训练已结束。可以先看总结，再开始下一组。";
+            } catch (error) {
+                cameraStatus.textContent = error.message;
+            }
+        }
+
+        openCameraBtn.addEventListener("click", openCamera);
+        startSetBtn.addEventListener("click", () => {
+            startSet().catch((error) => {
+                cameraStatus.textContent = error.message;
+            });
+        });
+        pauseSetBtn.addEventListener("click", pauseSet);
+        endSetBtn.addEventListener("click", () => {
+            endSet().catch((error) => {
+                cameraStatus.textContent = error.message;
+            });
+        });
+        exerciseSelect.addEventListener("change", () => {
+            updateExerciseTip();
+            if (activeSessionId) {
+                cameraStatus.textContent = "动作已切换。建议先结束当前这一组，再开始新的动作。";
+            }
+        });
+        modeSelect.addEventListener("change", () => {
+            updateExerciseTip();
+            if (activeSessionId) {
+                cameraStatus.textContent = "识别模式已切换，接下来的画面会按新的模式处理。";
+            }
+        });
+        voiceToggle.addEventListener("change", () => {
+            voiceEnabled = voiceToggle.checked;
+            if (!voiceEnabled && window.speechSynthesis) {
+                window.speechSynthesis.cancel();
+            }
+        });
+
+        updateExerciseTip();
+        setButtonState("idle");
+        setBadgeState("warn", "等待中");
+    </script>
+</body>
+</html>

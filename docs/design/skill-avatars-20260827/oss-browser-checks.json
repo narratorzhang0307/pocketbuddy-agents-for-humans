@@ -1,0 +1,155 @@
+[
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Frost · 焦糖圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "http://127.0.0.1:5187/assets/skill-avatars/20260827/hardware-round/frost.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Her Motion圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/pocket.her-motion.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "练了吗圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/pocket.lianlema.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "跑步路线规划圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.run-route.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "跑步决策教练圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.running-coach.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Apple Health 本地同步圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.healthsync.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "MediaPipe 动作信号圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.mediapipe-motion.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "耐力训练校验器圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.endurance-guard.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "包装食品查询圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.openfoodfacts.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Garmin 只读同步圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.garmin-readonly.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "中国食品与健康解析圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.cn-health-library.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "户外运动窗口圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.outdoor-window.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Strava 训练回放圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.strava-replay.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "睡眠侦探圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.sleep-detective.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "中国饮食镜头圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.meal-lens.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "wger 训练计划圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.wger-planner.jpg",
+    "width": 240
+  },
+  {
+    "height": 240,
+    "loaded": true,
+    "name": "Mealie 恢复厨房圆屏头像",
+    "offsetX": 0,
+    "offsetY": 0,
+    "src": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/skill-avatars/20260828-round-v1/hardware-round/frost.mealie-kitchen.jpg",
+    "width": 240
+  }
+]

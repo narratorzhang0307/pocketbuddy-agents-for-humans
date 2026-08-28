@@ -1,0 +1,80 @@
+{
+  "assets": {
+    "count": 17,
+    "originalSize": [
+      1254,
+      1254
+    ],
+    "webSize": [
+      256,
+      256
+    ],
+    "hardwareSize": [
+      240,
+      240
+    ],
+    "hardwareFormat": "baseline JPEG in flash, RGB565 in PSRAM",
+    "jpegBytes": 203046,
+    "displayRamBytes": 230400,
+    "originalsByteIdenticalToSources": true,
+    "legacy128ExportsRetained": true
+  },
+  "tests": {
+    "vitestFiles": 7,
+    "vitestPassed": 97,
+    "protocolHost": "passed",
+    "firmwareBuild": "passed",
+    "webIntegrationPreviousVerification": "verification-0.2.12.json"
+  },
+  "browser": {
+    "galleryButtonsChecked": 17,
+    "galleryBrokenImages": 0,
+    "allImagesFullScreen": true,
+    "transientStatusVisibleOnSelection": true,
+    "statusHiddenAfter3500ms": true,
+    "circularCropsVisuallyReviewed": 17,
+    "previewIsNotPhysicalEvidence": true
+  },
+  "firmware": {
+    "version": "0.2.13-ojbadge-fullbleed",
+    "bytes": 2498848,
+    "sha256": "58522ffc630e42baa1c052b2963ce00095c8d325a9fc879b0438d03a73c15e26",
+    "avatarCount": 17,
+    "jpegBytes": 203046,
+    "displaySize": [
+      240,
+      240
+    ],
+    "displayRamBytes": 230400,
+    "freeAppBytes": 646880,
+    "sdk": "ESP-IDF v5.5.4",
+    "target": "ESP32-S3 OJBadge",
+    "appPartitionBytes": 3145728,
+    "flashed": true,
+    "physicalReadbackVerified": true,
+    "bootVerified": true,
+    "avatarSwitchesVerified": 0,
+    "physicalDisplayVerified": false,
+    "blocker": null,
+    "previousVerifiedFirmware": "0.2.12-ojbadge-avatars",
+    "previousVerification": "verification-0.2.12.json",
+    "port": "/dev/cu.usbmodem1101",
+    "mac": "94:a9:90:2b:39:44",
+    "offset": 65536,
+    "previousVersion": "0.2.12-ojbadge-avatars",
+    "rollbackSha256": "9d62b958ffeccc5161e4762a435fe46d261c088cdd776e0eabe7c1569a5529ce",
+    "factoryBackupVerified": true,
+    "appBackupVerified": true,
+    "partitionUnchanged": true,
+    "otaSelectionUnchanged": true,
+    "displayVisuallyConfirmed": false,
+    "readbackMethod": "ten 256KiB-or-smaller chunks, each byte-compared to immutable candidate",
+    "peripheralsVerified": true,
+    "firstLcdTransferVerified": true
+  },
+  "notes": [
+    "v0.2.13 was flashed app-only and independently read back in ten chunks. Partition table and OTA selection unchanged.",
+    "Boot, peripherals and first LCD DMA were verified; a new physical photo has not been provided.",
+    "This historical preview temporarily embedded all 17 JPEGs. v0.2.14 replaces it with Frost-only flash plus OSS transfer."
+  ]
+}

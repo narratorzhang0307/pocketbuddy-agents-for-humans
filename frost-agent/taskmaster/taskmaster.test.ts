@@ -95,41 +95,6 @@ describe('Frost Health Taskmaster', () => {
     expect(resumed.counters.tool_calls).toBe(2);
   });
 
-  it('waits for an uninstalled Skill provider and resumes from the same generic checkpoint', async () => {
-    const store = new InMemoryTaskmasterStore();
-    const tools = createDefaultTools();
-    const taskmaster = new FrostHealthTaskmaster(store, tools, new InMemoryTraceSink());
-    const waiting = await taskmaster.start(request('run_skill', { skill_id: 'frost.running-coach' }));
-
-    expect(waiting.status).toBe('waiting_external');
-    expect(waiting.skill_id).toBe('frost.running-coach');
-    expect(waiting.actions[0]).toMatchObject({ tool: 'coach.assess-readiness', status: 'waiting_external' });
-    expect(waiting.actions[0].result).toEqual({
-      waiting_reason: 'provider_not_registered',
-      missing_provider: 'coach.assess-readiness',
-    });
-    expect(waiting.actions[0].permissions).toEqual(expect.arrayContaining(['read:health_events', 'read:wearable', 'run:model', 'notify:user']));
-    expect(waiting.counters.tool_calls).toBe(0);
-
-    tools.register({
-      name: 'coach.assess-readiness',
-      permission: 'read:health_events',
-      async execute() { return { status: 'success', data: { readiness: 'green', confidence: 0.8 } }; },
-    });
-    const resumed = await taskmaster.resume(waiting.task_id);
-
-    expect(resumed.status).toBe('waiting_external');
-    expect(resumed.next_action_index).toBe(1);
-    expect(resumed.actions[0].status).toBe('completed');
-    expect(resumed.actions[1]).toMatchObject({ tool: 'coach.draft-prescription', status: 'waiting_external' });
-    expect(resumed.actions[1].result).toMatchObject({
-      waiting_reason: 'provider_not_registered',
-      missing_provider: 'coach.draft-prescription',
-    });
-    expect(resumed.counters.tool_calls).toBe(1);
-    expect(await store.getEffect(`effect:${waiting.task_id}:action:1`)).toBeNull();
-  });
-
   it('finishes a device-backed run without inventing a route and plants a private tree', async () => {
     const store = new InMemoryTaskmasterStore();
     const taskmaster = new FrostHealthTaskmaster(store, createDefaultTools(), new InMemoryTraceSink());

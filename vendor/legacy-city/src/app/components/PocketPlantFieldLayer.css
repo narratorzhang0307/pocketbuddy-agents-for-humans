@@ -1,0 +1,52 @@
+.pocket-plant-field-marker {
+  --map-scale: 1;
+  position: relative;
+  display: grid;
+  place-items: end center;
+  transform: perspective(380px) rotateX(-2deg) scale(var(--map-scale));
+  transform-origin: 50% 100%;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.pocket-plant-field-marker::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  bottom: -2px;
+  left: 50%;
+  width: 42%;
+  height: 7%;
+  border-radius: 50%;
+  background: rgba(25, 46, 32, 0.2);
+  filter: blur(2px);
+  transform: translateX(-50%);
+}
+
+.pocket-plant-field-marker img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  filter: drop-shadow(0 3px 2px rgba(34, 52, 37, 0.18));
+  transform: rotate(var(--plant-lean));
+  transform-origin: 50% 96%;
+  animation: pocket-plant-sway var(--plant-sway) ease-in-out var(--plant-delay) infinite alternate;
+  will-change: transform;
+}
+
+@keyframes pocket-plant-sway {
+  from {
+    transform: translateX(-0.8px) rotate(calc(var(--plant-lean) - 2.1deg));
+  }
+  to {
+    transform: translateX(0.8px) rotate(calc(var(--plant-lean) + 2.1deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pocket-plant-field-marker img { animation: none; }
+}

@@ -1,0 +1,201 @@
+[data-poem-plant-hub],
+.poem-hub-studio {
+  --hub-green: #00c07f;
+  --hub-neon: #7cff6b;
+  color: #151511;
+}
+
+.poem-hub { display: grid; gap: 12px; padding-bottom: 18px; }
+.poem-hub-studio { display: grid; gap: 10px; padding-bottom: 18px; }
+.poem-hub-studio__back {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 5px;
+  border: 2px solid #000;
+  background: #fff;
+  padding: 6px 9px;
+  box-shadow: 2px 2px 0 #000;
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.poem-step-card header small,
+.poem-hub-bottom-cta small {
+  font-family: var(--font-pixel, monospace);
+  letter-spacing: .13em;
+}
+.poem-hub-section { display: grid; gap: 9px; }
+.poem-hub-section__title { display: flex; align-items: end; justify-content: space-between; padding: 0 2px; }
+.poem-hub-section__title h3 { margin: 0; font-size: 15px; }
+.poem-hub-section__title > b { border: 1px solid #315d49; background: #e7f0df; padding: 3px 6px; color: #315d49; font-size: 7.5px; }
+
+.poem-plant-list { display: grid; gap: 9px; }
+
+.poem-plant-recognizer { overflow: hidden; border: 2px solid #000; background: #f8f5ea; }
+.poem-plant-recognizer > input { position: fixed; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.poem-plant-recognizer__empty { display: grid; grid-template-columns: 42px minmax(0,1fr) auto; align-items: center; gap: 9px; padding: 12px; }
+.poem-plant-recognizer__empty > span { display: grid; width: 40px; height: 40px; place-items: center; background: #11140f; color: #82e3b7; }
+.poem-plant-recognizer__empty > div { min-width: 0; }
+.poem-plant-recognizer__empty small,.poem-plant-recognizer__readout > small { color: #315d49; font-family: var(--font-pixel, monospace); font-size: 6px; letter-spacing: .08em; }
+.poem-plant-recognizer__empty strong { display: block; margin-top: 2px; font-size: 11px; }
+.poem-plant-recognizer__empty p { margin: 3px 0 0; color: rgba(0,0,0,.5); font-size: 7.5px; line-height: 1.45; }
+.poem-plant-recognizer button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; font-weight: 900; }
+.poem-plant-recognizer__empty > .poem-plant-photo-button { min-height: 38px; border: 2px solid #000; background: #f1ca67; padding: 7px 9px; font-size: 8px; white-space: nowrap; }
+.poem-plant-recognizer__result { display: grid; grid-template-columns: 92px minmax(0,1fr); }
+.poem-plant-recognizer__photo { position: relative; min-height: 126px; overflow: hidden; border-right: 1.5px solid #000; background: #dcebdc; }
+.poem-plant-recognizer__photo img { width: 100%; height: 100%; min-height: 126px; object-fit: cover; }
+.poem-plant-recognizer__photo > span { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 4px; background: rgba(15,19,14,.78); color: #fff; font-size: 7px; font-weight: 900; }
+.poem-plant-recognizer .is-spinning { animation: poem-plant-spin .9s linear infinite; }
+.poem-plant-recognizer__readout { min-width: 0; padding: 10px; }
+.poem-plant-recognizer__readout > small { display: inline-flex; align-items: center; gap: 3px; }
+.poem-plant-recognizer__readout h4 { margin: 4px 0 0; font-size: 16px; }
+.poem-plant-recognizer__readout > em { display: block; margin-top: 1px; color: #315d49; font-family: Georgia, serif; font-size: 7px; }
+.poem-plant-recognizer__readout > p { margin: 5px 0 0; color: rgba(0,0,0,.62); font-size: 7.5px; line-height: 1.45; }
+.poem-plant-recognizer__matched { display: grid; grid-template-columns: 34px minmax(0,1fr); align-items: center; gap: 6px; margin-top: 7px; border: 1px solid #315d49; background: #e3f0df; padding: 4px; }
+.poem-plant-recognizer__matched img { width: 34px; height: 34px; object-fit: contain; }
+.poem-plant-recognizer__matched span { display: grid; min-width: 0; gap: 1px; }
+.poem-plant-recognizer__matched b { overflow: hidden; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.poem-plant-recognizer__matched small { color: #315d49; font-size: 6.5px; }
+.poem-plant-recognizer__unmatched { margin-top: 7px; border: 1px dashed rgba(0,0,0,.4); padding: 5px; color: rgba(0,0,0,.55); font-size: 6.5px; line-height: 1.45; }
+.poem-plant-recognizer__actions { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1.4fr; border-top: 1.5px solid #000; background: #000; gap: 1px; }
+.poem-plant-recognizer__actions button { min-height: 32px; border: 0; background: #315d49; color: #fff; font-size: 7.5px; }
+.poem-plant-recognizer__actions .poem-plant-photo-button { background: #fff; color: #111; }
+.poem-plant-recognizer__error { display: flex; align-items: center; gap: 8px; border-top: 1px solid #b84b3a; background: #fff0e8; padding: 7px 9px; color: #8e2f23; font-size: 7px; }
+.poem-plant-recognizer__error span { min-width: 0; flex: 1; }
+.poem-plant-recognizer__error button { border: 0; border-bottom: 1px solid currentColor; background: transparent; color: inherit; font-size: inherit; }
+.poem-plant-recognizer > footer { display: flex; align-items: center; gap: 4px; border-top: 1px solid rgba(0,0,0,.16); padding: 6px 9px; color: rgba(0,0,0,.42); font-size: 6px; line-height: 1.35; }
+@keyframes poem-plant-spin { to { transform: rotate(360deg); } }
+
+.poem-plant-card { overflow: hidden; border: 2px solid #000; background: #f8f5ea; }
+.poem-plant-card.has-new { border-color: #315d49; }
+.poem-plant-card__body { position: relative; display: grid; grid-template-columns: 96px minmax(0,1fr); min-height: 130px; }
+.poem-plant-card__open,
+.poem-seed-card__open { position: absolute; z-index: 3; inset: 0; width: 100%; border: 0; background: transparent; cursor: pointer; }
+.poem-plant-card__open:focus-visible,
+.poem-seed-card__open:focus-visible { outline: 3px solid var(--hub-neon); outline-offset: -4px; }
+.poem-plant-card__visual { position: relative; display: grid; place-items: end center; overflow: hidden; border-right: 1.5px solid #000; background: #e9eddf; padding: 9px 7px 24px; }
+.poem-plant-card__visual::after { position: absolute; bottom: 18px; width: 48px; height: 7px; border-radius: 50%; background: rgba(25,45,32,.15); filter: blur(2px); content: ''; }
+.poem-plant-card__visual img { position: relative; z-index: 1; width: 84px; height: 94px; object-fit: contain; object-position: 50% 100%; transform-origin: 50% 96%; animation: poem-hub-sway 5.2s ease-in-out infinite alternate; }
+.poem-plant-card__visual > span { position: absolute; z-index: 2; bottom: 5px; left: 5px; border: 1px solid #000; background: #fffdf1; padding: 2px 4px; font-size: 6.5px; font-weight: 900; }
+.poem-plant-card__content { min-width: 0; padding: 11px 10px; }
+.poem-plant-card__content > small { color: rgba(0,0,0,.4); font-family: var(--font-pixel,monospace); font-size: 6px; }
+.poem-plant-card__content h4 { margin: 4px 0 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 15px; }
+.poem-plant-card__species { display: block; margin-top: 1px; overflow: hidden; color: #315d49; font-family: Georgia, serif; font-size: 7px; text-overflow: ellipsis; white-space: nowrap; }
+.poem-plant-card__description { display: -webkit-box; margin: 5px 0 0; overflow: hidden; color: rgba(0,0,0,.67); font-size: 8px; font-style: normal; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.poem-plant-card__location { display: flex; align-items: center; gap: 3px; margin: 5px 0 0; overflow: hidden; color: rgba(0,0,0,.5); text-overflow: ellipsis; white-space: nowrap; font-size: 8px; }
+.poem-plant-card blockquote { margin: 8px 0 0; border-left: 2px solid #315d49; padding-left: 7px; color: rgba(0,0,0,.64); font-size: 8.5px; font-style: normal; line-height: 1.5; }
+.poem-plant-magic { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+.poem-plant-magic span { border: 1px solid rgba(49,93,73,.55); background: rgba(49,93,73,.06); padding: 2px 4px; color: #315d49; font-size: 6.5px; }
+.poem-plant-card__stats { display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(0,0,0,.18); padding: 7px 9px; color: rgba(0,0,0,.55); font-size: 7px; }
+.poem-plant-card__stats span { display: inline-flex; align-items: center; gap: 3px; }
+.poem-plant-card__stats span:last-child { margin-left: auto; color: #315d49; font-weight: 900; }
+.poem-plant-card__actions { display: grid; grid-template-columns: 1fr 1fr 1.25fr; border-top: 1.5px solid #000; background: #000; gap: 1px; }
+.poem-plant-card__actions button { display: inline-flex; min-height: 34px; align-items: center; justify-content: center; gap: 3px; background: #fff; padding: 5px 3px; font-size: 7px; font-weight: 900; }
+.poem-plant-card__actions button:last-child { background: #315d49; color: #fff; }
+.poem-plant-card__actions button:disabled { background: #e3dfd2; color: rgba(0,0,0,.38); }
+
+.poem-visitor-ledger { border-top: 2px solid #000; background: #edf0e5; padding: 10px; }
+.poem-visitor-ledger header { margin-bottom: 7px; }
+.poem-visitor-ledger header strong { display: block; font-size: 10px; }
+.poem-visitor-ledger header small { color: rgba(0,0,0,.45); font-size: 7.5px; }
+.poem-visitor-ledger > p { margin: 0; color: rgba(0,0,0,.5); font-size: 8px; }
+.poem-visitor-ledger > div { display: grid; grid-template-columns: 24px minmax(0,1fr) auto; align-items: start; gap: 6px; border-top: 1px solid rgba(0,0,0,.14); padding: 7px 0; }
+.poem-visitor-ledger i { display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid #000; border-radius: 50%; background: #fff; }
+.poem-visitor-ledger span { display: grid; gap: 2px; }
+.poem-visitor-ledger span strong { font-size: 8.5px; }
+.poem-visitor-ledger span small { color: rgba(0,0,0,.5); font-size: 7px; line-height: 1.4; }
+.poem-visitor-ledger time { color: rgba(0,0,0,.38); font-size: 6px; }
+
+.poem-seed-inventory { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+.poem-seed-inventory > div { position: relative; min-width: 0; border: 1.5px solid rgba(0,0,0,.35); background: #eeeee3; padding: 5px; }
+.poem-seed-inventory > div.is-unlocked { border-color: #000; background: #fff; }
+.poem-seed-inventory > div > span { display: grid; height: 96px; place-items: end center; overflow: hidden; background: #edf1df; }
+.poem-seed-inventory img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+  transform: scale(var(--poem-seed-preview-scale, 1));
+  transform-origin: 50% 100%;
+}
+.poem-seed-inventory strong,.poem-seed-inventory small,.poem-seed-inventory em { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.poem-seed-inventory strong { margin-top: 4px; font-size: 8px; }
+.poem-seed-inventory em { margin-top: 1px; color: #315d49; font-family: Georgia, serif; font-size: 6px; }
+.poem-seed-inventory p { display: -webkit-box; min-height: 28px; margin: 4px 0 0; overflow: hidden; color: rgba(0,0,0,.6); font-size: 7px; font-style: normal; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.poem-seed-inventory small { margin-top: 2px; color: rgba(0,0,0,.45); font-size: 6.5px; }
+.poem-seed-inventory i { position: absolute; top: 6px; right: 6px; display: grid; width: 19px; height: 19px; place-items: center; border: 1px solid #000; border-radius: 50%; background: rgba(255,255,255,.82); }
+.poem-seed-inventory i { z-index: 4; pointer-events: none; }
+.poem-seed-inventory .is-locked img { opacity: .25; filter: grayscale(1); }
+.poem-hub-more { display: flex; width: 100%; align-items: center; justify-content: center; gap: 4px; border: 1.5px solid #000; background: #f8f5ea; padding: 7px; font-size: 8px; font-weight: 900; }
+
+.poem-step-card { border: 2px solid #000; background: #f8f5ea; padding: 12px; }
+.poem-step-card header { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 8px; }
+.poem-step-card header > span { display: grid; width: 32px; height: 32px; place-items: center; border: 2px solid #000; background: #000; color: var(--hub-neon); }
+.poem-step-card header small { color: rgba(0,0,0,.4); font-size: 6px; }
+.poem-step-card header h3 { margin: 2px 0 0; font-size: 12px; }
+.poem-step-card__number { display: flex; align-items: baseline; gap: 6px; margin-top: 12px; }
+.poem-step-card__number strong { font-family: var(--font-pixel,monospace); font-size: 19px; }
+.poem-step-card__number span { color: rgba(0,0,0,.45); font-size: 8px; }
+.poem-step-card__bar { height: 9px; margin-top: 7px; border: 1.5px solid #000; background: #dedbd0; padding: 1px; }
+.poem-step-card__bar span { display: block; height: 100%; background: #00c07f; transition: width .45s ease; }
+.poem-step-card > p { margin: 7px 0 0; color: rgba(0,0,0,.58); font-size: 8px; line-height: 1.5; }
+.poem-step-card__today { display: flex; align-items: center; gap: 5px; margin-top: 9px; border-top: 1px solid rgba(0,0,0,.16); padding-top: 8px; color: #315d49; font-size: 7px; }
+.poem-step-card__today b { margin-left: auto; border: 1px solid #315d49; padding: 2px 4px; font-size: 6.5px; }
+
+.poem-hub-bottom-cta { display: grid; grid-template-columns: 32px 1fr 18px; align-items: center; gap: 8px; border: 2px solid #000; background: #e7f0df; padding: 10px; color: #315d49; text-align: left; }
+.poem-hub-bottom-cta > svg:first-child { border: 1px solid #315d49; padding: 6px; width: 32px; height: 32px; }
+.poem-hub-bottom-cta span { display: grid; gap: 2px; }
+.poem-hub-bottom-cta small { color: rgba(49,93,73,.62); font-size: 5.8px; }
+.poem-hub-bottom-cta strong { font-size: 11px; }
+
+.poem-plant-card-viewer {
+  position: fixed;
+  z-index: 2000;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: max(52px, 7vh) 20px 34px;
+  background: rgba(17,20,16,.76);
+  backdrop-filter: blur(8px) saturate(.82);
+  animation: poem-plant-card-backdrop-in 180ms ease both;
+}
+.poem-plant-card-viewer > section {
+  position: relative;
+  width: min(330px, calc(100vw - 42px));
+  margin-block: auto;
+  animation: poem-plant-card-rise 320ms cubic-bezier(.18,.82,.24,1.12) both;
+}
+.poem-plant-card-viewer__close {
+  position: absolute;
+  z-index: 12;
+  top: -16px;
+  left: -15px;
+  display: grid;
+  width: 38px;
+  aspect-ratio: 1;
+  place-items: center;
+  border: 2px solid #17150f;
+  border-radius: 50%;
+  color: #17150f;
+  background: #fff8df;
+  box-shadow: 3px 4px 0 #17150f;
+}
+.poem-plant-card-viewer .ccc-back > footer button:disabled { opacity: .55; cursor: not-allowed; }
+
+@keyframes poem-plant-card-backdrop-in { from { opacity: 0; } }
+@keyframes poem-plant-card-rise { from { opacity: 0; transform: translateY(18px) rotate(-1.5deg) scale(.95); } }
+
+@keyframes poem-hub-sway { from { transform: rotate(-1.2deg); } to { transform: rotate(1.2deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .poem-plant-card__visual img,
+  .poem-plant-card-viewer,
+  .poem-plant-card-viewer > section { animation: none; }
+  .poem-plant-recognizer .is-spinning { animation: none; }
+}
+
+@media (max-width: 390px) {
+  .poem-plant-recognizer__empty { grid-template-columns: 38px minmax(0,1fr); }
+  .poem-plant-recognizer__empty > .poem-plant-photo-button { grid-column: 1 / -1; width: 100%; }
+}

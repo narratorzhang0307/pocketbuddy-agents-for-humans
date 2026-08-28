@@ -1,10 +1,9 @@
-import type { FrostTaskKind, HealthSkillDefinition, JsonObject } from '../taskmaster/contracts';
+import type { HealthSkillDefinition, JsonObject } from '../taskmaster/contracts';
 import { HealthSkillRegistry } from '../taskmaster/registry';
 import type { FrostAgentToolDefinition, FrostAgentToolResult } from './contracts';
 
 export interface FrostSkillCatalogItem {
   skill_id: string;
-  task_kind: FrostTaskKind;
   title: string;
   description: string;
   when_to_use: string[];
@@ -43,10 +42,7 @@ export class TaskmasterSkillProvider implements FrostSkillProvider {
   constructor(private readonly registry = new HealthSkillRegistry()) {}
 
   catalog(): FrostSkillCatalogItem[] {
-    return this.registry.catalog().map((item) => ({
-      ...structuredClone(item),
-      task_kind: this.registry.taskKindForSkill(item.skill_id) || 'run_skill',
-    }));
+    return this.registry.catalog().map((item) => structuredClone(item));
   }
 
   load(skillId: string): JsonObject | null {

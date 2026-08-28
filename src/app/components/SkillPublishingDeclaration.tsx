@@ -9,7 +9,7 @@ const SKILL_PUBLISHING_RULES = [
   ['先装协议再装权重', 'LoRA 必须通过 Skill Protocol Runtime 安装：声明底座、输入输出、权限、依赖、校验和、版本与异常处理。'],
   ['数据与隐私可追溯', '训练集、盲测集按对象隔离并记录来源；用户本地照片、笔记与足迹默认不得进入训练。'],
   ['盲测胜过基座才发布', '同一真实盲测集对比 Base 与 LoRA；保留失败样本、置信度和质量门控，不可见内容必须标 □ 或候选。'],
-  ['运行结果必须诚实', '服务端必须返回实际 provider、模型版本与失败原因；抠图、深度、姿态或几何模型须单列依赖，不得冒充 Qwen LoRA。'],
+  ['端侧结果必须诚实', '真机验证 MNN 的体积、延迟与内存；SME2 只代表加速。抠图、深度、姿态或几何模型须单列依赖，不得冒充 Qwen LoRA。'],
 ] as const;
 
 export default function SkillPublishingDeclaration() {

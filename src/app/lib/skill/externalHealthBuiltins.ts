@@ -1,4 +1,5 @@
 import type { SkillManifest, SkillScope, SkillTool } from './types';
+import { QWEN4B_HEALTH_ASSET, QWEN4B_HEALTH_RELEASE, QWEN4B_HEALTH_REVISION } from '../../../../frost-agent/edge/qwen4bHealthRelease';
 
 const RELEASED_AT = '2026-08-19T00:00:00+08:00';
 
@@ -32,18 +33,27 @@ function externalHealthSkill(options: ExternalHealthSkillOptions): SkillManifest
     entry: { target: options.target },
     runtime: {
       execution: 'declarative', runtime_min: '1.0.0', platforms: ['web', 'android-arm64'],
+      base: { id: QWEN4B_HEALTH_ASSET, revision: QWEN4B_HEALTH_REVISION, sha256: QWEN4B_HEALTH_RELEASE.sha256 },
     },
     permissions: {
       scopes: options.scopes,
       tools: options.tools,
       network_hosts: options.networkHosts || [],
     },
-    data: { schemas: ['frost-server-control/v1', ...options.schemas] },
+    data: { schemas: ['frost-qwen-control/v1', ...options.schemas] },
     quality_gate: { policy_id: options.policyId, checks: options.checks },
     fallback: { order: ['rules', 'user-confirmation', 'stop'] },
     evaluation: { suite: options.suite, passed: true, score: 1, threshold: 1, tested_at: RELEASED_AT },
     distribution: { channel: 'builtin', manifest_url: '', uninstall_policy: 'remove-skill-assets-keep-private-data' },
-    assets: [],
+    assets: [{
+      id: QWEN4B_HEALTH_ASSET,
+      role: 'model',
+      media_type: 'application/vnd.modelscope.repository+json',
+      bytes: QWEN4B_HEALTH_RELEASE.bytes,
+      sha256: QWEN4B_HEALTH_RELEASE.sha256,
+      url: QWEN4B_HEALTH_RELEASE.url,
+      optional: true,
+    }],
     provenance: { source: options.source, license: options.license, released_at: RELEASED_AT },
   };
 }
@@ -52,7 +62,7 @@ export const EXTERNAL_HEALTH_SKILLS: SkillManifest[] = [
   externalHealthSkill({
     id: 'frost.running-coach',
     name: '跑步决策教练',
-    description: '以个人 7/28/56 天基线、恢复信号与训练史生成可执行处方；已配置的服务端模型只负责综合和解释，强度上限、停止规则与处方校验由确定性规则执行。',
+    description: '以个人 7/28/56 天基线、恢复信号与训练史生成可执行处方；Qwen3-4B 只负责综合和解释，强度上限、停止规则与处方校验由确定性规则执行。',
     target: 'frost-running-coach',
     scopes: ['health-data', 'wearables'],
     tools: ['health_query', 'wearable_query', 'readiness', 'prescription'],
@@ -63,7 +73,7 @@ export const EXTERNAL_HEALTH_SKILLS: SkillManifest[] = [
       '强结论至少需要两个相互支持的恢复信号',
       'red 只允许休息或恢复活动，yellow 最高为轻松强度',
       '处方必须包含停止规则、降级选项和下一检查点',
-      '服务端模型不得覆盖确定性安全门的结果',
+      'Qwen3-4B 不得覆盖确定性安全门的结果',
     ],
     suite: 'frost-running-coach-contract-v1',
     source: 'Adapted from https://github.com/liumy-qd/running-coach-skill@bae32cf1d7b33156cd074f449044d61668f0bcb2',
@@ -72,7 +82,7 @@ export const EXTERNAL_HEALTH_SKILLS: SkillManifest[] = [
   externalHealthSkill({
     id: 'frost.healthsync',
     name: 'Apple Health 本地同步',
-    description: '导入 Apple Health XML/ZIP，本地去重并查询睡眠、步数、HRV、心率与跑步指标；服务端模型只读归一化结果，不直接拼写 SQL。',
+    description: '导入 Apple Health XML/ZIP，本地去重并查询睡眠、步数、HRV、心率与跑步指标；Qwen3-4B 只读归一化结果，不直接拼写 SQL。',
     target: 'frost-healthsync',
     scopes: ['health-data'],
     tools: ['health_query'],
@@ -92,7 +102,7 @@ export const EXTERNAL_HEALTH_SKILLS: SkillManifest[] = [
   externalHealthSkill({
     id: 'frost.mediapipe-motion',
     name: 'MediaPipe 动作信号',
-    description: '为 Her Motion 提供 33 点姿态信号、视频节流、置信度门和连续帧确认；原始画面留在本机，服务端模型只读已确认的结构化姿态事件。',
+    description: '为 Her Motion 提供 33 点姿态信号、视频节流、置信度门和连续帧确认；原始画面留在本机，Qwen3-4B 只读已确认的结构化姿态事件。',
     target: 'frost-motion-vision',
     scopes: ['camera'],
     tools: ['pose'],
@@ -112,7 +122,7 @@ export const EXTERNAL_HEALTH_SKILLS: SkillManifest[] = [
   externalHealthSkill({
     id: 'frost.endurance-guard',
     name: '耐力训练校验器',
-    description: '以确定性规则校验耐力训练处方、强度上限、负荷递增与证据链；作为 Running Coach 的安全内核，不由服务端模型自行改写。',
+    description: '以确定性规则校验耐力训练处方、强度上限、负荷递增与证据链；作为 Running Coach 的安全内核，不由 Qwen3-4B 自行改写。',
     target: 'frost-endurance-guard',
     scopes: ['health-data'],
     tools: ['readiness', 'prescription'],

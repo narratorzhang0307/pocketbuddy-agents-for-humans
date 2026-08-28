@@ -1,0 +1,24 @@
+{
+  "origin": "https://pocketbuddy.throughtheglass.art",
+  "entry": "/assets/index-DvDJGRqZ.js",
+  "checks": {
+    "ossPrefixInDeployedClient": true,
+    "jpegEndpointInDeployedClient": true,
+    "frostLocalInDeployedClient": true
+  },
+  "assets": [
+    {
+      "url": "https://pocketbuddy.throughtheglass.art/assets/avatars-DAJeGZM4.js",
+      "status": 200,
+      "bytes": 8534,
+      "sha256": "53da986cc2310ca084bdf1c81f0c67b2835a348c2481a364f85dcfaa391e193a"
+    },
+    {
+      "url": "https://pocketbuddy.throughtheglass.art/assets/frostBadge-Dv0tsv1O.js",
+      "status": 200,
+      "bytes": 18977,
+      "sha256": "91e1cb5217f34fbf97723aad5db0137c4efb575ce4e7b4898be6d0dc31ea5b67"
+    }
+  ],
+  "uiOrPhoneEndToEndClaimed": false
+}

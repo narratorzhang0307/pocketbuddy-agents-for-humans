@@ -1,0 +1,111 @@
+{
+  "schema": "frost-loop-verification/v1",
+  "date": "2026-08-28T03:06:59.352584+00:00",
+  "firmware": {
+    "version": "0.2.17-ojbadge-frost-loop",
+    "sha256": "2836b5c72a570fb1d3308d1d76b9976f5bb73e801050b4537aeb670201f3f564",
+    "bytes": 2361856,
+    "partitionFreeBytes": 783872,
+    "offset": 65536,
+    "previousVersion": "0.2.15-ojbadge-birds",
+    "physicalReadbackVerified": true,
+    "bootAndMetadataUnchanged": true,
+    "bootVerified": true,
+    "visibleDisplayConfirmed": false
+  },
+  "tests": {
+    "host": true,
+    "avatarTestsPassed": 93,
+    "originalDogAndOssCatalogUnchanged": true
+  },
+  "runtime": {
+    "durationSeconds": 30,
+    "samples": [
+      {
+        "frames": 1,
+        "mask": 2,
+        "maxDecodeUs": 127521
+      },
+      {
+        "frames": 32,
+        "mask": 15,
+        "maxDecodeUs": 127521
+      },
+      {
+        "frames": 64,
+        "mask": 15,
+        "maxDecodeUs": 127521
+      },
+      {
+        "frames": 96,
+        "mask": 15,
+        "maxDecodeUs": 127521
+      },
+      {
+        "frames": 128,
+        "mask": 15,
+        "maxDecodeUs": 127521
+      },
+      {
+        "frames": 159,
+        "mask": 15,
+        "maxDecodeUs": 127521
+      }
+    ],
+    "errors": [],
+    "allFourFramesDecoded": true,
+    "loopProgressVerified": true,
+    "versionInLog": true,
+    "firstLcdDmaInLog": true,
+    "visualConfirmation": false,
+    "serialReleased": true
+  },
+  "sourceSnapshot": [
+    {
+      "path": "CMakeLists.txt",
+      "sha256": "0fd424490d7ff71fc116c65bbaa9049cb1078b3d991d41806d372a9e6283ac25"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge.cc",
+      "sha256": "12a5d9437530d617cc37a84ae26bb75555d5df0f1c89df424224c64ae0cb74de"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.cc",
+      "sha256": "774d54bcea89cd4347ff8f92c368671fb9d9a6c9aac79ee9a07aeaed63db60eb"
+    },
+    {
+      "path": "boards/ojbadge/ojbadge_audio.h",
+      "sha256": "1b1a24d5023931ddfd0c1ce7d4055e1571ea0d23484d328f7ec0597be31ca6b7"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_display.h",
+      "sha256": "a3211b7e7b754cb43094b0c1d9694659bc27785cc43b1464afdaf12edba29658"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk.h",
+      "sha256": "1743f685717d60ee0e747383dd09945552515084e10a10ba23be5ca3f75094df"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.h",
+      "sha256": "d95426415e0742184230e82ed3569c87c81bff6319e2e4c12a2db16825ad710a"
+    },
+    {
+      "path": "boards/ojbadge/frost_talk_assets.cc",
+      "sha256": "6ccdb03117720a9703a66d34df715271043c17dc3ce68d598dea57c5b302c01d"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.h",
+      "sha256": "e2e868bf8a83b878a20644864be56d17bbec14603d3401be448a0abd9eac733d"
+    },
+    {
+      "path": "boards/ojbadge/frost_avatar_assets.cc",
+      "sha256": "3e391a4fc910129f0eb36a25f61b3c5f2d8e2d8107b6fc3eb0d9cc92dc3e21bc"
+    },
+    {
+      "path": "tests/protocol_host_test.cpp",
+      "sha256": "f28a9fc1367ed50e3c02986483011bd04481b062a6faae708e2e7db138174c83"
+    }
+  ],
+  "phoneOperations": false,
+  "allFrameAssetsResident": true
+}

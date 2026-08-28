@@ -1,0 +1,409 @@
+.opc-camera-layer {
+  position: absolute;
+  z-index: 121;
+  inset: 0;
+  overflow: hidden;
+  color: #111;
+  pointer-events: none;
+  isolation: isolate;
+}
+
+.opc-camera-layer::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 45%, transparent 0 34%, rgba(17, 17, 17, 0.09) 64%, rgba(17, 17, 17, 0.42) 100%);
+  content: "";
+  pointer-events: none;
+}
+
+.opc-viewfinder-hud {
+  position: absolute;
+  z-index: 3;
+  top: 16px;
+  left: 50%;
+  display: grid;
+  width: min(285px, calc(100% - 110px));
+  gap: 4px;
+  padding: 9px 12px;
+  border: 1.5px solid rgba(255, 253, 241, 0.92);
+  border-radius: 12px;
+  background: rgba(17, 17, 17, 0.72);
+  box-shadow: 3px 3px 0 rgba(17, 17, 17, 0.42);
+  color: #fffdf1;
+  text-align: center;
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
+}
+
+.opc-viewfinder-hud span {
+  color: #7bffbc;
+  font: 700 6px/1.2 'Press Start 2P', ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+.opc-viewfinder-hud span i {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: #ff633f;
+  box-shadow: 0 0 8px #ff633f;
+}
+
+.opc-viewfinder-hud strong { font: 900 11px/1.25 ui-monospace, monospace; }
+.opc-viewfinder-hud small { opacity: 0.7; font: 700 7px/1.25 ui-monospace, monospace; }
+
+.opc-capture-boundary {
+  position: absolute;
+  z-index: 1;
+  inset: 7px 7px 198px;
+  border: 1px solid rgba(255, 253, 241, 0.48);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  box-shadow: inset 0 0 42px rgba(17, 17, 17, 0.11);
+  pointer-events: none;
+}
+
+.opc-capture-boundary::after {
+  position: absolute;
+  right: 9px;
+  bottom: 7px;
+  padding: 4px 6px;
+  color: rgba(255, 253, 241, 0.9);
+  border: 1px solid rgba(255, 253, 241, 0.5);
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.4);
+  content: "LIVE VIEW · 所见即所得";
+  font: 700 5px/1 'Press Start 2P', ui-monospace, monospace;
+  letter-spacing: 0.04em;
+}
+
+.opc-capture-boundary > span {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  clip: rect(0 0 0 0);
+}
+
+.opc-capture-error {
+  position: absolute;
+  z-index: 9;
+  right: 16px;
+  bottom: 198px;
+  left: 16px;
+  margin: 0 auto;
+  padding: 7px 10px;
+  color: #fffdf1;
+  border: 1.5px solid #fffdf1;
+  border-radius: 10px;
+  background: rgba(132, 48, 34, 0.92);
+  box-shadow: 3px 3px 0 rgba(17, 17, 17, 0.7);
+  font: 800 7px/1.35 ui-monospace, monospace;
+  text-align: center;
+}
+
+.opc-focus-reticle {
+  position: absolute;
+  z-index: 2;
+  top: 43%;
+  left: 50%;
+  width: 124px;
+  height: 92px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.opc-focus-reticle i {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(255, 253, 241, 0.95);
+  border-style: solid;
+  filter: drop-shadow(1px 1px 0 #111);
+}
+
+.opc-focus-reticle i:nth-child(1) { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.opc-focus-reticle i:nth-child(2) { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.opc-focus-reticle i:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 2px 2px; }
+.opc-focus-reticle i:nth-child(4) { right: 0; bottom: 0; border-width: 0 2px 2px 0; }
+
+.opc-focus-reticle span {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  padding: 4px 7px;
+  border: 1px solid #111;
+  border-radius: 999px;
+  background: rgba(255, 253, 241, 0.92);
+  font: 800 7px/1 ui-monospace, monospace;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+
+.opc-camera-rig {
+  --opc-camera-half-width: min(140px, 36vw);
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  left: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 190px;
+  pointer-events: none;
+  animation: opc-camera-rise 300ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+@keyframes opc-camera-rise {
+  from { opacity: 0; transform: translateY(60px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.opc-camera-body {
+  position: relative;
+  z-index: 2;
+  width: min(280px, 72vw);
+  height: 150px;
+  overflow: hidden;
+  border: 2px solid #111;
+  border-radius: 24px 24px 16px 16px;
+  background: linear-gradient(158deg, #fffefa 0 64%, #e7e5df 65% 100%);
+  box-shadow: 0 7px 0 #111, 0 14px 24px rgba(17,17,17,.32), inset 0 -8px 16px rgba(17,17,17,.08);
+  pointer-events: auto;
+}
+
+.opc-camera-top {
+  display: grid;
+  grid-template-columns: 34px 1fr 42px;
+  align-items: center;
+  min-height: 34px;
+  padding: 4px 8px;
+  border-bottom: 1.5px solid #111;
+  background: #171918;
+  color: #fffdf1;
+}
+
+.opc-camera-top > button {
+  display: grid;
+  width: 28px;
+  height: 24px;
+  place-items: center;
+  padding: 0;
+  color: inherit;
+  border: 1px solid rgba(255,255,255,.45);
+  border-radius: 7px;
+  background: #2d302f;
+  cursor: pointer;
+}
+
+.opc-camera-top > span {
+  color: #d9dfd9;
+  font: 700 6px/1 'Press Start 2P', ui-monospace, monospace;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.opc-camera-top > button.opc-shutter {
+  width: 38px;
+  color: #111;
+  border: 1.5px solid #111;
+  background: #79ffb8;
+  box-shadow: 2px 2px 0 #111;
+}
+
+.opc-camera-top > button.opc-shutter:active:not(:disabled) { transform: translate(2px,2px); box-shadow: none; }
+.opc-camera-top > button:disabled { cursor: default; filter: grayscale(1); opacity: .45; }
+
+.opc-camera-front {
+  position: relative;
+  height: 86px;
+  background:
+    linear-gradient(90deg, transparent 0 49%, rgba(17,17,17,.04) 50%, transparent 51%),
+    #f7f6f2;
+}
+
+.opc-camera-viewglass {
+  position: absolute;
+  top: 16px;
+  left: 24px;
+  display: grid;
+  width: 42px;
+  height: 31px;
+  place-items: center;
+  border: 2px solid #111;
+  border-radius: 7px;
+  background: linear-gradient(145deg, #bcd4cb, #526c64);
+  box-shadow: inset 0 0 0 4px #e9ece6;
+}
+
+.opc-camera-viewglass i { width: 12px; height: 8px; border-radius: 3px; background: rgba(255,255,255,.4); }
+
+.opc-camera-wordmark {
+  position: absolute;
+  top: 54px;
+  left: 23px;
+  color: #485b54;
+  font: 700 6px/1.45 'Press Start 2P', ui-monospace, monospace;
+}
+
+.opc-camera-lens {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  display: grid;
+  width: 73px;
+  height: 73px;
+  place-items: center;
+  border: 3px solid #111;
+  border-radius: 50%;
+  background: repeating-radial-gradient(circle, #26332f 0 8px, #111 9px 13px, #68776f 14px 18px);
+  box-shadow: 3px 4px 0 #bbbdb7, inset 0 0 0 5px #d9d9d4;
+  transform: translateX(-50%);
+}
+
+.opc-camera-lens i { width: 31px; height: 31px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #9fc4bd, #101514 28%, #020303 70%); }
+.opc-camera-lens b { position: absolute; top: 15px; left: 18px; width: 8px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.56); transform: rotate(-30deg); }
+.opc-camera-meter { position: absolute; top: 25px; right: 26px; width: 25px; height: 10px; border: 1.5px solid #111; border-radius: 999px; background: linear-gradient(90deg, #ff694a 40%, #f2ce5b 40% 70%, #6fe4a8 70%); }
+
+.opc-camera-slot {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  height: 29px;
+  padding: 0 15px;
+  border-top: 1.5px solid #111;
+  background: #252827;
+  color: #fffdf1;
+}
+
+.opc-camera-slot i { height: 5px; border: 1px solid #000; border-radius: 99px; background: #080909; box-shadow: inset 0 1px 1px #555; }
+.opc-camera-slot span { color: #8cffbf; font: 700 5px/1 'Press Start 2P', ui-monospace, monospace; }
+
+.opc-camera-hand {
+  position: absolute;
+  z-index: 3;
+  bottom: -28px;
+  width: 105px;
+  filter: drop-shadow(0 8px 5px rgba(17,17,17,.25));
+  pointer-events: none;
+}
+
+.opc-camera-hand--left {
+  left: calc(50% - var(--opc-camera-half-width) - 5px);
+  transform: rotate(7deg);
+  transform-origin: 60% 80%;
+}
+
+.opc-camera-hand--right {
+  right: calc(50% - var(--opc-camera-half-width) - 5px);
+  transform: rotate(-7deg) scaleX(-1);
+  transform-origin: 40% 80%;
+}
+
+.opc-developed-sheet {
+  position: absolute;
+  z-index: 6;
+  top: 46%;
+  left: 50%;
+  display: grid;
+  width: min(260px, calc(100% - 62px));
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  gap: 8px;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  animation: opc-sheet-eject 850ms cubic-bezier(.16,.8,.24,1) both;
+}
+
+@keyframes opc-sheet-eject {
+  from { opacity: 0; transform: translate(-50%, 36%) scale(.72) rotate(1deg); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(-1deg); }
+}
+
+.opc-polaroid {
+  width: 100%;
+  padding: 9px 9px 12px;
+  border: 1px solid #aaa79d;
+  background: #fffdf5;
+  box-shadow: 5px 6px 0 rgba(17,17,17,.78), 0 15px 32px rgba(17,17,17,.25);
+  transform: rotate(-1deg);
+}
+
+.opc-polaroid-image {
+  position: relative;
+  aspect-ratio: 1.41;
+  overflow: hidden;
+  border: 1px solid #191919;
+  background: linear-gradient(#dce7c5 0 45%, #f4edcf 46% 100%);
+  filter: sepia(.12) saturate(.88);
+}
+
+.opc-photo-live-frame {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.opc-photo-sky { position: absolute; inset: 0 0 58%; background: linear-gradient(#bfe4dd, #eef1cf); }
+.opc-photo-road { position: absolute; height: 16px; border: 1px solid rgba(108,99,61,.25); background: #e7d79a; transform-origin: left center; }
+.opc-photo-road--one { right: -18px; bottom: 39px; left: -18px; transform: rotate(-7deg); }
+.opc-photo-road--two { top: 72px; left: 41%; width: 150px; transform: rotate(72deg); }
+.opc-photo-plant { position: absolute; right: -4%; bottom: 8%; width: 50%; height: 88%; object-fit: contain; object-position: bottom; filter: drop-shadow(3px 4px 2px rgba(17,17,17,.2)); }
+
+.opc-photo-subjects { position: absolute; right: 31%; bottom: 16px; left: 3%; height: 100px; }
+.opc-photo-subject { position: absolute; bottom: calc(var(--opc-order) * 4px); left: calc(var(--opc-order) * 19px); display: grid; width: 58px; justify-items: center; filter: drop-shadow(2px 3px 1px rgba(17,17,17,.25)); }
+.opc-photo-subject img { display: grid; width: 55px; height: 69px; place-items: center; object-fit: contain; object-position: bottom; border-radius: 18px; background: color-mix(in srgb, var(--opc-subject-color) 22%, transparent); }
+.opc-photo-subject small { max-width: 64px; margin-top: -2px; padding: 2px 4px; overflow: hidden; border: 1px solid #111; border-radius: 999px; background: rgba(255,253,241,.9); font: 800 5.5px/1 ui-monospace, monospace; text-overflow: ellipsis; white-space: nowrap; }
+.opc-photo-subject--walking-companion { z-index: 3; transform: translateY(9px) scale(.82); }
+.opc-photo-subject--pocket-buddy { z-index: 4; transform: translateY(-14px) scale(.65); }
+.opc-photo-subject--guide { z-index: 2; }
+
+.opc-photo-developing-grain { position: absolute; inset: 0; background: linear-gradient(115deg, #282822, #bdbbaa 48%, #f4f2e9); opacity: 1; transition: opacity 1.35s ease; }
+.opc-polaroid.is-developed .opc-photo-developing-grain { opacity: 0; }
+
+.opc-polaroid footer { display: flex; align-items: end; justify-content: space-between; gap: 8px; padding: 8px 4px 0; }
+.opc-polaroid footer > div { display: grid; gap: 2px; }
+.opc-polaroid footer strong { font: 900 10px/1.1 ui-monospace, monospace; }
+.opc-polaroid footer small { color: #706d65; font: 700 6px/1 ui-monospace, monospace; }
+.opc-polaroid footer > span { color: #4b665a; font: 700 5px/1 'Press Start 2P', ui-monospace, monospace; }
+
+.opc-developed-sheet > p { margin: 0; padding: 5px 9px; border: 1px solid #111; border-radius: 999px; background: rgba(255,253,241,.94); font: 800 7px/1 ui-monospace, monospace; }
+.opc-developed-sheet > p i { display: inline-block; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: #00d879; animation: opc-pulse 700ms ease-in-out infinite alternate; }
+@keyframes opc-pulse { to { opacity: .2; } }
+
+.opc-photo-actions { display: grid; width: min(330px, calc(100vw - 34px)); grid-template-columns: .62fr .9fr 1.45fr; gap: 5px; transform: rotate(1deg); }
+.opc-photo-actions button { display: inline-flex; min-height: 34px; align-items: center; justify-content: center; gap: 4px; padding: 5px 7px; border: 1.5px solid #111; border-radius: 9px; background: #fffdf1; box-shadow: 2px 2px 0 #111; font: 850 7px/1.2 ui-monospace, monospace; cursor: pointer; }
+.opc-photo-actions button.is-primary { color: #111; background: #7bffbc; }
+.opc-photo-actions button:disabled { cursor: not-allowed; filter: grayscale(1); opacity: .52; }
+
+.opc-photo-saved { display: grid; width: min(350px, calc(100vw - 34px)); grid-template-columns: 30px 1fr auto; align-items: center; gap: 7px; padding: 8px; border: 1.5px solid #111; border-radius: 12px; background: rgba(255,253,241,.96); box-shadow: 3px 3px 0 #111; transform: rotate(1deg); }
+.opc-photo-saved > span { display: grid; width: 28px; height: 28px; place-items: center; border: 1.5px solid #111; border-radius: 50%; background: #7bffbc; }
+.opc-photo-saved > div { display: grid; gap: 2px; }
+.opc-photo-saved strong { font: 900 8px/1.2 ui-monospace, monospace; }
+.opc-photo-saved small { color: #66645f; font: 650 6px/1.25 ui-monospace, monospace; }
+.opc-photo-saved button { padding: 7px 8px; color: #fffdf1; border: 1.5px solid #111; border-radius: 8px; background: #275b49; font: 800 7px/1 ui-monospace, monospace; cursor: pointer; }
+
+.opc-flash { position: absolute; z-index: 20; inset: 0; background: #fff; pointer-events: none; animation: opc-flash 420ms ease-out both; }
+@keyframes opc-flash { from { opacity: .96; } to { opacity: 0; } }
+
+.opc-polaroid.is-compact { width: 92px; padding: 4px 4px 6px; transform: rotate(-3deg); }
+.opc-polaroid.is-compact .opc-polaroid-image { height: auto; }
+.opc-polaroid.is-compact .opc-photo-subjects { right: 24%; bottom: 3px; height: 42px; }
+.opc-polaroid.is-compact .opc-photo-subject { left: calc(var(--opc-order) * 8px); width: 27px; transform: scale(.75); transform-origin: bottom left; }
+.opc-polaroid.is-compact .opc-photo-subject img { width: 27px; height: 36px; }
+.opc-polaroid.is-compact .opc-photo-subject small, .opc-polaroid.is-compact footer small, .opc-polaroid.is-compact footer > span { display: none; }
+.opc-polaroid.is-compact footer { padding-top: 4px; }
+.opc-polaroid.is-compact footer strong { max-width: 75px; overflow: hidden; font-size: 5px; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 420px) {
+  .opc-camera-rig { bottom: 4px; }
+  .opc-camera-hand { width: 88px; }
+  .opc-developed-sheet { top: 43%; width: min(235px, calc(100% - 52px)); }
+}

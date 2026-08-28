@@ -1,5 +1,5 @@
 import { HEALTH_EVENT_PROTOCOL, type FrostTaskRequest, type HealthEvent, type JsonObject, type SkillPermission } from './contracts';
-import { compileDailySummary } from './summary';
+import { compileDailySummary, isDemoHealthFact, localHealthDay } from './summary';
 import type { TaskmasterStore } from './store';
 
 export interface Observation {
@@ -49,7 +49,7 @@ function eventFromObservation(request: FrostTaskRequest, type: HealthEvent['type
     protocol: HEALTH_EVENT_PROTOCOL,
     event_id: `${request.task_id}:${type}`,
     user_id: request.user_id,
-    occurred_at: request.requested_at,
+    occurred_at: typeof facts.consumed_at === 'string' && Number.isFinite(Date.parse(facts.consumed_at)) ? facts.consumed_at : request.requested_at,
     domain,
     type,
     source: { device_id: String(request.input.device_id || 'pwa'), provider: 'frost-taskmaster' },
@@ -77,7 +77,6 @@ export class TaskmasterToolRegistry {
     this.tools.set(tool.name, tool);
   }
   get(name: string): TaskmasterTool | null { return this.tools.get(name) || null; }
-  has(name: string): boolean { return this.tools.has(name); }
   list(): Array<{ name: string; permission: SkillPermission }> { return [...this.tools.values()].map(({ name, permission }) => ({ name, permission })); }
 }
 
@@ -97,6 +96,7 @@ export function createDefaultTools(providers: ExternalHealthProviders = {}): Tas
     async execute(_input, context): Promise<ToolResult> {
       const observed = observationFromToolResult(context.prior_results['meal.observe']?.observation);
       if (!observed) return { status: 'waiting_external', data: {}, message: '等待已完成的饮食观察' };
+      if (isDemoHealthFact(observed.facts, observed.model_version)) throw new Error('示例餐食不能写入真实健康记忆');
       const confirmedFacts = { ...observed.facts, confirmed: true } as JsonObject;
       return { status: 'success', data: confirmedFacts, events: [eventFromObservation(context.request, 'meal_confirmed', 'meal', observed, confirmedFacts)] };
     },
@@ -160,9 +160,10 @@ export function createDefaultTools(providers: ExternalHealthProviders = {}): Tas
   registry.register({
     name: 'memory.daily_summary', permission: 'read:health_events',
     async execute(input, context) {
-      const day = typeof input.day === 'string' ? input.day : context.request.requested_at.slice(0, 10);
-      const events = await context.store.listHealthEvents(context.request.user_id, `${day}T00:00:00.000Z`, `${day}T23:59:59.999Z`);
-      return { status: 'success', data: compileDailySummary(context.request.user_id, day, events) as unknown as JsonObject };
+      const timezone = typeof input.timezone === 'string' ? input.timezone : Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const day = typeof input.day === 'string' ? input.day : localHealthDay(context.request.requested_at, timezone);
+      const events = await context.store.listHealthEvents(context.request.user_id);
+      return { status: 'success', data: compileDailySummary(context.request.user_id, day, events, timezone) as unknown as JsonObject };
     },
   });
   return registry;
