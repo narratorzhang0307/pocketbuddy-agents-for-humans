@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { BUILTIN_SKILLS } from './builtins';
 import { FROST_AVATAR, SKILL_AVATARS, skillAvatarFor, skillAvatarForPage } from './avatars';
 import { resolveSkillRunTarget } from '../plaza/skillRoutes';
-import birdCatalog from './birdCatalog.json';
+import birdCatalog from '../../../../native/frost-badge/ios/BirdCatalog.json';
 
 describe('generated skill portraits', () => {
   it('bundles every full-screen portrait as a decodable baseline JPEG within the old flash budget', async () => {

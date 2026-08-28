@@ -13,6 +13,7 @@ import { setFrostBrain, stubBrain } from '../../../frost-agent/harness/brain';
 import { ensureBuiltinSkills, resetSkillRegistryForTests } from './skill';
 import { createFrostConversationTools, dailyFrostGoal, FrostConversationModel } from './frostConversation';
 import { presentFrostAgentRun } from './frostAgentPresentation';
+import { FROST_ANSWER_SKILLS } from './frostSkillAnswer';
 
 vi.mock('../../../frost-agent/agents/general', () => ({ runGeneral: vi.fn(async () => ({ reply: '通用回答', trace: ['general'], plan: null })) }));
 let counter = 0;
@@ -195,6 +196,28 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
 describe('read-only answer in the shared main Frost loop', () => {
   beforeEach(() => { resetSkillRegistryForTests(); ensureBuiltinSkills(); setFrostBrain(stubBrain); });
   afterEach(() => vi.unstubAllGlobals());
+  it.each([
+    ...FROST_ANSWER_SKILLS.map(skill => [skill.example, skill.id]),
+    ['杭州今天空气质量适合户外运动吗', 'frost.outdoor-window'],
+    ['查询苹果健康今天步数', 'frost.healthsync'],
+    ['今天吃的白米饭100克有多少热量', 'frost.cn-health-library'],
+  ])('keeps %s in the answer tool instead of a page or generic advice', async (text, id) => {
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      if (url === '/api/frost-llm') {
+        const body = JSON.parse(String(init?.body));
+        return Response.json({ text: JSON.stringify(body.task.endsWith(':arguments') ? { entity: '' }
+          : { reply: '测试缺项说明。', speech: '测试缺项说明。' }), model: 'qwen3.8-max', speechTicket: 'test-only-ticket' });
+      }
+      return Response.json({ localBridgeEnabled: false, healthsync: { available: false }, garmin: { available: false } });
+    }));
+    const result = await (await runtime()).send(text);
+    expect(result.events.filter(e => e.type === 'tool.called').map(e => e.data.tool)).toEqual(['frost.skill_answer']);
+    const data = (result.events.find(e => e.type === 'tool.result')?.data.result as { data: Record<string, unknown> }).data;
+    expect(data.answerSkillId).toBe(id);
+    expect(data.speech).toEqual({ text: '测试缺项说明。', ticket: 'test-only-ticket' });
+    expect(result.view.autoStep).toBeUndefined();
+    expect(result.task).toBeNull();
+  });
   it('answers a weather question with no navigation/task and resumes a missing city in the same session', async () => {
     vi.stubGlobal('fetch', vi.fn()
       .mockResolvedValueOnce(Response.json({ text: JSON.stringify({ entity: '' }), model: 'qwen3.8-max' }))

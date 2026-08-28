@@ -25,9 +25,9 @@
   @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
 </style>
 <main>
-  <div class="eyebrow">FROST / MOTION STUDY 02</div>
+  <div class="eyebrow">FROST / MOTION STUDY 03</div>
   <h1>小狗，有话说。</h1>
-  <p class="intro">轻轻摇，慢慢呼吸，再偷偷眨一只眼。</p>
+  <p class="intro">往左晃，往右晃，再偷偷眨一只眼。</p>
   <div class="screen"><img id="portrait" src="hardware/rest.jpg" alt="Frost 小狗圆屏头像"></div>
   <p class="caption" id="state" aria-live="polite">静态原图</p>
   <div class="controls">
@@ -36,7 +36,7 @@
   </div>
   <div class="details">
     <div><strong>240 × 240</strong><span>圆屏满幅</span></div>
-    <div><strong>±0.8°</strong><span>轻摇 · 4.8 秒一循环</span></div>
+    <div><strong>±4 px</strong><span>左右晃 · 4.8 秒一循环</span></div>
     <div><strong>离线内置</strong><span>小狗无需下载</span></div>
   </div>
   <footer>此处为动效示意，不是实机录屏；硬件帧率以实测为准。<br>单双眼眯眼交替，各停留约 1.6 秒；录音或显示其他技能时暂停。<br>沿用五张表情图，身体轻摇不增加图片；圆屏边框保持固定。<br>
@@ -62,7 +62,7 @@
     }
     if (elapsed - lastBody >= 80) {
       const pose = poseAt(elapsed);
-      portrait.style.transform = `rotate(${pose.angle / 10}deg) scale(${pose.zoom / 256})`;
+      portrait.style.transform = `translateX(${pose.x * 100 / 240}%) rotate(${pose.angle / 10}deg) scale(${pose.zoom / 256})`;
       lastBody = elapsed;
     }
     request = requestAnimationFrame(animate);
@@ -75,7 +75,7 @@
     portrait.alt = speaking ? 'Frost 小狗轻摇呼吸、开合嘴、双眼眯眼和单眼眨眼的循环动效' : 'Frost 小狗静态圆屏头像';
     talk.setAttribute('aria-pressed', String(speaking));
     rest.setAttribute('aria-pressed', String(!speaking));
-    document.querySelector('#state').textContent = speaking ? '轻摇 + 呼吸 · 动嘴 · 双眼 / 单眼眯眼各 1.6 秒' : '静态原图';
+    document.querySelector('#state').textContent = speaking ? '左右晃 + 呼吸 · 动嘴 · 双眼 / 单眼眯眼各 1.6 秒' : '静态原图';
   }
   talk.addEventListener('click', () => show(true));
   rest.addEventListener('click', () => show(false));

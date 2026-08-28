@@ -23,6 +23,7 @@ function lazyRetry<T extends ComponentType<any>>(factory: () => Promise<{ defaul
 const PhotosTab = lazyRetry(() => import('./components/FoodPhotosTab'));
 const PlazaTab = lazyRetry(() => import('./components/PlazaTab'));
 const MyMapTab = lazyRetry(() => import('./components/EarthActionMapTab'));
+const FrostPresenceHost = lazyRetry(() => import('./components/FrostPresenceHost'));
 
 type Tab = 'photos' | 'earth' | 'skills';
 
@@ -77,7 +78,7 @@ export default function App() {
   const [voiceNavigationError, setVoiceNavigationError] = useState('');
   useEffect(() => {
     let active = true, release: (() => void) | undefined;
-    void Promise.all([import('./lib/frostAgentRuntime'), import('./lib/frostAgentNavigation')]).then(([runtime, routing]) => {
+    void Promise.all([import('./lib/frostAgentRuntime'), import('./lib/frostAgentNavigation'), import('./lib/frostBadge'), import('./lib/birdListener')]).then(([runtime, routing, { frostBadge }, bird]) => {
       if (!active) return;
       const navigation = {
         isActive: () => active && document.visibilityState !== 'hidden',
@@ -85,12 +86,17 @@ export default function App() {
       };
       const navigate = routing.createFrostAutoNavigation(navigation);
       const showConversation = routing.createFrostVoiceConversation(navigation);
+      const showBird = bird.createBirdSessionNavigation(navigation);
+      const syncBirdPage = () => { showBird(frostBadge.snapshot().bird); };
+      const unbird = frostBadge.subscribe(syncBirdPage);
+      document.addEventListener('visibilitychange', syncBirdPage);
+      syncBirdPage();
       const unobserve = runtime.subscribeFrostAgentEvents(event => { showConversation(event); });
       const unruns = runtime.subscribeFrostAgentRuns(notice => {
         if (notice.input?.origin.channel !== 'badge_voice') return;
         void navigate(notice).catch(error => { if (active) setVoiceNavigationError(`硬件指令未打开页面：${String(error)}`); });
       });
-      release = () => { unobserve(); unruns(); };
+      release = () => { unobserve(); unruns(); unbird(); document.removeEventListener('visibilitychange', syncBirdPage); };
     }).catch(() => { if (active) setVoiceNavigationError('硬件导航尚未就绪，请重开 App。'); });
     return () => { active = false; release?.(); };
   }, []);
@@ -175,6 +181,7 @@ export default function App() {
             : '84px',
         }}
       >
+        <Suspense fallback={null}><FrostPresenceHost /></Suspense>
         {/* 每个 tab 各包一层 ErrorBoundary（key=activeTab 切 tab 自动复位）：单 tab 崩溃 tab bar 仍在、可切走 */}
         {voiceNavigationError && <div role="alert" className="border-b border-black bg-[#fff0b5] p-2 text-xs">{voiceNavigationError}<button type="button" className="ml-2 underline" onClick={() => setVoiceNavigationError('')}>关闭提示</button></div>}
         <ErrorBoundary key={activeTab}>

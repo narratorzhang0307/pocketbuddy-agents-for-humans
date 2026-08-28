@@ -6,6 +6,10 @@ import tailwindcss from '@tailwindcss/vite';
 import { frostEdge } from './frost-agent/edge/viteEdge';
 // @ts-expect-error Build-only ESM asset validation.
 import { verifyAvatarAssets } from './scripts/verify-avatar-assets.mjs';
+// @ts-expect-error Build-only ESM verifies the canonical native/Web bird release.
+import { birdReleasePlugin } from './scripts/hardware/check-bird-release.mjs';
+// @ts-expect-error Build-only ESM binds the approved Canvas to actual output bytes.
+import { skillCanvasReleasePlugin } from './scripts/ios/verify-skill-canvas.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { buildQwenChatBody, createQwenProvider, qwenModelForTask } from './server/qwen-health-provider.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
@@ -142,7 +146,7 @@ export default defineConfig(({ mode }) => {
   return {
     base: '/',
     server: { port: process.env.PORT ? Number(process.env.PORT) : 5173 },
-    plugins: [react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), hospitalAgentDev(env), frostVoiceDev(env), frostEdge(env), qwenChatDev(env)],
+    plugins: [skillCanvasReleasePlugin(__dirname), birdReleasePlugin(__dirname), react(), tailwindcss(), petForgeApi(env), healthSkillsDev(env), hospitalAgentDev(env), frostVoiceDev(env), frostEdge(env), qwenChatDev(env)],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

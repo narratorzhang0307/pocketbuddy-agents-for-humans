@@ -75,6 +75,7 @@ interface RouteHint { triggers: string[]; notFor?: string[] }
 // description 是所有 Skill 的开放接口；内置 Skill 再补一小组用户口语，修复欠触发。
 // 这里不放工作流正文、提示词、知识库或模型资产，符合渐进式披露。
 const ROUTE_HINTS: Record<string, RouteHint> = {
+  'frost.bird-listener': { triggers: ['鸟叫', '鸟声', '鸟类声音', '鸟类的声音', '鸟的声音', '鸟的叫声', '小鸟的声音', '鸟儿的声音', 'bird listener'] },
   'pocket.lianlema': { triggers: ['练了吗', '练了吗教练', '健身', '动作识别', '动作纠正', '姿势纠正', '实时纠正', '动作计数', '深蹲', '弓步蹲', '俯卧撑', '哑铃肩推', '哑铃划船', '二头弯举', '仰卧起坐', '肱三头屈伸', '侧平举', '开合跳', 'rtmpose', 'st-gcn'] },
   'pocket.her-motion': { triggers: ['her motion', '女性运动', '运动', '热身', '瑜伽', '普拉提', '动作陪伴', '姿态识别'] },
   'frost.running-coach': { triggers: ['running coach', 'readiness', '今天能不能跑', '恢复状态', '跑步处方', '跑步复盘', '质量课'] },

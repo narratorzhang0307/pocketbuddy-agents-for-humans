@@ -30,10 +30,12 @@ enum BirdWire {
         return ~c
     }
     static func intent(_ text: String) -> Int {
-        let t = text.replacingOccurrences(of: " ", with: "")
-        if t.range(of: "(退出|停止|关闭|取消).*(识鸟|鸟叫|鸟声)", options: .regularExpression) != nil { return -1 }
-        if t.range(of: "(不要|(?<!识)别|不想|不用).*(识鸟|鸟叫|鸟声)", options: .regularExpression) != nil { return 0 }
-        if t.range(of: "识鸟|识别.*(鸟叫|鸟声)|听.*(什么鸟|哪种鸟)|鸟叫.*识别", options: .regularExpression) != nil { return 1 }
+        let t = text.replacingOccurrences(of: "\\s", with: "", options: .regularExpression)
+        // Same phrases as birdListener.ts, including “识别鸟类声音的agent”.
+        let bird = "(?:识鸟|(?:小)?鸟(?:类|儿)?的?(?:叫声|声音|叫|声))"
+        if t.range(of: "(退出|停止|关闭|取消).*\(bird)", options: .regularExpression) != nil { return -1 }
+        if t.range(of: "(不要|(?<!识)别|不想|不用).*\(bird)", options: .regularExpression) != nil { return 0 }
+        if t.range(of: "识鸟|(?:识别|打开|调用|调取|进入|启动).*\(bird)|听.*(什么鸟|哪种鸟)|\(bird).*识别", options: .regularExpression) != nil { return 1 }
         return 0
     }
     // Identical to T5 select_loudest_model_window: 3 s, 250 ms hop, include the tail.

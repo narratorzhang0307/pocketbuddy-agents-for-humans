@@ -14,192 +14,828 @@
     "index": 18,
     "id": "pycnonotus-sinensis",
     "name": "白头鹎",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pycnonotus-sinensis.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pycnonotus-sinensis.webp",
-    "bytes": 8287,
-    "sha256": "642893ad41bc148752f6e384217dc425883d88da503aed58c207007844b9b1ce",
-    "crc32": 223303708,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/pycnonotus-sinensis.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/pycnonotus-sinensis.webp",
+    "bytes": 18381,
+    "sha256": "a016c9ec024e588bc2b8eee4284d4629c17b58e705e583de0e82b26a499176bc",
+    "crc32": 601221585,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "77866a62",
-      "sourceFile": "public/assets/game-garden/white-headed-bulbul-actions/idle-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/white-headed-bulbul.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/white-headed-bulbul.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/pycnonotus-sinensis.png",
+          "bytes": 641616,
+          "sha256": "65784af5ff1c8d22ccfdc294d1f9708b99da741846fab4272fb4047129b0898a"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/pycnonotus-sinensis.webp",
+          "bytes": 302728,
+          "sha256": "cd716bbd7a2355365222832e239c16eded530dc18f9e0f72a002a5f8643f62de"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 183,
+          "top": 170,
+          "width": 844,
+          "height": 857
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "pet-caramel-dachshund",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/pycnonotus-sinensis.png",
+        "pngSha256": "5e6bfbc45b9a93312f380c70be07e0115c470d1ea005f9b44691c5c79649c65e",
+        "rgbaSha256": "a9410639a2da2c3d3686ff3c4265abee2b8af33bb9e85e71a54e7b01786f3b24",
+        "paletteSha256": "fe57b48c970e1385d6724e87870fbca060ee5b1f5930acd7a72ebaf247365511",
+        "rleSha256": "d3b66549f96a1aded11101ec00ecfa6e2bd137dc894001186385f263cb5d4013",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "9f4a9d04ae57e801fbe3ffc7c4ab7c1a439f52510501942dd237acbb7a3c424a"
+      }
     }
   },
   {
     "index": 19,
     "id": "cuculus-canorus",
     "name": "大杜鹃",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/cuculus-canorus.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/cuculus-canorus.webp",
-    "bytes": 6755,
-    "sha256": "fe3f860352f9d6828b0e32f1af6e2d5142f979a5e96ad5a3e1201746e4db634f",
-    "crc32": 2988288161,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/cuculus-canorus.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/cuculus-canorus.webp",
+    "bytes": 22321,
+    "sha256": "4478a032f894205ad90909251301d59ed8edfef36464e1385c800f856668d18b",
+    "crc32": 3153621560,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "34f513d4",
-      "sourceFile": "public/assets/game-garden/common-cuckoo-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/common-cuckoo.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/common-cuckoo.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/cuculus-canorus.png",
+          "bytes": 743354,
+          "sha256": "6b40919cd6ec00fa7656e6e0da05b7a897eb2c75163af9ce7071225e80e600a0"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/cuculus-canorus.webp",
+          "bytes": 348318,
+          "sha256": "670300905778a64678452172c6dfe6245c80ec918d7f45476e691787c8aa6ad5"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 119,
+          "top": 212,
+          "width": 952,
+          "height": 808
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "alien-02-04",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/cuculus-canorus.png",
+        "pngSha256": "fe353b644875f0a382190e420d836c351aef94eac1dcf8c03ffa29eb8f825794",
+        "rgbaSha256": "96006c803091aada9dde06188b7e18be760605bedc917bf8dbe3ac24699bab2f",
+        "paletteSha256": "6aa0658ebb2038307e0ba970216987654b7db80a03d9d7f59b47dcedc1310e9e",
+        "rleSha256": "7f7275221b14b7efbcedc150197d24b77a0a03816db904a97ca21f91f59609e4",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "046d70764f2f53f5ca0063325069eea6d6a32bd1fb3449931ea7ac2258e81124"
+      }
     }
   },
   {
     "index": 20,
     "id": "urocissa-erythroryncha",
     "name": "红嘴蓝鹊",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/urocissa-erythroryncha.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/urocissa-erythroryncha.webp",
-    "bytes": 7996,
-    "sha256": "e8e4056d46ea8bd9e956f47bd86af04418831bdd12141d01aabdf58d617882f6",
-    "crc32": 3086496058,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/urocissa-erythroryncha.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/urocissa-erythroryncha.webp",
+    "bytes": 17060,
+    "sha256": "c372b794f3c14b4ce1b56faaa6f0f08d975bbb3dcf68c176c1775dbff43a4475",
+    "crc32": 4188575331,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "abcb6812",
-      "sourceFile": "public/assets/game-garden/red-billed-blue-magpie-actions/lookout-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/red-billed-blue-magpie.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/red-billed-blue-magpie.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/urocissa-erythroryncha.png",
+          "bytes": 614821,
+          "sha256": "11434a15d851eb342e764fe74c911f25fe75cabdbcac720fccb37c4f3ba31258"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/urocissa-erythroryncha.webp",
+          "bytes": 286494,
+          "sha256": "795bc9074e1c2f2d9eccb76d44cd2f0e0e8a4a0c712aeb2ae40406921e0d3882"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 116,
+          "top": 210,
+          "width": 973,
+          "height": 808
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "puff",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/urocissa-erythroryncha.png",
+        "pngSha256": "20f8d9219f425dd5ea8376edefd09ebfaf2de7c75fbdcca7de2c776d6a700881",
+        "rgbaSha256": "df95d74f86140160345ba8be98556f2da8141e5e03574ee1da4b42c88b6b952b",
+        "paletteSha256": "e6a1b924e2dc58e827d5da8e5b1c9b6577c5b334ab5d09071622f4f68cecbb20",
+        "rleSha256": "5bd5771924755ce3188030c40ae2b94ac8ac9801afacefac78891fbb0a6eb2ee",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "560be4e80efbe5fe9ba6d0cdbbebba4beca877db96c847ca7d0194fde062c80f"
+      }
     }
   },
   {
     "index": 21,
     "id": "passer-montanus",
     "name": "麻雀",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/passer-montanus.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/passer-montanus.webp",
-    "bytes": 7837,
-    "sha256": "146f6566e1fe8fa4a3967e544ca4b19a38965087a6d65783d57129b25b796abb",
-    "crc32": 828859574,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/passer-montanus.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/passer-montanus.webp",
+    "bytes": 17705,
+    "sha256": "95eb335154249ad13797150cd8a0f2dce6e253e443e2da02a23f38f3d747a2c5",
+    "crc32": 2776881443,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "f6db8358",
-      "sourceFile": "public/assets/game-garden/eurasian-tree-sparrow-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/eurasian-tree-sparrow.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/eurasian-tree-sparrow.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/passer-montanus.png",
+          "bytes": 749681,
+          "sha256": "6a9af3f165e4d9dd18b75733b0053493449c25d9e162ad611be2584f191d1888"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/passer-montanus.webp",
+          "bytes": 347052,
+          "sha256": "9c7c94a6cf66a02db025653add8b308a1516832269e9031d3256b8d89cea972b"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 173,
+          "top": 254,
+          "width": 869,
+          "height": 802
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "mossback",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/passer-montanus.png",
+        "pngSha256": "ddd05bf000d117c66557f3c59e8e2117ca5ebed0080dc56d64a49625c5e5c5aa",
+        "rgbaSha256": "d1d4f0980dd7ee27fdd8752b208c7f09115f3d5e6fd85bb5cef7cba5be8d049a",
+        "paletteSha256": "2cd33f2111a9ca923f0982016b6594fc8e47c20a9172ff476c2f3912ac27a210",
+        "rleSha256": "c1c2966a99f02518d9b77bcc3b4105a2da10bd8188839576f53ccaba9b7b41ce",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "444b626307dff0df989e957ffaebfb0f377835fae9555e7d35630a66347c3878"
+      }
     }
   },
   {
     "index": 22,
     "id": "caprimulgus-indicus",
     "name": "普通夜鹰",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/caprimulgus-indicus.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/caprimulgus-indicus.webp",
-    "bytes": 7742,
-    "sha256": "0d06d699768fe34689ba23b5bbb22b4b13b68817b712b531f47f0238c89f3e21",
-    "crc32": 1895360797,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/caprimulgus-indicus.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/caprimulgus-indicus.webp",
+    "bytes": 16801,
+    "sha256": "620cbd26bec4932bfcb99aac8c0f55529f4600a4d9ff066f083caa5f0a0efb39",
+    "crc32": 185802623,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "1d268264",
-      "sourceFile": "public/assets/game-garden/indian-nightjar-actions/crouch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/indian-nightjar.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/indian-nightjar.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/caprimulgus-indicus.png",
+          "bytes": 737950,
+          "sha256": "e9338852f3201871983c850f2fc584eb630db4977a10b6c2f2cde71c5ab033dd"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/caprimulgus-indicus.webp",
+          "bytes": 333464,
+          "sha256": "4762218248b567bb10dfdc837566562a399b82c95e35760307435e0b1335fa05"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 102,
+          "top": 361,
+          "width": 1001,
+          "height": 566
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "pet-corgi-koko",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/caprimulgus-indicus.png",
+        "pngSha256": "2cee73a872a5addca1642a4d0a978ef36b5180cdd5443d51b487c30a5db2e367",
+        "rgbaSha256": "855bfe5973e1fe6cbfbcd8cfa0245a51c3f985cfd120f0fe7dfbd50854af0e3e",
+        "paletteSha256": "4998b6d95360f902bebfdc4b919b73103b910689210bbcbe8305b21570b75e26",
+        "rleSha256": "adfbd686d5e7c79212836bdca27f0dd1f1e4859b960fa832985e9f34404ce912",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "2302198e8d43e54142c936f15f1fe2ffb5f3341052fb6f1194d65c56b4b598d9"
+      }
     }
   },
   {
     "index": 23,
     "id": "horornis-fortipes",
     "name": "强脚树莺",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/horornis-fortipes.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/horornis-fortipes.webp",
-    "bytes": 7157,
-    "sha256": "8e4833f5c5c6f74ec74b16fbe9d9f5fd0f0b1aa6f33e3b58a6f4d0b240978d67",
-    "crc32": 3901191552,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/horornis-fortipes.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/horornis-fortipes.webp",
+    "bytes": 13827,
+    "sha256": "8671a5e63482eea394636eccd5ec56e9e60ffd3eccaf33466d59bc42bfb870f3",
+    "crc32": 1607452821,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "42c221c0",
-      "sourceFile": "public/assets/game-garden/brown-flanked-bush-warbler-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/brown-flanked-bush-warbler.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/brown-flanked-bush-warbler.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/horornis-fortipes.png",
+          "bytes": 807294,
+          "sha256": "bc20e3ba3bcf7de83b4a218d8d6563f1caf3ec82faa68fa200158dfd6c59802b"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/horornis-fortipes.webp",
+          "bytes": 357802,
+          "sha256": "72ed877e2b7d54b5750c5874cb87780fd2a9be370d0133972f3e341571541533"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 92,
+          "top": 219,
+          "width": 1011,
+          "height": 850
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "pet-violet-fluffy",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/horornis-fortipes.png",
+        "pngSha256": "372d3c6133eb497330eab1b5bf3f8e17a2bfdb6a6f43bc7b191d2788102e7f69",
+        "rgbaSha256": "188964e080a5341f5f6d078d5abdea4f9c84267600830bedeaf17ee6d949cb2f",
+        "paletteSha256": "5263d986c96a81d264b1c38fb9d5b3b5eba6c0de75f13985afe401008d49e756",
+        "rleSha256": "ab136e5427d83a9ca5edd2aabb337ed01b68c3141024b41f58570123c0e80716",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "9b29fe166db6d488c77608f9bc6347aaab3960ebc9f28dcca57dbcfa7543fde2"
+      }
     }
   },
   {
     "index": 24,
     "id": "copsychus-saularis",
     "name": "鹊鸲",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/copsychus-saularis.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/copsychus-saularis.webp",
-    "bytes": 7650,
-    "sha256": "8ef6a9281f8b8534c7e11517b8012ccb4f162878e11c3b44e331f7b9d540623c",
-    "crc32": 2865161107,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/copsychus-saularis.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/copsychus-saularis.webp",
+    "bytes": 18891,
+    "sha256": "76cc9a6c601f2c39a04b1ee73060a5faea1efbe9bf5b4525c5cf3e6c31988904",
+    "crc32": 1489729640,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "83f05a2b",
-      "sourceFile": "public/assets/game-garden/oriental-magpie-robin-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/oriental-magpie-robin.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/oriental-magpie-robin.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/copsychus-saularis.png",
+          "bytes": 623332,
+          "sha256": "611d25bac289a5b7eaf0a2a1b563dcfd3e1a676451fcbfa3cb7340f2ada5e8bc"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/copsychus-saularis.webp",
+          "bytes": 297700,
+          "sha256": "cfb9a6ff0d30841506a898a3c0a0bbc9ecbb37b8a48aeff359dcf1f3eb973168"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 161,
+          "top": 249,
+          "width": 928,
+          "height": 813
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "pet-v2-001",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/copsychus-saularis.png",
+        "pngSha256": "af7d3eb5908ba9cb5f1a84d34f7ac44d7722353a9ed391fc5a2be0e1c8a1aa1c",
+        "rgbaSha256": "9a16bbb32aac838e859758c3a574142301a33e889489f3095a93664cbc11e426",
+        "paletteSha256": "8d3a2fbad009ff78061f4283db492f8336180f0ae856e2bd6d1194b625b849d3",
+        "rleSha256": "174119e7e16d5adfa3a16ff530ea7acb90fe9b4e8efeab20588225a8391294b8",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "e5eaa6c38333ab5ac915cd9555560eb02fc388ab52ee005764dcc0f95aa82b46"
+      }
     }
   },
   {
     "index": 25,
     "id": "turdus-mandarinus",
     "name": "乌鸫",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/turdus-mandarinus.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/turdus-mandarinus.webp",
-    "bytes": 6735,
-    "sha256": "c43751b577e7dafaa6ba0d8541505698c65ebe756f4ad70a4f79c4ebb13d2920",
-    "crc32": 4144567126,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/turdus-mandarinus.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/turdus-mandarinus.webp",
+    "bytes": 14703,
+    "sha256": "30f98c795962ca8b1ffc9cee7cd653dceb7e2c9fe3343f05be8261bc6e17fc7d",
+    "crc32": 1613191694,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "b91dda4e",
-      "sourceFile": "public/assets/game-garden/chinese-blackbird-actions/lookout-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/chinese-blackbird.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/chinese-blackbird.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/turdus-mandarinus.png",
+          "bytes": 696658,
+          "sha256": "0c48ab4c8a6e2186d1b33048f4dd27bdacf162e274ad30be1bc1d581a53f5e9e"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/turdus-mandarinus.webp",
+          "bytes": 357824,
+          "sha256": "ae425be02821358583819d1b2e04175ecb2d3bbf125cfc04e1df15526a2e7818"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 124,
+          "top": 205,
+          "width": 991,
+          "height": 879
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "pet-v2-006",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/turdus-mandarinus.png",
+        "pngSha256": "559b764e1505e565c27878c82bffd6485c07a82230f37ce58e8fd053292d6afa",
+        "rgbaSha256": "039cfa2377edee11b03001ecba82707e0ceffad5a68eb4d7770336f6ce1f795f",
+        "paletteSha256": "af3dd7589b415ae3e627af456580895e511e1a17c38dcba2150df4e44378526b",
+        "rleSha256": "11004c910ff892c98d6f8bcabbda0361e992025ff72f0c4992ad5f5be20c862a",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "a3fb9b5a990064bc5c8b6413314319febf218a85bca37459cdf1b68ec9d2e1e4"
+      }
     }
   },
   {
     "index": 26,
     "id": "pica-serica",
     "name": "喜鹊",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pica-serica.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pica-serica.webp",
-    "bytes": 7807,
-    "sha256": "65d1380e4f65d5a3655cc2830861320b7e4a500d26aaa37d06b25fb26fe82c64",
-    "crc32": 3245859419,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/pica-serica.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/pica-serica.webp",
+    "bytes": 17656,
+    "sha256": "3681649881719faeb1731c4759b21551c3a6ee5dd5f12e50e4b65d22b4280ef1",
+    "crc32": 609900576,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "79018add",
-      "sourceFile": "public/assets/game-garden/oriental-magpie-actions/lookout-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/oriental-magpie.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/oriental-magpie.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/pica-serica.png",
+          "bytes": 665118,
+          "sha256": "620b6361767f1680f8ccc2bbe4f2b1abbd479b067e2234a5ac178c1336bb17e3"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/pica-serica.webp",
+          "bytes": 311302,
+          "sha256": "40a4d81425cb257857ecf3310b594188afebf6533130e4ebcb9866bdace55653"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 97,
+          "top": 261,
+          "width": 1030,
+          "height": 783
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "alien-01-05",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/pica-serica.png",
+        "pngSha256": "705512f58cc724d96e3b20296bdcaace4e80def58c6b2a8b4063bf642534cc05",
+        "rgbaSha256": "5e50907b17cf9421c144b16906b43459d41521c4e0ce14c6b97a3ec2b122174a",
+        "paletteSha256": "70c55686d21a107e3d9d79bc13c937029ded96cc1acd14f4dc436d992c26bb6d",
+        "rleSha256": "9fc9410fab88f1866683e6cde51094e8bee4a215a682bbe4457c4a1d4999a0fc",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "825e3141e85465b13c2f79e724edd737496e8ee1a9ed7f913e8e7cfc456f1f12"
+      }
     }
   },
   {
     "index": 27,
     "id": "spilopelia-chinensis",
     "name": "珠颈斑鸠",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/spilopelia-chinensis.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/spilopelia-chinensis.webp",
-    "bytes": 8047,
-    "sha256": "6f9f41c985b801f584458ef93516451d2d3602b429f631cca75836e787892745",
-    "crc32": 1085801736,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/spilopelia-chinensis.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/spilopelia-chinensis.webp",
+    "bytes": 17644,
+    "sha256": "5fe093e017557196e246e1c8e20b1333b3e419574e4a0a86cf11c3fa577e8120",
+    "crc32": 2906035553,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "cb204522",
-      "sourceFile": "public/assets/game-garden/spotted-dove-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/spotted-dove.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/spotted-dove.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/spilopelia-chinensis.png",
+          "bytes": 872684,
+          "sha256": "d230c8333e2b0d68b5e37f2d0ff56075d06102b042379f322203606b53995c0b"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/spilopelia-chinensis.webp",
+          "bytes": 387948,
+          "sha256": "67bd1b1dee49bade43939e19ce792247a1e11530791b35b80cf5af7ac42dd29c"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 146,
+          "top": 192,
+          "width": 938,
+          "height": 865
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "alien-03-04",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/spilopelia-chinensis.png",
+        "pngSha256": "0e5d6ed058e08044d22d5503d1502af3cd81278062b8c1efc3f9b55e0baabca2",
+        "rgbaSha256": "c2069e8c8902fcb6df0e2891a5511bba20a61d0b6d5a39774bf98ac5fdc06949",
+        "paletteSha256": "f4d69c96254b55ab38b9c8bb4ce9cf7805f80703dc65dcdc66f6a6f88a7c8fe8",
+        "rleSha256": "fac9db0cda6afc3b3a3bc221f16658700f29f6ba43c45b8262806b25ccbed66c",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "caa9d399c4af97f1f82cb47d29295847ccb0306b4f32525bdea9fca782f2ed5c"
+      }
     }
   },
   {
     "index": 28,
     "id": "lanius-schach",
     "name": "棕背伯劳",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/lanius-schach.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/lanius-schach.webp",
-    "bytes": 7122,
-    "sha256": "c2c64ecbc33243455f785ec344d79505b275239cb7d50b5ec2ad65f7246347be",
-    "crc32": 1175294248,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/lanius-schach.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/lanius-schach.webp",
+    "bytes": 16903,
+    "sha256": "7fdf26162a6f6e2162a173eb3d2ba2882186783b83c3fc454c5b4d08165426a6",
+    "crc32": 480587767,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "05203421",
-      "sourceFile": "public/assets/game-garden/long-tailed-shrike-actions/lookout-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/long-tailed-shrike.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/long-tailed-shrike.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/lanius-schach.png",
+          "bytes": 724336,
+          "sha256": "6f60ff0e725f7813006a99ab278f4d44a717a54fff20fab514fddb5349b8dd7e"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/lanius-schach.webp",
+          "bytes": 328892,
+          "sha256": "1b7d7e0b57a4b5b23735a2b94c4bf5cedccc15b62e12ff91b918881ccb1c7453"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 112,
+          "top": 246,
+          "width": 986,
+          "height": 803
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "alien-04-08",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/lanius-schach.png",
+        "pngSha256": "1686aeae2495d5a918ae1ee842d25a76f465258a0d923587be94464892244782",
+        "rgbaSha256": "2b550cf332a53f15ccac3782810f96b1da7a57770659aff032f59009941b229d",
+        "paletteSha256": "35707631e5b9beecca8fc8e983f84cbef5f323bfe132a4bdff28fa030fcaba66",
+        "rleSha256": "88f9da33b0050360828bc8177d739319463d8b3a375e63a14f99b0dfb212bb14",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "3941ac0ff243fbaa8b10bd955fea906a80843ef0c9defd57e9bd9918ade54102"
+      }
     }
   },
   {
     "index": 29,
     "id": "abroscopus-albogularis",
     "name": "棕脸鹟莺",
-    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/abroscopus-albogularis.jpg",
-    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/abroscopus-albogularis.webp",
-    "bytes": 7979,
-    "sha256": "a6ac4d5922cc30969c43cba3dadcddcda2498b629a77b861aebdfb1794d2d1c3",
-    "crc32": 1022348544,
+    "jpegUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/abroscopus-albogularis.jpg",
+    "webUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/scenes/abroscopus-albogularis.webp",
+    "bytes": 14052,
+    "sha256": "e472073b2fca97868e3c7d09c60936fe96fea63395cf13b1158708c815f8f9b3",
+    "crc32": 553439194,
     "source": {
-      "packSha256": "47380e632e92d8db0a4f9cfc11bf1b9df992aca4b3556b921fa89a66147db892",
-      "frameCrc32": "196d3c3c",
-      "sourceFile": "public/assets/game-garden/rufous-faced-warbler-actions/perch-01.png",
-      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/rufous-faced-warbler.m4a"
+      "kind": "generated-pet-bird",
+      "release": "bird-skill-pet-birds-v3",
+      "audioUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/carrythecosmos/garden/bird-audio/20260823-v1/rufous-faced-warbler.m4a",
+      "sprite": {
+        "png": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/abroscopus-albogularis.png",
+          "bytes": 884278,
+          "sha256": "ce5b1105e8c01d05e2bf8ac3e5a7db60858e16ec6f2d9c7e950f00d65d3873dd"
+        },
+        "webp": {
+          "url": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/pet-birds-v3/birds/abroscopus-albogularis.webp",
+          "bytes": 383052,
+          "sha256": "185d0ac36207c9581fb4439f1a229814fc2504893eea4f0a96cc17d4b1998173"
+        },
+        "width": 1254,
+        "height": 1254,
+        "alpha": true,
+        "bounds": {
+          "left": 151,
+          "top": 229,
+          "width": 947,
+          "height": 842
+        },
+        "pivot": {
+          "x": 0.5,
+          "y": 0.5,
+          "space": "normalized-canvas"
+        }
+      },
+      "background": {
+        "sceneId": "alien-06-04",
+        "pngUrl": "https://last-night-on-earth.oss-cn-hangzhou.aliyuncs.com/pocket-earth/bird-skill/20260828-v1/t5-scenes-v2/backgrounds/abroscopus-albogularis.png",
+        "pngSha256": "3ead98d90be55e087c243bce3a0102b069fbb95529e238e8f29c893fd1af0906",
+        "rgbaSha256": "72bf9e2dbde55c817c73aa15b944dccf6d4c5187ae7f3736659701d7bd2aea9d",
+        "paletteSha256": "81b02091450b6a2c4f70830f344731c761d93cda0a6fbf08e1363569edbdb036",
+        "rleSha256": "e084901da0bc93455e58ad203f640786ff77d3b3c7296156f0f03b23031e9aac",
+        "assetSourceSha256": "4bee0cefb45fdba3bfece6089af2c5df119eab2dfde1cf9fe2fc98d77d609fe1",
+        "mappingSourceSha256": "504fdae30b70724f18b4899684f928a7b283adcd01770434a0b11cb1c0309145",
+        "width": 400,
+        "height": 400
+      },
+      "layout": {
+        "stage": 466,
+        "sceneCanvas": 400,
+        "sceneScaleQ8": 298,
+        "birdCanvas": 224,
+        "birdCenterY": -10,
+        "displaySourceSha256": "2e3bd19f976052f4056549ea73491df8f07953ffc7b0e02f619aa82df534859a",
+        "frame": "pet-v3-static",
+        "statusTextBaked": false,
+        "birdFit": 198,
+        "birdFitMode": "alpha-bounds-contain"
+      },
+      "generation": {
+        "provider": "OpenAI built-in imagegen",
+        "generatedSha256": "9a55fdff059a742e13baf2851ce1d109cb97903d2f3a224c32de1d6997aa5c23"
+      }
     }
   }
 ]

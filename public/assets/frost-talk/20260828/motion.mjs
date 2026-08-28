@@ -3,7 +3,7 @@
 export const names = ['rest', 'small', 'open', 'blink', 'wink'];
 export function poseAt(ms) {
   const phase = (ms % 4800) * (2 * Math.PI / 4800);
-  return { angle: Math.round(8 * Math.sin(phase)), zoom: 260 + Math.round(2 - 2 * Math.cos(phase)) };
+  return { angle: Math.round(14 * Math.sin(phase)), zoom: 271 + Math.round(2 - 2 * Math.cos(phase)), x: Math.round(4 * Math.sin(phase)) };
 }
 export function frameAt(ms) {
   if (ms >= 1600 && (ms - 1600) % 4800 < 1600)

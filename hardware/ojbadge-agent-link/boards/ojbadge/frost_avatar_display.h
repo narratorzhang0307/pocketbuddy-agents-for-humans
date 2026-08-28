@@ -26,6 +26,9 @@ public:
         if (!pixels_ || !staging_ || !receive_ || !cache_ || !queue_) { Release(); return false; }
         image_ = lv_img_create(lv_scr_act());
         lv_obj_set_pos(image_, 0, 0);
+        // Horizontal sway must not enlarge the screen's scrollable content
+        // area or move its labels. The portrait is fixed to the viewport.
+        lv_obj_add_flag(image_, LV_OBJ_FLAG_FLOATING);
         lv_obj_clear_flag(image_, LV_OBJ_FLAG_CLICKABLE);
         lv_img_set_antialias(image_, true);
         descriptor_.header.cf = LV_IMG_CF_TRUE_COLOR;
@@ -99,12 +102,13 @@ public:
     }
 private:
     void ApplyBody(frost_talk::BodyPose pose) {
-        if (pose.angle == body_pose_.angle && pose.zoom == body_pose_.zoom) return;
+        if (pose.angle == body_pose_.angle && pose.zoom == body_pose_.zoom && pose.x == body_pose_.x) return;
         // Only the portrait transforms: round screen, status and recording
         // overlays stay fixed. No new JPEGs, framebuffer or repeated decoding.
         lv_img_set_pivot(image_, frost_talk::kBodyPivotX, frost_talk::kBodyPivotY);
         lv_img_set_angle(image_, pose.angle);
         lv_img_set_zoom(image_, pose.zoom);
+        lv_obj_set_pos(image_, pose.x, 0);
         body_pose_ = pose;
         if (pose.zoom == 256) return; // Pausing/another skill restores exact 1:1.
         ++body_updates_;
@@ -113,11 +117,13 @@ private:
         if (pose.angle > body_max_angle_) body_max_angle_ = pose.angle;
         if (pose.zoom < body_min_zoom_) body_min_zoom_ = pose.zoom;
         if (pose.zoom > body_max_zoom_) body_max_zoom_ = pose.zoom;
+        if (pose.x < body_min_x_) body_min_x_ = pose.x;
+        if (pose.x > body_max_x_) body_max_x_ = pose.x;
         const int64_t now = esp_timer_get_time() / 1000;
         if (now >= next_body_report_) {
-            ESP_LOGI("skill_avatar", "Frost body: updates=%lu eye_updates=%lu angle=%d..%d zoom=%u..%u",
+            ESP_LOGI("skill_avatar", "Frost body: updates=%lu eye_updates=%lu angle=%d..%d zoom=%u..%u x=%d..%d",
                 static_cast<unsigned long>(body_updates_), static_cast<unsigned long>(body_eye_updates_),
-                body_min_angle_, body_max_angle_, body_min_zoom_, body_max_zoom_);
+                body_min_angle_, body_max_angle_, body_min_zoom_, body_max_zoom_, body_min_x_, body_max_x_);
             next_body_report_ = now + 5000;
         }
     }
@@ -210,6 +216,7 @@ private:
     frost_talk::BodyPose body_pose_;
     uint32_t body_updates_ = 0, body_eye_updates_ = 0;
     int16_t body_min_angle_ = 0, body_max_angle_ = 0;
+    int16_t body_min_x_ = 0, body_max_x_ = 0;
     uint16_t body_min_zoom_ = 65535, body_max_zoom_ = 0;
     int64_t next_body_update_ = 0, next_body_report_ = 0;
     uint32_t animation_frames_ = 0, max_decode_us_ = 0;

@@ -1,5 +1,5 @@
 import catalog from './skill/avatarCloudCatalog.json';
-import birds from './skill/birdCatalog.json';
+import birds from '../../../native/frost-badge/ios/BirdCatalog.json';
 
 export const BADGE_JPEG_ENDPOINT = 'avatar_jpeg_v1';
 export const MAX_AVATAR_JPEG_BYTES = 65536;

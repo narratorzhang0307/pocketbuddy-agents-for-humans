@@ -7,7 +7,7 @@
  * 升级：改 VERSION 即弃用旧缓存（只弃用本应用自己的旧缓存，见 activate）。
  * 注意：模型、LoRA、Splat 和 Data Pack 都不在 SHELL；只在用户主动访问/安装后进入各自缓存。
  */
-const VERSION = 'pb-v3-real-assets-only';
+const VERSION = 'pb-v4-approved-skill-canvas';
 const CACHE = `pocket-buddy-${VERSION}`;
 const SHELL = [
   '/',
@@ -42,6 +42,11 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;                       // 只管 GET
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;        // 跨域放行（地图/图床/字体）
+  // Retired Canvas chunks must never be revived from this app's offline cache.
+  if (/^\/assets\/(?:SkillCanvasTab|SkillDeckBuilder)[.-].*\.(?:js|css)$/.test(url.pathname)) {
+    event.respondWith(Promise.resolve(new Response('Retired Skill Canvas; update the app.', { status: 410 })));
+    return;
+  }
   if (url.pathname === '/her-motion' || url.pathname.startsWith('/her-motion/')) return; // 独立子应用，不能覆盖 Pocket Buddy 离线壳
   if (url.pathname === '/lianlema' || url.pathname.startsWith('/lianlema/')) return; // 本机训练教练子应用
   if (url.pathname === '/tongue-observer' || url.pathname.startsWith('/tongue-observer/')) return;

@@ -324,7 +324,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
           <span className="min-w-0">
             <span className="block text-[13px] font-black">医院 Agent</span>
             <span className="mt-0.5 block font-pixel text-[6px] tracking-wider text-[#187b73]">HOSPITAL · SUB AGENT</span>
-            <span className="mt-1 block text-[10.5px] leading-snug text-black/60">虚拟诊疗、专科会诊与安全审查 · 查看知识目录与后端连接状态</span>
+            <span className="mt-1 block text-[10.5px] leading-snug text-black/60">Qwen 自动接入 · 健康信息、就医准备与本地知识目录</span>
           </span>
           <span className="grid min-h-11 w-[76px] shrink-0 place-items-center border-2 border-black bg-white px-1 text-center text-[10px] font-bold">打开 Agent</span>
         </button>

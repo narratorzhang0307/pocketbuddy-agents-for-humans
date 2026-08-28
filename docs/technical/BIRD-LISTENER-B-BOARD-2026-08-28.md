@@ -32,6 +32,8 @@
 
 机器可读证据在 [verification.json](../design/bird-skill-20260828/verification.json)。页面截图在 [skill-page-browser.png](../design/bird-skill-20260828/skill-page-browser.png)，此图是浏览器截图，不是开发板照片。
 
+> 后续素材修正：已补回 T5 原背景，发布为 `t5-scenes-v2`。原背景提取、OSS 发布及新版验收边界见 [T5 背景记录](BIRD-T5-BACKGROUNDS-2026-08-28.md)。本页的早期 v1 图片字节数与回执不代表新版实板通过。
+
 ## 2. 研究结论：复用的是哪条 T5 链路
 
 原项目：`/Users/zhangcheng/Documents/上街去/硬件开发/firmware/t5e1-city-buddy`。

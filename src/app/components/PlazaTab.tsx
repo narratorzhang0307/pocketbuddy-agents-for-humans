@@ -13,10 +13,10 @@ import { runEdgeChatEvidence } from '../../../frost-agent/edge/httpEdge';
 import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 import { listCanvasSkills, subscribeCanvasSkills } from '../../../frost-agent/skill-canvas';
 import { FROST_AVATAR } from '../lib/skill/avatars';
+import SkillCanvasPage from './SkillCanvasPage';
 
 const MusicAgentsTab = lazy(() => import('./MusicAgentsTab'));
 const PocketBuddyForge = lazy(() => import('./PocketBuddyForge'));
-const SkillCanvasTab = lazy(() => import('./SkillCanvasTab'));
 const VISIBLE_SKILL_COUNT = BUILTIN_SKILLS.filter((skill) => resolveSkillRunTarget(skill.entry.target)).length;
 
 interface Props {
@@ -65,14 +65,14 @@ function NetworkHeader({ active, canvasSkillCount, onChange }: { active: Network
   const subtitle = active === 'skills'
     ? '已加载到这台设备的 Skills · 随时装备与运行'
     : active === 'canvas'
-      ? '挑选与组合能力卡 · 由 Skill Canvas 编译与预览任务图'
+      ? '定义目标、组合能力模块与选择技能形象'
     : active === 'myagent'
       ? '从照片建立口袋伙伴 · 形象、人格与记忆只在确认后保存'
       : '健康 Skill 广场 · 浏览运动、恢复与营养能力';
   return (
     <>
       <div className="flex h-[30px] shrink-0 items-center justify-center border-b-2 border-black bg-[#EAEAEA] px-4">
-        <div className="font-pixel text-[9px] uppercase leading-none tracking-[0.14em]">POCKET EARTH · AGENT NETWORK</div>
+        <div className="font-pixel text-[9px] uppercase leading-none tracking-[0.14em]">POCKET BUDDY · AGENT NETWORK</div>
       </div>
       <div className="shrink-0 border-b-2 border-black bg-white px-4 py-3.5">
         <div className="flex min-w-0 items-center justify-between gap-3">
@@ -113,7 +113,7 @@ function WorldCard({ world, onOpen }: { world: PlazaWorld; onOpen: () => void })
   const leadPublisher = world.publisher ?? skillPublisherForManifest(world.skillIds[0]);
   return (
     <button type="button" aria-label={world.launchUrl ? `进入 ${world.name}` : `进入 ${world.name}，查看 ${world.skillIds.length} 个 Skill`} onClick={onOpen} className="w-full overflow-hidden border-2 border-black text-left active:translate-y-px" style={{ background: world.paper }}>
-      {world.coreSkill && <span className="flex items-center justify-between gap-2 border-b-2 border-black bg-[#00ff88] px-2.5 py-2 text-black"><span className="flex items-center gap-1.5 font-pixel text-[8px]"><Sparkles className="h-3.5 w-3.5" strokeWidth={3} />核心 SKILL</span><span className="text-[8px] font-black tracking-wide">POCKET EARTH UI 原生融合</span></span>}
+      {world.coreSkill && <span className="flex items-center justify-between gap-2 border-b-2 border-black bg-[#00ff88] px-2.5 py-2 text-black"><span className="flex items-center gap-1.5 font-pixel text-[8px]"><Sparkles className="h-3.5 w-3.5" strokeWidth={3} />核心 SKILL</span><span className="text-[8px] font-black tracking-wide">POCKET BUDDY UI 原生融合</span></span>}
       <div className="grid min-h-[142px] grid-cols-[106px_1fr] border-b-2 border-black" style={{ backgroundImage: `radial-gradient(circle at 18% 18%, ${world.accent}22 0 2px, transparent 2.5px)`, backgroundSize: '15px 15px' }}>
         <span className="relative grid place-items-center border-r-2 border-black bg-white/45">
           <span className="absolute left-1.5 top-1.5 font-pixel text-[5px] text-black/45">PUBLISHER</span>
@@ -312,7 +312,7 @@ export default function PlazaTab({ initialMode = 'worlds', externalSkillTarget, 
       {mode === 'skills'
         ? <div className="min-h-0 flex-1 overflow-hidden"><Suspense fallback={<div className="grid h-full place-items-center bg-[#EAEAEA] font-pixel text-[8px]">LOADING SKILLS...</div>}><MusicAgentsTab embedded openTarget={externalSkillTarget ?? requestedSkillTarget} openTargetBackLabel={externalSkillTarget ? externalSkillBackLabel : skillOpenOrigin === 'myagent' ? '返回 My Agent' : '返回 Plaza'} onRunningChange={setSkillRunning} onOpenCanvasSkill={(id) => { setCanvasSkillId(id); setMode('canvas'); }} onOpenTargetHandled={() => { if (externalSkillTarget) { setSkillOpenOrigin('external'); onExternalSkillTargetHandled?.(); } else { if (!skillOpenOrigin) setSkillOpenOrigin('plaza'); setRequestedSkillTarget(null); } }} onReturnFromExternalTarget={() => { if (skillOpenOrigin === 'external') onReturnFromExternalSkill?.(); else setMode(skillOpenOrigin === 'myagent' ? 'myagent' : 'worlds'); setSkillOpenOrigin(null); }} /></Suspense></div>
         : mode === 'canvas'
-        ? <div className="min-h-0 flex-1 overflow-hidden"><Suspense fallback={<div className="grid h-full place-items-center bg-[#EAEAEA] font-pixel text-[8px]">LOADING CANVAS...</div>}><SkillCanvasTab skillId={canvasSkillId} /></Suspense></div>
+        ? <div className="min-h-0 flex-1 overflow-hidden"><SkillCanvasPage skillId={canvasSkillId} /></div>
         : mode === 'myagent'
         ? buildingWorld
           ? <WorldDraftBuilder draft={editingWorldDraft} onChange={(next) => { setEditingWorldDraft(next); setDraftSaved(false); setDraftSaveError(null); }} onBack={() => { setEditingWorldDraft(worldDraft); setDraftSaveError(null); setBuildingWorld(false); }} saved={draftSaved} saveError={draftSaveError} onSave={() => { try { const saved = writePlazaWorldDraft(editingWorldDraft); setWorldDraft(saved); setEditingWorldDraft(saved); setDraftSaved(true); setDraftSaveError(null); } catch { setDraftSaved(false); setDraftSaveError('本机草稿保存失败'); } }} onDelete={() => { deletePlazaWorldDraft(); setWorldDraft(DEFAULT_WORLD_DRAFT); setEditingWorldDraft(DEFAULT_WORLD_DRAFT); setDraftSaved(false); setDraftSaveError(null); setBuildingWorld(false); }} />

@@ -11,11 +11,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Scene-based launches must use the same plugin-registering controller as Main.storyboard.
         window?.rootViewController = PocketBuddyViewController()
         window?.makeKeyAndVisible()
+        for context in connectionOptions.urlContexts { PocketPresencePlugin.openCompanion(context.url) }
 
         SceneDelegateProxy.shared.scene(scene, willConnectTo: session, options: connectionOptions)
     }
 
     func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        for context in URLContexts { PocketPresencePlugin.openCompanion(context.url) }
         SceneDelegateProxy.shared.scene(scene, openURLContexts: URLContexts)
     }
 

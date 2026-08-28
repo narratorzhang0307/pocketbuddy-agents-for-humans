@@ -8,6 +8,16 @@ import Foundation
         }
         assert(BirdWire.intent("帮我识别下鸟叫") == 1)
         assert(BirdWire.intent("帮我识别一下鸟声") == 1)
+        for text in ["帮我打开下识别鸟类声音的agent", "打开鸟类声音识别skill", "帮我识别鸟的叫声",
+                     "帮我识别小鸟的声音", "进入鸟声识别", "打开鸟叫agent", "识别一下鸟类的声音"] {
+            assert(BirdWire.intent(text) == 1, "Missing bird intent: \(text)")
+        }
+        for text in ["鸟类的声音很好听", "不要打开鸟类声音识别", "别帮我识别鸟的叫声", "不用识别小鸟的声音"] {
+            assert(BirdWire.intent(text) == 0, "Unexpected bird intent: \(text)")
+        }
+        for text in ["关闭鸟类声音识别", "停止识别鸟的叫声"] {
+            assert(BirdWire.intent(text) == -1, "Missing bird exit: \(text)")
+        }
         assert(BirdWire.intent("退出识鸟") == -1)
         assert(BirdWire.intent("不要识别鸟叫") == 0)
         assert(BirdWire.intent("查询今天的天气") == 0)

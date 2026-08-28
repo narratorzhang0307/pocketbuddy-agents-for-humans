@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronLeft, Check, PackageOpen, Play, Workflow } from 'lucide-react';
+import { ChevronDown, ChevronLeft, Check, PackageOpen, Play, Workflow } from 'lucide-react';
 import type { FrostPlan, FrostPlanStep } from '../../../frost-agent/harness/skillRouter';
 import { expertForSkill } from '../../../frost-agent/harness/expertRouter';
 import { getSuggestion, subscribeHeartbeat, adoptSuggestion } from '../../../frost-agent/harness/heartbeat';
@@ -7,6 +7,7 @@ import { derive, STATE_LABEL, type FrostState } from '../../../frost-agent/buddy
 import { themeFor, THEME_LABEL, type FrostTheme } from '../../../frost-agent/buddy/themes';
 import FrostMemoryPanel from './FrostMemoryPanel';
 import FrostBadgePanel from './FrostBadgePanel';
+import { openPresence } from '../lib/frostPresence';
 import { hasActiveFrostAgentSession, readFrostAgentSnapshot, sendFrostAgentMessage, subscribeFrostAgentEvents, subscribeFrostAgentRuns, type FrostMessageOrigin } from '../lib/frostAgentRuntime';
 import { createFrostAutoNavigation, prepareFrostAgentHandoff } from '../lib/frostAgentNavigation';
 import { presentFrostAgentRun } from '../lib/frostAgentPresentation';
@@ -193,15 +194,26 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
           <div className="font-pixel text-[11px] tracking-wider truncate text-black">FROST</div>
           <div className="text-[9px] text-black/45 truncate">你的 Frost · 装备并调用 Skills</div>
         </div>
+        <button type="button" onClick={openPresence} className="rounded-full border border-black/20 bg-[#eef4e8] px-3 py-2 text-[11px]">桌面伙伴</button>
       </div>
 
       <FrostBadgePanel reply={[...turns].reverse().find(turn => turn.role === 'frost')?.text} onVoiceDraft={draft => {
         setInput(draft.text); setInputOrigin({ channel: 'badge_voice', inputId: draft.inputId });
       }} />
-      {/* Frost 的常用 Skill 快捷入口。 */}
-      <div className="shrink-0 overflow-hidden border-b-2 border-black bg-white px-3 py-2">
-        <div className="flex w-full flex-wrap items-center gap-2">
-          <span className="font-pixel text-[6px] tracking-widest text-black/35 shrink-0">调用 Skill →</span>
+      {/* 快捷 Skills 默认收起，为对话区留出空间。 */}
+      <details className="frost-quick-skills group shrink-0 overflow-hidden border-b-2 border-black bg-white">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-4 focus-visible:outline-[#00a85a] [&::-webkit-details-marker]:hidden">
+          <span className="flex items-center gap-2 text-[11px] font-bold text-black">
+            调用 Skills
+            <span className="text-[10px] font-normal text-black/45">{QUICK.length} 项快捷入口</span>
+          </span>
+          <span className="flex shrink-0 items-center gap-1 text-[11px] font-bold text-black">
+            <span className="group-open:hidden">展开</span>
+            <span className="hidden group-open:inline">收起</span>
+            <ChevronDown aria-hidden="true" className="h-3.5 w-3.5 transition-transform group-open:rotate-180" />
+          </span>
+        </summary>
+        <div className="flex w-full flex-wrap items-center gap-2 border-t border-black/10 px-3 py-2">
           {QUICK.map((q) => (
             <button
               key={q.target}
@@ -213,7 +225,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
             </button>
           ))}
         </div>
-      </div>
+      </details>
 
       <section className="frost-encounter" aria-label="与 Frost 对话">
         <div className="frost-encounter__panel">

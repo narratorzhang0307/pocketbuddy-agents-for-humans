@@ -49,17 +49,31 @@ describe('Hospital Agent entry and local catalogue', () => {
     expect(image.readUInt32BE(20)).toBe(1254);
   });
 
-  it('renders a catalogue and explicit research boundary, not an invented chat or run result', () => {
+  it('replaces deployment settings with explicit-consent Qwen questions and preserves the research boundary', () => {
     const html = renderToStaticMarkup(createElement(HospitalAgentPage, { onBack() {} }));
     expect(html).toContain('医院 Agent');
     expect(html).toContain('返回 Agents');
     expect(html).toContain('覆盖科室');
     expect(html).toContain('本地疾病 Skills');
     expect(html).toContain('原发性高血压');
-    expect(html).toContain('HOSPITAL_AGENT_BASE_URL');
+    expect(html).toContain('data-hospital-qwen="direct-v1"');
+    expect(html).toContain('同意并发送给 Qwen');
+    expect(html).toContain('不自动附带健康记录');
+    expect(html).not.toContain('HOSPITAL_AGENT_BASE_URL');
+    expect(html).not.toContain('部署接入说明');
+    expect(html).not.toContain('后端连接');
     expect(html).toContain('不提供真实医疗诊断或处方');
     expect(html).toContain('非实时运行进度');
-    expect(html).not.toContain('<textarea');
+    expect(html).toContain('<textarea');
+    expect(html).not.toContain('本次已由');
     expect(html).not.toContain('评测成功');
+  });
+
+  it('does not make a connection or paid model request on mount', () => {
+    const source = readFileSync(new URL('./HospitalAgentPage.tsx', import.meta.url), 'utf8');
+    expect(source).not.toContain('checkHospitalAgentHealth');
+    expect(source).toContain('async function sendQuestion()');
+    const effect = source.split('useEffect(() => {')[1].split('}, []);')[0];
+    expect(effect).not.toMatch(/fetch|askHospitalAgent|readHealthMemory/);
   });
 });

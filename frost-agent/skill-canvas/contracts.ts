@@ -32,6 +32,9 @@ export interface SkillCanvasDraft {
   id: string;
   title: string;
   prompt: string;
+  avatar_id?: string;
+  avatar_name?: string;
+  avatar_role?: string;
   nodes: SkillCanvasNode[];
   edges: SkillCanvasEdge[];
   created_at: string;
@@ -53,6 +56,9 @@ export interface CompiledSkillGraph {
   skill_id: string;
   title: string;
   description: string;
+  avatar_id?: string;
+  avatar_name?: string;
+  avatar_role?: string;
   version: '0.1.0';
   nodes: CompiledSkillNode[];
   edges: SkillCanvasEdge[];

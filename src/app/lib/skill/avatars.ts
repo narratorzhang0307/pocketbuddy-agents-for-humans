@@ -1,6 +1,6 @@
 import { resolveSkillRunTarget, type SkillRunTarget } from '../plaza/skillRoutes';
 import cloudCatalog from './avatarCloudCatalog.json';
-import birdCatalog from './birdCatalog.json';
+import birdCatalog from '../../../../native/frost-badge/ios/BirdCatalog.json';
 
 // Wire indexes are shared with the OJBadge avatar_skill_v1 firmware endpoint.
 // Keep existing indexes stable when adding new characters.

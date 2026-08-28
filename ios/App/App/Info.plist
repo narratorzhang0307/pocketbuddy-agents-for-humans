@@ -6,8 +6,11 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
-	<key>CFBundleDisplayName</key>
+		<key>CFBundleDisplayName</key>
         <string>Pocket Buddy</string>
+		<key>NSSupportsLiveActivities</key><true/>
+		<key>CFBundleURLTypes</key>
+		<array><dict><key>CFBundleURLName</key><string>art.throughtheglass.pocketbuddy.companion</string><key>CFBundleURLSchemes</key><array><string>pocketbuddy</string></array></dict></array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -34,6 +37,8 @@
 	<string>用于显示当前地图位置和附近地点，仅在使用相关功能时获取位置。</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>仅在你主动授权时读取今天累计步数，保存到本机健康记忆；向云端分析或硬件同步需另行同意。</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>当前版本仅在你授权后读取 Apple 健康中的步数，用于本机健康概览；不请求写入权限，也不会添加或修改 Apple 健康数据。</string>
 	<key>UIBackgroundModes</key>
 	<array><string>bluetooth-central</string></array>
 	<key>NSBluetoothAlwaysUsageDescription</key>

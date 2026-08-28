@@ -18,7 +18,7 @@ p.add_argument('--output', type=Path, required=True)
 p.add_argument('--window-tool', type=Path, required=True, help='Compiled actual native BirdWire.modelWave test binary')
 p.add_argument('--species', help='Comma separated allowlisted IDs for an explicit focused follow-up, no automatic retries')
 args = p.parse_args()
-catalog = json.loads(Path('src/app/lib/skill/birdCatalog.json').read_text())
+catalog = json.loads(Path('native/frost-badge/ios/BirdCatalog.json').read_text())
 results = []
 images_verified = []
 tls = ssl.create_default_context(cafile=certifi.where())

@@ -86,9 +86,9 @@ function cloudReceiver(hold: (args: Uint8Array) => boolean = () => false) {
 }
 
 describe('Frost badge integration boundary', () => {
-  it('hands a bird command to native and prevents ordinary avatar/pose traffic during the session', async () => {
+  it.each(['帮我识别下鸟叫', '帮我打开下识别鸟类声音的agent'])('hands %s to native and prevents ordinary avatar/pose traffic during the session', async text => {
     const client = await connect(); manifest(['bird_mode_v1', BADGE_AVATAR_ENDPOINT, JPEG_ENDPOINT]);
-    expect(await client.tryBirdCommand('帮我识别下鸟叫')).toBe(true);
+    expect(await client.tryBirdCommand(text)).toBe(true);
     expect(fixture.native.configureBirdListening).toHaveBeenCalledExactlyOnceWith({ enabled: true });
     expect(fixture.native.startBirdSession).toHaveBeenCalledTimes(1);
     fixture.native.write.mockClear();

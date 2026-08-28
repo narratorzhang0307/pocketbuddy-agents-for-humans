@@ -10,7 +10,7 @@ constexpr bool IsEyeExpression(Frame frame) { return frame == Frame::Blink || fr
 
 // LVGL units: angle in tenths of a degree, zoom 256 = 1x. A little overscan
 // keeps the fixed circular viewport filled while the portrait breathes/sways.
-struct BodyPose { int16_t angle = 0; uint16_t zoom = 256; };
+struct BodyPose { int16_t angle = 0; uint16_t zoom = 256; int16_t x = 0; };
 constexpr int kBodyPivotX = 120, kBodyPivotY = 210;
 constexpr int64_t kBodyPeriodMs = 4800, kBodyUpdateMs = 80;
 
@@ -70,8 +70,9 @@ public:
     BodyPose Body(int64_t now) const {
         if (!active_) return {};
         const double phase = ((now - started_) % kBodyPeriodMs) * (6.283185307179586 / kBodyPeriodMs);
-        return {static_cast<int16_t>(std::lround(8 * std::sin(phase))),
-                static_cast<uint16_t>(260 + std::lround(2 - 2 * std::cos(phase)))};
+        return {static_cast<int16_t>(std::lround(14 * std::sin(phase))),
+                static_cast<uint16_t>(271 + std::lround(2 - 2 * std::cos(phase))),
+                static_cast<int16_t>(std::lround(4 * std::sin(phase)))};
     }
 private:
     bool active_ = false;

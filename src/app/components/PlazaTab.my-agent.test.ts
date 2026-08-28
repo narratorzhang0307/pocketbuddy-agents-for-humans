@@ -9,14 +9,19 @@ describe('Skills 顶部 MY AGENT 子页', () => {
     'utf8',
   );
 
-  it('顶部只保留 MY SKILLS 与 AGENT WORLD 两个子页', () => {
-    expect(plazaSource).toContain('grid grid-cols-2');
-    const skills = plazaSource.indexOf('>MY SKILLS</button>');
-    const myAgent = plazaSource.indexOf('>MY AGENT</button>');
-    const agentWorld = plazaSource.indexOf('>AGENT WORLD</button>');
+  it('顶部保留 MY SKILLS、新版技能画布与 AGENT WORLD', () => {
+    const header = plazaSource.slice(plazaSource.indexOf('function NetworkHeader'), plazaSource.indexOf('function PublisherStack'));
+    expect(header).toContain('grid grid-cols-3');
+    const skills = header.indexOf('>MY SKILLS</button>');
+    const canvas = header.indexOf('>技能画布</button>');
+    const myAgent = header.indexOf('>MY AGENT</button>');
+    const agentWorld = header.indexOf('>AGENT WORLD</button>');
     expect(skills).toBeGreaterThan(-1);
     expect(myAgent).toBe(-1);
-    expect(agentWorld).toBeGreaterThan(skills);
+    expect(canvas).toBeGreaterThan(skills);
+    expect(agentWorld).toBeGreaterThan(canvas);
+    expect(plazaSource).toContain('<SkillCanvasPage skillId=');
+    expect(plazaSource).not.toContain('SkillCanvasTab');
   });
 
   it('Agent World 首页不再展示重复的网络统计与流程说明', () => {

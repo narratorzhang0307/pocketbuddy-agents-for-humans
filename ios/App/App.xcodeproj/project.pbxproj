@@ -6,6 +6,49 @@
 	objectVersion = 60;
 	objects = {
 
+/* Pocket Buddy companion extension: independent UI, shared public state only. */
+		FA2800010000000000000001 /* PocketPresenceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000011; };
+		FA2800010000000000000002 /* PocketPresencePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000012; };
+		FA2800010000000000000003 /* PocketPresenceState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000011; };
+		FA2800010000000000000004 /* PocketCompanionWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000013; };
+		FA2800010000000000000005 /* PresenceAssets in Resources */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000014; };
+		FA2800010000000000000006 /* PocketCompanion.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = FA2800010000000000000015; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		FA2800010000000000000011 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PocketPresenceState.swift; sourceTree = "<group>"; };
+		FA2800010000000000000012 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PocketPresencePlugin.swift; sourceTree = "<group>"; };
+		FA2800010000000000000013 = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PocketCompanionWidget.swift; sourceTree = "<group>"; };
+		FA2800010000000000000014 = {isa = PBXFileReference; lastKnownFileType = folder; path = PresenceAssets; sourceTree = "<group>"; };
+		FA2800010000000000000015 /* PocketCompanion.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; path = PocketCompanion.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA2800010000000000000021 = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+		FA2800010000000000000022 = {isa = PBXGroup; children = (FA2800010000000000000011, FA2800010000000000000012, FA2800010000000000000013, FA2800010000000000000014, ); name = "Frost Presence"; path = "../../native/frost-presence"; sourceTree = "<group>"; };
+		FA2800010000000000000023 = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (FA2800010000000000000003, FA2800010000000000000004, ); runOnlyForDeploymentPostprocessing = 0; };
+		FA2800010000000000000024 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (FA2800010000000000000005, ); runOnlyForDeploymentPostprocessing = 0; };
+		FA2800010000000000000025 = {isa = PBXCopyFilesBuildPhase; buildActionMask = 2147483647; dstPath = ""; dstSubfolderSpec = 13; files = (FA2800010000000000000006, ); name = "Embed App Extensions"; runOnlyForDeploymentPostprocessing = 0; };
+		FA2800010000000000000026 = {isa = PBXContainerItemProxy; containerPortal = 504EC2FC1FED79650016851F; proxyType = 1; remoteGlobalIDString = FA2800010000000000000030; remoteInfo = PocketCompanion; };
+		FA2800010000000000000027 = {isa = PBXTargetDependency; target = FA2800010000000000000030; targetProxy = FA2800010000000000000026; };
+		FA2800010000000000000030 /* PocketCompanion */ = {
+			isa = PBXNativeTarget; buildConfigurationList = FA2800010000000000000040;
+			buildPhases = (FA2800010000000000000023, FA2800010000000000000021, FA2800010000000000000024, );
+			buildRules = (); dependencies = (); name = PocketCompanion; productName = PocketCompanion;
+			productReference = FA2800010000000000000015; productType = "com.apple.product-type.app-extension";
+		};
+		FA2800010000000000000040 = {isa = XCConfigurationList; buildConfigurations = (FA2800010000000000000041, FA2800010000000000000042, ); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
+		FA2800010000000000000041 = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = "../../native/frost-presence/Presence.entitlements";
+			CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = XP6NALCUCX;
+			INFOPLIST_FILE = "../../native/frost-presence/Info.plist"; IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+			MARKETING_VERSION = 0.1.0; PRODUCT_BUNDLE_IDENTIFIER = art.throughtheglass.pocketbuddy.companion;
+			PRODUCT_NAME = "$(TARGET_NAME)"; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Debug; };
+		FA2800010000000000000042 = {isa = XCBuildConfiguration; buildSettings = {
+			APPLICATION_EXTENSION_API_ONLY = YES; CODE_SIGN_ENTITLEMENTS = "../../native/frost-presence/Presence.entitlements";
+			CODE_SIGN_STYLE = Automatic; CURRENT_PROJECT_VERSION = 1; DEVELOPMENT_TEAM = XP6NALCUCX;
+			INFOPLIST_FILE = "../../native/frost-presence/Info.plist"; IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+			LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks", "@executable_path/../../Frameworks", );
+			MARKETING_VERSION = 0.1.0; PRODUCT_BUNDLE_IDENTIFIER = art.throughtheglass.pocketbuddy.companion;
+			PRODUCT_NAME = "$(TARGET_NAME)"; SKIP_INSTALL = YES; SWIFT_VERSION = 5.0; TARGETED_DEVICE_FAMILY = "1,2";
+		}; name = Release; };
+
 /* Begin PBXBuildFile section */
 		FB1D20260828000000000005 /* BirdCatalog.json in Resources */ = {isa = PBXBuildFile; fileRef = FB1D20260828000000000006 /* BirdCatalog.json */; };
 		FB1D20260828000000000003 /* FrostBirdSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB1D20260828000000000004 /* FrostBirdSession.swift */; };
@@ -60,6 +103,7 @@
 			isa = PBXGroup;
 			children = (
 				958DCC722DB07C7200EA8C5F /* debug.xcconfig */,
+				FA2800010000000000000022 /* Frost Presence */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
 			);
@@ -69,6 +113,7 @@
 			isa = PBXGroup;
 			children = (
 				504EC3041FED79650016851F /* App.app */,
+				FA2800010000000000000015 /* PocketCompanion.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -102,13 +147,18 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 504EC3161FED79650016851F /* Build configuration list for PBXNativeTarget "App" */;
 			buildPhases = (
+				F05220260828000000000001 /* Verify Current Web Assets */,
 				504EC3001FED79650016851F /* Sources */,
 				504EC3011FED79650016851F /* Frameworks */,
 				504EC3021FED79650016851F /* Resources */,
+				F05220260828000000000002 /* Verify Packaged Frost Skills */,
+				FA2800010000000000000025 /* Embed App Extensions */,
+				FB1D20260828000000000007 /* Verify Packaged Bird Release */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				FA2800010000000000000027 /* PocketCompanion dependency */,
 			);
 			name = App;
 			packageProductDependencies = (
@@ -131,7 +181,7 @@
 						CreatedOnToolsVersion = 9.2;
 						LastSwiftMigration = 1100;
 						ProvisioningStyle = Automatic;
-						SystemCapabilities = { com.apple.HealthKit = { enabled = 1; }; };
+						SystemCapabilities = { com.apple.HealthKit = { enabled = 1; }; com.apple.ApplicationGroups.iOS = { enabled = 1; }; };
 					};
 				};
 			};
@@ -152,6 +202,7 @@
 			projectRoot = "";
 			targets = (
 				504EC3031FED79650016851F /* App */,
+				FA2800010000000000000030 /* PocketCompanion */,
 			);
 		};
 /* End PBXProject section */
@@ -173,6 +224,52 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		F05220260828000000000001 /* Verify Current Web Assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Verify Current Web Assets";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/../../scripts/ios/check-xcode-assets.sh\"\n";
+		};
+		F05220260828000000000002 /* Verify Packaged Frost Skills */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = ();
+			name = "Verify Packaged Frost Skills";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/../../scripts/ios/check-xcode-assets.sh\" \"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/public\"\n";
+		};
+		FB1D20260828000000000007 /* Verify Packaged Bird Release */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = ();
+			inputPaths = (
+				"$(SRCROOT)/../../native/frost-badge/ios/BirdCatalog.json",
+				"$(SRCROOT)/../../src/app/lib/skill",
+				"$(SRCROOT)/../../scripts/hardware",
+				"$(SRCROOT)/../../public/assets/bird-skill",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/BirdCatalog.json",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/public",
+			);
+			name = "Verify Packaged Bird Release";
+			outputPaths = ();
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "/bin/sh \"$SRCROOT/../../scripts/ios/check-xcode-bird-release.sh\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		504EC3001FED79650016851F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -181,6 +278,8 @@
 				FB1D20260828000000000003 /* FrostBirdSession.swift in Sources */,
 				FB1D20260828000000000001 /* FrostBirdProtocol.swift in Sources */,
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				FA2800010000000000000001 /* PocketPresenceState.swift in Sources */,
+				FA2800010000000000000002 /* PocketPresencePlugin.swift in Sources */,
 				9582B6832FE993A70072D4E8 /* SceneDelegate.swift in Sources */,
 				F05B00012026082700000001 /* PocketBuddyViewController.swift in Sources */,
 				F05B00012026082700000002 /* FrostBadgePlugin.swift in Sources */,

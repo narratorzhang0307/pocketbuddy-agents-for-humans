@@ -4,6 +4,8 @@ import HealthMemoryPanel from './HealthMemoryPanel';
 import { recordConfirmedMeal, type MealCandidate } from '../lib/frostHealthMemory';
 import { analyzeFoodPhoto, editedMealCandidate, type PhotoSegmentation } from '../lib/photoHarness';
 import PhotoHarnessMasks from './PhotoHarnessMasks';
+import FoodPhotoDemo from './FoodPhotoDemo';
+import { readFoodDemoVisible, saveFoodDemoVisible } from '../lib/foodPhotoDemo';
 
 function localInputTime() { const now = new Date(); return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
 async function compactPhoto(file: File): Promise<string> {
@@ -31,6 +33,8 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
   const [busy, setBusy] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
   const [manual, setManual] = useState(false);
+  const [demoVisible, setDemoVisible] = useState(readFoodDemoVisible);
+  const [demoNotice, setDemoNotice] = useState('');
   const [title, setTitle] = useState(''), [low, setLow] = useState(''), [high, setHigh] = useState('');
   const file = useRef<HTMLInputElement>(null), camera = useRef<HTMLInputElement>(null);
   const id = useRef(crypto.randomUUID());
@@ -72,6 +76,11 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
     finally { setBusy(false); }
   };
   const button = 'flex items-center justify-center gap-1 border-2 border-black bg-white p-2 text-[11px] font-bold disabled:opacity-40';
+  const changeDemoVisibility = (visible: boolean) => {
+    setDemoVisible(visible);
+    const saved = saveFoodDemoVisible(visible);
+    setDemoNotice(saved ? (visible ? '示例已恢复；不会写入真实记录。' : '示例已移除，真实照片和记录未受影响。') : '本次显示已切换，但无法保存偏好；下次打开可能恢复默认显示。');
+  };
   return <div className={'h-full bg-[#eaeaea] ' + (embedded ? 'overflow-y-auto' : 'flex flex-col overflow-hidden')}>
     <input ref={file} type="file" accept="image/*" className="hidden" onChange={e => { void choose(e.target.files?.[0]); e.target.value = ''; }} />
     <input ref={camera} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { void choose(e.target.files?.[0]); e.target.value = ''; }} />
@@ -81,7 +90,8 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
       {tab === 'memory' ? <HealthMemoryPanel /> : <>
         <div className="grid grid-cols-2 gap-2"><button className={button} disabled={busy} onClick={() => camera.current?.click()}><Camera size={16} />拍一餐</button><button className={button} disabled={busy} onClick={() => file.current?.click()}><ImagePlus size={16} />从相册选择</button></div>
         {image ? <section className="overflow-hidden border-2 border-black bg-white"><img src={image} alt="本次选择的餐食照片" className="max-h-[300px] w-full object-contain" /><p className="p-2 text-[10px]">本机预览 · 最长边 1024 像素 · 不附带照片定位</p></section>
-          : <section className="border-2 border-black bg-[#f5f0e4] p-5 text-[12px]">选择你实际吃过的一餐。没有识别结果前，不展示示例热量作为你的摄入。</section>}
+          : !manual && (demoVisible ? <FoodPhotoDemo onRemove={() => changeDemoVisibility(false)} /> : <section className="space-y-3 border-2 border-black bg-[#f5f0e4] p-5 text-[12px]"><p>选择你实际吃过的一餐，识别并核对后再记入今天。示例已移除，不会自动恢复。</p><button type="button" className={button + ' w-full'} onClick={() => changeDemoVisibility(true)}>恢复餐食示例预览</button></section>)}
+        {demoNotice && !image && !manual && <p role="status" className="text-[10px] text-black/55">{demoNotice}</p>}
         {image && <button className={button + ' w-full bg-[#7cff6b]'} disabled={busy || confirmed} onClick={() => void analyze()}>{busy ? '处理中…' : '同意识别：Qwen + SAM（Qwen 可能计费）'}</button>}
         {segmentation && <PhotoHarnessMasks key={id.current} image={image} result={segmentation} />}
         {!candidate && <button className={button + ' w-full'} disabled={busy || confirmed} onClick={() => setManual(true)}>不用照片，手动填写已吃过的餐食</button>}

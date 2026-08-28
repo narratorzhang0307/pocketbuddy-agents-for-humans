@@ -1,6 +1,7 @@
 node_modules
 dist
 dist-ios
+/.ios-build/
 
 # iOS generated bundles, build products and signing material.
 /ios/App/App/public/
@@ -150,7 +151,8 @@ PocketEarthGlobal_AICoding*/
 /PPT重构_按主办方目录_20260813/03_重构输出/*QA*/
 /PPT重构_按主办方目录_20260813/03_重构输出/*4K预览/
 
-# Source snapshot hygiene: rebuild or provision these separately.
+# Keep the source-snapshot exclusions already used by pocketbuddy/main.
+# Child web bundles are rebuilt from the current child-app source by ios:prepare.
 /hardware/ojbadge-agent-link/build-*/
 /public/her-motion/
 /public/lianlema/
@@ -168,3 +170,19 @@ PocketEarthGlobal_AICoding*/
 coverage/
 .vite/
 *.log
+
+# These shipped coaching prompts are source assets imported by coachAudio.ts,
+# not personal recordings; a clean checkout needs them to rebuild the child app.
+!/lianlema-portable/app_project/app/assets/audio/*.mp3
+
+# Local reference and presentation material, not current application source.
+/0819改造方案/
+/GMI 参考文档/
+/ppt 样张/
+/技能组合卡牌参考/
+/本地开发与SSD说明.md
+/var/mobile-release/
+/var/guji-vision-lora.asset.json
+/var/llm-demo-text-prompt.txt
+/var/pocket-base-bundle-20260811.json
+/var/rdap-check.json

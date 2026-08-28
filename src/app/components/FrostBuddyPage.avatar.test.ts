@@ -47,6 +47,15 @@ describe('Frost 自由对话页', () => {
     expect(styles).toContain('grid-template-columns: 126px minmax(0, 1fr);');
   });
 
+  it('快捷 Skills 默认折叠，展开后保留原有技能入口', () => {
+    const quick = source.match(/(<details\b[^>]*className="frost-quick-skills\b[^\"]*"[^>]*>)([\s\S]*?)<\/details>/);
+    expect(quick).not.toBeNull();
+    expect(quick![1]).not.toMatch(/\sopen\b/);
+    expect(quick![2]).toMatch(/<summary\b[\s\S]*?调用 Skills[\s\S]*?展开[\s\S]*?收起[\s\S]*?<\/summary>/);
+    expect(quick![2]).toContain('{QUICK.map');
+    expect(quick![2]).toContain('onRun?.(q.target)');
+  });
+
   it('保留指定开场白，不带入选项、骰子和对话树', () => {
     expect(source).toContain('我是 Frost。你说目标，我会先在已装备的 Skills 里选择能力、列出计划和权限，再把任务交到正确入口；没有把握时，我不会擅自执行。');
     expect(source).not.toContain('buddy-encounter__choices');

@@ -185,9 +185,11 @@ export class FrostConversationModel implements FrostAgentModelAdapter {
     const pending = pendingFrostTask(context.events);
     if (pending && isExplicitTaskConfirmation(text)) return this.taskModel.decide(context);
     if (workspaceLaunchInput(context.events)) return toolDecision('frost.skill_plan');
+    // A concrete read-only Skill query keeps its data adapter and speech ticket.
+    // Broad advice words (today/exercise/steps/calories) must not steal it.
+    if (answerRequest(context.events)) return toolDecision('frost.skill_answer');
     if (input?.event.data.source === 'user' && (isHealthAdviceRequest(text) || isHealthAdviceAcceptance(text))) return toolDecision('frost.health_advice');
     if (isFrostMemoryRecallRequest(text)) return toolDecision('frost.memory');
-    if (answerRequest(context.events)) return toolDecision('frost.skill_answer');
     if (pendingHealthQuestion(context.events)) return toolDecision('frost.task_delegate');
     if (pendingSkillQuestion(context.events)) return toolDecision('frost.skill_plan');
     // Goal Driver inputs execute the objective; only an explicit user message creates a schedule.

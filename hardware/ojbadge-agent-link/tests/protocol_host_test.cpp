@@ -64,39 +64,40 @@ int main() {
     assert(talk.Select(17600, 0, true) == TalkFrame::Blink); // Resume with the familiar double-eye squint.
     assert(talk.Select(22400, 0, true) == TalkFrame::Wink);
     assert(talk.Select(22401, 0, false) == TalkFrame::Rest); // Wink can also be interrupted immediately.
-    assert(talk.Body(22401).angle == 0 && talk.Body(22401).zoom == 256);
+    assert(talk.Body(22401).angle == 0 && talk.Body(22401).zoom == 256 && talk.Body(22401).x == 0);
     const int64_t body_start = 86400000LL * 30; // Long uptime must not degrade the motion phase.
     talk.Select(body_start, 0, true);
-    assert(talk.Body(body_start).angle == 0 && talk.Body(body_start).zoom == 260);
-    assert(talk.Body(body_start + 1200).angle == 8);
-    assert(talk.Body(body_start + 2400).zoom == 264);
-    assert(talk.Body(body_start + 3600).angle == -8);
-    for (int t = 0; t < frost_talk::kBodyPeriodMs; t += 10) {
+    assert(talk.Body(body_start).angle == 0 && talk.Body(body_start).zoom == 271 && talk.Body(body_start).x == 0);
+    assert(talk.Body(body_start + 1200).angle == 14 && talk.Body(body_start + 1200).x == 4);
+    assert(talk.Body(body_start + 2400).zoom == 275 && talk.Body(body_start + 2400).x == 0);
+    assert(talk.Body(body_start + 3600).angle == -14 && talk.Body(body_start + 3600).x == -4);
+    for (int t = 0; t < frost_talk::kBodyPeriodMs; ++t) {
         const auto pose = talk.Body(body_start + t);
         const auto repeated = talk.Body(body_start + t + frost_talk::kBodyPeriodMs);
-        assert(pose.angle >= -8 && pose.angle <= 8 && pose.zoom >= 260 && pose.zoom <= 264);
-        assert(repeated.angle == pose.angle && repeated.zoom == pose.zoom);
+        assert(pose.angle >= -14 && pose.angle <= 14 && pose.zoom >= 271 && pose.zoom <= 275 && pose.x >= -4 && pose.x <= 4);
+        assert(repeated.angle == pose.angle && repeated.zoom == pose.zoom && repeated.x == pose.x);
         // Inverse-transform the circle boundary: no black wedges may appear
         // anywhere on the physical display, even at maximum sway/breath.
         const double angle = pose.angle * 3.141592653589793 / 1800;
         for (int degree = 0; degree < 360; ++degree) {
             const double theta = degree * 3.141592653589793 / 180;
-            const double x = 119.5 + 119.5 * std::cos(theta) - frost_talk::kBodyPivotX;
+            const double x = 119.5 + 119.5 * std::cos(theta) - frost_talk::kBodyPivotX - pose.x;
             const double y = 119.5 + 119.5 * std::sin(theta) - frost_talk::kBodyPivotY;
             const double source_x = (x * std::cos(angle) + y * std::sin(angle)) * 256 / pose.zoom + frost_talk::kBodyPivotX;
             const double source_y = (-x * std::sin(angle) + y * std::cos(angle)) * 256 / pose.zoom + frost_talk::kBodyPivotY;
-            assert(source_x >= 0 && source_x <= 239 && source_y >= 0 && source_y <= 239);
+            // Retain a pixel of source margin for LVGL's antialias filtering.
+            assert(source_x >= 1 && source_x <= 238 && source_y >= 1 && source_y <= 238);
         }
     }
     talk.Select(body_start + 1600, 0, true);
     assert(talk.Body(body_start + 1600).angle != talk.Body(body_start + 3000).angle); // Sway continues in a held squint.
     talk.Select(body_start + 3001, 0, false);
-    assert(talk.Body(body_start + 3001).angle == 0 && talk.Body(body_start + 3001).zoom == 256);
+    assert(talk.Body(body_start + 3001).angle == 0 && talk.Body(body_start + 3001).zoom == 256 && talk.Body(body_start + 3001).x == 0);
     talk.Select(body_start + 4000, 0, true);
-    assert(talk.Body(body_start + 4000).angle == 0 && talk.Body(body_start + 4000).zoom == 260);
+    assert(talk.Body(body_start + 4000).angle == 0 && talk.Body(body_start + 4000).zoom == 271 && talk.Body(body_start + 4000).x == 0);
     talk.Reset();
-    assert(talk.Body(body_start + 4100).zoom == 256);
-    std::puts("PASS: body sway/breath, full-circle coverage, held-eye motion and pause/resume");
+    assert(talk.Body(body_start + 4100).zoom == 256 && talk.Body(body_start + 4100).x == 0);
+    std::puts("PASS: body sway/breath with horizontal travel, full-circle coverage, held-eye motion and pause/resume");
     std::puts("PASS: PCM envelope, always-on idle mouth/blink loop and animation interlocks");
     for (uint8_t i = 0; i < frost_avatar::kCount; ++i) assert(frost_avatar::ValidSelection(&i, 1));
     const uint8_t invalid[] = {30, 255};

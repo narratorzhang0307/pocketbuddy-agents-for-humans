@@ -29,6 +29,21 @@
 
 覆盖指令边界、真实/预览定位、失效定位、去重、持久化、存储失败、硬件录音到地图的集成以及观鸟回归。测试 GPS 和 BLE 为测试替身，不代表真机验收。
 
-本次检查：11 个相关测试文件共 243 项通过；TypeScript 检查通过；Vite 生产代码在内存构建通过，并确认产物包含种树逻辑。没有生成或安装新的手机安装包。常规临时目录构建受磁盘空间不足限制，浏览器页面验证受安全检查不可用限制；原生 Swift 检查也遇到本机工具链 `SwiftBridging` 模块重复错误，未作为通过项。
+种树首轮检查：11 个相关测试文件共 243 项通过；TypeScript 检查通过；Vite 生产代码在内存构建通过。该轮常规临时目录构建受磁盘空间不足限制，浏览器页面验证受安全检查不可用限制；原生 Swift 检查遇到本机工具链 `SwiftBridging` 模块重复错误，未作为通过项。
 
-真机验收应包含：在其他 tab/女主或多宠物选择后说“进入地图模式”，确认自动切换为男主牵一只默认小狗和 GPS；首次授权；未定位前不播成功；真实户外定位成功后种一棵；连续两条新录音各种一棵；演示模式拒绝；定位拒绝/过期不落树；等待定位时切页/断连/重录不补播；结束散步后拒绝；重启后树仍在；继续识鸟。安装包更新和现场验收须另行完成。
+地图入口追加检查：12 个相关测试文件共 285 项通过，包含硬件新录音→地图请求→真实定位回执→吧唧朗读→再次录音种树的测试替身集成，以及现有场景组件的男主/一只小狗/GPS/牵绳渲染属性检查。TypeScript 通过；生产 JS/CSS 实际构建通过，并确认包含地图入口及 GPS 种树代码。该阶段系统默认开发者目录为 Command Line Tools，尚未发现外置 Xcode；后续已完成下方的原生构建与手机更新。
+
+## 真机安装记录（2026-08-28 11:47，上海时间）
+
+- 使用用户 SSD 上的 `/Volumes/PocketBuddy-iOS-Dev/Xcode.app`：Xcode 26.6 / iPhoneOS SDK 26.5。仅对构建命令设置 `DEVELOPER_DIR`，未更改全局 Xcode 选择。
+- 在本工程运行 `npm run ios:prepare -- --web-only`，保留既有共享 SSD 资源链接和 Capacitor 配置；完整打包本地页面、模型和既有子应用。`npm run ios:check` 通过。
+- 再次执行 12 个相关测试文件：285 项通过；`npm run typecheck` 通过。
+- 对连接的 iPhone 15 Pro Max（iOS 18.3.1）完成 Debug 原生编译、既有开发证书签名及 `codesign --verify --deep --strict` 验证。FrostBadge、FrostBirdSession 和 FrostBirdProtocol 实际参加 Swift 编译；保留既有并发警告，未将警告当作无警告验收。
+- 构建参数指定 `CURRENT_PROJECT_VERSION=2026082806`，手机旧版为 `2026082805`；未修改工程的默认版本配置，未上传 App Store / TestFlight。
+- 核对原生 App 内的最终资源：包含“进入地图模式”“定位已就绪，可以种树了”、GPS 种树逻辑、男主和默认腊肠狗模型标识；无远程 `server.url`，不依赖本机开发服务器。
+- `devicectl device install app` 返回安装成功，随后启动成功；安装后查询确认 `art.throughtheglass.pocketbuddy` 为 `0.1.0 (2026082806)`。采用同 Bundle ID 原位更新，未卸载 App、清理用户数据或修改定位授权。
+- 构建、安装和启动回执目录：`/Volumes/PocketBuddy-iOS-Dev/Artifacts/voice-map-gps-20260828.E9mMQT/`，包含 `InstallableBuild.xcresult`、`device-install.json`、`device-launch.json`、`installed-version.json`。
+
+以上确认的是实际编译、签名、安装和启动；尚未声称现场硬件语音、真实 GPS、地图画面或吧唧扬声器已验收。
+
+真机验收应包含：在其他 tab/女主或多宠物选择后说“进入地图模式”，确认自动切换为男主牵一只默认小狗和 GPS；首次授权；未定位前不播成功；真实户外定位成功后种一棵；连续两条新录音各种一棵；演示模式拒绝；定位拒绝/过期不落树；等待定位时切页/断连/重录不补播；结束散步后拒绝；重启后树仍在；继续识鸟。安装包已更新，现场验收待用户实际按键和 GPS 定位后确认。

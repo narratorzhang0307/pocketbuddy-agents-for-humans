@@ -263,7 +263,7 @@ private final class BirdNoRedirect: NSObject, URLSessionTaskDelegate {
             let recognitionId = UUID(); speechId = recognitionId; speechRecognizer = r
             let request = SFSpeechAudioBufferRecognitionRequest()
             request.requiresOnDeviceRecognition = true; request.shouldReportPartialResults = false
-            request.contextualStrings = ["帮我识别下鸟叫", "识鸟", "退出识鸟", "帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式"]
+            request.contextualStrings = ["帮我识别下鸟叫", "帮我打开下识别鸟类声音的agent", "识别鸟的叫声", "识鸟", "退出识鸟", "帮我种下一颗树", "帮我种下一棵树", "进入地图模式", "打开地图模式"]
             let finish: (Result<String, Error>) -> Void = { [weak self] value in
                 guard let self, self.speechId == recognitionId, self.speechDone != nil else { return }
                 self.speechDone = nil; self.speechId = nil

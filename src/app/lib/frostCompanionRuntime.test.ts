@@ -25,6 +25,24 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('badge inputs use the main Frost runtime', () => {
+  it.each(['phone', 'badge_voice'] as const)('opens the bird recording Skill directly for the reported phrase from %s', async channel => {
+    const text = '帮我打开下识别鸟类声音的agent';
+    const origin = channel === 'phone' ? { channel } : { channel, inputId: 'badge:test:bird:direct-open' };
+    const intermediate = vi.fn();
+    const show = createFrostVoiceConversation({ isActive: () => true, open: intermediate });
+    const release = subscribeFrostAgentEvents(event => { show(event); });
+    let result: Awaited<ReturnType<typeof sendFrostAgentMessage>>;
+    try { result = await sendFrostAgentMessage(text, origin); } finally { release(); }
+    const open = vi.fn(), navigate = createFrostAutoNavigation({ isActive: () => true, open });
+    expect(await navigate({ result, input: { text, origin } })).toBe(true);
+    expect(await navigate({ result, input: { text, origin } })).toBe(false);
+    expect(intermediate).not.toHaveBeenCalled();
+    expect(open).toHaveBeenCalledExactlyOnceWith('frost-bird-listener');
+    expect(peekTaskHandoff('frost-bird-listener')).toMatchObject({ skillId: 'frost.bird-listener', userText: text });
+    expect(result.task).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it.each(BUILTIN_SKILLS.flatMap(manifest => (['phone', 'badge_voice'] as const).map(channel => ({ manifest, channel }))))(
     'opens registered $manifest.identity.id directly from $channel without a homepage or paid preparation call', async ({ manifest, channel }) => {
       const text = `帮我调取${manifest.identity.name}`;
