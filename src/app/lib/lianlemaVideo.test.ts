@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { analyzeVideo, validateVideoFile, videoSampleTimes, waitForVideoAnalysis }
   from '../../../lianlema-portable/app_project/app/src/video/videoAnalysis';
-import { readVideoFrame, type VideoRotation } from '../../../lianlema-portable/app_project/app/src/video/videoFrames';
+import { prepareVideoForAnalysis, readVideoFrame, type VideoRotation } from '../../../lianlema-portable/app_project/app/src/video/videoFrames';
 import type { FormContext } from '../../../lianlema-portable/app_project/app/src/analysis/FormAnalysisProvider';
 
 afterEach(() => vi.useRealTimers());
@@ -113,6 +113,53 @@ describe('pre-recorded video analysis', () => {
 });
 
 describe('local video decoding', () => {
+  it('starts muted inline decoding synchronously instead of treating metadata as a usable frame', async () => {
+    vi.useFakeTimers();
+    const video = Object.assign(new EventTarget(), { readyState: 1, seeking: false, videoWidth: 1920, videoHeight: 1080,
+      muted: false, playsInline: false, play: vi.fn(async () => {}), pause: vi.fn() });
+    let decoded = false;
+    const preparing = prepareVideoForAnalysis(video as unknown as HTMLVideoElement, new AbortController().signal)
+      .then(() => { decoded = true; });
+    expect(video.play).toHaveBeenCalledOnce();
+    expect(video).toMatchObject({ muted: true, playsInline: true });
+    await Promise.resolve();
+    video.dispatchEvent(new Event('loadedmetadata'));
+    expect(decoded).toBe(false);
+    video.readyState = 2; video.dispatchEvent(new Event('loadeddata'));
+    await preparing;
+    expect(decoded).toBe(true); expect(video.pause).toHaveBeenCalledOnce();
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it('does not replay an already decoded preview before seeking', async () => {
+    const video = Object.assign(new EventTarget(), { readyState: 2, seeking: false, videoWidth: 640, videoHeight: 360,
+      play: vi.fn(), pause: vi.fn() });
+    await prepareVideoForAnalysis(video as unknown as HTMLVideoElement, new AbortController().signal);
+    expect(video.play).not.toHaveBeenCalled(); expect(video.pause).toHaveBeenCalledOnce();
+  });
+
+  it('surfaces rejected playback, decoder stalls and cancellation without leaving playback or timers running', async () => {
+    vi.useFakeTimers();
+    for (const mode of ['rejected', 'timeout', 'abort']) {
+      const controller = new AbortController();
+      const video = Object.assign(new EventTarget(), { readyState: 1, seeking: false, videoWidth: 640, videoHeight: 360,
+        play: vi.fn(() => mode === 'rejected' ? Promise.reject(new DOMException('Not allowed', 'NotAllowedError')) : new Promise<void>(() => {})),
+        pause: vi.fn() });
+      const preparing = prepareVideoForAnalysis(video as unknown as HTMLVideoElement, controller.signal);
+      const rejected = mode === 'abort'
+        ? expect(preparing).rejects.toMatchObject({ name: 'AbortError' })
+        : expect(preparing).rejects.toThrow('无法读取视频画面');
+      if (mode === 'abort') controller.abort();
+      if (mode === 'timeout') await vi.advanceTimersByTimeAsync(10000);
+      await rejected;
+      video.readyState = 2; video.dispatchEvent(new Event('loadeddata'));
+      expect(video.pause).toHaveBeenCalledOnce(); expect(vi.getTimerCount()).toBe(0);
+    }
+    const play = vi.fn(), controller = new AbortController(); controller.abort();
+    await expect(prepareVideoForAnalysis({ play } as unknown as HTMLVideoElement, controller.signal)).rejects.toMatchObject({ name: 'AbortError' });
+    expect(play).not.toHaveBeenCalled();
+  });
+
   it.each([
     [90, 360, 640], [180, 640, 360], [270, 360, 640],
   ])('rotates the actual uploaded JPEG by %i degrees without cropping the person', async (rotation, width, height) => {

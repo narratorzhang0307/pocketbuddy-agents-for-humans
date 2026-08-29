@@ -2,6 +2,36 @@ import { videoAbortError } from "./videoAnalysis";
 
 export type VideoRotation = 0 | 90 | 180 | 270;
 
+/** iOS may preload metadata without decoding pixels. Call directly from the user's Start click. */
+export function prepareVideoForAnalysis(video: HTMLVideoElement, signal: AbortSignal): Promise<void> {
+  if (signal.aborted) return Promise.reject(videoAbortError());
+  video.muted = true;
+  video.playsInline = true;
+  const decoded = () => !video.seeking && video.readyState >= 2 && video.videoWidth > 0 && video.videoHeight > 0;
+  if (decoded()) { video.pause(); return Promise.resolve(); }
+  return new Promise((resolve, reject) => {
+    let settled = false;
+    const finish = (error?: Error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      for (const event of ["loadeddata", "playing", "seeked"]) video.removeEventListener(event, ready);
+      video.removeEventListener("error", failed);
+      signal.removeEventListener("abort", aborted);
+      video.pause();
+      if (error) reject(error); else resolve();
+    };
+    const ready = () => { if (decoded()) finish(); };
+    const failed = () => finish(new Error("无法读取视频画面。请先在预览中播放；如果仍是黑屏，请换成这台设备可播放的 MP4 视频。"));
+    const aborted = () => finish(videoAbortError());
+    const timer = setTimeout(failed, 10000);
+    for (const event of ["loadeddata", "playing", "seeked"]) video.addEventListener(event, ready);
+    video.addEventListener("error", failed, { once: true });
+    signal.addEventListener("abort", aborted, { once: true });
+    try { void video.play().then(ready, failed); } catch { failed(); }
+  });
+}
+
 /** Use the same pixels for the direction preview and model input, without cropping. */
 export function drawVideoFrame(video: HTMLVideoElement, canvas: HTMLCanvasElement, rotation: VideoRotation = 0): void {
   if (!video.videoWidth || !video.videoHeight) throw new Error("视频没有可读取的画面。");

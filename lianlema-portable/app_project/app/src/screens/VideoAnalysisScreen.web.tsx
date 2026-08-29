@@ -4,7 +4,7 @@ import { ModelCoachProvider, modelBaseUrl } from "../analysis";
 import { EXERCISE_LABEL } from "../types";
 import type { WorkoutStackParamList } from "../navigation";
 import { analyzeVideo, emptyVideoProgress, validateVideoFile, videoSampleTimes } from "../video/videoAnalysis";
-import { drawVideoFrame, readVideoFrame, type VideoRotation } from "../video/videoFrames";
+import { drawVideoFrame, prepareVideoForAnalysis, readVideoFrame, type VideoRotation } from "../video/videoFrames";
 import { playGenericFeedback, resetCoachState, stopCoachAudio } from "../voice/coachAudio";
 
 type Props = NativeStackScreenProps<WorkoutStackParamList, "VideoAnalysis">;
@@ -24,7 +24,16 @@ export default function VideoAnalysisScreen({ navigation, route }: Props) {
   const [status, setStatus] = useState<Status>("ready");
   const [error, setError] = useState("");
   const [progress, setProgress] = useState(emptyVideoProgress);
+  const [phase, setPhase] = useState("");
+  const [elapsed, setElapsed] = useState(0);
   const running = status === "running";
+
+  useEffect(() => {
+    if (!running) return;
+    setElapsed(0);
+    const timer = window.setInterval(() => setElapsed(value => value + 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [running]);
 
   const stop = (message = "已停止。保留的只是已分析部分，不是完整视频结果。") => {
     if (runRef.current) { runRef.current.abort(); runRef.current = null; setStatus("stopped"); setError(message); }
@@ -67,18 +76,25 @@ export default function VideoAnalysisScreen({ navigation, route }: Props) {
     if (!file || !video || !duration || !consent || runRef.current || document.visibilityState === "hidden") return;
     const controller = new AbortController(); runRef.current = controller;
     const current = () => runRef.current === controller && !controller.signal.aborted;
-    setStatus("running"); setError(""); setProgress({ ...emptyVideoProgress(), total: videoSampleTimes(duration).length });
+    setStatus("running"); setPhase("正在解码视频首帧…"); setError(""); setProgress({ ...emptyVideoProgress(), total: videoSampleTimes(duration).length });
     const provider = new ModelCoachProvider(modelBaseUrl(), "manual");
     try {
-      await stopCoachAudio(); resetCoachState();
+      void stopCoachAudio(); resetCoachState();
+      // Keep play() in the click's activation scope; metadata alone is not a decoded frame.
+      await prepareVideoForAnalysis(video, controller.signal);
       if (!current()) return;
-      video.pause(); video.muted = true;
       const canvas = document.createElement("canvas");
       await analyzeVideo({ duration, exercise, consent, signal: controller.signal, provider,
-        frameAt: (time, signal) => readVideoFrame(video, canvas, time, signal, rotation),
+        frameAt: async (time, signal) => {
+          if (current()) setPhase(`正在读取视频 ${time.toFixed(1)} 秒处的画面…`);
+          const frame = await readVideoFrame(video, canvas, time, signal, rotation);
+          if (current()) setPhase(`正在等待模型分析 ${time.toFixed(1)} 秒处的画面…`);
+          return frame;
+        },
         onProgress: next => {
           if (!current()) return;
           setProgress(next);
+          if (next.processed === next.total) setPhase("画面已处理，正在结束模型会话…");
           if (next.last?.status === "conclusive" && next.last.visibleKeypoints! > 0) {
             playGenericFeedback(next.reps, next.last.isStandard, next.last.speakText);
           }
@@ -99,6 +115,17 @@ export default function VideoAnalysisScreen({ navigation, route }: Props) {
 
   return <section aria-label="预录视频分析" style={{ flex: 1, minHeight: 0, overflowY: "auto", boxSizing: "border-box", padding: 16, background: "#f2f3ed", color: "#171717", fontFamily: "system-ui, sans-serif" }}>
     <button type="button" style={button} onClick={() => { stop(); navigation.goBack(); }}>返回选择动作</button>
+    {(running || error) && <div style={{ ...card, position: "sticky", top: 0, zIndex: 2, marginTop: 12, background: "#eff8e8" }}>
+      {running && <>
+        <p role="status" style={{ fontSize: 13, margin: "0 0 8px", lineHeight: 1.6 }}><strong>{phase}</strong><br />
+          {percent}% · 已分析 {progress.processed}/{progress.total} 帧 · 已用 {elapsed} 秒<br />
+          视频时长 {duration.toFixed(1)} 秒；逐帧分析会更久，未返回的帧不计入进度。
+        </p>
+        <progress aria-label="视频分析进度" max={progress.total || 1} value={progress.processed} style={{ width: "100%", accentColor: "#20833e" }} />
+        <button type="button" onClick={() => stop()} style={{ ...button, width: "100%", marginTop: 8 }}>停止分析</button>
+      </>}
+      {error && <p role="alert" style={{ margin: 0, color: "#823e14", lineHeight: 1.7, fontSize: 13 }}>{error}</p>}
+    </div>}
     <h1 style={{ fontSize: 23, margin: "18px 0 6px" }}>预录视频分析</h1>
     <p style={{ margin: "0 0 16px", fontSize: 13, lineHeight: 1.7 }}>分析动作：{EXERCISE_LABEL[exercise]}（你已选择）<br />不需要现场做动作，也不会开启摄像头。</p>
     <div style={card}>
@@ -137,12 +164,9 @@ export default function VideoAnalysisScreen({ navigation, route }: Props) {
       </button>
       <p style={{ fontSize: 12, color: "#50554c", lineHeight: 1.65, marginBottom: 0 }}>每秒取 4 帧，依次交给真实模型；单次网络请求最多等待 45 秒。请保持页面前台，分析可能比视频时长更久。教练提示沿用当前声音通道。</p>
     </div>}
-    {error && <p role="alert" style={{ padding: 12, background: "#fff0da", color: "#823e14", lineHeight: 1.7, fontSize: 13 }}>{error}</p>}
     {(running || progress.processed > 0) && <div style={{ ...card, marginTop: 12 }}>
       <h2 style={{ fontSize: 17, marginTop: 0 }}>{complete ? "视频分析已完成" : running ? "正在分析视频" : "部分分析结果 · 未完成"}</h2>
-      <progress aria-label="视频分析进度" max={progress.total || 1} value={progress.processed} style={{ width: "100%", accentColor: "#20833e" }} />
-      <p role="status" style={{ fontSize: 12 }}>{percent}% · 已分析 {progress.processed}/{progress.total} 帧 · 视频位置 {progress.time.toFixed(1)} 秒</p>
-      {running && progress.processed === 0 && <p style={{ fontSize: 12 }}>正在读取首帧并连接模型服务，收到真实结果后才计入进度。</p>}
+      <p style={{ fontSize: 12 }}>{percent}% · 已分析 {progress.processed}/{progress.total} 帧 · 视频位置 {progress.time.toFixed(1)} 秒</p>
       <div style={{ display: "flex", gap: 12, margin: "18px 0" }}>
         <div style={{ flex: 1 }}><strong style={{ fontSize: 32 }}>{valid ? progress.reps : "—"}</strong><div style={{ fontSize: 12 }}>模型累计计数</div></div>
         <div style={{ flex: 1 }}><strong style={{ fontSize: 32 }}>{progress.usableFrames}</strong><div style={{ fontSize: 12 }}>可用姿态画面 / {progress.processed}</div></div>
@@ -154,7 +178,6 @@ export default function VideoAnalysisScreen({ navigation, route }: Props) {
         {progress.corrections.map(item => <li key={item.text}>{item.time.toFixed(1)} 秒：{item.text}</li>)}
       </ul></>}
       {complete && valid && <p style={{ fontSize: 12, lineHeight: 1.7 }}>结果来自视频抽帧分析；遮挡、快速动作或机位不合适可能导致漏计。未给出提示不代表动作全部标准。</p>}
-      {running && <button type="button" onClick={() => stop()} style={{ ...button, width: "100%" }}>停止分析</button>}
     </div>}
     <p style={{ fontSize: 11, color: "#60655c", lineHeight: 1.7 }}>预录视频 · 当前模型分析，不是摄像头直播，也不是预先写好的结果。反馈仅供参考。</p>
   </section>;
