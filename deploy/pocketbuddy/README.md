@@ -6,6 +6,8 @@ Do not run the old `deploy/online/deploy.sh`: it targets a different app and bui
 
 - Source of truth: the desktop checkout, not `ios/App/App/public`.
 - Build: `node deploy/pocketbuddy/stage.mjs /absolute/output-directory` (use the mounted development SSD when internal disk space is limited).
+- The command rebuilds both 练了吗 and Her Motion in isolated directories before the main app. It no longer accepts external exports or copies generated sub-apps from `public/`. Install all three projects' locked dependencies first; see `docs/development/CURRENT-SOURCE-BUILD.md`.
+- The actual output must pass the shared iOS Canvas, Frost Skills, bird, voice-answer and Frost wink icon checks. `release-files.json`, outside the public directory, records every emitted file for upload verification.
 - Private server root: `/root/pocketbuddy`; releases are unique directories under `releases/`.
 - `current` points to the selected release. Before user-requested cleanup of an old release, preserve and verify a recoverable copy outside the server; never delete the active release, shared configuration, or data.
 - Runtime configuration and uploaded user data live in `shared/`, outside `dist/`.
@@ -34,10 +36,9 @@ the exact entry JS/CSS hashes and iOS API preflight after publishing.
 
 ## Hosted 练了吗 coach
 
-Build its web UI **before** the main release:
+The main release command rebuilds the coach and Her Motion automatically:
 
 ```sh
-node deploy/pocketbuddy/build-coach-web.mjs
 node deploy/pocketbuddy/stage.mjs /Volumes/PocketBuddy-iOS-Dev
 ```
 

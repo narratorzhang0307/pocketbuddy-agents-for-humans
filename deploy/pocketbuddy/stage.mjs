@@ -1,16 +1,22 @@
 // Build the current desktop checkout into an isolated release, without touching dist-ios.
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { createHash } from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { build, loadEnv } from 'vite';
 import { assertNoRetiredPublicReferences, RETIRED_PUBLIC_DIRECTORIES, shouldPublishPublicAsset } from './public-assets.mjs';
+import { sourceHashes, sha256, verifyAnswerBundle } from '../../scripts/ios/provenance.mjs';
+import { hashReleaseFiles } from './release-files.mjs';
+import { verifyCanvasWeb } from '../../scripts/ios/verify-skill-canvas.mjs';
+import { verifyBirdWeb } from '../../scripts/hardware/check-bird-release.mjs';
+import { verifyFrostSkillsBundle } from '../../scripts/ios/verify-frost-skills.mjs';
+import { WINK_ICONS } from '../../scripts/ios/verify-app-icon.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const outputParent = process.argv[2];
-// Optional isolated, freshly rebuilt coach export; never rewrite shared public/lianlema.
-const coachExport = process.argv[3] ? path.resolve(process.argv[3]) : undefined;
-const coachManifest = coachExport ? JSON.parse(readFileSync(`${coachExport}.manifest.json`, 'utf8')) : undefined;
+// A server release always rebuilds both sub-apps from this workspace.
+// Do not accept exports/snapshots whose source may no longer match the main app.
+if (process.argv[3]) throw new Error('External export input is no longer accepted. Run stage.mjs with only the output parent; both sub-apps are rebuilt automatically.');
 if (!outputParent || !path.isAbsolute(outputParent) || !existsSync(outputParent)) {
   throw new Error('Usage: node deploy/pocketbuddy/stage.mjs /absolute/existing/output-directory');
 }
@@ -19,39 +25,37 @@ const release = path.join(stage, 'release');
 mkdirSync(release);
 
 function sourceHash() {
-  const hash = createHash('sha256');
-  function visit(relative) {
-    const absolute = path.join(root, relative);
-    for (const entry of readdirSync(absolute, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-      const name = path.join(relative, entry.name);
-      if (entry.isDirectory()) visit(name);
-      else if (entry.isFile() && /\.(?:ts|tsx|mjs|js|json|css|html|py|service|conf|txt)$/.test(entry.name)) hash.update(name).update(readFileSync(path.join(root, name)));
-    }
+  // Reuse the iOS source inventory, including native catalogs and original assets.
+  // Additional runtime/coach inputs are not part of the historical iOS inventory.
+  const sources = sourceHashes(root);
+  for (const file of ['server.mjs', 'lianlema-portable/app_project/app/metro.config.js']) {
+    if (existsSync(path.join(root, file))) sources[file] = sha256(readFileSync(path.join(root, file)));
   }
-  for (const directory of ['src', 'vendor/legacy-city/src', 'frost-agent', 'server', 'deploy/pocketbuddy', 'public/lianlema', 'lianlema-portable/app_project/app/src']) visit(directory);
-  for (const file of ['package.json', 'package-lock.json', 'vite.pocketbuddy.config.ts', 'scripts/verify-avatar-assets.mjs', 'index.html', 'server.mjs', 'public/sw.js', 'lianlema-portable/app_project/app/app.config.js', 'lianlema-portable/app_project/app/App.tsx']) {
-    hash.update(file).update(readFileSync(path.join(root, file)));
-  }
-  return hash.digest('hex');
+  return sha256(JSON.stringify(sources));
+}
+function runNode(args, cwd = root) {
+  const result = spawnSync(process.execPath, args, { cwd, stdio: 'inherit', env: process.env });
+  if (result.error) throw result.error;
+  if (result.status !== 0) throw new Error(`Sub-app build failed: ${args[0]}`);
 }
 const sourceSha256 = sourceHash();
 const publicRoot = path.join(root, 'public');
 const releasePublic = path.join(stage, 'public');
 cpSync(publicRoot, releasePublic, {
   recursive: true,
+  dereference: true,
   filter: (source) => {
     const relative = path.relative(publicRoot, source);
-    return (!coachExport || (relative !== 'lianlema' && !relative.startsWith(`lianlema${path.sep}`))) && shouldPublishPublicAsset(relative);
+    return !relative.split(path.sep).some(part => part.startsWith('.'))
+      && !['lianlema', 'her-motion'].includes(relative.split(path.sep)[0]) && shouldPublishPublicAsset(relative);
   },
 });
-if (coachExport) {
-  if (!coachManifest?.sourceSha256 || !coachManifest.files['index.html']) throw new Error('Missing verified coach manifest');
-  for (const [file, expected] of Object.entries(coachManifest.files)) {
-    if (path.isAbsolute(file) || file.split('/').includes('..') || file.split('/').some(part => part.startsWith('.'))
-      || createHash('sha256').update(readFileSync(path.join(coachExport, file))).digest('hex') !== expected) throw new Error('Coach export hash mismatch');
-  }
-  cpSync(coachExport, path.join(releasePublic, 'lianlema'), { recursive: true });
-}
+const coachExport = path.join(stage, 'coach');
+runNode([path.join(root, 'deploy/pocketbuddy/build-coach-web.mjs'), coachExport]);
+const coachManifest = JSON.parse(readFileSync(`${coachExport}.manifest.json`, 'utf8'));
+cpSync(coachExport, path.join(releasePublic, 'lianlema'), { recursive: true });
+runNode([path.join(root, 'node_modules/vite/bin/vite.js'), 'build', '--config',
+  path.join(root, 'vendor/her-motion/vite.config.ts'), '--outDir', path.join(releasePublic, 'her-motion')]);
 process.env.POCKET_BUDDY_BUILD_TARGET = 'web';
 await build({
   root,
@@ -69,11 +73,18 @@ function checkReferences(directory) {
   }
 }
 checkReferences(path.join(release, 'dist'));
+verifyCanvasWeb(root, path.join(release, 'dist'));
+verifyBirdWeb(root, path.join(release, 'dist'));
+verifyFrostSkillsBundle(path.join(release, 'dist'));
+verifyAnswerBundle(path.join(release, 'dist'));
+for (const [name, expected] of Object.entries(WINK_ICONS)) {
+  if (sha256(readFileSync(path.join(release, 'dist/icons', name))) !== expected) throw new Error(`Packaged Frost icon mismatch: ${name}`);
+}
 if (sourceHash() !== sourceSha256) throw new Error('Source changed while building; do not publish this release.');
 cpSync(path.join(root, 'server.mjs'), path.join(release, 'server.mjs'));
 mkdirSync(path.join(release, 'server'));
 for (const file of readdirSync(path.join(root, 'server'))) {
-  if (file.endsWith('.mjs') || file === 'package.json') cpSync(path.join(root, 'server', file), path.join(release, 'server', file));
+  if (file.endsWith('.mjs') || file === 'package.json' || file === 'package-lock.json') cpSync(path.join(root, 'server', file), path.join(release, 'server', file));
 }
 // Only audited inference runtime; never copy tests, images, weights, env or a venv.
 mkdirSync(path.join(release, 'server/photo-harness'));
@@ -90,10 +101,14 @@ for (const key of Object.keys(env).filter((key) => /^(?:DASHSCOPE_|QWEN_|MINIMAX
   if (env[key] && !/[\r\n]/.test(env[key])) runtime[key] = env[key];
 }
 writeFileSync(path.join(stage, 'runtime.env'), Object.entries(runtime).map(([key, value]) => `${key}=${value}`).join('\n') + '\n', { mode: 0o600 });
+if (sourceHash() !== sourceSha256) throw new Error('Source changed while staging runtime; rebuild before publishing.');
 const marker = { app: 'pocketbuddy', builtAt: new Date().toISOString(), sourceSha256,
-  ...(coachManifest ? { coachSourceSha256: coachManifest.sourceSha256 } : {}), excludedPublicDirectories: RETIRED_PUBLIC_DIRECTORIES };
+  coachSourceSha256: coachManifest.sourceSha256, fullSourceBuild: true,
+  checks: ['approved-canvas', 'frost-skills', 'bird-release', 'voice-answers', 'frost-wink-icons'],
+  rebuiltSubApps: ['lianlema', 'her-motion'], excludedPublicDirectories: RETIRED_PUBLIC_DIRECTORIES };
 writeFileSync(path.join(release, 'dist/release.json'), JSON.stringify(marker, null, 2) + '\n');
 writeFileSync(path.join(stage, 'release.json'), JSON.stringify(marker, null, 2) + '\n');
+writeFileSync(path.join(stage, 'release-files.json'), JSON.stringify(hashReleaseFiles(release), null, 2) + '\n');
 console.log(`Prepared Pocket Buddy release: ${stage}`);
 console.log(`Source SHA256: ${sourceSha256}`);
 console.log('Private runtime.env is outside the public release; upload it only to the private shared directory.');
