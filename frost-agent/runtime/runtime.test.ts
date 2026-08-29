@@ -10,7 +10,7 @@ import { FROST_AGENT_DECISION_PROTOCOL, type FrostAgentDecision, type FrostAgent
 import { FrostInbox } from './inbox';
 import { createFrostGoal, FrostGoalDriver, InMemoryFrostGoalStore } from './goalDriver';
 import { IndexedDbFrostSessionLog } from './indexedDbSessionLog';
-import { LocalHealthFallbackModel } from './localHealthModel';
+import { LocalHealthFallbackModel, routeHealthIntent } from './localHealthModel';
 import { buildFrostDecisionPrompt, QwenFrostModelAdapter } from './qwenModelAdapter';
 import { InMemoryFrostSessionLog } from './sessionLog';
 import { createSkillAgentTools, TaskmasterSkillProvider } from './skillCatalog';
@@ -32,6 +32,9 @@ function decision(next_action: FrostAgentDecision['next_action'], goal = '完成
 }
 
 describe('Frost Harness session log and inbox', () => {
+  it('preserves a destination distance even in the standalone local health fallback', () => {
+    expect(routeHealthIntent('跑到西湖，4公里')?.input).toMatchObject({ goal_type: 'destination', destination: '西湖', distance_m: 4000 });
+  });
   it('keeps contiguous immutable events and idempotent explicit ids', async () => {
     const log = new InMemoryFrostSessionLog();
     log.subscribe(() => { throw new Error('observer_failure_must_not_rollback'); });

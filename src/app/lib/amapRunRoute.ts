@@ -1,5 +1,7 @@
 import { loadAmap } from './amap';
-import { distanceInMeters, readRunRouteSession, routeDistance, targetDistanceMeters, updateRunRouteSession,
+import { assessRunRouteGeometry, type RunRouteGeometry } from './runRouteGeometry';
+export { hasUsableLoopGeometry } from './runRouteGeometry';
+import { distanceInMeters, readRunRouteSession, routeDistance, runRouteDistanceMatches, runRouteDistanceTolerance, targetDistanceMeters, updateRunRouteSession,
   type RoutePoint, type RunRouteCue, type RunRouteSession, type RunRouteShape } from './runRouteSkill';
 
 type AmapNamespace = {
@@ -27,9 +29,36 @@ interface RoutePlan extends WalkingLeg {
   shape: RunRouteShape;
   warnings: string[];
   via: string[];
+  turnaround_index?: number;
+  geometry?: RunRouteGeometry;
 }
-type Place = { position: RoutePoint; label: string };
+type Place = { position: RoutePoint; label: string; type?: string; city?: string };
 export const routePlaceAvailable = (label: string): boolean => !/暂停开放|暂停营业|停止营业|永久关闭|暂时关闭|施工封闭/.test(label);
+
+const naturalPlaceQuery = (query: string) => /湖|公园|绿道|湿地|景区|风景|滨江|江边|河边|海边|山$/.test(query);
+const naturalPlaceType = (type: string) => /风景名胜|公园|景点|湖泊|河流|山峰|自然地名/.test(type);
+const normalizePlaceName = (text: string) => text.replace(/[\s·（）()\-]/g, '').replace(/市$/, '');
+
+/** A nearby substring hit (e.g. the business 村上西湖) is not the requested lake. */
+export function selectRunRoutePlace(query: string, places: Place[], near?: RoutePoint): Place | undefined {
+  const ranked = places.flatMap(place => {
+    if (!routePlaceAvailable(place.label)) return [];
+    const city = normalizePlaceName(place.city || '');
+    const stripCity = (text: string) => { const name = normalizePlaceName(text); return city && name.startsWith(city) ? name.slice(city.length).replace(/^市/, '') : name; };
+    const name = stripCity(place.label), wanted = stripCity(query), exact = name === wanted;
+    if (!wanted || !name.includes(wanted)) return [];
+    const natural = naturalPlaceType(place.type || '');
+    if (naturalPlaceQuery(wanted) && !exact) {
+      const suffix = name.startsWith(wanted) ? name.slice(wanted.length) : '';
+      // A scenic POI category can also contain sightseeing buses and ticket
+      // offices. Require the landmark name itself, not just its substring.
+      if (!natural || !/^(风景名胜区|风景区|景区|公园|湿地公园|国家湿地公园|湖区)/.test(suffix)) return [];
+      if (/观光巴士|游船|售票|停车|服务中心|游客中心|旅行社|酒店|餐厅/.test(suffix)) return [];
+    }
+    return [{ place, score: (exact ? 100 : 50) + (naturalPlaceQuery(wanted) && natural ? 80 : 0), distance: near ? distanceInMeters(near, place.position) : 0 }];
+  }).sort((a, b) => b.score - a.score || a.distance - b.distance);
+  return ranked[0]?.place;
+}
 
 function pointFromUnknown(value: unknown): RoutePoint | null {
   if (!value || typeof value !== 'object') return null;
@@ -95,11 +124,11 @@ async function requestWalking(AMap: AmapNamespace, start: RoutePoint, end: Route
 }
 
 function placesFromResult(result: unknown): Place[] {
-  const pois = (result as { poiList?: { pois?: Array<{ name?: string; location?: unknown }> } })?.poiList?.pois || [];
-  return pois.flatMap(poi => { const position = pointFromUnknown(poi.location); return position && routePlaceAvailable(poi.name || '') ? [{ position, label: poi.name || '高德地点' }] : []; });
+  const pois = (result as { poiList?: { pois?: Array<{ name?: string; location?: unknown; type?: string; cityname?: string }> } })?.poiList?.pois || [];
+  return pois.flatMap(poi => { const position = pointFromUnknown(poi.location); return position && routePlaceAvailable(poi.name || '') ? [{ position, label: poi.name || '高德地点', type: poi.type, city: poi.cityname }] : []; });
 }
 
-async function searchPlaces(AMap: AmapNamespace, query: string, signal: AbortSignal, near?: RoutePoint, radius = 50_000): Promise<Place[]> {
+async function searchPlaces(AMap: AmapNamespace, query: string, signal: AbortSignal, near?: RoutePoint, radius = 50_000, type?: string): Promise<Place[]> {
   signal.throwIfAborted();
   return new Promise((resolve, reject) => {
     let settled = false;
@@ -110,7 +139,7 @@ async function searchPlaces(AMap: AmapNamespace, query: string, signal: AbortSig
     AMap.plugin('AMap.PlaceSearch', () => {
       if (settled || signal.aborted) return;
       try {
-        const search = new AMap.PlaceSearch({ pageSize: 8, extensions: 'base' });
+        const search = new AMap.PlaceSearch({ pageSize: 25, extensions: 'all', ...(type ? { type } : {}) });
         const callback = (status: string, result: unknown) => {
           if (status === 'error') {
             const info = String(typeof result === 'string' ? result : (result as { info?: string })?.info || 'service_error').replace(/[^A-Za-z0-9_]/g, '').slice(0, 80);
@@ -138,7 +167,9 @@ export function joinWalkingLegs(legs: WalkingLeg[]): WalkingLeg | null {
     const skip = points.length && distanceInMeters(points[points.length - 1], leg.points[0]) < .5 ? 1 : 0;
     const offset = points.length - skip;
     points.push(...leg.points.slice(skip));
-    cues.push(...leg.cues.map(cue => ({ ...cue, point_index: cue.point_index + offset })));
+    // A leg can itself be an already-joined outbound route. Its arrival must
+    // not suppress the junction/turn-around cue when another leg follows.
+    cues.push(...leg.cues.filter(cue => cue.source !== 'arrival').map(cue => ({ ...cue, point_index: cue.point_index + offset })));
   }
   if (points.length < 2) return null;
   // Intermediate waypoint arrivals are not the run's finish. Determine only
@@ -155,10 +186,13 @@ export function joinWalkingLegs(legs: WalkingLeg[]): WalkingLeg | null {
   return { points, cues: cues.map((cue, i) => ({ ...cue, id: `cue-${i}` })), distance_m: legs.reduce((n, leg) => n + leg.distance_m, 0), crossings: legs.reduce((n, leg) => n + leg.crossings, 0) };
 }
 
-async function through(AMap: AmapNamespace, waypoints: RoutePoint[], signal: AbortSignal): Promise<WalkingLeg | null> {
+async function through(AMap: AmapNamespace, waypoints: RoutePoint[], signal: AbortSignal, cache?: Map<string, Promise<WalkingLeg | null>>): Promise<WalkingLeg | null> {
   const legs: WalkingLeg[] = [];
   for (let i = 1; i < waypoints.length; i++) {
-    const leg = await requestWalking(AMap, waypoints[i - 1], waypoints[i], signal);
+    const key = `${waypoints[i - 1].join(',')}>${waypoints[i].join(',')}`;
+    let request = cache?.get(key);
+    if (!request) { request = requestWalking(AMap, waypoints[i - 1], waypoints[i], signal); cache?.set(key, request); }
+    const leg = await request;
     if (!leg) return null;
     legs.push(leg);
   }
@@ -169,28 +203,95 @@ export function scoreRunRoute(plan: WalkingLeg, target: number, lowCrossings: bo
   return Math.abs(plan.distance_m - target) / target * 100 + (lowCrossings ? plan.crossings * 8 + plan.cues.length * .5 : 0);
 }
 
-/** Reject near-zero-area "loops" made mostly by walking the same road back. */
-export function hasUsableLoopGeometry(points: RoutePoint[]): boolean {
-  if (points.length < 4 || distanceInMeters(points[0], points.at(-1)!) > 40) return false;
-  const origin = points[0], scale = 111320 * Math.cos(origin[1] * Math.PI / 180);
-  const local = points.map(p => [(p[0] - origin[0]) * scale, (p[1] - origin[1]) * 110540]);
-  let twiceArea = 0;
-  for (let i = 1; i < local.length; i++) twiceArea += local[i - 1][0] * local[i][1] - local[i][0] * local[i - 1][1];
-  const perimeter = routeDistance(points);
-  return perimeter > 0 && Math.abs(twiceArea) / 2 / (perimeter * perimeter) >= .01;
+async function destinationRoute(AMap: AmapNamespace, session: RunRouteSession, start: RoutePoint, place: Place, signal: AbortSignal): Promise<{ plan: RoutePlan; candidates: number }> {
+  const back = session.input.shape === 'out_and_back', end = place.position;
+  const cache = new Map<string, Promise<WalkingLeg | null>>();
+  const route = async (vias: RoutePoint[] = []): Promise<RoutePlan | null> => {
+    const outbound = await through(AMap, [start, ...vias, end], signal, cache);
+    if (!outbound) return null;
+    const inbound = back ? await through(AMap, [end, ...[...vias].reverse(), start], signal, cache) : undefined;
+    const leg = back ? inbound && joinWalkingLegs([outbound, inbound]) : outbound;
+    if (!leg) return null;
+    const shape = back ? 'out_and_back' : 'one_way';
+    const turnaround_index = back ? outbound.points.length - 1 : undefined;
+    return { ...leg, destination: back ? start : end, destination_label: place.label, shape, warnings: [], via: [place.label],
+      turnaround_index, geometry: assessRunRouteGeometry(leg.points, shape, turnaround_index) };
+  };
+  const direct = await route();
+  if (!direct) throw new Error('高德未返回完整可步行路线，请换个地点重试。');
+  const target = targetDistanceMeters(session.input.goal);
+  if (!target) {
+    if (!direct.geometry!.valid) throw new Error(direct.geometry!.reason);
+    return { plan: direct, candidates: 1 };
+  }
+  if (direct.geometry!.valid && runRouteDistanceMatches(target, direct.distance_m)) return { plan: direct, candidates: 1 };
+  if (direct.distance_m > target + runRouteDistanceTolerance(target)) {
+    throw new Error(`到“${place.label}”的高德${back ? '往返' : '直达'}道路已约 ${(direct.distance_m / 1000).toFixed(2)} 公里，超过目标 ${(target / 1000).toFixed(2)} 公里。请增加里程、换近一些的起点，或改为在目的地附近跑；没有忽略你的里程要求。`);
+  }
+
+  const center: RoutePoint = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+  const separation = distanceInMeters(start, end);
+  const heading = Math.atan2((end[0] - start[0]) * Math.cos(center[1] * Math.PI / 180), end[1] - start[1]) * 180 / Math.PI;
+  const stretch = Math.max(1, Math.min(2, direct.distance_m / Math.max(50, separation) / (back ? 2 : 1)));
+  const initialRadius = Math.max(80, (back ? (target - direct.distance_m) / 4 : (target - direct.distance_m * .3) / 3) / stretch);
+  const candidates: RoutePlan[] = direct.geometry!.valid ? [direct] : [];
+  let rejected = direct.geometry!.valid ? 0 : 1;
+  const rejectedDetails: string[] = [];
+  // Broad tour seeds (as in GraphHopper's round-trip architecture) avoid the
+  // narrow corridor that snaps both waypoints onto one road and produces a T.
+  // AMap exposes no visited-edge penalty, so validate each returned road before
+  // mileage scoring. Coordinates remain queries, never drawn route segments.
+  for (let seed = 0; seed < 4; seed++) {
+    const bearing = [heading + 180, heading + 90, heading - 90, heading][seed];
+    let radius = initialRadius;
+    let lower = { radius: 0, distance: direct.distance_m }, upper: typeof lower | undefined;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      signal.throwIfAborted();
+      // Explicit out-and-back spends only half its budget on the outbound leg;
+      // bend that corridor, then independently route back over its waypoints.
+      const fraction = seed < 2 ? .2 : 0;
+      const anchor = (t: number): RoutePoint => [start[0] + (end[0] - start[0]) * t, start[1] + (end[1] - start[1]) * t];
+      const vias = back
+        ? [coordinateAt(anchor(fraction), radius, heading + (seed % 2 ? -90 : 90)), coordinateAt(anchor(1 - fraction), radius, heading + (seed % 2 ? -90 : 90))]
+        : [coordinateAt(start, radius, bearing - 30), coordinateAt(start, radius, bearing + 30)];
+      const leg = await route(vias);
+      if (!leg) { radius *= .7; continue; }
+      if (leg.geometry!.valid) candidates.push(leg); else {
+        rejected++;
+        if (rejectedDetails.length < 3) rejectedDetails.push(`${(leg.distance_m / 1000).toFixed(2)} 公里候选：重复道路约 ${leg.geometry!.repeated_distance_m} 米、连续折返 ${leg.geometry!.longest_retrace_m} 米，已淘汰。`);
+      }
+      if (leg.geometry!.valid && runRouteDistanceMatches(target, leg.distance_m)) break;
+      if (leg.distance_m < target) lower = { radius, distance: leg.distance_m };
+      else upper = { radius, distance: leg.distance_m };
+      const next = upper && upper.distance > lower.distance
+        ? lower.radius + (target - lower.distance) / (upper.distance - lower.distance) * (upper.radius - lower.radius)
+        : radius * (target - direct.distance_m) / Math.max(50, leg.distance_m - direct.distance_m);
+      // A road may snap several nearby queries onto the same junction. Move the
+      // query far enough to test a different road, within a bounded search area.
+      radius = Math.max(50, Math.min(target / 2, Math.abs(next - radius) < 25 ? radius + (leg.distance_m < target ? 60 : -60) : next));
+    }
+    if (candidates.some(leg => runRouteDistanceMatches(target, leg.distance_m))) break;
+  }
+  candidates.sort((a, b) => Number(!runRouteDistanceMatches(target, a.distance_m)) - Number(!runRouteDistanceMatches(target, b.distance_m))
+    || scoreRunRoute(a, target, session.input.preferences.includes('low_crossings')) - scoreRunRoute(b, target, session.input.preferences.includes('low_crossings')));
+  const best = candidates[0];
+  if (!best) throw new Error('候选道路都含明显支路折返，未生成凑里程路线。请调整距离、起点或明确选择往返。');
+  const warnings = ['为匹配总里程查询了途经路段；每一段均来自高德步行道路，景观和开放情况仍需现场确认。'];
+  if (rejected) warnings.push(`已淘汰 ${rejected} 条含明显重复道路或支路折返的候选，未用折返凑里程。`);
+  warnings.push(...rejectedDetails);
+  if (!runRouteDistanceMatches(target, best.distance_m)) warnings.push(`未找到满足目标 ${(target / 1000).toFixed(2)} 公里的道路组合；最接近的结果为 ${(best.distance_m / 1000).toFixed(2)} 公里，不会自动开始，请调整条件或明确确认。`);
+  return { plan: { ...best, warnings }, candidates: candidates.length };
 }
 
 async function planRoute(AMap: AmapNamespace, session: RunRouteSession, start: RoutePoint, signal: AbortSignal): Promise<{ plan: RoutePlan; candidates: number }> {
   if (session.input.goal.type === 'destination') {
     const query = session.input.goal.query;
-    const places = await searchPlaces(AMap, query, signal, start);
-    const place = places[0] || (await searchPlaces(AMap, query, signal))[0];
-    if (!place) throw new Error(`未找到“${query}”，请补充城市和具体地点。`);
+    const places = await searchPlaces(AMap, query, signal, start, 50_000, naturalPlaceQuery(query) ? '风景名胜|地名地址信息' : undefined);
+    let place = selectRunRoutePlace(query, places, start);
+    if (!place) place = selectRunRoutePlace(query, await searchPlaces(AMap, query, signal), start);
+    if (!place) throw new Error(`未找到与“${query}”含义相符的地点，没有使用仅名称相似的商户。请补充城市或具体入口。`);
     if (distanceInMeters(start, place.position) > 50_000) throw new Error('目的地离起点超过 50 公里，请确认城市和地点。');
-    const back = session.input.shape === 'out_and_back';
-    const leg = await through(AMap, back ? [start, place.position, start] : [start, place.position], signal);
-    if (!leg) throw new Error('高德未返回完整可步行路线，请换个地点重试。');
-    return { plan: { ...leg, destination: back ? start : place.position, destination_label: place.label, shape: back ? 'out_and_back' : 'one_way', warnings: [], via: [place.label] }, candidates: 1 };
+    return destinationRoute(AMap, session, start, place, signal);
   }
   const target = targetDistanceMeters(session.input.goal)!;
   const preferences = session.input.preferences;
@@ -210,20 +311,21 @@ async function planRoute(AMap: AmapNamespace, session: RunRouteSession, start: R
     const waypoints = shape === 'one_way' ? [start, a] : shape === 'out_and_back' ? [start, a, start] : [start, a, b, start];
     const leg = await through(AMap, waypoints, signal);
     if (!leg || leg.distance_m > target * 2 || leg.distance_m < target * .4) continue;
-    if (shape === 'loop' && !hasUsableLoopGeometry(leg.points)) continue;
+    const geometry = assessRunRouteGeometry(leg.points, shape);
+    if (!geometry.valid) continue;
     const error = Math.abs(leg.distance_m - target) / target;
     if (!calibration || error < calibration.error) calibration = { bearing, scale: target / leg.distance_m, error };
-    candidates.push({ ...leg, destination: waypoints[waypoints.length - 1], shape, warnings: [], via: via ? [via.label] : [] });
+    candidates.push({ ...leg, destination: waypoints[waypoints.length - 1], shape, geometry, warnings: [], via: via ? [via.label] : [] });
   }
   if (!candidates.length && session.input.shape === 'loop') {
     const leg = await through(AMap, [start, coordinateAt(start, target / 2.6, 90), start], signal);
-    if (leg && leg.distance_m <= target * 2 && leg.distance_m >= target * .4) candidates.push({ ...leg, destination: start, shape: 'out_and_back', warnings: ['此处没有找到合适的完整环线，实际提供的是往返路线，请确认后再跑。'], via: [] });
+    if (leg && leg.distance_m <= target * 2 && leg.distance_m >= target * .4 && assessRunRouteGeometry(leg.points, 'out_and_back').valid) candidates.push({ ...leg, destination: start, shape: 'out_and_back', warnings: ['此处没有找到合适的完整环线，实际提供的是往返路线，请确认后再跑。'], via: [] });
   }
   if (!candidates.length) throw new Error('附近没有找到符合距离的完整步行路线，请调整距离或起点。');
-  candidates.sort((a, b) => Number(Math.abs(a.distance_m - target) > target * .2) - Number(Math.abs(b.distance_m - target) > target * .2)
+  candidates.sort((a, b) => Number(!runRouteDistanceMatches(target, a.distance_m)) - Number(!runRouteDistanceMatches(target, b.distance_m))
     || scoreRunRoute(a, target, preferences.includes('low_crossings')) - scoreRunRoute(b, target, preferences.includes('low_crossings')));
   const plan = candidates[0];
-  if (Math.abs(plan.distance_m - target) / target > .2) plan.warnings.push(`受道路限制，实际规划 ${(plan.distance_m / 1000).toFixed(2)} 公里，与目标偏差超过 20%，请确认距离。`);
+  if (!runRouteDistanceMatches(target, plan.distance_m)) plan.warnings.push(`受道路限制，实际规划 ${(plan.distance_m / 1000).toFixed(2)} 公里，未达到目标里程允许的偏差，请确认距离。`);
   if (poiQuery) plan.warnings.push(plan.via.length ? `经高德地点“${plan.via.join('、')}”选线；景观及开放情况请现场确认。` : '未找到距离合适的公园/滨水 POI，未声称已满足景观偏好。');
   return { plan, candidates: candidates.length };
 }
@@ -271,7 +373,7 @@ async function planSession(id: string, signal: AbortSignal, startOverride?: Rout
     let start = startOverride, source: RunRouteSession['start_source'] = startOverride ? current.start_source || 'sample' : 'gps';
     let label: string | undefined;
     if (!start && current.input.start === 'place' && current.input.start_query) {
-      const place = (await searchPlaces(AMap, current.input.start_query, signal))[0];
+      const place = selectRunRoutePlace(current.input.start_query, await searchPlaces(AMap, current.input.start_query, signal));
       if (!place) throw new Error('未找到指定起点，请提供城市和具体地点。');
       start = place.position; label = place.label; source = 'place';
     }
@@ -288,8 +390,11 @@ async function planSession(id: string, signal: AbortSignal, startOverride?: Rout
     const snapped = distanceInMeters(start, plan.points[0]);
     if (snapped > 50) warnings.push(`路线起点已对齐高德步行道路，距查询地点约 ${Math.round(snapped)} 米，请到地图起点标记附近开始。`);
     if (current.input.preferences.length) warnings.push('少路口依据高德过街指令和转弯数量比较，不等于完整红绿灯统计；坡度、人流、照明及治安未验证。');
+    const target = targetDistanceMeters(current.input.goal);
     return updateRunRouteSession(id, { status: 'ready', start: plan.points[0], destination: plan.points.at(-1)!, destination_label: plan.destination_label,
-      planned_path: plan.points, cues: plan.cues, actual_shape: plan.shape, route_evidence: { candidates, via: plan.via, crossings: plan.crossings, turns: plan.cues.length - 1 },
+      planned_path: plan.points, cues: plan.cues, actual_shape: plan.shape, route_evidence: { candidates, via: plan.via, crossings: plan.crossings, turns: plan.cues.length - 1,
+        geometry: plan.geometry || assessRunRouteGeometry(plan.points, plan.shape), turnaround_index: plan.turnaround_index,
+        ...(target ? { target_met: runRouteDistanceMatches(target, plan.distance_m), distance_tolerance_m: runRouteDistanceTolerance(target) } : {}) },
       metrics: { ...current.metrics, planned_distance_m: Math.round(plan.distance_m) }, warnings, error: undefined });
   } catch (error) {
     if (signal.aborted) return readRunRouteSession(id)!;
@@ -306,7 +411,11 @@ export async function replanRunRouteFromPosition(id: string, current: RoutePoint
   try {
     const leg = await through(await loadAmapNamespace(), [current, session.destination], AbortSignal.timeout(20_000));
     if (!leg) throw new Error('偏航重算失败，请先停在安全位置后重试。');
+    const geometry = assessRunRouteGeometry(leg.points, 'one_way');
+    if (!geometry.valid) throw new Error(geometry.reason);
     return updateRunRouteSession(id, { status: 'ready', start: current, start_source: 'gps', planned_path: leg.points, cues: leg.cues, actual_shape: 'one_way',
+      route_evidence: { candidates: 1, via: [], crossings: leg.crossings, turns: leg.cues.length - 1, geometry,
+        target_met: runRouteDistanceMatches(session.metrics.target_distance_m, leg.distance_m) },
       metrics: { ...session.metrics, planned_distance_m: Math.round(leg.distance_m), deviation_m: 0 }, warnings: [...session.warnings, '已重算到原终点；请确认后继续。'], error: undefined });
   } catch (error) { return updateRunRouteSession(id, { status: 'paused', error: error instanceof Error ? error.message : '偏航重算失败' }); }
 }

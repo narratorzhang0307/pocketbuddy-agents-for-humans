@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { advanceRunRouteDialogue, isRunRouteCancellation, isRunRouteRequest, parseRunRouteFields, runRouteQuestion } from './runRouteDialogue';
-import { applyNativeRunSnapshot, nativeRunRoutePayload, projectRunProgress, routeRevision, type RunNavigationSnapshot } from './runRouteNavigation';
+import { applyNativeRunSnapshot, nativeRunRoutePayload, projectRunProgress, routeRevision, startRunNavigation, type RunNavigationSnapshot } from './runRouteNavigation';
 import { gcj02ToWgs84, wgs84ToGcj02 } from '../../../vendor/legacy-city/src/app/lib/location/chinaCoordinates';
 import {
   appendRunRouteTrackPoint,
@@ -41,11 +41,11 @@ describe('run route skill', () => {
     expect(parseRunRouteFields('半小时，往返，无偏好')).toMatchObject({ goal: { type: 'duration', duration_min: 30 }, shape: 'out_and_back', preferences: [] });
   });
 
-  it.each(['帮我设计一条跑步线路', '给我推荐夜跑路线', '我想跑五公里', '帮我规划下西湖的跑步路线'])('recognizes a route request: %s', text => {
+  it.each(['帮我设计一条跑步线路', '给我推荐夜跑路线', '我想跑五公里', '帮我规划下西湖的跑步路线', '在西湖附近跑三公里', '去西湖跑三公里', '我想去西湖跑三公里'])('recognizes a route request: %s', text => {
     expect(isRunRouteRequest(text)).toBe(true);
   });
 
-  it.each(['帮我不要规划跑步路线', '跑步路线怎么用', '查询跑步记录', '规划开车去西湖的路线'])('does not start a run for %s', text => {
+  it.each(['帮我不要规划跑步路线', '跑步路线怎么用', '查询跑步记录', '规划开车去西湖的路线', '昨天在西湖跑三公里'])('does not start a run for %s', text => {
     expect(isRunRouteRequest(text)).toBe(false);
   });
 
@@ -139,6 +139,63 @@ describe('run route skill', () => {
     expect(answer.parser).toBe('本地条件提取'); expect(answer.input).toBeUndefined(); expect(answer.choices).toContain('环线');
   });
 
+  it.each([
+    ['三公里', 3000], ['四公里', 4000], ['五公里', 5000], ['3.5公里', 3500],
+    ['三点五公里', 3500], ['三公里半', 3500], ['3500米', 3500], ['两千米', 2000],
+  ])('preserves destination and %s through voice parsing and Taskmaster', async (amount, distance) => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    const text = `帮我规划下去西湖的跑步路线，${amount}`;
+    const voice = await advanceRunRouteDialogue(text, undefined, true);
+    const goal = { type: 'destination', query: '西湖', target: { type: 'distance', distance_m: distance } };
+    expect(voice.input).toMatchObject({ start: 'current_location', goal, auto_start: true, shape: 'one_way' });
+    expect(voice.reply).toContain(`${distance / 1000} 公里`);
+    const handoff = runRouteTaskInput(voice.input!);
+    expect(handoff).toMatchObject({ goal_type: 'destination', destination: '西湖', distance_m: distance });
+    const session = createRunRouteSessionFromTaskmaster(handoff);
+    expect(session.input.goal).toEqual(goal);
+    expect(session.metrics.target_distance_m).toBe(distance);
+    expect(parseRunRouteText(text).goal).toEqual(goal);
+  });
+
+  it('keeps a destination when a later answer adds or changes its target distance', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    const first = await advanceRunRouteDialogue('帮我规划去西湖的跑步路线');
+    const second = await advanceRunRouteDialogue('三公里，风景好', first.draft);
+    expect(second.input?.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: 3000 } });
+    const changed = await advanceRunRouteDialogue('改成四公里', second.draft);
+    expect(changed.input?.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: 4000 } });
+    expect(changed.input?.auto_start).toBeUndefined();
+    const duration = await advanceRunRouteDialogue('改成半小时', changed.draft, true);
+    expect(duration.input?.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'duration', duration_min: 30 } });
+    expect(targetDistanceMeters(duration.input!.goal)).toBe(4286);
+  });
+
+  it('combines an earlier distance with a newly specified destination, without confusing a starting area', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    const first = await advanceRunRouteDialogue('帮我规划四公里的跑步路线');
+    const next = await advanceRunRouteDialogue('跑到西湖，单程，风景好', first.draft);
+    expect(next.input?.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: 4000 } });
+    const area = await advanceRunRouteDialogue('在西湖附近跑三公里', undefined, true);
+    expect(area.input).toMatchObject({ start: 'place', start_query: '西湖', goal: { type: 'distance', distance_m: 3000 }, shape: 'loop' });
+    const casual = await advanceRunRouteDialogue('去西湖跑三公里', undefined, true);
+    expect(casual.input?.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: 3000 } });
+    expect(parseRunRouteFields('跑半个小时').goal).toEqual({ type: 'duration', duration_min: 30 });
+    expect(parseRunRouteFields('跑一个半小时').goal).toEqual({ type: 'duration', duration_min: 90 });
+  });
+
+  it.each(['一百公里', '负三公里', '0公里', '三百分钟'])('does not silently discard an impossible destination target: %s', async amount => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    expect((await advanceRunRouteDialogue(`帮我规划去西湖的跑步路线，${amount}`, undefined, true)).needsInput).toBe(true);
+  });
+
+  it.each(['destination', 'distance'])('does not invent a destination distance from model %s output without quantity evidence', async goal_type => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ text: JSON.stringify({
+      goal_type, destination: '西湖', distance_m: 3000, evidence: { goal: '去西湖' },
+    }) }) })));
+    const result = await advanceRunRouteDialogue('帮我规划去西湖的跑步路线', undefined, true);
+    expect(result.input?.goal).toEqual({ type: 'destination', query: '西湖' });
+  });
+
   it('requires evidence before accepting model fields and preserves an unanswered preference', async () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, status: 200, json: async () => ({ text: JSON.stringify({ shape: 'loop', preferences: [], goal_type: 'distance', distance_m: 3000, evidence: { shape: '环线' } }) }) })));
     const result = await advanceRunRouteDialogue('环线', { request_text: '跑步', goal: { type: 'distance', distance_m: 5000 } });
@@ -152,6 +209,22 @@ describe('run route skill', () => {
     updateRunRouteSession(first.session_id, { status: 'navigating' });
     expect(() => createRunRouteSession(parseRunRouteText('跑5公里'))).toThrow('已有路线');
     expect(getActiveRunRouteSessionId()).toBe(first.session_id);
+  });
+
+  it('blocks automatic navigation of a road that does not meet the requested distance, even without the map guard', async () => {
+    const session = createRunRouteSession(parseRunRouteText('帮我规划去西湖的跑步路线，三公里'));
+    updateRunRouteSession(session.session_id, { status: 'ready', actual_shape: 'one_way', metrics: { ...session.metrics, planned_distance_m: 1000 } });
+    await expect(startRunNavigation(session.session_id, true)).rejects.toThrow('里程未达到目标');
+    expect(readRunRouteSession(session.session_id)?.navigation_owner).toBeUndefined();
+  });
+
+  it.each([false, true])('blocks a saved T-shaped route before GPS/BLE access (automatic: %s)', async automatic => {
+    const session = createRunRouteSession(parseRunRouteText('帮我规划去西湖的跑步路线，三公里'));
+    updateRunRouteSession(session.session_id, { status: 'ready', actual_shape: 'one_way',
+      planned_path: [[120, 30], [120, 30.003], [120.005, 30.003], [120.002, 30.003], [119.995, 30.003]],
+      metrics: { ...session.metrics, planned_distance_m: 3000 } });
+    await expect(startRunNavigation(session.session_id, automatic)).rejects.toThrow('支路折返');
+    expect(readRunRouteSession(session.session_id)?.navigation_owner).toBeUndefined();
   });
 
   it('converts high-level route geometry once for the map and native GPS and blocks sample execution', () => {

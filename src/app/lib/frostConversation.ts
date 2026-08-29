@@ -15,7 +15,7 @@ import { resolveSkillRunTarget } from './plaza/skillRoutes';
 import { answerFrostSkill, selectFrostAnswerSkill, type FrostSkillAnswer } from './frostSkillAnswer';
 import { askHealthAdvice, healthSettings, isHealthAdviceRequest, readHealthMemory, type HealthAdvice } from './frostHealthMemory';
 import { HEALTH_GREETING } from './health/healthConsultation';
-import { advanceRunRouteDialogue, isRunRouteCancellation, isRunRouteFollowup, isRunRouteRequest, parseRunRouteFields, type RunRouteDialogue } from './runRouteDialogue';
+import { advanceRunRouteDialogue, isRunRouteAdjustment, isRunRouteCancellation, isRunRouteFollowup, isRunRouteRequest, parseRunRouteFields, type RunRouteDialogue } from './runRouteDialogue';
 import { startRunRouteTask } from './frostHealthTaskmaster';
 import { getActiveRunRouteSessionId, readRunRouteSession } from './runRouteSkill';
 
@@ -45,7 +45,7 @@ function pendingRunRoute(events: FrostAgentEvent[]): RunRouteDialogue | undefine
   const previous = [...events].reverse().find(event => event.type === 'tool.result');
   const reply = previous?.data.tool === 'frost.run_route_dialogue'
     ? (previous.data.result as { data?: FrostConversationReply })?.data : undefined;
-  return reply?.routeDialogue?.needsInput && isRunRouteFollowup(inputText(events)) ? reply.routeDialogue : undefined;
+  return reply?.routeDialogue && (reply.routeDialogue.needsInput || isRunRouteAdjustment(inputText(events))) && isRunRouteFollowup(inputText(events)) ? reply.routeDialogue : undefined;
 }
 
 function pendingSkillQuestion(events: FrostAgentEvent[]): { plan: FrostPlan; delegations: SkillDelegationResult[]; child: SkillDelegationResult } | null {

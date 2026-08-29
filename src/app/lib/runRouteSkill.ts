@@ -4,10 +4,10 @@ export type RoutePoint = [number, number];
 export type RunRoutePreference = 'scenic' | 'flat' | 'low_crossings' | 'lakeside' | 'quiet';
 export type RunRouteShape = 'loop' | 'one_way' | 'out_and_back';
 
-export type RunRouteGoal =
+export type RunRouteMeasure =
   | { type: 'distance'; distance_m: number }
-  | { type: 'duration'; duration_min: number; pace_min_per_km?: number }
-  | { type: 'destination'; query: string };
+  | { type: 'duration'; duration_min: number; pace_min_per_km?: number };
+export type RunRouteGoal = RunRouteMeasure | { type: 'destination'; query: string; target?: RunRouteMeasure };
 
 export interface RunRouteInput {
   activity: 'running' | 'walking';
@@ -61,7 +61,8 @@ export interface RunRouteSession {
   planned_path: RoutePoint[];
   cues?: RunRouteCue[];
   actual_shape?: RunRouteShape;
-  route_evidence?: { candidates: number; via: string[]; crossings: number; turns: number };
+  route_evidence?: { candidates: number; via: string[]; crossings: number; turns: number; target_met?: boolean; distance_tolerance_m?: number;
+    geometry?: { valid: boolean; repeated_distance_m: number; retraced_distance_m: number; longest_retrace_m: number; reason?: string }; turnaround_index?: number };
   navigation_owner?: 'native' | 'web';
   navigation_revision?: string;
   navigation_message?: string;
@@ -126,6 +127,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 export function targetDistanceMeters(goal: RunRouteGoal): number | undefined {
+  if (goal.type === 'destination') return goal.target ? targetDistanceMeters(goal.target) : undefined;
   if (goal.type === 'distance') return clamp(Math.round(goal.distance_m), 500, 50_000);
   if (goal.type === 'duration') {
     const pace = clamp(goal.pace_min_per_km ?? 7, 4, 15);
@@ -134,18 +136,60 @@ export function targetDistanceMeters(goal: RunRouteGoal): number | undefined {
   return undefined;
 }
 
+/** Road routing is approximate; the same tolerance gates UI and voice auto-start. */
+export const runRouteDistanceTolerance = (target: number): number => Math.max(100, target * .05);
+export const runRouteDistanceMatches = (target: number | undefined, actual: number): boolean =>
+  target === undefined || Math.abs(actual - target) <= runRouteDistanceTolerance(target);
+
+const ROUTE_AMOUNT = /([负－-]?[\d.零一二两三四五六七八九十百千半点]+(?:个半)?)\s*(?:个)?\s*(公里|千米|km|米|分钟|小时)(半)?/gi;
+
+function spokenNumber(value: string): number {
+  if (/^[负－-]/.test(value)) return -spokenNumber(value.slice(1));
+  if (/^\d+(?:\.\d+)?$/.test(value)) return Number(value);
+  if (value === '半') return .5;
+  if (value.endsWith('半')) return spokenNumber(value.slice(0, -1).replace(/个$/, '')) + .5;
+  const digits: Record<string, number> = { 零: 0, 一: 1, 二: 2, 两: 2, 三: 3, 四: 4, 五: 5, 六: 6, 七: 7, 八: 8, 九: 9 };
+  if (value.includes('点')) {
+    const [whole, fraction, extra] = value.split('点');
+    if (extra !== undefined || !fraction || [...fraction].some(c => !(c in digits))) return NaN;
+    return spokenNumber(whole || '零') + Number(`0.${[...fraction].map(c => digits[c]).join('')}`);
+  }
+  let total = 0, digit = 0;
+  for (const char of value) {
+    if (char === '十' || char === '百' || char === '千') { total += (digit || 1) * ({ 十: 10, 百: 100, 千: 1000 }[char]); digit = 0; }
+    else if (char in digits) digit = digits[char];
+    else return NaN;
+  }
+  return total + digit;
+}
+
+/** Shared by dialogue and Taskmaster's text fallback; later spoken corrections win. */
+export function parseRunRouteMeasure(text: string): RunRouteMeasure | undefined {
+  const amount = [...text.matchAll(ROUTE_AMOUNT)].at(-1);
+  if (!amount) return undefined;
+  const value = spokenNumber(amount[1]) + (amount[3] ? .5 : 0);
+  if (!Number.isFinite(value)) return undefined;
+  return /分钟|小时/.test(amount[2])
+    ? { type: 'duration', duration_min: value * (amount[2] === '小时' ? 60 : 1) }
+    : { type: 'distance', distance_m: value * (amount[2] === '米' ? 1 : 1000) };
+}
+
+export function parseRunRouteDestination(text: string): string | undefined {
+  const match = text.match(/(?:慢跑到|跑到|跑去|走到)\s*([^，,。！？；;\n]{2,80})/)
+    || text.match(/(?:去|到)\s*([^，,。！？；;\n]{2,30}?)(?:跑步|慢跑|跑)(?=\s*[\d零一二两三四五六七八九十百半])/)
+    || (/(?:规划|设计|安排|推荐|生成).*(?:路线|线路)/.test(text) ? text.match(/(?:去|到)\s*([^，,。！？；;\n]{2,80})/) : null);
+  if (!match) return undefined;
+  let query = match[1].replace(/(?:的)?(?:跑步|慢跑|夜跑|晨跑|步行)?(?:路线|线路).*$/, '');
+  const amountAt = query.search(ROUTE_AMOUNT);
+  if (amountAt >= 0) query = query.slice(0, amountAt).replace(/(?:全程|总共|总程|大约|约|跑步|慢跑|跑|的)\s*$/, '');
+  return query.trim() || undefined;
+}
+
 export function parseRunRouteText(text: string): RunRouteInput {
   const normalized = text.trim();
-  const km = normalized.match(/(\d+(?:\.\d+)?)\s*(?:km|公里|千米)/i);
-  const meters = normalized.match(/(\d{3,5})\s*米/);
-  const minutes = normalized.match(/(\d{1,3})\s*分钟/);
-  const destination = normalized.match(/(?:跑到|跑去|慢跑到|走到|去)\s*([^\s，。！？]{2,24})/);
-  let goal: RunRouteGoal;
-  if (destination) goal = { type: 'destination', query: destination[1] };
-  else if (km) goal = { type: 'distance', distance_m: Number(km[1]) * 1000 };
-  else if (meters) goal = { type: 'distance', distance_m: Number(meters[1]) };
-  else if (minutes) goal = { type: 'duration', duration_min: Number(minutes[1]) };
-  else goal = { type: 'distance', distance_m: 5000 };
+  const measure = parseRunRouteMeasure(normalized), destination = parseRunRouteDestination(normalized);
+  const goal: RunRouteGoal = destination ? { type: 'destination', query: destination, ...(measure ? { target: measure } : {}) }
+    : measure || { type: 'distance', distance_m: 5000 };
 
   const preferences: RunRoutePreference[] = [];
   if (/(风景|好看|公园|绿道)/.test(normalized)) preferences.push('scenic');
@@ -158,7 +202,7 @@ export function parseRunRouteText(text: string): RunRouteInput {
     activity: /(走|散步|快走)/.test(normalized) ? 'walking' : 'running',
     start: 'current_location',
     goal,
-    shape: goal.type === 'destination' ? 'one_way' : /(往返|原路返回)/.test(normalized) ? 'out_and_back' : 'loop',
+    shape: /(往返|原路返回)/.test(normalized) ? 'out_and_back' : goal.type === 'destination' ? 'one_way' : 'loop',
     preferences,
     source: 'user',
     ...(normalized ? { request_text: normalized.slice(0, 240) } : {}),
@@ -171,7 +215,11 @@ function inputFromUnknown(value: Record<string, unknown>, source: RunRouteInput[
   let goal = fromText.goal;
   if (goalType === 'distance' && typeof value.distance_m === 'number') goal = { type: 'distance', distance_m: value.distance_m };
   else if (goalType === 'duration' && typeof value.duration_min === 'number') goal = { type: 'duration', duration_min: value.duration_min };
-  else if (goalType === 'destination' && typeof value.destination === 'string' && value.destination.trim()) goal = { type: 'destination', query: value.destination.trim() };
+  else if (goalType === 'destination' && typeof value.destination === 'string' && value.destination.trim()) {
+    const target: RunRouteMeasure | undefined = typeof value.distance_m === 'number' ? { type: 'distance', distance_m: value.distance_m }
+      : typeof value.duration_min === 'number' ? { type: 'duration', duration_min: value.duration_min } : fromText.goal.type === 'destination' ? fromText.goal.target : undefined;
+    goal = { type: 'destination', query: value.destination.trim(), ...(target ? { target } : {}) };
+  }
   const shape = value.shape === 'one_way' || value.shape === 'out_and_back' || value.shape === 'loop'
     ? value.shape
     : goal.type === 'destination' ? 'one_way' : fromText.shape;
@@ -199,7 +247,8 @@ export function runRouteTaskInput(input: RunRouteInput): Record<string, unknown>
     ? { goal_type: 'distance', distance_m: input.goal.distance_m }
     : input.goal.type === 'duration'
       ? { goal_type: 'duration', duration_min: input.goal.duration_min }
-      : { goal_type: 'destination', destination: input.goal.query };
+      : { goal_type: 'destination', destination: input.goal.query, ...(input.goal.target?.type === 'distance' ? { distance_m: input.goal.target.distance_m }
+        : input.goal.target?.type === 'duration' ? { duration_min: input.goal.target.duration_min } : {}) };
   return {
     ...goal,
     activity: input.activity,

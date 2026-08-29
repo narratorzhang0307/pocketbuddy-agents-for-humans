@@ -26,6 +26,30 @@ beforeEach(() => {
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
 
 describe('badge inputs use the main Frost runtime', () => {
+  it.each((['phone', 'badge_voice'] as const).flatMap(channel => [3, 4, 5].map(km => ({ channel, km }))))(
+    'preserves both West Lake and $km km from $channel all the way to the map session', async ({ channel, km }) => {
+    const text = `帮我规划下去西湖的跑步路线，${km}公里`;
+    const origin = channel === 'phone' ? { channel } : { channel, inputId: `badge:test:destination-distance:${km}` };
+    const result = await sendFrostAgentMessage(text, origin);
+    expect(result.session.status).not.toBe('waiting_user');
+    const route = readRunRouteSession(getActiveRunRouteSessionId()!)!;
+    expect(route.input.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: km * 1000 } });
+    expect(route.metrics.target_distance_m).toBe(km * 1000);
+    expect(route.input.auto_start).toBe(channel === 'badge_voice' ? true : undefined);
+    const navigate = createFrostAutoNavigation({ isActive: () => true, open: vi.fn() });
+    expect(await navigate({ result, input: { text, origin } })).toBe(true);
+  });
+
+  it('replans an already returned destination route when the next phone message changes only the distance', async () => {
+    await sendFrostAgentMessage('帮我规划去西湖的跑步路线，三公里', { channel: 'phone' });
+    const firstId = getActiveRunRouteSessionId();
+    await sendFrostAgentMessage('改成四公里', { channel: 'phone' });
+    const next = readRunRouteSession(getActiveRunRouteSessionId()!)!;
+    expect(next.session_id).not.toBe(firstId);
+    expect(next.input.goal).toEqual({ type: 'destination', query: '西湖', target: { type: 'distance', distance_m: 4000 } });
+    expect(next.input.request_text).toBe('改成四公里');
+  });
+
   it.each(['帮我规划下去西湖的路线', '帮我规划下去西湖的跑步路线', '请帮我规划一下去西湖的跑步路线'])(
     'routes the hardware West Lake command without asking distance or creating a default loop: %s', async text => {
     const origin = { channel: 'badge_voice' as const, inputId: `badge:test:route:west-lake:${Array.from(text).map(c => c.codePointAt(0)!.toString(16)).join('')}` };

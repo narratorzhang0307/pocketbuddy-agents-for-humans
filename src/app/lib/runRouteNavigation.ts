@@ -1,7 +1,8 @@
 import { Capacitor, type PluginListenerHandle } from '@capacitor/core';
 import { gcj02ToWgs84, wgs84ToGcj02 } from '../../../vendor/legacy-city/src/app/lib/location/chinaCoordinates';
 import { frostBadge, nativeFrostBadge } from './frostBadge';
-import { appendRunRouteTrackPoint, distanceInMeters, readRunRouteSession, updateRunRouteSession,
+import { assessRunRouteGeometry } from './runRouteGeometry';
+import { appendRunRouteTrackPoint, distanceInMeters, readRunRouteSession, runRouteDistanceMatches, updateRunRouteSession,
   type RoutePoint, type RunRouteSession } from './runRouteSkill';
 
 export interface RunNavigationSnapshot {
@@ -115,6 +116,10 @@ export async function startRunNavigation(id: string, requireBadge = false): Prom
   try {
     const session = readRunRouteSession(id);
     if (!session) throw new Error('路线会话不存在');
+    if (requireBadge && (session.actual_shape !== session.input.shape || !runRouteDistanceMatches(session.metrics.target_distance_m, session.metrics.planned_distance_m)))
+      throw new Error('路线形状或里程未达到目标，未自动开始。请先在地图明确确认。');
+    const geometry = assessRunRouteGeometry(session.planned_path, session.actual_shape || session.input.shape, session.route_evidence?.turnaround_index);
+    if (!geometry.valid) throw new Error(geometry.reason);
     const useBadge = frostBadge.snapshot().status === 'connected';
     const payload = nativeRunRoutePayload(session, useBadge);
     if (supportsNativeRunNavigation()) {

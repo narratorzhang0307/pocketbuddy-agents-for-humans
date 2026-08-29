@@ -121,7 +121,11 @@ export function routeHealthIntent(text: string): { kind: FrostTaskKind; skill: s
         ...(/(沿湖|沿江|沿河|水边)/.test(text) ? ['lakeside'] : []),
       ],
     };
-    if (destination) { input.goal_type = 'destination'; input.destination = destination; }
+    if (destination) {
+      input.goal_type = 'destination'; input.destination = destination;
+      if (km || meters) input.distance_m = km ? km * 1000 : meters;
+      else if (/\d{1,3}\s*分钟/.test(text)) input.duration_min = minutes;
+    }
     else if (km || meters) { input.goal_type = 'distance'; input.distance_m = km ? km * 1000 : meters; }
     else if (/\d{1,3}\s*分钟/.test(text)) { input.goal_type = 'duration'; input.duration_min = minutes; }
     else { input.goal_type = 'distance'; input.distance_m = 5000; }
