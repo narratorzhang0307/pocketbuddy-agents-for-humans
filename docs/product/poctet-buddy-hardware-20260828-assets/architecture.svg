@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
+  <defs><marker id="arr" markerWidth="9" markerHeight="9" refX="7" refY="4" orient="auto"><path d="M0 0L7 4L0 8" fill="none" stroke="#4a6a7e" stroke-width="2"/></marker></defs>
+  <rect width="1600" height="1200" fill="white"/>
+  <g font-family="PingFang SC,Arial,sans-serif" fill="#173349">
+    <text x="70" y="68" font-size="36" font-weight="600">硬件是入口，手机是执行中枢，专业模型按需协同</text>
+    <text x="70" y="112" font-size="23" fill="#667985">Poctet Buddy／口袋搭子 · 产品职责分层</text>
+    <rect x="70" y="154" width="1460" height="140" rx="15" fill="#eaf1f7" stroke="#8aa6b9" stroke-width="2"/>
+    <text x="100" y="201" font-size="29" font-weight="600">实体硬件｜OJBadge · ESP32-S3</text>
+    <text x="100" y="246" font-size="24">按键／触屏／麦克风 → 真实输入</text>
+    <text x="925" y="246" font-size="24">圆屏／扬声器 ← 可见、可听反馈</text>
+    <path d="M800 294V334" stroke="#4a6a7e" stroke-width="3" marker-end="url(#arr)"/>
+    <text x="839" y="326" font-size="21">BLE：控制、事件、PCM 音频与校验图片</text>
+    <rect x="70" y="351" width="1460" height="158" rx="15" fill="#f4f6f9" stroke="#a2b2bd" stroke-width="2"/>
+    <text x="100" y="395" font-size="29" font-weight="600">手机｜iOS 原生桥＋React／Capacitor App</text>
+    <text x="100" y="440" font-size="24">原生 ASR／BLE／GPS／TTS／授权</text>
+    <text x="925" y="440" font-size="24">Photos · 地球 · Agents · Frost</text>
+    <text x="100" y="481" font-size="22" fill="#526976">手机相机与相册提供视觉输入；女性运动使用本地 MediaPipe 关键点</text>
+    <path d="M800 509V550" stroke="#4a6a7e" stroke-width="3" marker-end="url(#arr)"/>
+    <rect x="70" y="565" width="705" height="192" rx="15" fill="#edf4f8" stroke="#8aa6b9" stroke-width="2"/>
+    <rect x="805" y="565" width="725" height="192" rx="15" fill="#f1f5eb" stroke="#9bad87" stroke-width="2"/>
+    <text x="100" y="611" font-size="29" font-weight="600">Agent Taskmaster</text>
+    <text x="100" y="653" font-size="23">主／子 Agent · 目标 · 调度 · 有限循环</text>
+    <text x="100" y="692" font-size="23">会话记忆 · 长期背景 · 结果与副作用校验</text>
+    <text x="100" y="731" font-size="21" fill="#526976">登记／装备／权限／确认／预算／取消</text>
+    <text x="835" y="611" font-size="29" font-weight="600">Skill Taskmaster</text>
+    <text x="835" y="653" font-size="23">可视化画布 → 编译 → 结构预览／草稿</text>
+    <text x="835" y="702" font-size="23">自定义图运行 → 受控能力适配器</text>
+    <path d="M828 673H1498" stroke="#9bad87" stroke-width="2" stroke-dasharray="7 6"/>
+    <text x="835" y="739" font-size="21" fill="#526976">下半层待接通：预览不读取数据、不执行动作</text>
+    <path d="M423 757V801" stroke="#4a6a7e" stroke-width="3" marker-end="url(#arr)"/>
+    <path d="M1168 757V801" stroke="#4a6a7e" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arr)"/>
+    <rect x="70" y="818" width="1460" height="179" rx="15" fill="#f8f6f0" stroke="#c0b596" stroke-width="2"/>
+    <text x="100" y="862" font-size="29" font-weight="600">专业能力与服务｜各自部署、各自返回证据</text>
+    <text x="100" y="906" font-size="23">练了吗：RTMO＋ST-GCN</text>
+    <text x="605" y="906" font-size="23">识鸟：PANNs＋分类头</text>
+    <text x="1100" y="906" font-size="23">路线：高德＋GPS</text>
+    <text x="100" y="950" font-size="23">Photos：Qwen 定位＋冻结 SAM＋Harness</text>
+    <text x="840" y="950" font-size="23">咨询／理解：Qwen＋受限上下文</text>
+    <rect x="70" y="1032" width="1460" height="98" rx="12" fill="#f4f6f9"/>
+    <text x="800" y="1073" text-anchor="middle" font-size="25" font-weight="600">用户确认的生活事实与目标 → 有限记忆 → 下一次行动背景</text>
+    <text x="800" y="1110" text-anchor="middle" font-size="21" fill="#667985">不是所有模型都在硬件上运行；不是所有专业会话都默认长期保存</text>
+  </g>
+</svg>

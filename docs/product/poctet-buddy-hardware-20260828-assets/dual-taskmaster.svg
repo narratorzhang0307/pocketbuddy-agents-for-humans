@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="930" viewBox="0 0 1600 930">
+  <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="none" stroke="#48677b" stroke-width="2"/></marker></defs>
+  <rect width="1600" height="930" fill="#ffffff"/>
+  <g font-family="PingFang SC,Arial,sans-serif" fill="#183348">
+    <text x="70" y="72" font-size="37" font-weight="600">同一个伙伴，两类 Taskmaster</text>
+    <text x="70" y="118" font-size="23" fill="#61727d">一个理解目标并组织协作；一个把用户的做法变成可复用的 Skill</text>
+    <rect x="70" y="165" width="690" height="530" rx="18" fill="#edf4f8" stroke="#8ba9bd" stroke-width="2"/>
+    <rect x="840" y="165" width="690" height="530" rx="18" fill="#f1f5eb" stroke="#9bad87" stroke-width="2"/>
+    <text x="105" y="218" font-size="31" font-weight="600">Agent Taskmaster</text>
+    <text x="105" y="258" font-size="23">主／子 Agent 的 Harness · 当前运行体系</text>
+    <text x="875" y="218" font-size="31" font-weight="600">Skill Taskmaster</text>
+    <text x="875" y="258" font-size="23">可视化创作 → 编译 → 受控运行</text>
+    <rect x="110" y="290" width="610" height="62" rx="9" fill="white" stroke="#8ba9bd"/>
+    <text x="415" y="331" text-anchor="middle" font-size="24">实体输入／App 目标 → Frost 主 Agent</text>
+    <path d="M415 352V390" stroke="#48677b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="110" y="398" width="610" height="62" rx="9" fill="white" stroke="#8ba9bd"/>
+    <text x="415" y="439" text-anchor="middle" font-size="24">已装备能力 → 专业子 Agent → 真实交接</text>
+    <path d="M415 460V498" stroke="#48677b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="110" y="506" width="610" height="62" rx="9" fill="white" stroke="#8ba9bd"/>
+    <text x="415" y="547" text-anchor="middle" font-size="24">任务状态／权限／预算／取消／结果证据</text>
+    <text x="110" y="618" font-size="22">长期目标与确认记忆按需进入上下文</text>
+    <text x="110" y="655" font-size="22">等待、失败与真实完成各自可见</text>
+    <rect x="880" y="290" width="610" height="62" rx="9" fill="white" stroke="#9bad87"/>
+    <text x="1185" y="331" text-anchor="middle" font-size="24">技能画布：目标＋能力积木＋Skill 形象</text>
+    <path d="M1185 352V390" stroke="#48677b" stroke-width="3" marker-end="url(#arrow)"/>
+    <rect x="880" y="398" width="610" height="62" rx="9" fill="white" stroke="#9bad87"/>
+    <text x="1185" y="439" text-anchor="middle" font-size="24">结构编译：依赖／权限／停止规则／草稿</text>
+    <path d="M1185 460V498" stroke="#48677b" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow)"/>
+    <rect x="880" y="506" width="610" height="62" rx="9" fill="white" stroke="#9bad87" stroke-width="2" stroke-dasharray="8 6"/>
+    <text x="1185" y="547" text-anchor="middle" font-size="24">适配器＋逐步执行＋真实证据（待接通）</text>
+    <text x="880" y="618" font-size="22">当前可以创作、编译、预览和保存</text>
+    <text x="880" y="655" font-size="22">执行接入后，成为可装备、可调用的 Skill</text>
+    <path d="M1185 695V738H415V702" fill="none" stroke="#48677b" stroke-width="3" stroke-dasharray="8 6" marker-end="url(#arrow)"/>
+    <rect x="590" y="719" width="420" height="40" fill="white"/>
+    <text x="800" y="747" text-anchor="middle" font-size="22">通过登记与授权后进入能力目录</text>
+    <rect x="70" y="788" width="1460" height="82" rx="12" fill="#f4f6f9"/>
+    <text x="800" y="822" text-anchor="middle" font-size="23" font-weight="600">共同底座：能力合同 · 权限与确认 · 状态与证据 · 有边界的记忆</text>
+    <text x="800" y="854" text-anchor="middle" font-size="20" fill="#61727d">硬件参与采集和反馈，手机承接执行协调；图预览不等于真实任务完成</text>
+  </g>
+</svg>
