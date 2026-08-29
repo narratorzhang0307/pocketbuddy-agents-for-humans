@@ -20,6 +20,12 @@
 
 Pocket Buddy 是一个把 AI 伙伴、城市探索、轻量养成和运动健康连接起来的随身陪伴应用。Photos 记录饮食，Earth 承载城市探索与伙伴养成，Agents 提供 Frost 与专业 Skill；可选的电子徽章让同一个伙伴通过按键、圆屏和声音陪伴用户。
 
+<p align="center">
+  <img src="docs/assets/readme/pocket-buddy-presentation/physical-agent-overview.jpg" alt="Pocket Buddy 实体 Agent 总览：圆屏、麦克风、扬声器、按键、触摸与 BLE" width="100%">
+</p>
+
+> README 中的产品图选自《口袋搭子 · Pocket Buddy》演示稿；当前功能完成度与验证边界仍以本文和源码记录为准。
+
 ## 1. 项目背景
 
 日常生活中，运动、饮食记录、路线规划和兴趣探索往往分散在不同应用里。用户需要反复解释自己的目标，也需要靠意志力不断回到枯燥的记录页面。另一类 AI 应用能给出很多建议，却不一定能把建议接到一个具体、可执行的动作上。
@@ -43,6 +49,8 @@ Pocket Buddy 从两个问题出发：
 | 想减少运动中操作手机的人 | 希望通过简单语音获得回应 | 可选的电子徽章按键输入和状态反馈 |
 
 典型场景是下班后的一次短途散步：用户打开 Earth，选择同行角色，开始地图探索，在喜欢的位置种下一株虚拟植物；结束后再与 Frost 交流今天的运动或饮食。具备相应权限、设备与服务时，也可以从对话进入训练页面，或通过徽章发起语音交互。
+
+![跟着 Frost 过一天：早餐、训练、跑步、识鸟与回顾](docs/assets/readme/pocket-buddy-presentation/a-day-with-frost.jpg)
 
 ## 3. 技术栈
 
@@ -76,6 +84,8 @@ Frost 不只回答问题，还能把明确请求交给地图、训练和饮食�
 ### 4.3 手机与小型硬件共享同一个角色
 
 电子徽章不是另开一个聊天入口，而是把同一 Frost 会话延伸到实体按键、圆屏和声音。它探索了运动、散步等不方便持续触屏的场景，也保留了明确的开始、停止和权限边界。
+
+![同一枚 Pocket Buddy 徽章组合动作训练、女性运动、自然发现与 Skill Canvas](docs/assets/readme/pocket-buddy-presentation/one-badge-multiple-skills.jpg)
 
 ### 4.4 将“模型建议”与“真实发生”分开
 
@@ -200,6 +210,8 @@ GPS、麦克风、物种识别和各自的数据源都需要独立权限与验�
 ### 电子吧唧：轻交互入口
 
 吧唧承担录音、屏幕角色、状态和声音交互；手机承担蓝牙桥接、本机转写、模型请求及需要相机的能力。硬件固件、iOS 桥接、App 适配和资源都在本仓库。
+
+![AgentLink 将按键、触摸、麦克风、圆屏、扬声器和电量能力交给 Agent](docs/assets/readme/pocket-buddy-presentation/agentlink-hardware-capabilities.jpg)
 
 常规语音链路是：**按键录音 → BLE → iPhone 本机 ASR → Frost → Qwen / 对应 Skill → 文字回复 → 按授权合成并播放语音**。MiniMax 用于已接入的语音回复路径，不代表全部提示音都要调用云 API。
 
