@@ -338,8 +338,6 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
         <div className="font-pixel text-[9px] uppercase tracking-[0.14em] leading-none">POCKET EARTH · QWEN + MNN</div>
       </div>}
 
-      {!embedded && <div className="shrink-0 border-b-2 border-black p-3"><FitnessAgentEntry onOpen={() => runSkill('frost')} /></div>}
-
       {/* 标题 */}
       {!embedded && <div className="px-4 py-4 border-b-2 border-black bg-white shrink-0">
         <div className="mb-2 flex min-w-0 items-center justify-between gap-3">
@@ -347,15 +345,17 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
           <span className="max-w-[46%] shrink-0 border-2 border-black bg-[#E8F8EF] px-2 py-1 text-center font-pixel text-[7px] leading-relaxed tracking-wider text-[#087C49]">{CORE_SKILL_ITEMS.length} CORE</span>
         </div>
         <p className="text-xs text-black/70 tracking-wide font-medium">
-          跑步、女性运动与动作训练 · 更多能力在下方
+          跑步、识鸟、女性运动与动作训练 · 更多能力在下方
         </p>
       </div>}
+
+      {!embedded && <div className="shrink-0 border-b-2 border-black p-3"><FitnessAgentEntry onOpen={() => runSkill('frost')} /></div>}
 
       {/* agent 分组列表（可滚动） */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
         <section aria-label="核心能力">
           <div className="mb-2 flex items-center justify-between gap-2 border-b-2 border-black pb-2">
-            <div><h2 className="text-[15px] font-black tracking-wide">核心能力</h2><p className="mt-1 text-[9px] text-black/55">跑步路线 · 女性运动 · AI 动作训练</p></div>
+            <div><h2 className="text-[15px] font-black tracking-wide">核心能力</h2><p className="mt-1 text-[9px] text-black/55">跑步路线 · 识鸟 · 女性运动 · AI 动作训练</p></div>
             <span className="shrink-0 bg-[#00ff88] px-2 py-1 font-pixel text-[7px]">{CORE_SKILL_ITEMS.length} CORE</span>
           </div>
           {renderSkillCards(CORE_SKILL_ITEMS, true)}

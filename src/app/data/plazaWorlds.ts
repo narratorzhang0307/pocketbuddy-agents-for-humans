@@ -1,3 +1,5 @@
+import { skillAvatarFor } from '../lib/skill/avatars';
+
 export type PlazaLandmark = {
   type: string;
   name: string;
@@ -35,7 +37,7 @@ export type PlazaWorld = {
 
 export const PLAZA_NETWORK_LABEL = 'Pocket Buddy 健康网络';
 
-// The public Agent World intentionally contains only the current health product.
+// The public Agent World contains the current health product and bird listening.
 // Legacy culture, entertainment and travel demos must not re-enter this catalogue.
 export const PLAZA_WORLDS: PlazaWorld[] = [
   {
@@ -62,6 +64,32 @@ export const PLAZA_WORLDS: PlazaWorld[] = [
       name: '路路',
       role: '跑步路线员',
       avatar: '/assets/animal-agent-avatars/animal-001-r03-c04.png',
+    },
+  },
+  {
+    id: 'w_bird_listener',
+    name: '识鸟',
+    english: 'BIRD LISTENER',
+    owner: 'Pocket Buddy',
+    agentKind: 'mic',
+    climate: '实体键唤起识鸟，触屏长按录制鸟叫',
+    temperament: '复用现有鸟叫识别服务与十二鸟图目录，结果图片按需投送到圆屏',
+    accent: '#18784b',
+    paper: '#ffe3ce',
+    coordinate: 'BLE · NATIVE · OSS',
+    landmarks: [
+      { type: 'audio', name: '硬件录音与手机接收', source: 'BLE 原生桥' },
+      { type: 'recognition', name: '鸟叫识别', source: 'T5 自建识别服务' },
+      { type: 'display', name: '识别结果与圆屏图片', source: 'BirdCatalog · OSS' },
+    ],
+    residents: [{ name: '聆听小鸟', personality: '陪你听鸟叫，展示识别结果与对应鸟图' }],
+    skillIds: ['frost.bird-listener'],
+    coreSkill: true,
+    entryTarget: 'frost-bird-listener',
+    publisher: {
+      name: '聆听小鸟',
+      role: '自然聆听员',
+      avatar: skillAvatarFor('frost.bird-listener').src,
     },
   },
   {

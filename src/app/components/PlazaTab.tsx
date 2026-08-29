@@ -68,13 +68,12 @@ function NetworkHeader({ active, canvasSkillCount, onChange, onOpenFitness }: { 
       ? '定义目标、组合能力模块与选择技能形象'
     : active === 'myagent'
       ? '从照片建立口袋伙伴 · 形象、人格与记忆只在确认后保存'
-      : '健康 Skill 广场 · 浏览运动、恢复与营养能力';
+      : 'Skill 广场 · 浏览运动、自然探索与健康能力';
   return (
     <>
       <div className="flex h-[30px] shrink-0 items-center justify-center border-b-2 border-black bg-[#EAEAEA] px-4">
         <div className="font-pixel text-[9px] uppercase leading-none tracking-[0.14em]">POCKET BUDDY · AGENT NETWORK</div>
       </div>
-      <div className="shrink-0 border-b-2 border-black p-3"><FitnessAgentEntry onOpen={onOpenFitness} /></div>
       <div className="shrink-0 border-b-2 border-black bg-white px-4 py-3.5">
         <div className="flex min-w-0 items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
@@ -94,6 +93,7 @@ function NetworkHeader({ active, canvasSkillCount, onChange, onOpenFitness }: { 
           <button type="button" aria-pressed={active === 'worlds'} onClick={() => onChange('worlds')} className={`whitespace-nowrap border px-2 py-1.5 font-pixel text-[7px] ${active === 'worlds' ? 'border-[#00ff88] bg-[#00ff88] text-black' : 'border-white/50 text-white/70'}`}>AGENT WORLD</button>
         </div>
       </div>
+      <div className="shrink-0 border-b-2 border-black p-3"><FitnessAgentEntry onOpen={onOpenFitness} /></div>
     </>
   );
 }

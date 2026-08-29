@@ -5,8 +5,8 @@ import { HealthSkillRegistry } from '../../../frost-agent/taskmaster';
 import { PLAZA_SKILL_IDS, PLAZA_WORLDS } from './plazaWorlds';
 
 describe('Plaza world registry', () => {
-  it('keeps only the health-focused demo worlds', () => {
-    expect(PLAZA_WORLDS.map((world) => world.id)).toEqual(['w_run_route', 'w_hermotion', 'w_tongue']);
+  it('keeps the current health worlds and the requested bird listening entry', () => {
+    expect(PLAZA_WORLDS.map((world) => world.id)).toEqual(['w_run_route', 'w_bird_listener', 'w_hermotion', 'w_tongue']);
     expect(new Set(PLAZA_WORLDS.map((world) => world.id)).size).toBe(PLAZA_WORLDS.length);
   });
 
@@ -74,9 +74,10 @@ describe('Plaza world registry', () => {
     });
   });
 
-  it('marks the integrated health experiences as core Skills', () => {
+  it('marks the integrated health and bird listening experiences as core Skills', () => {
     expect(PLAZA_WORLDS.filter((world) => world.coreSkill).map((world) => world.id)).toEqual([
       'w_run_route',
+      'w_bird_listener',
       'w_hermotion',
       'w_tongue',
     ]);
