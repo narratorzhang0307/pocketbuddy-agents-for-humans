@@ -16,12 +16,13 @@ Frost Taskmaster keeps one goal and advances it through registered tools, explic
 
 1. Receives an English or Chinese goal through the Pocket Buddy app or Frost wearable.
 2. Uses Gemini 3.5 Flash to choose the next verifiable action.
-3. Asks only for information required by the selected skill.
-4. Delegates through the Frost Agent Loop and Taskmaster, which enforce tool registration, budgets, permissions, timeouts, and cancellation.
-5. Uses AMap for the production route and map experience; AMap remains a disclosed third-party integration.
-6. Opens the actual skill or action map instead of claiming that an action happened in chat.
-7. Accepts completion only when a tool, page, device, or health-event receipt supplies evidence.
-8. Writes privacy-bounded run metadata to Firestore and emits a matching Cloud Run trace ID.
+3. Routes every model request through a server-owned, versioned Prompt Harness that enforces authority, context, output, timeout, and JSON rules.
+4. Asks only for information required by the selected skill.
+5. Delegates through the Frost Agent Loop and Taskmaster, which enforce tool registration, budgets, permissions, timeouts, and cancellation.
+6. Uses AMap for the production route and map experience; AMap remains a disclosed third-party integration.
+7. Opens the actual skill or action map instead of claiming that an action happened in chat.
+8. Accepts completion only when a tool, page, device, or health-event receipt supplies evidence.
+9. Writes privacy-bounded run metadata to Firestore and emits a matching Cloud Run trace ID.
 
 ## Required Google stack
 
@@ -55,6 +56,7 @@ npm start
 Open `http://127.0.0.1:3009/`. For an English, non-secret provider inspection page, open `http://127.0.0.1:3009/agentic-demo.html`.
 
 Google Cloud deployment and IAM instructions are in [`deploy/all-things-agentic/README.md`](../../../deploy/all-things-agentic/README.md).
+The current backend contract and Taiwan operator handoff are in [`docs/backend/README.md`](../../backend/README.md). The official requirement mapping is in [`OFFICIAL_REQUIREMENTS_AUDIT.md`](OFFICIAL_REQUIREMENTS_AUDIT.md).
 
 ## Proof expected in the submission
 

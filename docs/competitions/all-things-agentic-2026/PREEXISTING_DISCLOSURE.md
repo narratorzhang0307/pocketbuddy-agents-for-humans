@@ -8,6 +8,8 @@ This submission is the **Frost Taskmaster Google competition edition**, created 
 - Server-selected Gemini provider for main Taskmaster and skill-agent decisions
 - Cloud Run container and deployment flow
 - Firestore execution-evidence store and trace correlation
+- Versioned server-owned Prompt Harness, structured-output validation, and cloud data allowlist
+- Taiwan-region GCP preflight and reproducible operator handoff
 - Public agentic-readiness endpoint
 - English technical inspection page and submission documentation
 - Competition architecture diagram, demo script, verification, and Devpost copy
