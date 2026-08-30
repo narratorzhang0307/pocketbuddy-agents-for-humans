@@ -32,7 +32,7 @@ describe('Google agent provider', () => {
       GEMINI_MODEL: 'gemini-3.5-flash',
     }, { client: { models: { generateContent } } })
 
-    const result = await provider.complete({ prompt: 'plan a run', system: 'return JSON', json: true, task: 'run-route-intent' })
+    const result = await provider.complete({ prompt: 'plan a run', system: 'return JSON', json: true, maxOutputTokens: 512 })
 
     expect(provider).toMatchObject({ configured: true, framework: '@google/genai', transport: 'gemini-api' })
     expect(result.text).toContain('ask_user')

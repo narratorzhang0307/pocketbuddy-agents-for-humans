@@ -20,6 +20,9 @@ describe('Firestore agent evidence store', () => {
       traceId: 'trace_12345678',
       status: 'completed',
       task: 'run-route-intent',
+      promptProtocol: 'frost-agent-prompt-harness/v1',
+      promptVersion: '1.0.0',
+      promptProfile: 'route',
       provider: 'Google Gen AI SDK',
       model: 'gemini-3.5-flash',
       framework: '@google/genai',
@@ -33,7 +36,10 @@ describe('Firestore agent evidence store', () => {
     expect(collection).toHaveBeenCalledWith('frost_agent_runs')
     expect(doc).toHaveBeenCalledWith('trace_12345678')
     const stored = set.mock.calls[0][0]
-    expect(stored).toMatchObject({ protocol: 'frost-agent-evidence/v1', task: 'run-route-intent' })
+    expect(stored).toMatchObject({
+      protocol: 'frost-agent-evidence/v1', task: 'run-route-intent',
+      promptProtocol: 'frost-agent-prompt-harness/v1', promptVersion: '1.0.0', promptProfile: 'route',
+    })
     expect(JSON.stringify(stored)).not.toContain('private health context')
     expect(JSON.stringify(stored)).not.toContain('must-not-be-stored')
   })

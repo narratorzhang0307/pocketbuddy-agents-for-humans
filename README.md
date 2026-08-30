@@ -151,6 +151,7 @@ Pocket Buddy 已有比赛前的产品、源码和开发记录。新的 GitHub �
 - [English submission overview](docs/competitions/all-things-agentic-2026/README.md)
 - [Devpost submission copy](docs/competitions/all-things-agentic-2026/DEVPOST_SUBMISSION.md)
 - [Cloud Run deployment](deploy/all-things-agentic/README.md)
+- [当前统一后端与台湾部署交接入口](docs/backend/README.md)
 - [Judge-facing demo page](public/agentic-demo.html)
 
 Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问答放进同一个长期陪伴角色 **Frost**。你可以在手机里打字，也可以通过电子吧唧说话；Frost 结合已授权的记忆理解目标，选择能力，把真实结果带回同一个会话。
