@@ -210,6 +210,7 @@
             <dt>Model</dt><dd id="model">—</dd>
             <dt>Framework</dt><dd id="framework">—</dd>
             <dt>Transport</dt><dd id="transport">—</dd>
+            <dt>Prompt policy</dt><dd id="prompt-harness">—</dd>
             <dt>Cloud Run</dt><dd id="cloud-run">—</dd>
             <dt>Firestore</dt><dd id="firestore">—</dd>
             <dt>Map layer</dt><dd id="map">AMap (preserved product integration)</dd>
@@ -249,8 +250,9 @@
           write('model', data.agent?.model);
           write('framework', data.agent?.framework);
           write('transport', data.agent?.transport);
+          write('prompt-harness', data.promptHarness ? `${data.promptHarness.protocol} · ${data.promptHarness.version}` : 'Not reported');
           write('cloud-run', data.cloudRun?.revision || data.cloudRun?.service || 'Local / not reported');
-          write('firestore', data.evidence?.enabled ? `Enabled · ${data.evidence.collection}` : 'Disabled');
+          write('firestore', data.evidence?.enabled ? `Enabled${data.evidence.required ? ' + required' : ''} · ${data.evidence.collection}` : 'Disabled');
           write('map', data.mapProvider === 'amap' ? 'AMap (preserved product integration)' : data.mapProvider);
         } catch (error) {
           status.className = 'pill not-ready';
@@ -278,8 +280,9 @@
             `provider: ${data.provider || 'unknown'}`,
             `model: ${data.model || 'unknown'}`,
             `framework: ${data.framework || 'unknown'}`,
+            `prompt policy: ${data.promptHarness ? `${data.promptHarness.protocol} · ${data.promptHarness.profile}` : 'not reported'}`,
             `traceId: ${data.traceId || 'not reported'}`,
-            `evidence: ${data.evidence?.stored ? `stored in ${data.evidence.collection}` : 'not stored'}`,
+            `evidence: ${data.evidence?.status === 'stored' ? `stored in ${data.evidence.collection}` : data.evidence?.status || 'not stored'}`,
           ].join('\n');
         } catch (error) {
           result.textContent = `Request failed: ${error instanceof Error ? error.message : String(error)}`;

@@ -32,6 +32,8 @@ Frost accepts a goal from the Pocket Buddy app or wearable and advances it throu
 
 The model never writes health facts or device effects directly. It returns a structured next-action decision. Frost's runtime validates that decision, executes registered tools, records state transitions, and accepts completion only with evidence.
 
+Every server-side text request also passes through a versioned Prompt Harness. It owns system policy, task profiles, context budgets, output limits, timeouts, and JSON validation. Existing page-specific instructions remain compatible but cannot override the server policy.
+
 ## Challenges
 
 The hardest problem was not generating a plan; it was keeping model reasoning, user approval, device state, and real completion distinct. We also needed the same goal to survive clarification, tool latency, page handoff, cancellation, and a mobile or wearable interaction without silently inventing success.
@@ -42,6 +44,7 @@ The hardest problem was not generating a plan; it was keeping model reasoning, u
 - Main-agent and skill-agent separation with scoped tool access
 - Evidence-gated completion and idempotent health effects
 - Cloud Run and Firestore proof tied together by a trace ID
+- A server-owned prompt hierarchy and machine-checked Firestore evidence allowlist
 - A production route experience that retains AMap rather than replacing a stable domain integration
 - A multimodal path spanning text, voice, mobile UI, camera skills, and a wearable
 
@@ -51,7 +54,7 @@ Agent reliability improves when the model is treated as a decision component rat
 
 ## What's next
 
-We plan to extend the same evidence contract to more background workflows, add user-controlled cloud synchronization for long-running goals, and evaluate additional Google models for visual and audio skills.
+We plan to extend the same evidence contract to more background workflows, add authenticated and user-controlled cloud synchronization for the reserved Firestore/GCS paths, and evaluate additional Google models for visual and audio skills.
 
 ## Data sources
 

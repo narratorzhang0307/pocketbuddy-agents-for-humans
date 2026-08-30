@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Frost Taskmaster Google competition architecture</title>
-  <desc id="desc">Pocket Buddy inputs enter the Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap and writes privacy-bounded evidence to Firestore.</desc>
+  <desc id="desc">Pocket Buddy inputs enter a server-owned Prompt Harness and Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap and writes privacy-bounded evidence to Firestore.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#2d3748"/></marker>
     <style>
@@ -8,7 +8,7 @@
     </style>
   </defs>
   <rect width="1600" height="900" fill="#f7f4ed"/>
-  <text x="80" y="78" class="title">Frost Taskmaster · Google Competition Edition</text>
+  <text x="80" y="78" class="title">Frost Taskmaster · Google Cloud Architecture</text>
   <text x="80" y="115" class="sub">Model proposals are separated from permissions, tool effects, and evidence-backed completion.</text>
 
   <rect x="70" y="210" width="270" height="185" rx="26" fill="#fff" class="box"/>
@@ -17,19 +17,21 @@
   <text x="105" y="338" class="t">Frost BLE wearable</text>
   <text x="105" y="374" class="small">English + Chinese goals</text>
 
-  <rect x="435" y="170" width="530" height="520" rx="34" fill="#edf6ff" stroke="#4285f4" stroke-width="4"/>
+  <rect x="435" y="150" width="530" height="550" rx="34" fill="#edf6ff" stroke="#4285f4" stroke-width="4"/>
   <text x="480" y="222" class="h">Google Cloud Run</text>
   <text x="480" y="256" class="small">Hosted app, API, structured logs, revision identity</text>
 
-  <rect x="485" y="305" width="430" height="125" rx="22" fill="#fff" class="box"/>
-  <text x="520" y="350" class="h">Frost Agent Loop</text>
-  <text x="520" y="386" class="t">Goal · session · budgets · cancel · resume</text>
-  <text x="520" y="416" class="small">Finite state machine; model text is not an effect</text>
+  <rect x="485" y="285" width="430" height="105" rx="22" fill="#fff" class="box"/>
+  <text x="520" y="326" class="h">Server Prompt Harness v1</text>
+  <text x="520" y="360" class="small">Authority · context budget · JSON validation</text>
 
-  <rect x="485" y="480" width="430" height="155" rx="22" fill="#fff" class="box"/>
-  <text x="520" y="525" class="h">Taskmaster + Evidence Gate</text>
-  <text x="520" y="562" class="t">Registered tools · approval · timeout</text>
-  <text x="520" y="598" class="t">Idempotent effects · completion receipts</text>
+  <rect x="485" y="420" width="430" height="105" rx="22" fill="#fff" class="box"/>
+  <text x="520" y="461" class="h">Frost Agent Loop</text>
+  <text x="520" y="495" class="small">Goal · session · budgets · cancel · resume</text>
+
+  <rect x="485" y="555" width="430" height="115" rx="22" fill="#fff" class="box"/>
+  <text x="520" y="596" class="h">Taskmaster + Evidence Gate</text>
+  <text x="520" y="630" class="small">Registered tools · approval · idempotent receipts</text>
 
   <rect x="1060" y="175" width="440" height="210" rx="28" fill="#e8f0fe" stroke="#4285f4" stroke-width="4"/>
   <text x="1100" y="228" class="h">Gemini 3.5 Flash</text>
@@ -57,11 +59,13 @@
   <text x="1290" y="824" class="small">Phone permissions + wearable</text>
 
   <path d="M340 302H435" class="line"/>
-  <path d="M915 350C990 350 995 278 1060 278" class="line"/>
-  <path d="M1060 320C995 320 990 392 915 392" class="line"/>
-  <path d="M915 560H1060" class="line"/>
-  <path d="M700 635V700H285V745" class="line"/>
-  <path d="M700 635V745" class="line"/>
-  <path d="M700 700H1025V745" class="line"/>
-  <path d="M700 680H1395V745" class="line"/>
+  <path d="M915 320C990 320 995 268 1060 268" class="line"/>
+  <path d="M1060 325C995 325 990 370 915 370" class="line"/>
+  <path d="M700 390V420" class="line"/>
+  <path d="M700 525V555" class="line"/>
+  <path d="M915 612H1060" class="line"/>
+  <path d="M700 670V710H285V745" class="line"/>
+  <path d="M700 670V745" class="line"/>
+  <path d="M700 710H1025V745" class="line"/>
+  <path d="M700 695H1395V745" class="line"/>
 </svg>

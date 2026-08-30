@@ -12,7 +12,7 @@ Show the Pocket Buddy home screen and Frost wearable for one short shot.
 
 Show `ARCHITECTURE.svg`.
 
-> Gemini 3.5 Flash proposes the next action through Google's Gen AI SDK. The deterministic Frost Agent Loop owns state, permissions, budgets, tools, and completion. Cloud Run hosts the system, and Firestore records privacy-bounded evidence. AMap remains our production route and map provider.
+> Gemini 3.5 Flash proposes the next action through Google's Gen AI SDK. A server-owned Prompt Harness fixes authority, budget and structured output. The deterministic Frost Agent Loop owns state, permissions, tools, and completion. Cloud Run hosts the system, and Firestore records privacy-bounded evidence. AMap remains our production route and map provider.
 
 ## 0:40–2:35 — Live action workflow
 
@@ -36,6 +36,7 @@ Open the Cloud Run service and show:
 
 - service URL and active revision
 - `/api/agentic-readiness`
+- Prompt Harness protocol/version and Firestore `required` status
 - one structured `frost.agent.completed` log entry
 
 Copy its `traceId`, then show the matching Firestore `frost_agent_runs/{traceId}` document. Point out that prompt and health contents are absent.
