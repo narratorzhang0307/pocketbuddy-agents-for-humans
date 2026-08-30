@@ -16,6 +16,7 @@
     "ios:test": "node --test scripts/ios/provenance.test.mjs scripts/ios/verify-app-icon.test.mjs",
     "ios:open": "cap open ios",
     "agentic:check": "node scripts/agentic/verify-submission.mjs",
+    "agentic:preflight": "node scripts/agentic/preflight-cloud.mjs",
     "preview": "vite preview --config vite.pocketbuddy.config.ts",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
