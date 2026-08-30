@@ -71,6 +71,19 @@ async function main() {
   checks.push(result('Official GitHub remote', remotes.ok && official ? 'pass' : 'fail', official ? 'narratorzhang0307/pocketbuddy' : 'official remote missing'))
   const branch = run('git', ['branch', '--show-current'])
   checks.push(result('Deployment branch', branch.stdout === 'main' ? 'pass' : 'warn', branch.stdout || 'detached', false))
+  const upstream = run('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}'])
+  const upstreamRemote = upstream.ok ? upstream.stdout.split('/')[0] : ''
+  const upstreamBranch = upstream.ok ? upstream.stdout.slice(upstreamRemote.length + 1) : ''
+  const upstreamUrl = upstreamRemote ? run('git', ['remote', 'get-url', upstreamRemote]) : { ok: false, stdout: '' }
+  const canonicalMain = branch.stdout === 'main'
+    && upstreamBranch === 'main'
+    && /github\.com[/:]narratorzhang0307\/pocketbuddy(?:\.git)?$/i.test(upstreamUrl.stdout)
+  checks.push(result(
+    'Canonical main upstream',
+    canonicalMain ? 'pass' : branch.stdout === 'main' ? 'fail' : 'warn',
+    canonicalMain ? `${upstreamRemote}/main -> narratorzhang0307/pocketbuddy` : branch.stdout === 'main' ? 'main does not track the official repository' : 'switch to official main before deployment',
+    branch.stdout === 'main',
+  ))
 
   if (!offline && !checks.some((check) => check.blocking && check.status === 'fail')) {
     const gcloud = String(process.env.GCLOUD_BIN || 'gcloud')
