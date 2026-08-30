@@ -32,6 +32,7 @@ function check(name, condition, message) {
 }
 
 const requiredFiles = [
+  'README.md',
   'Dockerfile',
   '.dockerignore',
   '.gcloudignore',
@@ -63,6 +64,9 @@ const requiredFiles = [
 ];
 
 await Promise.all(requiredFiles.map(checkFile));
+
+const rootReadme = await text('README.md');
+check('Root README uses Google submission identity', rootReadme.includes('All Things Agentic Hackathon 2026') && rootReadme.includes('narratorzhang0307/pocketbuddy'), 'README.md must identify the Google competition and official repository');
 
 const pkg = JSON.parse(await text('package.json'));
 check('Node.js runtime', pkg.engines?.node === '>=22.0.0', 'package.json must require Node.js 22+');

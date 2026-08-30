@@ -1,4 +1,6 @@
-# 烈变参赛 Web Demo 部署
+# Pocket Buddy 兼容 Web Demo 部署
+
+本目录保留现有 `throughtheglass.art` 浏览器体验的隔离部署与回滚方法。Google All Things Agentic Hackathon 的正式 Cloud Run 部署以 [`deploy/all-things-agentic/README.md`](../../all-things-agentic/README.md) 为准。
 
 目标域名是 `pocket-buddy.throughtheglass.art`（有短横线）。原来的 `pocketbuddy.throughtheglass.art`、旧仓库和 iOS 默认 API 地址保持不变。
 
@@ -6,7 +8,7 @@
 
 | 项目 | 新 Demo |
 | --- | --- |
-| 源码 | `narratorzhang0307/Pocket-Buddy` 的 `main` |
+| 源码 | `narratorzhang0307/pocketbuddy` 的 `main` |
 | 发布目录 | `/root/pocket-buddy-demo/releases/<release-id>` |
 | 当前版本 | `/root/pocket-buddy-demo/current` 符号链接 |
 | 私有配置与独立数据 | `/root/pocket-buddy-demo/shared`，不在静态目录、不入 Git |
