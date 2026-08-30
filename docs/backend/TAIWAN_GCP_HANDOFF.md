@@ -131,7 +131,7 @@ curl -fsS "$FROST_CLOUD_RUN_URL/healthz"
 curl -fsS "$FROST_CLOUD_RUN_URL/api/agentic-readiness"
 ```
 
-readiness 必须包含：Gemini 3.5 Flash、`@google/genai`、Cloud Run service/revision、Firestore enabled + required、Prompt Harness v1、`mapProvider: amap`，以及 `services.protocol: pocket-buddy-google-service-boundaries/v1`。`services.reserved` 中的能力必须保持 `enabled:false`。
+readiness 必须包含：Gemini 3.5 Flash、`@google/genai`、Cloud Run service/revision、Firestore enabled + required、Prompt Harness v1、`mapProvider: amap`，以及 `services.protocol: pocket-buddy-google-service-boundaries/v1`。`services.reserved` 中的能力必须保持 `status:not-enabled`；实际 revision 状态以顶层 `agent`、`cloudRun` 和 `evidence` 为准。
 
 然后在正式 UI 完成一次路线工作流：
 

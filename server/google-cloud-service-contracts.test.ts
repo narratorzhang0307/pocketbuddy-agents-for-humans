@@ -6,23 +6,23 @@ describe('Google service boundaries', () => {
     const readiness = assertGoogleCloudServiceReadiness(googleCloudServiceReadiness({ model: 'gemini-3.5-flash' }))
     expect(readiness.protocol).toBe(GOOGLE_CLOUD_SERVICE_PROTOCOL)
     expect(readiness.implemented).toMatchObject({
-      agent: { provider: 'vertex-ai', framework: '@google/genai', model: 'gemini-3.5-flash', enabled: true },
-      compute: { provider: 'cloud-run', enabled: true },
-      evidence: { provider: 'firestore-native', collection: 'frost_agent_runs', enabled: true },
+      agent: { provider: 'vertex-ai', framework: '@google/genai', model: 'gemini-3.5-flash', status: 'implemented' },
+      compute: { provider: 'cloud-run', status: 'implemented' },
+      evidence: { provider: 'firestore-native', collection: 'frost_agent_runs', status: 'implemented' },
     })
   })
 
   it('keeps AMap and device speech explicit instead of pretending they are Google services', () => {
     const readiness = googleCloudServiceReadiness()
-    expect(readiness.retained.map).toMatchObject({ provider: 'amap', enabled: true })
-    expect(readiness.retained.speechInput).toMatchObject({ provider: 'ios-local-speech', enabled: true })
+    expect(readiness.retained.map).toMatchObject({ provider: 'amap', status: 'retained' })
+    expect(readiness.retained.speechInput).toMatchObject({ provider: 'ios-local-speech', status: 'retained' })
   })
 
   it('fails closed when a reserved service is mislabeled as enabled', () => {
     const readiness = googleCloudServiceReadiness()
     expect(() => assertGoogleCloudServiceReadiness({
       ...readiness,
-      reserved: { ...readiness.reserved, push: { ...readiness.reserved.push, enabled: true } },
+      reserved: { ...readiness.reserved, push: { ...readiness.reserved.push, status: 'implemented' } },
     })).toThrow('invalid_reserved_service:push')
   })
 

@@ -53,7 +53,7 @@ Cloud Run 比赛服务设置 `FROST_AGENT_PROVIDER=gemini`，因此正式演示�
 
 响应头 `x-frost-trace-id` 与响应 `traceId`、Cloud Logging 事件和 Firestore `frost_agent_runs/{traceId}` 必须一致。
 
-readiness 的 `services.protocol` 必须为 `pocket-buddy-google-service-boundaries/v1`。其中 `implemented` 只包含当前 Google 比赛闭环；AMap 与端侧语音在 `retained`；尚无 adapter/身份/治理链路的 GCS、Google STT/TTS、FCM 与 Firebase Auth 在 `reserved` 且 `enabled:false`。
+readiness 的 `services.protocol` 必须为 `pocket-buddy-google-service-boundaries/v1`。其中 `implemented` 只包含代码已实现的 Google 比赛闭环；AMap 与端侧语音在 `retained`；尚无 adapter/身份/治理链路的 GCS、Google STT/TTS、FCM 与 Firebase Auth 在 `reserved` 且 `status:not-enabled`。当前 revision 是否真的启用 Gemini、Cloud Run 和 Firestore，仍分别以顶层 `agent`、`cloudRun` 和 `evidence` 的运行状态为准。
 
 ## 3. 流式请求
 

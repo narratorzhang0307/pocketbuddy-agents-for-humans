@@ -129,7 +129,7 @@ const serviceContracts = await text('server/google-cloud-service-contracts.mjs')
 check('Google service protocol', serviceContracts.includes('pocket-buddy-google-service-boundaries/v1'), 'Google service boundaries must be versioned');
 check('AMap truthfully retained', serviceContracts.includes("provider: 'amap'") && serviceContracts.includes("reason: 'mainland-product-fit'"), 'AMap must remain an explicit retained product provider');
 for (const reserved of ['google-cloud-storage', 'google-cloud-speech-to-text', 'google-cloud-text-to-speech', 'firebase-cloud-messaging', 'firebase-auth']) {
-  check(`Reserved service disabled: ${reserved}`, serviceContracts.includes(`provider: '${reserved}', enabled: false`), `${reserved} must not be reported as implemented before its adapter and governance gates exist`);
+  check(`Reserved service disabled: ${reserved}`, serviceContracts.includes(`provider: '${reserved}', status: 'not-enabled'`), `${reserved} must not be reported as implemented before its adapter and governance gates exist`);
 }
 
 const architecture = await text('docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg');
