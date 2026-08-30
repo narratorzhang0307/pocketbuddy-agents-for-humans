@@ -16,6 +16,8 @@
 | TTS / STT / 通知改成 Google 服务 | 本次不迁移：已验证链路使用 iPhone 本地 ASR、现有语音与设备反馈 | 不增加新服务；先保证 Taskmaster + OJBadge 演示稳定 |
 | 地图改 Google 服务 | 不采纳：大陆产品继续使用成熟的 AMap | 配置受最终域名限制的 AMap key |
 
+逐项服务状态以 [`GOOGLE_SERVICE_BOUNDARIES.md`](GOOGLE_SERVICE_BOUNDARIES.md) 为准。特别注意：FCM 是 App 推送，Firebase Auth 短信是登录验证；不要把任何一项写成已经完成的通用短信服务。
+
 这个边界不是少做：比赛主链需要证明 Cloud Run → Prompt Harness → Gemini → Taskmaster → Firestore。把尚无身份/同意/删除链路的原图、录音临时上传到 GCS，反而会扩大风险且不增加 Taskmaster 证明力。
 
 ## A. 先确认参赛身份
@@ -60,6 +62,8 @@ git remote get-url origin
 ```
 
 应分别看到 `origin/main` 和 `https://github.com/narratorzhang0307/pocketbuddy.git`（SSH URL 也可以，但仓库 owner/name 必须相同）。
+
+如果她需要修改代码，不直接在部署机器临时改 `main`：从这个 SHA 建普通 feature branch，在同一 PR 同时修改前端、后端契约、测试和文档；合并后重新从新的 `main` SHA 部署。禁止复制出第二个后端仓库，也禁止用旧 `dist` 覆盖当前源码构建。
 
 ## D. 登录与环境变量
 

@@ -1,12 +1,12 @@
 # 朋友建议与 Smart LTC 参考架构复核
 
-复核日期：2026-08-30
+复核日期：2026-08-31
 正式项目：[`narratorzhang0307/pocketbuddy`](https://github.com/narratorzhang0307/pocketbuddy)
-只读参考：[`jessie0215/Smart_LTC_System`](https://github.com/jessie0215/Smart_LTC_System)，复核提交 `81ceb74`
+只读参考：[`jessie0215/Smart_LTC_System`](https://github.com/jessie0215/Smart_LTC_System)，复核提交 `81ceb7449806669cc71dc6f5b527b6dea54d64b6`
 
 ## 1. 参考原则，不复制 AWS 实现
 
-Smart LTC 的价值不在于服务数量，而在于以下工程纪律：前端、后端、基础设施与文档同仓；API contract-first；模型 Prompt 分层并限制上下文；数据库只存结构化记录、对象存储放媒体；身份与授权在服务端；AI 建议和确认事实分开；部署后有可复验的日志和检查脚本。
+Smart LTC 的价值不在于服务数量，而在于以下工程纪律：前端、后端、基础设施与文档同仓；API contract-first；模型 Prompt 分层并限制上下文；数据库只存结构化记录、对象存储放媒体；身份与授权在服务端；AI 建议和确认事实分开；部署后有可复验的日志和检查脚本。参考仓库只读复核，未复制其代码、AWS 模板或素材。
 
 Pocket Buddy 采用这些原则，但将 AWS 组件映射到比赛需要的最小 GCP 闭环：
 
@@ -20,6 +20,7 @@ Pocket Buddy 采用这些原则，但将 AWS 组件映射到比赛需要的最�
 | CloudWatch provenance | Cloud Logging 结构化事件 + Firestore 同 trace ID 证据 | 已实现 |
 | IaC / deploy / verify | Dockerfile、Cloud Build、GCP 预检、部署与 `agentic:check` | 已实现 |
 | 客户端与后端同一平台协作 | Web/iOS、Agent runtime、服务端、部署、数据和交接同一 GitHub 仓库 | 已实现 |
+| AI proposal 与确认事实分开 | Gemini 只提出下一步；Taskmaster 的工具 receipt、确认门和完成证据决定是否完成 | 已实现 |
 
 ## 2. 截图建议逐项结论
 
@@ -46,7 +47,7 @@ Pocket Buddy 采用这些原则，但将 AWS 组件映射到比赛需要的最�
 
 ### TTS、STT、通知和位置全部迁移云原生
 
-只采纳“统一 provider 边界”的原则，不在比赛截止前替换已经验证的端侧/产品链路。Pocket Buddy 的徽章语音经 iPhone 本地 ASR，地图使用 AMap，现有 TTS 另有服务端授权边界。临时增加 Google Speech、TTS、短信或位置服务会扩大 IAM、费用、隐私和验收面，不是 Taskmaster 主链的必要条件。
+只采纳“统一 provider 边界”的原则，不在比赛截止前替换已经验证的端侧/产品链路。Pocket Buddy 的徽章语音经 iPhone 本地 ASR，地图使用 AMap，现有 TTS 另有服务端授权边界。临时增加 Google Speech、TTS、推送或位置服务会扩大 IAM、费用、隐私和验收面，不是 Taskmaster 主链的必要条件。具体状态与未来替换门见 [`GOOGLE_SERVICE_BOUNDARIES.md`](GOOGLE_SERVICE_BOUNDARIES.md)。
 
 ## 3. 继续开发的强制顺序
 

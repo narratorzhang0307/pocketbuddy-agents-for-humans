@@ -14,6 +14,7 @@
 | Firestore | 已实现：只写运行证据元数据 | [`agent-evidence-store.mjs`](../../server/agent-evidence-store.mjs) |
 | Firestore 完整用户数据 | 已保留路径与契约，比赛版未启用 | [`CURRENT_DATA_BOUNDARIES.md`](CURRENT_DATA_BOUNDARIES.md) |
 | GCS 媒体 | 已保留对象路径，比赛版未上传用户媒体 | [`CURRENT_DATA_BOUNDARIES.md`](CURRENT_DATA_BOUNDARIES.md) |
+| Google / 端侧 / 第三方服务边界 | 已逐项标明“已实现、预留、保留”，不把计划冒充上线能力 | [`GOOGLE_SERVICE_BOUNDARIES.md`](GOOGLE_SERVICE_BOUNDARIES.md) |
 | 地图 | 保留高德地图，不迁移 | [当前架构](CURRENT_GCP_ARCHITECTURE.md) |
 | 台湾 GCP 交接 | 已实现只读预检、部署步骤和证据清单 | [`TAIWAN_GCP_HANDOFF.md`](TAIWAN_GCP_HANDOFF.md) |
 | 参考架构取舍 | 已逐项映射朋友截图与 Smart LTC 参考仓库 | [`REFERENCE_ARCHITECTURE_REVIEW.md`](REFERENCE_ARCHITECTURE_REVIEW.md) |
@@ -26,3 +27,4 @@
 4. 用户健康、精确位置、原图、录音和长期记忆默认留在端侧；上云必须有明确产品授权和访问控制。
 5. 部署只使用 Cloud Run 服务账号访问 Vertex AI / Firestore；密钥不能进入 `VITE_*`、Git 或视频画面。
 6. 正式部署前必须在 `main` 运行 `npm run agentic:preflight`；预检会确认 `main` 的 upstream 确实属于 `narratorzhang0307/pocketbuddy`。
+7. STT、TTS、通知、媒体或地图 provider 的状态只能在真实 adapter、测试、readiness 和部署证据同时存在后改为“已实现”。

@@ -1,6 +1,6 @@
 # 当前 GCP 架构
 
-版本：`pocket-buddy-gcp-architecture/v1`（2026-08-30）
+版本：`pocket-buddy-gcp-architecture/v1`（2026-08-31）
 
 ## 目标
 
@@ -28,6 +28,7 @@ flowchart LR
 - Firestore 当前只写 `frost_agent_runs/{traceId}`，用于把模型调用、Cloud Run revision 和演示证据关联起来。
 - AMap 继续负责中国大陆场景的地图与路线体验。它是披露的第三方数据源，不冒充 Google Cloud 服务。
 - GCS 是未来经过用户明确授权后的二进制媒体存储；比赛提交不需要为了“云原生”上传原图或录音。
+- STT、TTS、推送、用户身份与地图的真实采用状态集中维护在 [`GOOGLE_SERVICE_BOUNDARIES.md`](GOOGLE_SERVICE_BOUNDARIES.md)，避免多个文档各说一套。
 
 ## Google 比赛技术映射
 
@@ -41,4 +42,4 @@ flowchart LR
 
 ## 参考仓库取舍
 
-参考 [`jessie0215/Smart_LTC_System`](https://github.com/jessie0215/Smart_LTC_System) 的 `81ceb74` 后采用了：单一技术栈说明、分层提示词、上下文预算、provider 隔离、部署/验证脚本、日志不保存原文。没有照搬其 AWS Lambda/ECS/Cognito/DynamoDB 服务数量，因为 Pocket Buddy 的比赛闭环用一个 Cloud Run 服务即可，过度拆分会增加交接和失败面。逐项取舍见 [`REFERENCE_ARCHITECTURE_REVIEW.md`](REFERENCE_ARCHITECTURE_REVIEW.md)。
+参考 [`jessie0215/Smart_LTC_System`](https://github.com/jessie0215/Smart_LTC_System) 的 `81ceb7449806669cc71dc6f5b527b6dea54d64b6` 后采用了：单一技术栈说明、分层提示词、上下文预算、provider 隔离、数据最小化、部署/验证脚本，以及“AI 建议不能未经证据门直接成为事实”。没有照搬其 AWS Lambda/ECS/Cognito/DynamoDB 服务数量或代码，因为 Pocket Buddy 的比赛闭环用一个 Cloud Run 服务即可，过度拆分会增加交接和失败面。逐项取舍见 [`REFERENCE_ARCHITECTURE_REVIEW.md`](REFERENCE_ARCHITECTURE_REVIEW.md)。

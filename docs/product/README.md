@@ -2,6 +2,8 @@
 
 当前产品介绍与实现边界以 [项目首页](../../README.md)、[系统架构](../../ARCHITECTURE.md) 和 [Frost 技术说明](../../frost-agent/README.md) 为准。
 
+当前比赛后端只从 [当前后端入口](../backend/README.md)、[当前 GCP 架构](../backend/CURRENT_GCP_ARCHITECTURE.md)、[Google 服务边界](../backend/GOOGLE_SERVICE_BOUNDARIES.md) 和 [当前 API 契约](../backend/CURRENT_API_CONTRACT.md) 开始阅读。
+
 ## 找回的完整产品基线
 
 - [Pocket Buddy 完整说明（2026-08-24 Markdown 基线）](POCKET-BUDDY-OVERVIEW-2026-08-24.md)：完整保留此前 README 的产品闭环、双 Taskmaster、Skill Canvas、能力合同与安全原则。
