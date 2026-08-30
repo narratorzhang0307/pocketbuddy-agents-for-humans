@@ -3,6 +3,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@google-cloud/firestore": "9.0.0",
+    "@google/genai": "2.19.0",
     "sharp": "0.34.5"
   }
 }
