@@ -97,10 +97,6 @@ check('AMap retained', envExample.includes('VITE_MAP_PROVIDER=amap'), 'AMap must
 check('Taiwan Cloud Run default', envExample.includes('GOOGLE_CLOUD_REGION=asia-east1'), '.env.example must describe the Taiwan Cloud Run region');
 check('Taiwan Firestore default', envExample.includes('FROST_FIRESTORE_LOCATION=asia-east1'), '.env.example must describe the permanent Taiwan Firestore location');
 
-const middleMap = await text('vendor/legacy-city/src/app/components/MyMapTab.tsx');
-check('AMap wired to middle action map', middleMap.includes('isPocketAmapStreet = isPublicStreet && pocketEarthMode && !voiceMapRequest') && middleMap.includes('center={POCKET_ACTION_CENTER}'), 'Pocket Earth middle action map must render the real AMap canvas by default');
-check('3D garden requires explicit voice mode', middleMap.includes('setVoiceMapRequest(request)') && middleMap.indexOf('isPocketAmapStreet ?') < middleMap.indexOf('<GardenKnowledgeMap'), 'The legacy 3D garden must not replace the default AMap action map');
-
 const server = await text('server.mjs');
 check('Readiness endpoint', server.includes("'/api/agentic-readiness'"), 'server.mjs must expose /api/agentic-readiness');
 check('Gemini provider wired', server.includes('createGoogleAgentProvider'), 'server.mjs must wire the Google agent provider');

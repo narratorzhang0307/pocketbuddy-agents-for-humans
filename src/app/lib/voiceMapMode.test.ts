@@ -145,9 +145,6 @@ describe('hardware map-mode entry', () => {
     expect(app).toContain("setActiveTab('earth')");
     const tab = source('vendor/legacy-city/src/app/components/MyMapTab.tsx');
     expect(tab).toContain("setStreetView('街头')");
-    expect(tab).toContain('isPocketAmapStreet = isPublicStreet && pocketEarthMode && !voiceMapRequest');
-    expect(tab).toContain('setVoiceMapRequest(request)');
-    expect(tab).toContain('center={POCKET_ACTION_CENTER}');
     const map = source('vendor/legacy-city/src/app/components/StreetGardenLab.tsx');
     expect(map).toContain('startLiveOuting(getCityCompanionGuide(DEFAULT_OUTING_GUIDE_ID).profile, [DEFAULT_OUTING_PET], "leash", [], "gps", inputId)');
     expect(map).toContain('setOutingPetIds([DEFAULT_OUTING_PET_ID])');

@@ -216,8 +216,6 @@ const ANNOTATIONS = [
 // 纯俯视总览；具体城市与西湖卡片仍可由原有标记和 Skill 一键飞入。
 const PERSONAL_WORLD_CENTER: [number, number] = [13.405, 51.2];
 const PERSONAL_WORLD_ZOOM = 4.3;
-const POCKET_ACTION_CENTER: [number, number] = [120.14703, 30.260901];
-const POCKET_ACTION_ZOOM = 12.4;
 
 // —— 缩放阈值 ——
 // 照片 / 紫色图钉 / 文字卡片 / 连线：放大到街道级别才出现
@@ -308,7 +306,6 @@ export default function MyMapTab({
     treeFromUrl ? '种植物' : '街头',
   );
   const [liveOuting, setLiveOuting] = useState(false);
-  const [voiceMapRequest, setVoiceMapRequest] = useState(getVoiceMapState);
   const handleLiveOutingChange = useCallback((active: boolean) => {
     setLiveOuting(active);
     onLiveOutingChange?.(active);
@@ -321,11 +318,9 @@ export default function MyMapTab({
   const isPlantView = !universeOnly && streetView === '种植物';
   const isPublicStreet = !universeOnly && streetView === '街头';
   const isJournalView = !universeOnly && streetView === '手帐';
-  const isPocketAmapStreet = isPublicStreet && pocketEarthMode && !voiceMapRequest;
   useEffect(() => {
     if (!pocketEarthMode || universeOnly) return;
     return subscribeVoiceMapMode(request => {
-      setVoiceMapRequest(request);
       if (request?.status !== 'opening') return;
       setStreetView('街头');
       setWorldLayer('public');
@@ -890,8 +885,8 @@ export default function MyMapTab({
       {/* Map Canvas Hero */}
       <div className="city-map-canvas relative flex-1 bg-black border-b-2 border-black overflow-hidden shadow-inner">
         <div className="contents">
-        {/* Pocket Earth 的默认行动地图必须是真实高德底图；只有用户明确
-            发起 3D 伙伴/GPS 地图模式时，才进入原城市花园运行时。 */}
+        {/* 两个世界各自持有独立的高德地图实例：个人层只有底图与知识覆盖物；
+            公共层继续使用既有城市花园运行时。切层即卸载上一实例。 */}
         {isPersonalStreet ? (
           <AmapEarth
             className="z-0"
@@ -905,13 +900,6 @@ export default function MyMapTab({
               className="z-0"
               center={EXHIBIT_MAP_DEMO.coordinates}
               zoom={15.2}
-              onReady={handleMapReady}
-            />
-          ) : isPocketAmapStreet ? (
-            <AmapEarth
-              className="z-0"
-              center={POCKET_ACTION_CENTER}
-              zoom={POCKET_ACTION_ZOOM}
               onReady={handleMapReady}
             />
           ) : (
