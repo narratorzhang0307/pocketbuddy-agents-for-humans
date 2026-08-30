@@ -16,18 +16,18 @@ Skill Canvas → 编译任务图 → 结构预览 / 保存卡片
 
 主 Agent 负责理解与选择，Taskmaster 管理执行边界。每个 `listRoutableSkills()` 中的 Skill 都有 `skill:<skill-id>` 子 Agent 身份；未登记、未装备的能力不能调用。页面的现有 Skill ID、安装状态、权限和能力实现保持不变。不恢复已经移除的旧项目，也不复制模型权重。
 
-## 独立 Qwen 子 Agent
+## 独立模型子 Agent
 
 - `subagents/registry.ts`：从能力目录建立身份、职责与权限边界，而不是仅重命名 UI 的专家标签。
-- `subagents/qwen.ts`：每个子 Agent 独立调用现有 `/api/frost-llm`，携带 `subagent:<skill-id>` 标识。
+- `subagents/qwen.ts`：每个子 Agent 独立调用现有 `/api/frost-llm`，携带 `subagent:<skill-id>` 标识；文件名保留兼容，服务端决定实际 provider。
 - `taskmaster/subagentDelegation.ts`：每次委派创建独立 Agent Loop、命名空间日志和固定工具注册表；记录真实模型名、调用次数与证据 ID。
 - 子 Agent 只能读取自己的 Skill 说明、准备该 Skill 的交接或向用户追问；不能换目标、调用任意工具、直接写健康数据或继续派生 Agent。
 - 追问在原子会话续接，不把主聊天、其他子 Agent 的对话或长期记忆整包发送给它。敏感身份/病历等明确标记阻断云端委派；这不是通用脱敏器，调用方仍不可传入未授权原始数据。
 - 同一 run 的已有报告可重放，不重新付费调用模型。中断会话恢复时暂停等待用户，不重放副作用。
 
-默认子 Agent 模型为 `qwen3.8-max`，只复用服务端 `DASHSCOPE_API_KEY`（或原有 `QWEN_API_KEY`）。`QWEN_MODEL_SUBAGENT` 可以单独覆盖。主 Agent 现有本地 Qwen/确定性健康控制面和其他 API 模型配置不受影响。
+参赛 Cloud Run 部署将 `/api/frost-llm` 选择为 Gemini 3.5（官方 `@google/genai` SDK），而 Taskmaster 的确定性健康控制面保持不变。普通部署仍可选择 Qwen 兼容 provider；`QWEN_MODEL_SUBAGENT` 可以单独覆盖该路径。所有云端凭据只由服务端读取。
 
-2026-08-27 已核对 [Qwen3.8-Max 官方模型说明](https://help.aliyun.com/zh/model-studio/qwen3-8-max)。子 Agent 请求采用有限长度的结构化决策，服务器限制每次最多 1536 输出 tokens，关闭额外思考输出；不是无限上下文或无限推理配置。
+子 Agent 请求采用有限长度的结构化决策，服务器限制输出长度；不是无限上下文或无限推理配置。各 provider 的具体模型名、SDK、传输方式和运行证据由 `/api/agentic-readiness` 与服务端响应公开，而不是由前端声称。
 
 ## 预算与真实状态
 

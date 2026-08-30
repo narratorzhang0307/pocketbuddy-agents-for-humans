@@ -142,6 +142,17 @@ Pocket Buddy 已有比赛前的产品、源码和开发记录。新的 GitHub �
 
 **既有产品的历史稳定节点：[0828最终版](docs/technical/0828-FINAL-MILESTONE.md)** · 旧仓库标签 [`v2026.08.28-final`](https://github.com/narratorzhang0307/pocketbuddy/tree/v2026.08.28-final) · 记录中的 TestFlight 为 `0.1.0 (2026082828)`。该记录不是本次新仓库提交的重新装机验收；本次检查见上方验证记录。
 
+## All Things Agentic Hackathon 2026
+
+本分支把 Frost Taskmaster 作为 **The Taskmaster** 赛道作品提交：`@google/genai` 驱动的 Gemini 3.5 负责受限任务决策，Cloud Run 承载 Agent API，Firestore 仅保存不含提示词和健康内容的运行证据元数据。设备端确定性控制面、确认门、超时和真实完成证据仍是最终执行边界。
+
+地图层继续使用高德地图（AMap），因为它是产品在中国大陆场景中的成熟地图与路线展示能力；Google 技术栈负责 Agent 推理、云端运行与可审计证据，两者职责清晰、不相互冒充。
+
+- [English submission overview](docs/competitions/all-things-agentic-2026/README.md)
+- [Devpost submission copy](docs/competitions/all-things-agentic-2026/DEVPOST_SUBMISSION.md)
+- [Cloud Run deployment](deploy/all-things-agentic/README.md)
+- [Judge-facing demo page](public/agentic-demo.html)
+
 Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问答放进同一个长期陪伴角色 **Frost**。你可以在手机里打字，也可以通过电子吧唧说话；Frost 结合已授权的记忆理解目标，选择能力，把真实结果带回同一个会话。
 
 个性化不只是换一份训练计划：不同用户可以装备不同 Skill，保留自己的目标、偏好和使用记录。模型负责理解与建议，Taskmaster 负责执行边界，手机和硬件承担真实的采集与交互。
@@ -161,7 +172,7 @@ Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问�
 1. **记录今天**：在 Photos 选择餐食照片，观察菜品与热量估算；只有确认确实吃过，才写入今天的记忆。
 2. **补全背景**：保存长期目标、偏好和健康限制；授权后读取手机今日步数，缺失信息保持“未知”。
 3. **提出目标**：对 Frost 说“今天接下来适合吃什么？”或“今天还适合做什么运动？”。
-4. **解释建议**：云端 Qwen 依据本次授权的摘要、事实来源和限制返回建议；建议本身不代表训练已开始。
+4. **解释建议**：云端模型依据本次授权的摘要、事实来源和限制返回建议；参赛部署使用 Gemini 3.5，建议本身不代表训练已开始。
 5. **调用能力**：明确要求“调用健身 Agent”或“调用女性运动 Agent”，进入相应训练入口，继续遵守相机权限和会话校验。
 6. **回到同一份记忆**：已接通的餐食确认、训练完成和步数事件进入健康事实记录；下次建议使用更新后的状态。
 
@@ -182,7 +193,7 @@ Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问�
 - 只读查询可以直接在会话回答，例如天气、食品参考、已记录的睡眠或训练摘要。
 - 明确的能力调用可以自动交接到对应页面，手动“运行”保留为可见入口和回退。
 - 多步骤、缺信息、敏感操作或未授权能力仍会询问、等待或停止，不无限自动执行。
-- Qwen 返回的内容需要校验；生成了计划、进入 `waiting_external` 或出现硬件回执，都不等于任务完成。
+- 模型返回的内容需要校验；生成了计划、进入 `waiting_external` 或出现硬件回执，都不等于任务完成。
 
 ### 练了吗与 Her Motion：两种运动能力
 
@@ -213,7 +224,7 @@ GPS、麦克风、物种识别和各自的数据源都需要独立权限与验�
 
 ![AgentLink 将按键、触摸、麦克风、圆屏、扬声器和电量能力交给 Agent](docs/assets/readme/pocket-buddy-presentation/agentlink-hardware-capabilities.jpg)
 
-常规语音链路是：**按键录音 → BLE → iPhone 本机 ASR → Frost → Qwen / 对应 Skill → 文字回复 → 按授权合成并播放语音**。MiniMax 用于已接入的语音回复路径，不代表全部提示音都要调用云 API。
+常规语音链路是：**按键录音 → BLE → iPhone 本机 ASR → Frost → 服务端选定模型 / 对应 Skill → 文字回复 → 按授权合成并播放语音**。MiniMax 用于已接入的语音回复路径，不代表全部提示音都要调用云 API。
 
 **手机黑屏、后台持续会话和锁屏出声不能仅凭代码存在而承诺可用。** 应以对应安装包、系统状态和真实设备测试为准；本次文档恢复没有安装手机或刷写固件。
 
@@ -245,12 +256,12 @@ Skill 描述身份、版本、输入输出、权限、数据范围、运行方�
 | Frost 统一会话 | [frostAgentRuntime.ts](src/app/lib/frostAgentRuntime.ts)、[frostConversation.ts](src/app/lib/frostConversation.ts) |
 | Agent 循环与子 Agent | [runtime](frost-agent/runtime/)、[subagents](frost-agent/subagents/)、[taskmaster](frost-agent/taskmaster/) |
 | 今日记忆与健康事实 | [frostHealthMemory.ts](src/app/lib/frostHealthMemory.ts)、[Health Taskmaster](frost-agent/taskmaster/README.md) |
-| Qwen、健康建议、语音与 Photos | [server](server/)、[server.mjs](server.mjs) |
+| Gemini Agent、Qwen 兼容能力、健康建议、语音与 Photos | [server](server/)、[server.mjs](server.mjs) |
 | iOS 蓝牙与健康桥接 | [native/frost-badge](native/frost-badge/)、[native/frost-health](native/frost-health/) |
 | OJBadge 固件 | [hardware/ojbadge-agent-link](hardware/ojbadge-agent-link/) |
 | 训练子应用 | [lianlema-portable](lianlema-portable/)、[vendor/her-motion](vendor/her-motion/) |
 
-Qwen、SAM、MiniMax、地图和健康连接器各有配置与授权要求。仓库中保留的其他模型适配代码不等于当前手机已具备完整离线推理，也不改变 Pocket Buddy 的产品定位。
+Gemini、Qwen、SAM、MiniMax、地图和健康连接器各有配置与授权要求。仓库中保留的其他模型适配代码不等于当前手机已具备完整离线推理，也不改变 Pocket Buddy 的产品定位。
 
 ## 本地运行
 
@@ -265,7 +276,7 @@ npm run dev -- --host 127.0.0.1 --port 5174
 打开 `http://127.0.0.1:5174/`。没有模型 Key 或某个外部服务时，相应功能会报缺配置或等待真实服务，不应使用模拟输出假装已接通。
 
 - 地图前端配置按 [.env.example](.env.example) 设置，并限制域名与额度。
-- Qwen / MiniMax 的密钥只放服务端，不能加 `VITE_` 前缀进入浏览器包。
+- Gemini / Qwen / MiniMax 的密钥只放服务端，不能加 `VITE_` 前缀进入浏览器包；Cloud Run 推荐使用服务账号连接 Vertex AI 与 Firestore。
 - Python 服务、模型权重、健康连接器和原始音频不随源码自动安装。
 - 练了吗源码引用的离线教练 MP3 已纳入该子应用的 `assets/audio/`；完整构建步骤见 [当前源码构建说明](docs/development/CURRENT-SOURCE-BUILD.md)。
 
