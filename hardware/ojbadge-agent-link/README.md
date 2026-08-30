@@ -175,6 +175,8 @@ agent_link/
 
 ## Status
 
+The table below is the portable upstream SDK baseline across reference boards. The Pocket Buddy **OJBadge** integration has separate, newer physical-device evidence for voice uplink, speaker downlink, battery, touch, screen/avatar control, and bounded capture delivery; see [README-OJBADGE.md](README-OJBADGE.md). Run `npm run hardware:check` from the Pocket Buddy repository root to recompile and execute the host protocol/privacy/buffer tests.
+
 | Area | State |
 |---|---|
 | BLE advertising, connectable, control service `0xFFC0` | Done |

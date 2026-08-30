@@ -6,7 +6,7 @@ Target duration: **3:40–3:50**. Narration is in English. Keep the core executi
 
 > Health advice is easy. Acting on it is fragmented. A person still has to explain the goal, resolve constraints, check context, open tools, and decide whether anything really happened. Frost Taskmaster carries that workflow to evidence-backed completion.
 
-Show the Pocket Buddy home screen and Frost wearable for one short shot.
+Show the powered OJBadge beside the connected Pocket Buddy phone.
 
 ## 0:20–0:40 — Architecture
 
@@ -16,19 +16,19 @@ Show `ARCHITECTURE.svg`.
 
 ## 0:40–2:35 — Live action workflow
 
-Use an English goal such as:
+Use the physical push-to-talk button for an English goal such as:
 
 > Tomorrow morning, plan a scenic five-kilometer run around West Lake with fewer road crossings, then open the route for me.
 
 Show, without hiding the transitions:
 
-1. Frost receives the goal.
+1. The OJBadge shows the real listening state; release the button and show the same Frost phone session receiving the transcription.
 2. The agent asks one clarification only if a required field is missing.
 3. The Taskmaster trace shows the selected route skill and bounded next action.
 4. Weather/context and route tools run.
 5. The AMap action map opens with the real route.
 6. The UI reports whether the workflow is ready, waiting, failed, or completed; do not call a page open “completed.”
-7. If available, let the Frost wearable display or speak the result for 5–8 seconds.
+7. Let the OJBadge display or speak the bounded result for 5–8 seconds. The phone/cloud remains the Taskmaster; the badge is the embodied input/output surface.
 
 ## 2:35–3:15 — Google Cloud proof
 
@@ -54,3 +54,4 @@ End on the completed route and the project name.
 - English narration or complete English subtitles
 - No credentials, personal health data, precise home location, or unrelated third-party advertising visible
 - Cloud Run proof and live action both visible in the first four minutes
+- If the proprietary wearable is highlighted, be ready to provide physical or remote evaluator access if the organizers request it

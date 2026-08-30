@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it, vi } from 'vitest';
 import { editedMealCandidate, analyzeFoodPhoto } from './photoHarness';
 const meal = { title: '米饭', dishes: ['米饭'], calories_kcal_range: [100, 300] as [number, number], protein_g: 2, carbs_g: 50, fat_g: 1, uncertainty: '估算', model: 'test' };
+const image = 'data:image/jpeg;base64,/9j/test-image-pixels';
 
 describe('Photos meal consistency', () => {
   it('preserves the original candidate when the user does not edit it', () => {
@@ -25,6 +26,28 @@ describe('Photos meal consistency', () => {
     const controller = new AbortController(); controller.abort();
     await expect(analyzeFoodPhoto('unused', controller.signal)).rejects.toThrow();
     expect(fetcher).not.toHaveBeenCalled(); vi.unstubAllGlobals();
+  });
+  it('submits the selected image bytes with explicit consent and accepts only the versioned real result', async () => {
+    const result = {
+      version: 'photos-harness/v1', meal,
+      segmentation: { version: 'photos-harness/v1', model: 'sam-test', backend: 'cpu', checkpointSha256: 'a'.repeat(64),
+        width: 320, height: 240, expected_count: 1, status: 'ok', elapsedMs: 20,
+        regions: [{ region_id: 'r001', category: '米饭', sam_score: .9, mask_uri: 'data:image/png;base64,mask' }], rejected: [] },
+      groundingModel: 'vision-test', tunedModelUsed: false, imageSha256: 'b'.repeat(64), imagePersisted: false,
+    };
+    let requestInit: RequestInit | undefined;
+    const fetcher = vi.fn(async (_url: string, init?: RequestInit) => { requestInit = init; return Response.json(result); });
+    vi.stubGlobal('fetch', fetcher);
+    await expect(analyzeFoodPhoto(image)).resolves.toEqual(result);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    const [url] = fetcher.mock.calls[0];
+    expect(url).toBe('/api/photos-harness/analyze');
+    expect(requestInit?.method).toBe('POST');
+    expect(requestInit?.cache).toBe('no-store');
+    expect(requestInit?.redirect).toBe('error');
+    expect(JSON.parse(String(requestInit?.body))).toMatchObject({ image, consent: true });
+    expect(JSON.parse(String(requestInit?.body)).requestId).toMatch(/^[0-9a-f-]{36}$/i);
+    vi.unstubAllGlobals();
   });
   it('keeps stable confirmed meal IDs, time, portion and the memory entry in the actual left tab', () => {
     const source = readFileSync(new URL('../components/FoodPhotosTab.tsx', import.meta.url), 'utf8');

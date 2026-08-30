@@ -191,6 +191,8 @@ Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问�
 
 手机对话与吧唧转写后的文字进入同一个 `sendFrostAgentMessage`，共用 Skill 选择、任务交接、回复和记忆，不是两套互不相通的聊天系统。
 
+OJBadge 的 ESP32-S3 固件、iOS BLE 桥与 AgentLink 协议都在当前仓库。已经留存的真机证据包括实体键采音到手机的完整 PCM（39,360 采样、78,720 字节、2.46 秒、设备入队丢包 0）、触摸坐标、电量、屏幕头像和扬声器下行；当前源码的帧重组、ACK、上传 CRC、PTT 隐私门与 30 秒音频缓冲可用 `npm run hardware:check` 重验。详见 [OJBadge 当前真机记录](hardware/ojbadge-agent-link/README-OJBADGE.md)。
+
 - 只读查询可以直接在会话回答，例如天气、食品参考、已记录的睡眠或训练摘要。
 - 明确的能力调用可以自动交接到对应页面，手动“运行”保留为可见入口和回退。
 - 多步骤、缺信息、敏感操作或未授权能力仍会询问、等待或停止，不无限自动执行。
@@ -287,6 +289,7 @@ npm run dev -- --host 127.0.0.1 --port 5174
 npm run typecheck
 npm test -- --maxWorkers=2
 npm run build
+npm run hardware:check
 ```
 
 最后一条只构建主 Web 应用。需要完整训练页面时，先按 [部署说明](deploy/pocketbuddy/README.md) 安装练了吗子项目依赖、准备外部资源并重建子应用，再构建主包；不要把缺失的子应用或旧构建目录当成当前版本。

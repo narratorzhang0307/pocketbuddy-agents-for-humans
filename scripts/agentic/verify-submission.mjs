@@ -54,6 +54,8 @@ const requiredFiles = [
   'docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg',
   'docs/competitions/all-things-agentic-2026/OFFICIAL_REQUIREMENTS_AUDIT.md',
   'docs/competitions/all-things-agentic-2026/ITERATION_LOG.md',
+  'docs/competitions/all-things-agentic-2026/AGENT_READINESS.md',
+  'docs/competitions/all-things-agentic-2026/HARDWARE_DEMO_CHECKLIST.md',
   'docs/backend/README.md',
   'docs/backend/PROMPT_HARNESS.md',
   'docs/backend/CURRENT_DATA_BOUNDARIES.md',
@@ -66,6 +68,15 @@ const pkg = JSON.parse(await text('package.json'));
 check('Node.js runtime', pkg.engines?.node === '>=22.0.0', 'package.json must require Node.js 22+');
 check('Google Gen AI SDK', pkg.dependencies?.['@google/genai'] === '2.19.0', '@google/genai must be pinned to 2.19.0');
 check('Firestore SDK', pkg.dependencies?.['@google-cloud/firestore'] === '9.0.0', '@google-cloud/firestore must be pinned to 9.0.0');
+check('Hardware host verification', pkg.scripts?.['hardware:check'] === 'node scripts/hardware/verify-agent-link.mjs', 'package.json must expose the AgentLink host verification');
+
+const builtins = await text('src/app/lib/skill/builtins.ts');
+const disabledBuiltins = builtins.slice(builtins.indexOf('DEFAULT_DISABLED_BUILTIN_SKILL_IDS'), builtins.indexOf('export function shouldAutoEquipBuiltin'));
+for (const connector of ['frost.healthsync', 'frost.garmin-readonly', 'frost.wger-planner', 'frost.mealie-kitchen', 'frost.health-consultation']) {
+  check(`Connector disabled by default: ${connector}`, disabledBuiltins.includes(`'${connector}'`), `${connector} must remain in the default-disabled set`);
+}
+const subagentRegistry = await text('frost-agent/subagents/registry.ts');
+check('Only equipped Skills become subagents', subagentRegistry.includes("filter((skill) => skill.availability === 'equipped')"), 'subagent registry must exclude unconfigured Skills');
 
 const envExample = await text('.env.example');
 check('Gemini model default', envExample.includes('GEMINI_MODEL=gemini-3.5-flash'), '.env.example must default to Gemini 3.5 Flash');

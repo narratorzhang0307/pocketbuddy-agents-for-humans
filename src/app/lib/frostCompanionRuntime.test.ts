@@ -4,11 +4,15 @@ import { readFrostAgentEvents, readFrostAgentSnapshot, recordFrostPeripheralInpu
 import { createFrostAutoNavigation, createFrostVoiceConversation, prepareFrostAgentHandoff } from './frostAgentNavigation';
 import { peekTaskHandoff } from '../../../frost-agent/harness/taskHandoff';
 import { setFrostBrain, stubBrain } from '../../../frost-agent/harness/brain';
-import { BUILTIN_SKILLS, ensureBuiltinSkills } from './skill';
+import { BUILTIN_SKILLS, ensureBuiltinSkills, shouldAutoEquipBuiltin } from './skill';
 import { planLocalFrostTask } from '../../../frost-agent/harness/skillRouter';
 import { shouldAutoStartLianlema } from './health/lianlemaConnection';
 import { resolveSkillRunTarget } from './plaza/skillRoutes';
 import { getActiveRunRouteSessionId, readRunRouteSession, subscribeRunRouteOpen } from './runRouteSkill';
+import { presentFrostAgentRun } from './frostAgentPresentation';
+
+const RUNNABLE_BUILTINS = BUILTIN_SKILLS.filter(shouldAutoEquipBuiltin);
+const SETUP_ONLY_BUILTINS = BUILTIN_SKILLS.filter((manifest) => !shouldAutoEquipBuiltin(manifest));
 
 vi.mock('../../../frost-agent/edge/contract', () => ({ edgeSafe: { async chat() { return ''; } } }));
 
@@ -83,16 +87,17 @@ describe('badge inputs use the main Frost runtime', () => {
     } finally { release(); }
   });
 
-  it.each(['帮我打开下健康咨询agent', '帮我打开一下医院agent', '打开健康咨询', '调用医疗咨询'])('opens health consultation directly with no paid preparation: %s', async text => {
+  it.each(['帮我打开下健康咨询agent', '帮我打开一下医院agent', '打开健康咨询', '调用医疗咨询'])('keeps unconfigured health consultation in Frost as setup guidance: %s', async text => {
     const origin = { channel: 'badge_voice' as const, inputId: `badge:test:health:${Array.from(text).map(c => c.codePointAt(0)!.toString(16)).join('')}` };
     const intermediate = vi.fn(), show = createFrostVoiceConversation({ isActive: () => true, open: intermediate });
     const release = subscribeFrostAgentEvents(show);
     try {
       const result = await sendFrostAgentMessage(text, origin);
       const open = vi.fn(), navigate = createFrostAutoNavigation({ isActive: () => true, open });
-      expect(await navigate({ result, input: { text, origin } })).toBe(true);
-      expect(open).toHaveBeenCalledExactlyOnceWith('health-consultation');
-      expect(intermediate).not.toHaveBeenCalled();
+      expect(await navigate({ result, input: { text, origin } })).toBe(false);
+      expect(open).not.toHaveBeenCalled();
+      expect(intermediate).toHaveBeenCalledExactlyOnceWith('frost');
+      expect(presentFrostAgentRun(result, text).plan?.steps[0]).toMatchObject({ skillId: 'frost.health-consultation', availability: 'installed' });
       expect(fetch).not.toHaveBeenCalled();
       expect(result.task).toBeNull();
     } finally { release(); }
@@ -115,7 +120,7 @@ describe('badge inputs use the main Frost runtime', () => {
     expect(fetch).not.toHaveBeenCalled();
   });
 
-  it.each(BUILTIN_SKILLS.flatMap(manifest => (['phone', 'badge_voice'] as const).map(channel => ({ manifest, channel }))))(
+  it.each(RUNNABLE_BUILTINS.flatMap(manifest => (['phone', 'badge_voice'] as const).map(channel => ({ manifest, channel }))))(
     'opens registered $manifest.identity.id directly from $channel without a homepage or paid preparation call', async ({ manifest, channel }) => {
       const text = `帮我调取${manifest.identity.name}`;
       const origin = channel === 'phone' ? { channel } : { channel, inputId: `badge:test:all-skills:${manifest.identity.id.replace(/\./g, '-')}` };
@@ -130,6 +135,25 @@ describe('badge inputs use the main Frost runtime', () => {
       expect(open.mock.calls.map(([target]) => resolveSkillRunTarget(target))).not.toContain(null);
       expect(peekTaskHandoff(manifest.entry.target)).toMatchObject({ skillId: manifest.identity.id, userText: text, agentSessionId: result.session.session_id });
       expect(result.task).toBeNull(); // Opening a page must not guess a route/workout request.
+      expect(fetch).not.toHaveBeenCalled();
+    },
+  );
+
+  it.each(SETUP_ONLY_BUILTINS.flatMap(manifest => (['phone', 'badge_voice'] as const).map(channel => ({ manifest, channel }))))(
+    'does not open or start unconfigured $manifest.identity.id from $channel', async ({ manifest, channel }) => {
+      const text = `帮我调取${manifest.identity.name}`;
+      const origin = channel === 'phone' ? { channel } : { channel, inputId: `badge:test:setup-only:${manifest.identity.id.replace(/\./g, '-')}` };
+      const intermediate = vi.fn(), show = createFrostVoiceConversation({ isActive: () => true, open: intermediate });
+      const release = subscribeFrostAgentEvents(event => { show(event); });
+      let result: Awaited<ReturnType<typeof sendFrostAgentMessage>>;
+      try { result = await sendFrostAgentMessage(text, origin); } finally { release(); }
+      const open = vi.fn(), navigate = createFrostAutoNavigation({ isActive: () => true, open });
+      expect(await navigate({ result, input: { text, origin } })).toBe(false);
+      expect(open).not.toHaveBeenCalled();
+      expect(intermediate.mock.calls).toEqual(channel === 'badge_voice' ? [['frost']] : []);
+      expect(presentFrostAgentRun(result, text).plan?.steps[0]).toMatchObject({ skillId: manifest.identity.id, availability: 'installed' });
+      expect(peekTaskHandoff(manifest.entry.target)).toBeNull();
+      expect(result.task).toBeNull();
       expect(fetch).not.toHaveBeenCalled();
     },
   );

@@ -14,13 +14,15 @@ function input(skillId = 'pocket.lianlema', runId = 'child-1') {
   return { skillId, runId, objective: '用练了吗纠正深蹲', userId: 'user-1', signal: new AbortController().signal };
 }
 
-describe('Taskmaster supervision of independently addressed Qwen Skill agents', () => {
+describe('Taskmaster supervision of independently addressed server-model Skill agents', () => {
   beforeEach(() => { resetSkillRegistryForTests(); ensureBuiltinSkills(); });
   afterEach(() => vi.unstubAllGlobals());
 
-  it('registers every current Skill once without changing the underlying Skill ids', () => {
+  it('registers only runnable Skills once without changing the underlying Skill ids', () => {
     const agents = listFrostSkillSubagents();
-    expect(agents.map((agent) => agent.skill.id)).toEqual(BUILTIN_SKILLS.map((skill) => skill.identity.id));
+    expect(agents.map((agent) => agent.skill.id)).toEqual(BUILTIN_SKILLS
+      .map((skill) => skill.identity.id)
+      .filter((id) => !['frost.healthsync', 'frost.garmin-readonly', 'frost.wger-planner', 'frost.mealie-kitchen', 'frost.health-consultation'].includes(id)));
     expect(new Set(agents.map((agent) => agent.agent_id)).size).toBe(agents.length);
   });
 

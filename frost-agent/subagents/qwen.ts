@@ -12,14 +12,14 @@ export const httpSubagentCompletion: SubagentCompletion = {
       method: 'POST', headers: { 'content-type': 'application/json' }, signal,
       body: JSON.stringify({ prompt, system: agent.instruction, json: true, task: `subagent:${agent.skill.id}` }),
     });
-    if (!response.ok) throw new Error(`subagent_qwen_http_${response.status}`);
+    if (!response.ok) throw new Error(`subagent_model_http_${response.status}`);
     const data = await response.json();
-    if (!data || typeof data.text !== 'string' || !data.text.trim() || typeof data.model !== 'string') throw new Error('subagent_qwen_unavailable');
+    if (!data || typeof data.text !== 'string' || !data.text.trim() || typeof data.model !== 'string') throw new Error('subagent_model_unavailable');
     return { text: data.text, model: data.model };
   },
 };
 
-export class QwenSkillSubagentModel implements FrostAgentModelAdapter {
+export class ServerSkillSubagentModel implements FrostAgentModelAdapter {
   readonly models: string[] = [];
   calls = 0;
 

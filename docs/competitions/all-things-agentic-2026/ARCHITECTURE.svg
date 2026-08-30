@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Frost Taskmaster Google competition architecture</title>
-  <desc id="desc">Pocket Buddy inputs enter a server-owned Prompt Harness and Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap and writes privacy-bounded evidence to Firestore.</desc>
+  <desc id="desc">Pocket Buddy and the ESP32-S3 OJBadge enter one server-owned Prompt Harness and Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap, returns bounded wearable feedback, and writes privacy-bounded evidence to Firestore.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#2d3748"/></marker>
     <style>
@@ -14,7 +14,7 @@
   <rect x="70" y="210" width="270" height="185" rx="26" fill="#fff" class="box"/>
   <text x="105" y="260" class="h">User interfaces</text>
   <text x="105" y="302" class="t">Pocket Buddy Web / iOS</text>
-  <text x="105" y="338" class="t">Frost BLE wearable</text>
+  <text x="105" y="338" class="t">ESP32-S3 OJBadge</text>
   <text x="105" y="374" class="small">English + Chinese goals</text>
 
   <rect x="435" y="150" width="530" height="550" rx="34" fill="#edf6ff" stroke="#4285f4" stroke-width="4"/>

@@ -80,6 +80,7 @@ npm run typecheck
 npm test -- --maxWorkers=2
 npm run build
 npm run agentic:check
+npm run hardware:check
 ./deploy/all-things-agentic/deploy.sh
 ```
 
@@ -132,6 +133,8 @@ gcloud run services describe frost-taskmaster-agent \
 - 她的 Devpost member 状态，以及是否由她担任 Representative
 
 提交代表再完成：公开仓库链接、架构图、英文文案、公开 YouTube/Vimeo 视频、hosted URL、第三方数据源和既有代码披露。
+
+Photos 的 Qwen + SAM 服务不是本次 Gemini/Cloud Run/Firestore 主链的部署前提。只有在 `/api/photos-harness/health` 为 ready、且一张真实餐食图完成识别和人工确认后，才把 Photos 放进比赛视频；否则主视频坚持路线 Taskmaster + OJBadge，不把示例预览当识别结果。
 
 ## I. 故障处理顺序
 

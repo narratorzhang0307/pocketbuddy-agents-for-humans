@@ -14,11 +14,11 @@ describe('Frost cross-skill router', () => {
 
   it('does not restore a stale built-in home target after an app update, or re-enable a disabled skill', () => {
     resetSkillRegistryForTests();
-    const manifest = BUILTIN_SKILLS.find(skill => skill.identity.id === 'frost.healthsync')!;
+    const manifest = BUILTIN_SKILLS.find(skill => skill.identity.id === 'frost.openfoodfacts')!;
     const installed = installSkillManifest({ ...manifest, entry: { target: 'earth' } }, 'builtin');
     equipSkill(installed.key);
     ensureBuiltinSkills();
-    expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)).toMatchObject({ target: 'frost-healthsync', availability: 'equipped' });
+    expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)).toMatchObject({ target: 'frost-openfoodfacts', availability: 'equipped' });
     disableSkill(manifest.identity.id);
     ensureBuiltinSkills();
     expect(listRoutableSkills().find(skill => skill.id === manifest.identity.id)?.availability).toBe('installed');
@@ -89,7 +89,7 @@ describe('Frost cross-skill router', () => {
     const { plan, trace } = await planFrostTask({ now: new Date(), surface: 'frost', userText: '帮我审慎评估这个选择' });
     expect(calls).toBe(1);
     expect(plan).toBeNull();
-    expect(trace.join('\n')).toContain('Qwen 规划 · 未形成合法计划');
+    expect(trace.join('\n')).toContain('云端模型规划 · 未形成合法计划');
   });
 
   it('rejects unknown fields, invented skills and duplicated targets', () => {

@@ -22,7 +22,7 @@ describe('My Skills core capabilities', () => {
     expect(core).toContain('4 CORE');
     expect(html.indexOf('SME2 加速对比')).toBeGreaterThan(moreStart);
     expect(html).not.toContain('FITNESS AGENT');
-    expect(html.indexOf('健康咨询 Agent')).toBeGreaterThan(moreStart);
+    expect(html).not.toContain('HEALTH CONSULTATION · SUB AGENT');
   });
 
   it('keeps every other catalogue skill in the lower section without duplication or core badges', () => {

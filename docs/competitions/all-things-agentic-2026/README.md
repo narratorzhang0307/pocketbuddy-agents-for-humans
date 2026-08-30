@@ -12,6 +12,8 @@ Planning a healthy action is fragmented. A person may need to explain a goal, ch
 
 Frost Taskmaster keeps one goal and advances it through registered tools, explicit permissions, bounded retries, evidence gates, and a visible completion state. The primary judging demo is a personalized running-route workflow; nutrition, camera-based exercise, nature observation, and the Frost wearable demonstrate that the same control plane can extend to other real-world skills.
 
+The ESP32-S3 Frost OJBadge is the embodied edge of that workflow: physical push-to-talk and device events enter the same phone session, while verified state or results return to its round screen or speaker. The wearable is an input/output surface; Gemini, the Agent Loop, and Taskmaster remain the decision and execution control plane.
+
 ## What the agent does
 
 1. Receives an English or Chinese goal through the Pocket Buddy app or Frost wearable.
@@ -50,6 +52,7 @@ npm ci
 npm run typecheck
 npm test -- --maxWorkers=2
 npm run build
+npm run hardware:check
 npm start
 ```
 
@@ -57,6 +60,7 @@ Open `http://127.0.0.1:3009/`. For an English, non-secret provider inspection pa
 
 Google Cloud deployment and IAM instructions are in [`deploy/all-things-agentic/README.md`](../../../deploy/all-things-agentic/README.md).
 The current backend contract and Taiwan operator handoff are in [`docs/backend/README.md`](../../backend/README.md). The official requirement mapping is in [`OFFICIAL_REQUIREMENTS_AUDIT.md`](OFFICIAL_REQUIREMENTS_AUDIT.md).
+The audited agent boundary is in [`AGENT_READINESS.md`](AGENT_READINESS.md), and the wearable recording flow is in [`HARDWARE_DEMO_CHECKLIST.md`](HARDWARE_DEMO_CHECKLIST.md).
 
 ## Proof expected in the submission
 
@@ -66,6 +70,7 @@ The current backend contract and Taiwan operator handoff are in [`docs/backend/R
 - Matching `frost_agent_runs/{traceId}` Firestore document
 - Repository test and build commands
 - Architecture diagram and explicit AMap disclosure
+- Optional continuous OJBadge → phone → Taskmaster → OJBadge interaction shot
 
 ## Privacy and safety
 

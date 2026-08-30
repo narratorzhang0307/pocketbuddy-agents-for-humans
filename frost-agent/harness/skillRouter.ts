@@ -3,7 +3,7 @@
  *
  * 设计边界：
  * - 常驻层只读取 Manifest 的名称/description 与精简语义指纹；不会把模型、Data Pack 或参考资料塞进 Prompt。
- * - 确定性高置信路由先行；只有长尾、组合任务才调用 Qwen 规划。
+ * - 确定性高置信路由先行；只有长尾、组合任务才调用服务端所选模型规划。
  * - 规划只产生“建议打开哪个已登记 Skill”，不直接写地图、相册或用户数据。
  * - 任何模型返回都经过严格字段、目标白名单、可用状态与数量上限校验。
  */
@@ -223,7 +223,7 @@ function createPlan(text: string, skills: RoutableSkill[], source: FrostPlanSour
   const steps = skills.slice(0, MAX_STEPS).map((skill, index) => stepFor(
     skill,
     text,
-    source === 'qwen' ? '云端 Qwen 依据 Skill 语义指纹匹配'
+    source === 'qwen' ? '云端模型依据 Skill 语义指纹匹配'
       : source === 'mnn' ? '端侧 Qwen/MNN 依据 Skill 语义指纹匹配' : '本地语义指纹命中',
     index,
   ));
@@ -404,11 +404,11 @@ export async function planFrostTask(ctx: FrostContext): Promise<{ plan: FrostPla
   const cloud = await qwenPlan(ctx, catalog);
   const qwenMs = elapsed(qwenStart);
   if (cloud) {
-    trace.push(`Qwen 规划 · qwen3.7-max 严格 JSON 契约通过 · ${qwenMs}ms`);
+    trace.push(`云端模型规划 · 严格 JSON 契约通过 · ${qwenMs}ms`);
     trace.push(`Boundary · ${cloud.steps.length} 个目标均在当前 Skill 目录 · ${elapsed(started)}ms`);
     return { plan: cloud, trace };
   }
-  trace.push(`Qwen 规划 · 未形成合法计划，回退本地规则 · ${qwenMs}ms`);
+  trace.push(`云端模型规划 · 未形成合法计划，回退本地规则 · ${qwenMs}ms`);
   if (local.plan) trace.push(`Boundary · 任务已安全收口 · ${elapsed(started)}ms`);
   return { plan: local.plan ? { ...local.plan, source: 'local-fallback' } : null, trace };
 }

@@ -13,12 +13,14 @@
 - [ ] Upload or link `ARCHITECTURE.svg`
 - [ ] List AMap and all other third-party data sources
 - [ ] Include the pre-existing work disclosure
+- [ ] If requested, coordinate evaluator access to the uncommon OJBadge through the official organizer channel
 
 ## Repository
 
 - [ ] Default `main` contains the submitted commit
 - [ ] README links this competition package
 - [ ] `npm ci`, typecheck, tests, build, and agentic verification pass
+- [ ] `npm run hardware:check` passes; fresh BLE/PTT/screen/speaker behavior is recorded separately
 - [ ] No `.env`, credentials, private evidence, personal media, model weights, or build caches tracked
 - [ ] Cloud Run and local spin-up instructions are reproducible
 - [ ] Taiwan operator ran `npm run agentic:preflight` with `passed: true`
@@ -41,5 +43,6 @@
 - [ ] Live action workflow shown
 - [ ] Google Cloud backend proof shown
 - [ ] No secrets or personal health/location data visible
+- [ ] Hardware is described as Taskmaster input/feedback, not as a second autonomous controller
 - [ ] Freeze the judged repository and hosted build after the deadline until winners are announced
 - [ ] Do not upload identity documents, credentials, personal health data, or exact home location to Git/Devpost media

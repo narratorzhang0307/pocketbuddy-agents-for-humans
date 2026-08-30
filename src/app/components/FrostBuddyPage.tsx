@@ -13,6 +13,7 @@ import { createFrostAutoNavigation, prepareFrostAgentHandoff } from '../lib/fros
 import { presentFrostAgentRun } from '../lib/frostAgentPresentation';
 import { openRunRouteSession } from '../lib/runRouteSkill';
 import { FROST_AVATAR } from '../lib/skill/avatars';
+import { BUILTIN_SKILLS, getEquippedSkill } from '../lib/skill';
 import './FrostBuddyPage.css';
 
 // Frost 的展示与页面导航；所有对话只进入同一个 Agent Runtime。
@@ -35,18 +36,14 @@ interface Props {
 
 // 高频快捷入口不做自动执行，只打开目标 Skill。
 const QUICK: { label: string; target: string }[] = [
-  { label: '健康咨询 Agent', target: 'health-consultation' },
   { label: '跑步路线规划', target: 'frost-run-route' },
   { label: '练了吗 · 动作纠正', target: 'lianlema-coach' },
   { label: 'Her Motion 热身', target: 'her-motion' },
-  { label: 'wger 训练计划', target: 'frost-wger-planner' },
-  { label: 'Mealie 恢复厨房', target: 'frost-mealie-kitchen' },
-  { label: '健康同步', target: 'frost-healthsync' },
   { label: '包装食品', target: 'frost-openfoodfacts' },
   { label: '中国健康库', target: 'frost-cn-health-library' },
   { label: '户外窗口', target: 'frost-outdoor-window' },
   { label: '睡眠侦探', target: 'frost-sleep-detective' },
-  { label: '饮食镜头', target: 'frost-meal-lens' },
+  { label: '饮食确认', target: 'frost-meal-lens' },
 ];
 
 const FROST_DACHSHUND_AVATAR = FROST_AVATAR.src;
@@ -72,6 +69,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
   const [runtimeBusy, setRuntimeBusy] = useState(false);
   const [navigating, setNavigating] = useState(false);
   const busy = sending || runtimeBusy || navigating;
+  const equippedSkillCount = BUILTIN_SKILLS.filter((skill) => getEquippedSkill(skill.identity.id)).length;
   const [flash, setFlash] = useState<FrostState | null>(null);   // 一次性脉冲：celebrate / dizzy
   const [theme, setTheme] = useState<FrostTheme>('none');         // 当前聊天主题（换装）
   const [sug, setSug] = useState(getSuggestion());
@@ -258,7 +256,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
               <div className="frost-encounter__meters" aria-label="Frost 状态">
                 <span>状态 <b>{STATE_LABEL[buddyState]}</b></span>
                 <span>主题 <b>{theme === 'none' ? '无' : THEME_LABEL[theme]}</b></span>
-                <span>SKILLS <b>13</b></span>
+                <span>SKILLS <b>{equippedSkillCount}</b></span>
                 <span>模式 <b>TASKMASTER</b></span>
               </div>
 
@@ -292,7 +290,7 @@ export default function FrostBuddyPage({ onBack, onRun }: Props) {
                             <Workflow className="h-4 w-4 shrink-0" strokeWidth={2.5} />
                             <div>
                               <div className="frost-encounter__plan-title">SKILL PLAN · {turn.plan.mode.toUpperCase()}</div>
-                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '云端 Qwen 语义规划' : turn.plan.source === 'mnn' ? '端侧 Qwen / MNN 规划' : 'Frost 端侧编排'} · {turn.plan.steps.length} 步</div>
+                              <div className="frost-encounter__plan-meta">{turn.plan.source === 'qwen' ? '云端模型语义规划' : turn.plan.source === 'mnn' ? '端侧 Qwen / MNN 规划' : 'Frost 端侧编排'} · {turn.plan.steps.length} 步</div>
                             </div>
                             <span className="frost-encounter__plan-status">{turn.plan.ready ? '可运行' : '待装备'}</span>
                           </header>

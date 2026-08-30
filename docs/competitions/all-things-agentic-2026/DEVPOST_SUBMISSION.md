@@ -18,7 +18,7 @@ People rarely need one more recommendation. They need help carrying a goal acros
 
 ## What it does
 
-Frost accepts a goal from the Pocket Buddy app or wearable and advances it through a finite Agent Loop. Gemini 3.5 Flash selects the next bounded action. The Taskmaster exposes only registered tools, enforces budgets and approvals, and separates model proposals from side effects. In the primary demo, Frost turns a personalized running request into a route workflow: it resolves missing constraints, uses current context, calls the route capability, opens the AMap action map, and records an evidence-linked result. The same control plane also supports nutrition logging, exercise skills, health memory, and nature observation.
+Frost accepts a goal from the Pocket Buddy app or ESP32-S3 wearable and advances it through a finite Agent Loop. Gemini 3.5 Flash selects the next bounded action. The Taskmaster exposes only registered tools, enforces budgets and approvals, and separates model proposals from side effects. In the primary demo, a physical push-to-talk goal enters the same phone session; Frost resolves missing constraints, calls the route capability, opens the AMap action map, records an evidence-linked result, and returns concise feedback to the wearable. The same control plane also supports nutrition logging, exercise skills, health memory, and nature observation.
 
 ## How we built it
 
@@ -29,6 +29,7 @@ Frost accepts a goal from the Pocket Buddy app or wearable and advances it throu
 - TypeScript, React, Vite, and a deterministic Frost Agent runtime
 - AMap Web JS API for the production route and map experience
 - Capacitor and a BLE wearable bridge for mobile and multimodal interaction
+- ESP32-S3 AgentLink firmware for physical push-to-talk, round-screen and speaker feedback
 
 The model never writes health facts or device effects directly. It returns a structured next-action decision. Frost's runtime validates that decision, executes registered tools, records state transitions, and accepts completion only with evidence.
 
@@ -47,6 +48,7 @@ The hardest problem was not generating a plan; it was keeping model reasoning, u
 - A server-owned prompt hierarchy and machine-checked Firestore evidence allowlist
 - A production route experience that retains AMap rather than replacing a stable domain integration
 - A multimodal path spanning text, voice, mobile UI, camera skills, and a wearable
+- A truthful runnable-skill registry: unconfigured connectors remain visible for setup but cannot spawn subagents or claim completion
 
 ## What we learned
 
