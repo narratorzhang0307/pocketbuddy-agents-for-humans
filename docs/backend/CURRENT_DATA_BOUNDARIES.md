@@ -18,7 +18,7 @@
 
 路径：`frost_agent_runs/{traceId}`。
 
-允许字段只有：协议、trace ID、状态、任务、提示词协议/版本/profile、provider/model/transport/framework、可选 session/run ID、开始/完成时间、延迟、输入/客户端说明/输出字符数，以及 Cloud Run service/revision/region。
+允许字段只有：协议、trace ID、状态、任务、提示词协议/版本/profile、provider/model/transport/framework、可选 session/run ID、开始/完成时间、延迟、输入/客户端说明/输出字符数、两类输入是否被预算截断，以及 Cloud Run service/revision/region。
 
 明确禁止保存：
 
@@ -54,7 +54,7 @@ users/{uid}/media/{mediaId}.{ext}
 tmp/pet-jobs/{uid}/{jobId}/...
 ```
 
-这些路径落实了截图中的数据格式共识，但“预留”不等于线上已同步。启用前必须完成 Firebase Auth 或等价身份校验、本人 uid 强制覆盖、Firestore Rules / IAM、同意界面、删除与保留期、迁移测试。
+这些路径由 `userCloudPath`、`buddyMemoryCloudPath`、`gcsUserMediaObject` 和 `gcsPetJobPrefix` 统一构造并通过单元测试，落实了截图中的数据格式共识。但“可构造路径”不等于线上已同步或拥有写权限。启用前必须完成 Firebase Auth 或等价身份校验、本人 uid 强制覆盖、Firestore Rules / IAM、同意界面、删除与保留期、迁移测试。
 
 ## 4. 数据权威与确认
 

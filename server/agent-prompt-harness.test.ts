@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, normalizeAgentTask, prepareAgentPromptRequest, promptProfileForTask } from './agent-prompt-harness.mjs'
+import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, normalizeAgentTask, prepareAgentPromptRequest, promptHarnessMetadata, promptProfileForTask } from './agent-prompt-harness.mjs'
 
 describe('server-owned agent prompt harness', () => {
   it('enforces a versioned JSON policy for Taskmaster decisions', () => {
@@ -47,6 +47,12 @@ describe('server-owned agent prompt harness', () => {
     const request = prepareAgentPromptRequest({ prompt: `  ${'p'.repeat(30_000)}  `, system: 's'.repeat(8_000) })
     expect(request.rawPromptChars).toBe(24_000)
     expect(request.clientInstructionChars).toBe(5_000)
+    expect(promptHarnessMetadata(request)).toMatchObject({
+      budget: {
+        prompt: { limitChars: 24_000, receivedChars: 30_000, acceptedChars: 24_000, truncated: true },
+        clientInstruction: { limitChars: 5_000, receivedChars: 8_000, acceptedChars: 5_000, truncated: true },
+      },
+    })
   })
 
   it('validates structured model output at the server boundary', () => {

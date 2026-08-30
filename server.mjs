@@ -20,7 +20,7 @@ import { getTravelPlaceSources } from './knowledge/travel-place-sources.mjs'
 import { buildQwenChatBody, buildQwenImageBody, createQwenProvider, qwenModelForTask, qwenVisionConfigForPurpose, qwenVisionSystemForPurpose, readQwenImageUrl } from './server/qwen-provider.mjs'
 import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs'
 import { createAgentEvidenceStore } from './server/agent-evidence-store.mjs'
-import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, prepareAgentPromptRequest } from './server/agent-prompt-harness.mjs'
+import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, prepareAgentPromptRequest, promptHarnessMetadata } from './server/agent-prompt-harness.mjs'
 import { applySecurityHeaders, boundedText, clientAddress, createSlidingWindowLimiter, isSafeDataImage, isSafeInlineImage } from './server/security.mjs'
 import { publishYoutubeMusic } from './server/music-publish.mjs'
 import { MappingCloudError, runMappingCloud } from './server/mapping-cloud.mjs'
@@ -540,6 +540,8 @@ async function handleFrostLlm(req, res) {
         latencyMs: completedAt.getTime() - startedAt.getTime(),
         promptChars: prepared.rawPromptChars,
         clientInstructionChars: prepared.clientInstructionChars,
+        promptTruncated: prepared.budget.prompt.truncated,
+        clientInstructionTruncated: prepared.budget.clientInstruction.truncated,
         responseChars: text.length,
       })
       return sendJSON(res, {
@@ -552,7 +554,7 @@ async function handleFrostLlm(req, res) {
         framework: GOOGLE_AGENT.framework,
         traceId,
         evidence,
-        promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
+        promptHarness: promptHarnessMetadata(prepared),
       })
     }
 
@@ -591,6 +593,8 @@ async function handleFrostLlm(req, res) {
       latencyMs: completedAt.getTime() - startedAt.getTime(),
       promptChars: prepared.rawPromptChars,
       clientInstructionChars: prepared.clientInstructionChars,
+      promptTruncated: prepared.budget.prompt.truncated,
+      clientInstructionTruncated: prepared.budget.clientInstruction.truncated,
       responseChars: text.length,
     })
     sendJSON(res, {
@@ -603,7 +607,7 @@ async function handleFrostLlm(req, res) {
       framework: 'frost-agent-runtime',
       traceId,
       evidence,
-      promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
+      promptHarness: promptHarnessMetadata(prepared),
     })
   } catch (e) {
     sendJSON(res, { text: '', error: e instanceof Error ? e.message : String(e), traceId }, 502)
@@ -665,9 +669,11 @@ async function handleFrostLlmStream(req, res) {
         latencyMs: completedAt.getTime() - startedAt.getTime(),
         promptChars: prepared.rawPromptChars,
         clientInstructionChars: prepared.clientInstructionChars,
+        promptTruncated: prepared.budget.prompt.truncated,
+        clientInstructionTruncated: prepared.budget.clientInstruction.truncated,
         responseChars,
       })
-      sse({ done: true, traceId, model: GOOGLE_AGENT.model, provider: GOOGLE_AGENT.provider, evidence, promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile } })
+      sse({ done: true, traceId, model: GOOGLE_AGENT.model, provider: GOOGLE_AGENT.provider, evidence, promptHarness: promptHarnessMetadata(prepared) })
       res.end()
       return
     }

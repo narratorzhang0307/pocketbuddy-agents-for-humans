@@ -49,6 +49,8 @@ export function createAgentEvidenceStore({ env = process.env, firestore } = {}) 
         latencyMs: Math.max(0, Number(value.latencyMs) || 0),
         promptChars: Math.max(0, Number(value.promptChars) || 0),
         clientInstructionChars: Math.max(0, Number(value.clientInstructionChars) || 0),
+        promptTruncated: value.promptTruncated === true,
+        clientInstructionTruncated: value.clientInstructionTruncated === true,
         responseChars: Math.max(0, Number(value.responseChars) || 0),
         cloudRun: {
           service: clean(env.K_SERVICE, 120),

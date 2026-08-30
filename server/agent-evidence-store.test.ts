@@ -27,6 +27,8 @@ describe('Firestore agent evidence store', () => {
       model: 'gemini-3.5-flash',
       framework: '@google/genai',
       promptChars: 120,
+      promptTruncated: true,
+      clientInstructionTruncated: false,
       responseChars: 80,
       prompt: 'private health context',
       apiKey: 'must-not-be-stored',
@@ -39,6 +41,7 @@ describe('Firestore agent evidence store', () => {
     expect(stored).toMatchObject({
       protocol: 'frost-agent-evidence/v1', task: 'run-route-intent',
       promptProtocol: 'frost-agent-prompt-harness/v1', promptVersion: '1.0.0', promptProfile: 'route',
+      promptTruncated: true, clientInstructionTruncated: false,
     })
     expect(JSON.stringify(stored)).not.toContain('private health context')
     expect(JSON.stringify(stored)).not.toContain('must-not-be-stored')

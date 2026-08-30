@@ -10,7 +10,7 @@
 2. 旧 `system` 字段被保留兼容，但转换为低权威、非可信的“客户端任务说明”。
 3. 按 task 选择固定 profile、输出 token、温度、超时和 JSON 要求。
 4. 输入被确定性截断；结构化输出必须通过 `JSON.parse`。
-5. Firestore 只记录 profile 和字符数，不记录正文。
+5. 响应返回收到/接受字符数与是否截断；Firestore 只记录 profile、接受字符数和截断布尔值，不记录正文。
 
 ## Profile
 
@@ -46,7 +46,11 @@
   "promptHarness": {
     "protocol": "frost-agent-prompt-harness/v1",
     "version": "1.0.0",
-    "profile": "taskmaster"
+    "profile": "taskmaster",
+    "budget": {
+      "prompt": { "limitChars": 24000, "receivedChars": 320, "acceptedChars": 320, "truncated": false },
+      "clientInstruction": { "limitChars": 5000, "receivedChars": 0, "acceptedChars": 0, "truncated": false }
+    }
   }
 }
 ```

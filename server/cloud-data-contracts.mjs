@@ -58,10 +58,27 @@ export function userCloudPath(uid, collection, documentId) {
   return `users/${userId}/${collection}/${assertCloudDocumentId(documentId)}`
 }
 
+export function buddyMemoryCloudPath(uid, buddyId, memoryId) {
+  return `users/${assertCloudDocumentId(uid, 'uid')}/buddies/${assertCloudDocumentId(buddyId, 'buddy id')}/memories/${assertCloudDocumentId(memoryId, 'memory id')}`
+}
+
+const MEDIA_EXTENSION = /^(?:jpe?g|png|webp|heic|heif|avif|mp4|mov|wav|m4a)$/i
+
+export function gcsUserMediaObject(uid, mediaId, extension) {
+  const ext = String(extension || '').replace(/^\./, '').toLowerCase()
+  if (!MEDIA_EXTENSION.test(ext)) throw new Error('invalid_media_extension')
+  return `users/${assertCloudDocumentId(uid, 'uid')}/media/${assertCloudDocumentId(mediaId, 'media id')}.${ext}`
+}
+
+export function gcsPetJobPrefix(uid, jobId) {
+  return `tmp/pet-jobs/${assertCloudDocumentId(uid, 'uid')}/${assertCloudDocumentId(jobId, 'job id')}/`
+}
+
 const EVIDENCE_FIELDS = new Set([
   'protocol', 'traceId', 'status', 'task', 'promptProtocol', 'promptVersion', 'promptProfile',
   'provider', 'model', 'transport', 'framework', 'sessionId', 'runId', 'startedAt', 'completedAt',
   'latencyMs', 'promptChars', 'clientInstructionChars', 'responseChars', 'cloudRun',
+  'promptTruncated', 'clientInstructionTruncated',
 ])
 
 export function assertAgentEvidenceDocument(document) {

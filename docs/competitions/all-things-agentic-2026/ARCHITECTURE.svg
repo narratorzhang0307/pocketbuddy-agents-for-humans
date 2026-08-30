@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
   <title id="title">Frost Taskmaster Google competition architecture</title>
-  <desc id="desc">Pocket Buddy and the ESP32-S3 OJBadge enter one server-owned Prompt Harness and Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap, returns bounded wearable feedback, and writes privacy-bounded evidence to Firestore.</desc>
+  <desc id="desc">Pocket Buddy and the ESP32-S3 OJBadge enter one server-owned Prompt Harness and Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap, returns bounded wearable feedback, writes privacy-bounded evidence to Firestore, and keeps GCS media paths reserved until authentication and consent are implemented.</desc>
   <defs>
     <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#2d3748"/></marker>
     <style>
-      .title{font:700 42px system-ui,sans-serif;fill:#17212b}.sub{font:500 20px system-ui,sans-serif;fill:#536170}.h{font:700 24px system-ui,sans-serif;fill:#17212b}.t{font:500 18px system-ui,sans-serif;fill:#334155}.small{font:500 15px system-ui,sans-serif;fill:#52606d}.box{stroke:#27364a;stroke-width:2.5}.line{fill:none;stroke:#2d3748;stroke-width:3;marker-end:url(#arrow)}
+      .title{font:700 42px system-ui,sans-serif;fill:#17212b}.sub{font:500 20px system-ui,sans-serif;fill:#536170}.h{font:700 24px system-ui,sans-serif;fill:#17212b}.t{font:500 18px system-ui,sans-serif;fill:#334155}.small{font:500 15px system-ui,sans-serif;fill:#52606d}.box{stroke:#27364a;stroke-width:2.5}.reserved{stroke:#5f6b7a;stroke-width:2;stroke-dasharray:9 7}.line{fill:none;stroke:#2d3748;stroke-width:3;marker-end:url(#arrow)}
     </style>
   </defs>
   <rect width="1600" height="900" fill="#f7f4ed"/>
@@ -44,6 +44,9 @@
   <text x="1100" y="558" class="t">Trace ID · task · model · status</text>
   <text x="1100" y="594" class="t">Cloud Run revision · timing</text>
   <text x="1100" y="628" class="small">No prompts, health context, or credentials</text>
+
+  <rect x="1060" y="670" width="440" height="60" rx="18" fill="#f4f7f9" class="reserved"/>
+  <text x="1100" y="708" class="small">GCS media paths · reserved, auth required</text>
 
   <rect x="140" y="745" width="290" height="105" rx="22" fill="#fff4df" class="box"/>
   <text x="180" y="790" class="h">AMap</text>

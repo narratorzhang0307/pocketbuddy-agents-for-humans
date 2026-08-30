@@ -93,6 +93,8 @@ function userContent(prompt, clientInstruction) {
 export function prepareAgentPromptRequest(input = {}) {
   if (typeof input.prompt !== 'string') throw new Error('invalid_prompt')
   if (input.system !== undefined && typeof input.system !== 'string') throw new Error('invalid_system_instruction')
+  const receivedPrompt = String(input.prompt).trim()
+  const receivedClientInstruction = String(input.system ?? '').trim()
   const prompt = bounded(input.prompt, MAX_PROMPT_CHARS)
   if (!prompt) throw new Error('invalid_prompt')
   const task = normalizeAgentTask(input.task)
@@ -109,12 +111,35 @@ export function prepareAgentPromptRequest(input = {}) {
     prompt: userContent(prompt, clientInstruction),
     rawPromptChars: prompt.length,
     clientInstructionChars: clientInstruction.length,
+    budget: {
+      prompt: {
+        limitChars: MAX_PROMPT_CHARS,
+        receivedChars: receivedPrompt.length,
+        acceptedChars: prompt.length,
+        truncated: receivedPrompt.length > prompt.length,
+      },
+      clientInstruction: {
+        limitChars: MAX_CLIENT_INSTRUCTION_CHARS,
+        receivedChars: receivedClientInstruction.length,
+        acceptedChars: clientInstruction.length,
+        truncated: receivedClientInstruction.length > clientInstruction.length,
+      },
+    },
     system: `${SERVER_POLICY} ${policy.instruction}`,
     json,
     maxOutputTokens: policy.maxOutputTokens,
     temperature: json ? Math.min(policy.temperature, 0.1) : policy.temperature,
     timeoutMs: policy.timeoutMs,
     search: policy.search === true,
+  }
+}
+
+export function promptHarnessMetadata(prepared) {
+  return {
+    protocol: prepared.protocol,
+    version: prepared.version,
+    profile: prepared.profile,
+    budget: prepared.budget,
   }
 }
 
