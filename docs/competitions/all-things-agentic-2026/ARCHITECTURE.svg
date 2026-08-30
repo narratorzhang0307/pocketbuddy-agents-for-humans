@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Frost Taskmaster Google competition architecture</title>
+  <desc id="desc">Pocket Buddy inputs enter the Frost Agent Loop on Cloud Run. Gemini 3.5 Flash proposes structured next actions through the Google Gen AI SDK. Taskmaster gates tools including AMap and writes privacy-bounded evidence to Firestore.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#2d3748"/></marker>
+    <style>
+      .title{font:700 42px system-ui,sans-serif;fill:#17212b}.sub{font:500 20px system-ui,sans-serif;fill:#536170}.h{font:700 24px system-ui,sans-serif;fill:#17212b}.t{font:500 18px system-ui,sans-serif;fill:#334155}.small{font:500 15px system-ui,sans-serif;fill:#52606d}.box{stroke:#27364a;stroke-width:2.5}.line{fill:none;stroke:#2d3748;stroke-width:3;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="#f7f4ed"/>
+  <text x="80" y="78" class="title">Frost Taskmaster · Google Competition Edition</text>
+  <text x="80" y="115" class="sub">Model proposals are separated from permissions, tool effects, and evidence-backed completion.</text>
+
+  <rect x="70" y="210" width="270" height="185" rx="26" fill="#fff" class="box"/>
+  <text x="105" y="260" class="h">User interfaces</text>
+  <text x="105" y="302" class="t">Pocket Buddy Web / iOS</text>
+  <text x="105" y="338" class="t">Frost BLE wearable</text>
+  <text x="105" y="374" class="small">English + Chinese goals</text>
+
+  <rect x="435" y="170" width="530" height="520" rx="34" fill="#edf6ff" stroke="#4285f4" stroke-width="4"/>
+  <text x="480" y="222" class="h">Google Cloud Run</text>
+  <text x="480" y="256" class="small">Hosted app, API, structured logs, revision identity</text>
+
+  <rect x="485" y="305" width="430" height="125" rx="22" fill="#fff" class="box"/>
+  <text x="520" y="350" class="h">Frost Agent Loop</text>
+  <text x="520" y="386" class="t">Goal · session · budgets · cancel · resume</text>
+  <text x="520" y="416" class="small">Finite state machine; model text is not an effect</text>
+
+  <rect x="485" y="480" width="430" height="155" rx="22" fill="#fff" class="box"/>
+  <text x="520" y="525" class="h">Taskmaster + Evidence Gate</text>
+  <text x="520" y="562" class="t">Registered tools · approval · timeout</text>
+  <text x="520" y="598" class="t">Idempotent effects · completion receipts</text>
+
+  <rect x="1060" y="175" width="440" height="210" rx="28" fill="#e8f0fe" stroke="#4285f4" stroke-width="4"/>
+  <text x="1100" y="228" class="h">Gemini 3.5 Flash</text>
+  <text x="1100" y="270" class="t">Vertex AI / Gemini API</text>
+  <text x="1100" y="308" class="t">Official @google/genai SDK</text>
+  <text x="1100" y="345" class="small">Returns one structured next action</text>
+
+  <rect x="1060" y="465" width="440" height="190" rx="28" fill="#e6f4ea" stroke="#34a853" stroke-width="4"/>
+  <text x="1100" y="518" class="h">Firestore</text>
+  <text x="1100" y="558" class="t">Trace ID · task · model · status</text>
+  <text x="1100" y="594" class="t">Cloud Run revision · timing</text>
+  <text x="1100" y="628" class="small">No prompts, health context, or credentials</text>
+
+  <rect x="140" y="745" width="290" height="105" rx="22" fill="#fff4df" class="box"/>
+  <text x="180" y="790" class="h">AMap</text>
+  <text x="180" y="824" class="small">Routes and production map UI</text>
+  <rect x="510" y="745" width="290" height="105" rx="22" fill="#fff" class="box"/>
+  <text x="550" y="790" class="h">Health &amp; context</text>
+  <text x="550" y="824" class="small">Authorized facts and weather</text>
+  <rect x="880" y="745" width="290" height="105" rx="22" fill="#fff" class="box"/>
+  <text x="920" y="790" class="h">Skills</text>
+  <text x="920" y="824" class="small">Exercise, nutrition, nature</text>
+  <rect x="1250" y="745" width="290" height="105" rx="22" fill="#fff" class="box"/>
+  <text x="1290" y="790" class="h">Device bridge</text>
+  <text x="1290" y="824" class="small">Phone permissions + wearable</text>
+
+  <path d="M340 302H435" class="line"/>
+  <path d="M915 350C990 350 995 278 1060 278" class="line"/>
+  <path d="M1060 320C995 320 990 392 915 392" class="line"/>
+  <path d="M915 560H1060" class="line"/>
+  <path d="M700 635V700H285V745" class="line"/>
+  <path d="M700 635V745" class="line"/>
+  <path d="M700 700H1025V745" class="line"/>
+  <path d="M700 680H1395V745" class="line"/>
+</svg>
