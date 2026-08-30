@@ -40,6 +40,7 @@ const requiredFiles = [
   'server/agent-prompt-harness.mjs',
   'server/agent-evidence-store.mjs',
   'server/cloud-data-contracts.mjs',
+  'scripts/clean-generated.mjs',
   'scripts/agentic/preflight-cloud.mjs',
   'deploy/all-things-agentic/deploy.sh',
   'deploy/all-things-agentic/cloudbuild.yaml',
@@ -76,6 +77,9 @@ check('Canonical repository metadata', pkg.repository?.url === 'https://github.c
 check('Google Gen AI SDK', pkg.dependencies?.['@google/genai'] === '2.19.0', '@google/genai must be pinned to 2.19.0');
 check('Firestore SDK', pkg.dependencies?.['@google-cloud/firestore'] === '9.0.0', '@google-cloud/firestore must be pinned to 9.0.0');
 check('Hardware host verification', pkg.scripts?.['hardware:check'] === 'node scripts/hardware/verify-agent-link.mjs', 'package.json must expose the AgentLink host verification');
+check('Generated output cleanup', pkg.scripts?.['clean:generated'] === 'node scripts/clean-generated.mjs', 'package.json must expose the guarded generated-output cleanup');
+check('Full Web build starts clean', pkg.scripts?.['build:web']?.startsWith('node scripts/clean-generated.mjs --web &&'), 'build:web must remove generated Web outputs first');
+check('Local server rebuilds current source', pkg.scripts?.start === 'npm run build:web && node server.mjs', 'npm start must never serve an existing dist without rebuilding');
 
 const builtins = await text('src/app/lib/skill/builtins.ts');
 const disabledBuiltins = builtins.slice(builtins.indexOf('DEFAULT_DISABLED_BUILTIN_SKILL_IDS'), builtins.indexOf('export function shouldAutoEquipBuiltin'));
