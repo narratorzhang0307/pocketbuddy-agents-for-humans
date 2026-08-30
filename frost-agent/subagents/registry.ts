@@ -7,9 +7,9 @@ export interface FrostSkillSubagent {
   instruction: string;
 }
 
-/** One independently addressed Qwen agent per registered Skill; no dynamic agent spawning. */
+/** One independently addressed worker per runnable Skill; no dynamic agent spawning. */
 export function listFrostSkillSubagents(): FrostSkillSubagent[] {
-  return listRoutableSkills().map((skill) => ({
+  return listRoutableSkills().filter((skill) => skill.availability === 'equipped').map((skill) => ({
     agent_id: `skill:${skill.id}`,
     skill,
     instruction: [

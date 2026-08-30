@@ -99,9 +99,11 @@ idf.py build
 主机协议、电量解析和实体长按状态机回归测试（不需要连接设备）：
 
 ```sh
-c++ -std=c++17 -Wall -Wextra -Werror tests/protocol_host_test.cpp components/agent_link/src/protocol.cpp -o /tmp/ojbadge-protocol-test
-/tmp/ojbadge-protocol-test
+cd ../..
+npm run hardware:check
 ```
+
+该命令同时覆盖 AgentLink 帧重组与 ACK、manifest MTU 分片、图片/动作上传 CRC、头像事务隔离、实体 PTT 隐私门、采音事件拥塞重试，以及最长 30 秒 PCM 缓冲、回压和清零。语音上行本身用 session ID、递增 sequence、结束时精确采样数和有界缓冲校验完整性；CRC32 用于需要整包安装回执的头像/动作资源，不把所有音频通知误写成逐包 CRC。
 
 真机验收：USB 启动日志没有重启循环；PSRAM 正常；圆屏可见且方向正确；触摸计数和坐标随实际操作变化；BLE 可发现并能重组 manifest；通过 `screen0` 或 `avatar_state` 实际改变屏幕。只看到广播或返回 ACK 不等于完成上述验收。
 

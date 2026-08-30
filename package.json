@@ -14,6 +14,7 @@
     "bird:check": "node scripts/hardware/check-bird-release.mjs --source-only",
     "ios:install": "node scripts/ios/install.mjs",
     "ios:test": "node --test scripts/ios/provenance.test.mjs scripts/ios/verify-app-icon.test.mjs",
+    "hardware:check": "node scripts/hardware/verify-agent-link.mjs",
     "ios:open": "cap open ios",
     "agentic:check": "node scripts/agentic/verify-submission.mjs",
     "agentic:preflight": "node scripts/agentic/preflight-cloud.mjs",

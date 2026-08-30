@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { resolveSkillRunTarget } from '../plaza/skillRoutes';
-import { BUILTIN_SKILLS } from './builtins';
+import { BUILTIN_SKILLS, DEFAULT_DISABLED_BUILTIN_SKILL_IDS, shouldAutoEquipBuiltin } from './builtins';
 import { SkillProtocolError, validateSkillManifest } from './protocol';
 import { disableSkill, ensureBuiltinSkills, equipSkill, getEquippedSkill, getInstalledSkill, installSkillManifest, listInstalledSkills, resetSkillRegistryForTests, rollbackSkill, uninstallSkill, uninstallSkillWithAssets } from './index';
 
@@ -102,8 +102,18 @@ describe('pocket-skill/v1', () => {
     ensureBuiltinSkills();
     ensureBuiltinSkills();
     expect(listInstalledSkills()).toHaveLength(BUILTIN_SKILLS.length);
-    expect(BUILTIN_SKILLS.filter((item) => item.assets.every((asset) => asset.optional)).every((item) => getEquippedSkill(item.identity.id))).toBe(true);
-    expect(BUILTIN_SKILLS.filter((item) => item.assets.some((asset) => !asset.optional)).every((item) => !getEquippedSkill(item.identity.id))).toBe(true);
+    expect(BUILTIN_SKILLS.filter(shouldAutoEquipBuiltin).every((item) => getEquippedSkill(item.identity.id))).toBe(true);
+    expect(BUILTIN_SKILLS.filter((item) => !shouldAutoEquipBuiltin(item)).every((item) => !getEquippedSkill(item.identity.id))).toBe(true);
+    expect([...DEFAULT_DISABLED_BUILTIN_SKILL_IDS].every((id) => !getEquippedSkill(id))).toBe(true);
+  });
+
+  it('migrates connector-only built-ins out of the active Taskmaster catalog', () => {
+    const healthsync = BUILTIN_SKILLS.find((item) => item.identity.id === 'frost.healthsync')!;
+    const installed = installSkillManifest(healthsync, 'builtin');
+    equipSkill(installed.key);
+    ensureBuiltinSkills();
+    expect(getEquippedSkill(healthsync.identity.id)).toBeUndefined();
+    expect(getInstalledSkill(installed.key)?.status).toBe('disabled');
   });
 
   it('removes a retired built-in without hard-coding its identity', () => {

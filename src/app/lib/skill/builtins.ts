@@ -111,6 +111,25 @@ export const BUILTIN_SKILLS: SkillManifest[] = [
   HEALTH_CONSULTATION_SKILL,
 ];
 
+// These manifests document integrations that still require a separately
+// provisioned connector or provider. Keep them visible for future setup, but
+// never advertise them as runnable (or create a sub-agent for them) on a clean
+// competition install. A user may explicitly equip one after configuring its
+// dependency; the page runtime still performs its own readiness check.
+export const DEFAULT_DISABLED_BUILTIN_SKILL_IDS = new Set([
+  'frost.healthsync',
+  'frost.garmin-readonly',
+  'frost.wger-planner',
+  'frost.mealie-kitchen',
+  'frost.health-consultation',
+]);
+
+export function shouldAutoEquipBuiltin(manifest: SkillManifest): boolean {
+  return manifest.evaluation.passed
+    && manifest.assets.every((asset) => asset.optional)
+    && !DEFAULT_DISABLED_BUILTIN_SKILL_IDS.has(manifest.identity.id);
+}
+
 export function ensureBuiltinSkills(): void {
   const currentBuiltinIds = new Set(BUILTIN_SKILLS.map((skill) => skill.identity.id));
   listInstalledSkills()
@@ -123,7 +142,11 @@ export function ensureBuiltinSkills(): void {
       installSkillManifest(manifest, 'builtin');
       // First-run demo bootstrap only. A user-disabled built-in stays disabled on
       // later page mounts, so Plaza can reliably show it as waiting to be loaded.
-      if (manifest.assets.every((asset) => asset.optional)) equipSkill(key);
+      if (shouldAutoEquipBuiltin(manifest)) equipSkill(key);
+    } else if (DEFAULT_DISABLED_BUILTIN_SKILL_IDS.has(manifest.identity.id)
+      && getEquippedSkill(manifest.identity.id)?.key === key) {
+      // Migrate older app installs that auto-equipped connector-only skills.
+      disableSkill(manifest.identity.id);
     } else if (manifest.assets.some((asset) => !asset.optional)
       && getEquippedSkill(manifest.identity.id)?.key === key
       && !installed.assetsVerifiedAt) {

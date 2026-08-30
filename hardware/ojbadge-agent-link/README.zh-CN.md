@@ -175,6 +175,8 @@ agent_link/
 
 ## 现状
 
+下表是多块参考板共用的上游 SDK 基线，不是 Pocket Buddy **OJBadge** 的最新真机结论。OJBadge 已另行留下语音上行、扬声器下行、电量、触摸、屏幕/头像和有界采音交付的真机证据，见 [README-OJBADGE.md](README-OJBADGE.md)。在 Pocket Buddy 仓库根目录运行 `npm run hardware:check`，可重新编译并执行协议、隐私门和音频缓冲主机测试。
+
 | 部分 | 状态 |
 |---|---|
 | BLE 广播、可连接、控制服务 `0xFFC0` | 已完成 |

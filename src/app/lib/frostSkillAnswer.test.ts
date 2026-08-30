@@ -11,7 +11,7 @@ describe('registered read-only Skills answer inside the same Frost', () => {
   it.each(FROST_ANSWER_SKILLS)('routes the advertised example to $id', ({ id, example }) => {
     expect(selectFrostAnswerSkill(example)).toBe(id);
   });
-  it.each(['打开户外窗口', '帮我调用健身agent', '打开女性运动', '不要查天气', '每天查杭州天气', '删除睡眠记录', '查杭州天气然后打开健身agent'])('does not hijack actions: %s', text => {
+  it.each(['打开户外窗口', '帮我调用健身agent', '帮我调取健康同步', '打开女性运动', '不要查天气', '每天查杭州天气', '删除睡眠记录', '查杭州天气然后打开健身agent'])('does not hijack actions: %s', text => {
     expect(selectFrostAnswerSkill(text)).toBeNull();
   });
   it('fetches real evidence before one final Qwen answer and never posts audio/history', async () => {

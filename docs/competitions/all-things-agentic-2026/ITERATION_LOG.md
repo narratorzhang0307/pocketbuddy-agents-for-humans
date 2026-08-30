@@ -30,4 +30,30 @@
 - Updated the architecture diagram, Devpost copy, demo script, checklist and automated repository verifier.
 - Added Prompt Harness and Firestore proof to the judge-facing console.
 
-Each round has targeted automated checks. Final acceptance additionally requires the full test suite, production build, iOS/bird release checks, secret scan, clean Git commit, official remote push and deployed GCP evidence supplied by the Taiwan operator.
+## Round 6 — Runtime and Taskmaster audit
+
+- Re-ran the central loop, route dialogue, confirmation, cancellation, timeout, delegation and evidence-boundary tests.
+- Confirmed that the wearable and page Skills feed one Frost session rather than creating competing Taskmasters.
+
+## Round 7 — Runnable agent surface
+
+- Changed the subagent registry to expose only equipped Skills.
+- Disabled connector-only Health Sync, Garmin, wger, Mealie and consultation Skills by default, including migration of older auto-equipped installs.
+- Kept truthful setup/read-only responses without creating an unavailable child worker.
+
+## Round 8 — Photos evidence path
+
+- Verified separate album/rear-camera inputs, bounded re-encoding without EXIF, explicit billed-analysis consent, real image payload, SAM readiness, no fake fallback and user confirmation before health writes.
+- Added a request-contract test proving that the selected image bytes—not a sample—enter the versioned Photos Harness.
+
+## Round 9 — OJBadge protocol and privacy
+
+- Added `npm run hardware:check` to compile and execute AgentLink frame, ACK, MTU, CRC, transaction, PTT privacy, congestion and 30-second PCM buffer tests.
+- Reconciled the portable SDK status page with the newer OJBadge physical-device evidence and documented the exact hardware demo boundary.
+
+## Round 10 — Judge proof and operator handoff
+
+- Added a Taskmaster readiness verdict, hardware recording checklist and optional Photos gate.
+- Updated Devpost copy, demo timing, official audit and Taiwan deployment handoff around one continuous badge → phone → Taskmaster → Cloud evidence workflow.
+
+Each round has targeted automated checks. Final acceptance additionally requires the full test suite, production build, hardware/iOS/bird release checks, secret scan, clean Git commit, official remote push and deployed GCP evidence supplied by the Taiwan operator.

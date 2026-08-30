@@ -10,7 +10,7 @@ Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的�
 手机文字 / 吧唧录音经 iPhone 本机 ASR
   → sendFrostAgentMessage
   → FrostConversationModel + FrostAgentLoop
-      ├─ 只读问答 / 记忆建议 → 服务端 Qwen → 校验回复
+      ├─ 只读问答 / 记忆建议 → 服务端选定模型 → 校验回复
       └─ 已登记 Skill → Taskmaster → 独立 Skill 子 Agent
           → 原 Skill 页面 / 可信工具
           → 权限、确认、真实结果与健康事实边界
@@ -21,7 +21,7 @@ Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的�
 
 ## 模型与设备分工
 
-- 云端 Qwen：通过服务端代理完成结构化决策、Skill 查询或健康建议；服务端配置模型，密钥不进入浏览器或 App。
+- 云端模型：通过服务端代理完成结构化决策、Skill 查询或健康建议；参赛部署固定为 Gemini 3.5，其他部署可保留兼容提供商。模型和密钥只由服务端配置，不进入浏览器或 App。
 - iPhone：承担原生 BLE、本机 ASR、相机和健康数据权限；能力是否可用取决于真实系统状态。
 - 电子吧唧：承担录音、显示和音频交互，由 Companion 投射经过校验的状态。
 - MiniMax：为已接入的回复生成语音；不把云端合成成功等同于硬件已经出声。
@@ -32,7 +32,7 @@ Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的�
 | 目录 | 用途 |
 | --- | --- |
 | [runtime](runtime/) | 有限循环、消息收件箱、审批、日志、恢复与 Goal Driver |
-| [subagents](subagents/) | Skill 子 Agent 身份、独立上下文和 Qwen 请求 |
+| [subagents](subagents/) | 已装备 Skill 的子 Agent 身份、独立上下文和服务端模型请求 |
 | [taskmaster](taskmaster/) | 任务监督、子 Agent 委派、健康事实和幂等执行边界 |
 | [skill-canvas](skill-canvas/) | 能力卡编译、结构预览和保存，不自动执行真实任务 |
 | [skill-taskmaster](skill-taskmaster/) | 旧导入路径的兼容转发 |
@@ -42,6 +42,8 @@ Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的�
 | [harness/memory.ts](harness/memory.ts) / [longTermMemory.ts](harness/longTermMemory.ts) | 本地会话和长期信息相关实现 |
 
 历史的 `agents/` 领域代码与其他兼容目录不是当前产品能力清单；实际可调用能力以注册表、装备状态和宿主权限为准。
+
+只有 `availability: equipped` 的 Skill 会创建子 Agent。已安装但缺账户、桥接器或服务的 Skill 只返回接入说明；不会分配子 Agent、打开页面或生成“已完成”状态。
 
 ## 安全与真实状态
 

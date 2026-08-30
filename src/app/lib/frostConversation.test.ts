@@ -53,9 +53,6 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
 
   it.each([
     ['打开跑步路线规划', 'frost-run-route'],
-    ['打开训练计划', 'frost-wger-planner'],
-    ['调用恢复厨房', 'frost-mealie-kitchen'],
-    ['打开健康同步', 'frost-healthsync'],
     ['进入动作信号', 'frost-motion-vision'],
     ['打开包装食品', 'frost-openfoodfacts'],
     ['帮我打开中国健康库', 'frost-cn-health-library'],
@@ -65,6 +62,19 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
   ])('recognizes the visible card name in %s and opens %s', async (text, target) => {
     const result = await (await runtime()).send(text);
     expect(result.view.autoStep?.target).toBe(target);
+    expect(result.task).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['打开训练计划', 'frost.wger-planner', 'frost-wger-planner'],
+    ['调用恢复厨房', 'frost.mealie-kitchen', 'frost-mealie-kitchen'],
+    ['打开健康同步', 'frost.healthsync', 'frost-healthsync'],
+  ])('keeps the unconfigured connector in %s as setup guidance without opening or starting a child worker', async (text, skillId, target) => {
+    const result = await (await runtime()).send(text);
+    expect(result.view.plan?.steps[0]).toMatchObject({ skillId, target, availability: 'installed' });
+    expect(result.view.plan?.steps[0].subagent).toBeUndefined();
+    expect(result.view.autoStep).toBeUndefined();
     expect(result.task).toBeNull();
     expect(fetch).not.toHaveBeenCalled();
   });
@@ -107,13 +117,14 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
     expect(fetch).toHaveBeenCalled();
   });
 
-  it('keeps specialized training plans out of Her Motion and preserves the original page handoff', async () => {
+  it('keeps an unconfigured training connector out of Her Motion and does not start a child worker', async () => {
     const app = await runtime();
     const result = await app.send('用 wger 做力量训练计划');
     expect(result.task).toBeNull();
-    expect(result.view.plan?.steps[0]).toMatchObject({ skillId: 'frost.wger-planner', target: 'frost-wger-planner', subagent: { model: 'qwen3.8-max', status: 'waiting_external' } });
+    expect(result.view.plan?.steps[0]).toMatchObject({ skillId: 'frost.wger-planner', target: 'frost-wger-planner', availability: 'installed' });
+    expect(result.view.plan?.steps[0].subagent).toBeUndefined();
     expect(result.events.some((event) => event.type === 'tool.called' && event.data.tool === 'taskmaster.start_intent')).toBe(false);
-    expect(result.view.autoStep?.target).toBe('frost-wger-planner');
+    expect(result.view.autoStep).toBeUndefined();
   });
 
   it('uses the same session for a page Skill, chat and local memory, without stale plans or extra model calls', async () => {

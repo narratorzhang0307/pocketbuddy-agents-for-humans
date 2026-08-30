@@ -301,7 +301,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
       },
     },
     {
-      name: 'frost.skill_answer', description: '以已登记 Skill 的只读工具查询真实数据，由 Qwen 回答；不跳页面、不启动任务。',
+      name: 'frost.skill_answer', description: '以已登记 Skill 的只读工具查询真实数据，由服务端选定模型回答；不跳页面、不启动任务。',
       read_only: true, risk: 'low', model_visible: false, timeout_ms: 120000,
       async execute(_input, context): Promise<FrostAgentToolResult> {
         const request = answerRequest(context.events);
@@ -332,6 +332,13 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         const routed = await runFrostOrchestrator(ctx);
         if (context.signal.aborted) return { status: 'cancelled', data: {} };
         if (routed.plan) {
+          // Installed/blocked connectors stay visible as setup guidance, but never
+          // receive a child worker until they are actually equipped.
+          if (!routed.plan.ready) return { status: 'success', data: {
+            reply: routed.reply,
+            plan: routed.plan as unknown as JsonObject,
+            trace: routed.trace || [],
+          } };
           const delegations = await delegateSkillPlan(routed.plan, { runId: context.call_id, userId: context.session.user_id, signal: context.signal });
           return delegationReply(routed.plan, delegations, routed.reply, routed.trace || []);
         }

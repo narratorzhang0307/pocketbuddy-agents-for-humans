@@ -8,10 +8,10 @@ import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 import skillIndex from '../../../agents/hospital_agent_example/data/skills/skills_index.json';
 
 describe('Hospital Agent entry and local catalogue', () => {
-  it('adds a lazy, independently addressed page to the actual Agents tab', () => {
+  it('keeps the page implementation but removes its unconfigured Agents entry and automatic launch', () => {
     const source = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
     expect(source).toContain("lazy(() => import('./HospitalAgentPage'))");
-    expect(source).toContain("runSkill('health-consultation')");
+    expect(source).not.toContain("runSkill('health-consultation')");
     expect(source).toContain("running === 'hospital'");
     expect(source).toContain('<HospitalAgentPage onBack={closeRunning}');
     expect(resolveSkillRunTarget('hospital-agent')).toBe('hospital');
@@ -27,10 +27,10 @@ describe('Hospital Agent entry and local catalogue', () => {
     expect(indexed).toHaveLength(67);
   });
 
-  it('uses the chosen local bear image for both the Agents entry and hospital header', () => {
+  it('keeps the chosen local bear image on the dormant consultation page without advertising a runnable card', () => {
     const entry = readFileSync(new URL('./MusicAgentsTab.tsx', import.meta.url), 'utf8');
-    expect(entry).toContain("import HospitalAgentAvatar from './HospitalAgentAvatar'");
-    expect(entry).toContain('<HospitalAgentAvatar />');
+    expect(entry).not.toContain("import HospitalAgentAvatar from './HospitalAgentAvatar'");
+    expect(entry).not.toContain('<HospitalAgentAvatar />');
     expect(entry).not.toContain('Stethoscope');
     const avatar = renderToStaticMarkup(createElement(HospitalAgentAvatar));
     expect(avatar).toContain(`src="${HOSPITAL_AGENT_AVATAR_SRC}"`);

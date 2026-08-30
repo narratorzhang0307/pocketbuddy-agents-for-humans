@@ -6,7 +6,7 @@ import type { FrostAgentToolResult } from '../runtime/contracts';
 import type { JsonObject } from './contracts';
 import { FrostAgentToolRegistry } from '../runtime/toolRegistry';
 import { getFrostSkillSubagent } from '../subagents/registry';
-import { httpSubagentCompletion, QwenSkillSubagentModel, type SubagentCompletion } from '../subagents/qwen';
+import { httpSubagentCompletion, ServerSkillSubagentModel, type SubagentCompletion } from '../subagents/qwen';
 
 export interface SkillDelegationResult {
   agent_id: string;
@@ -61,7 +61,7 @@ export async function delegateSkillTask(input: {
       return { status: 'waiting_external', data: { skill_id: agent.skill.id, target: agent.skill.target, note: value.note, execution_completed: false } };
     },
   });
-  const model = new QwenSkillSubagentModel(agent, options.completion || httpSubagentCompletion);
+  const model = new ServerSkillSubagentModel(agent, options.completion || httpSubagentCompletion);
   const loop = new FrostAgentLoop(FrostAgentLoop.createSession(input.runId, input.userId), model, tools, log,
     { max_steps: 3, max_tool_calls: 2, deadline_ms: 45000 });
   await loop.initialize();

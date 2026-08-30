@@ -21,7 +21,6 @@ import { FOUNDATION_SKILL_BY_RUN, resolveSkillRunTarget, type SkillRunTarget } f
 import { cancelAbandonedHerMotionSessions } from '../lib/health/herMotionSession';
 import { listCanvasSkills, removeCanvasSkill, subscribeCanvasSkills, type CanvasSkillRecord } from '../../../frost-agent/skill-canvas';
 import SkillAvatar from './SkillAvatar';
-import HospitalAgentAvatar from './HospitalAgentAvatar';
 import { FROST_AVATAR, skillAvatarForPage } from '../lib/skill/avatars';
 import { getFrostCompanion } from '../lib/frostCompanion';
 
@@ -336,7 +335,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
     <div className="h-full flex flex-col bg-[#EAEAEA] font-sans">
       {/* 顶栏状态 */}
       {!embedded && <div className="flex justify-center items-center h-[30px] px-4 border-b-2 border-black bg-[#EAEAEA] shrink-0">
-        <div className="font-pixel text-[9px] uppercase tracking-[0.14em] leading-none">POCKET EARTH · QWEN + MNN</div>
+        <div className="font-pixel text-[9px] uppercase tracking-[0.14em] leading-none">POCKET BUDDY · TASKMASTER + LOCAL</div>
       </div>}
 
       {/* 标题 */}
@@ -379,20 +378,6 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
               <div className="mt-1 font-pixel text-[6px] text-[#326B55]">LOCAL PERSONA · NOT AN IDENTITY CREDENTIAL</div>
             </div>
             <span className="grid min-h-11 w-[76px] shrink-0 place-items-center border-2 border-black bg-[#ffd65a] px-1 text-center font-pixel text-[6px] leading-relaxed text-black shadow-[2px_2px_0_#000]">▶ RUN</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => runSkill('health-consultation')}
-            className="grid w-full grid-cols-[52px_1fr_auto] items-center gap-2.5 border-2 border-black bg-[#e3f4f0] p-2.5 text-left transition-colors hover:bg-[#d2eee7] active:translate-y-px"
-          >
-            <HospitalAgentAvatar />
-            <span className="min-w-0">
-              <span className="block text-[13px] font-black">健康咨询 Agent</span>
-              <span className="mt-0.5 block font-pixel text-[6px] tracking-wider text-[#187b73]">HEALTH CONSULTATION · SUB AGENT</span>
-              <span className="mt-1 block text-[10.5px] leading-snug text-black/60">Qwen 自动接入 · 健康信息、就医准备与本地知识目录</span>
-            </span>
-            <span className="grid min-h-11 w-[76px] shrink-0 place-items-center border-2 border-black bg-white px-1 text-center text-[10px] font-bold">打开 Agent</span>
           </button>
 
           {canvasSkills.length > 0 && (
