@@ -58,8 +58,10 @@ const requiredFiles = [
   'docs/competitions/all-things-agentic-2026/AGENT_READINESS.md',
   'docs/competitions/all-things-agentic-2026/HARDWARE_DEMO_CHECKLIST.md',
   'docs/backend/README.md',
+  'docs/backend/CURRENT_API_CONTRACT.md',
   'docs/backend/PROMPT_HARNESS.md',
   'docs/backend/CURRENT_DATA_BOUNDARIES.md',
+  'docs/backend/REFERENCE_ARCHITECTURE_REVIEW.md',
   'docs/backend/TAIWAN_GCP_HANDOFF.md',
 ];
 
@@ -70,6 +72,7 @@ check('Root README uses Google submission identity', rootReadme.includes('All Th
 
 const pkg = JSON.parse(await text('package.json'));
 check('Node.js runtime', pkg.engines?.node === '>=22.0.0', 'package.json must require Node.js 22+');
+check('Canonical repository metadata', pkg.repository?.url === 'https://github.com/narratorzhang0307/pocketbuddy.git', 'package.json must identify the official pocketbuddy repository');
 check('Google Gen AI SDK', pkg.dependencies?.['@google/genai'] === '2.19.0', '@google/genai must be pinned to 2.19.0');
 check('Firestore SDK', pkg.dependencies?.['@google-cloud/firestore'] === '9.0.0', '@google-cloud/firestore must be pinned to 9.0.0');
 check('Hardware host verification', pkg.scripts?.['hardware:check'] === 'node scripts/hardware/verify-agent-link.mjs', 'package.json must expose the AgentLink host verification');
@@ -101,6 +104,7 @@ const promptHarness = await text('server/agent-prompt-harness.mjs');
 check('Prompt harness protocol', promptHarness.includes("frost-agent-prompt-harness/v1"), 'prompt harness protocol must be versioned');
 check('Client instruction demoted', promptHarness.includes('untrusted and lower priority'), 'client task instructions must remain lower priority than server policy');
 check('Structured output validation', promptHarness.includes("throw new Error('bad_model_output')"), 'structured model output must be validated');
+check('Prompt budget provenance', promptHarness.includes('receivedChars') && promptHarness.includes('truncated:'), 'prompt harness must report deterministic, non-content budget provenance');
 
 const deployScript = await text('deploy/all-things-agentic/deploy.sh');
 check('GCP preflight before mutation', deployScript.indexOf('preflight-cloud.mjs') < deployScript.indexOf('gcloud services enable'), 'deploy.sh must run preflight before creating resources');
@@ -110,6 +114,7 @@ check('Required Firestore evidence', deployScript.includes('FROST_FIRESTORE_REQU
 const dataContracts = await text('server/cloud-data-contracts.mjs');
 check('Competition data scope explicit', dataContracts.includes("implemented: Object.freeze(['frost_agent_runs'])"), 'competition Firestore scope must be explicit');
 check('Evidence allowlist enforced', dataContracts.includes('agent_evidence_field_not_allowed'), 'Firestore evidence must reject undeclared fields');
+check('Reserved GCS paths are machine-built', dataContracts.includes('gcsUserMediaObject') && dataContracts.includes('gcsPetJobPrefix'), 'reserved GCS object paths must use validated builders');
 
 const architecture = await text('docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg');
 check('Architecture shows prompt harness', architecture.includes('Server Prompt Harness v1'), 'architecture must show the server prompt boundary');

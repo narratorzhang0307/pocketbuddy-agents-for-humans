@@ -2,6 +2,22 @@
 
 交接目标：由台湾团队成员使用自己的 Google Cloud 账号部署正式 `main`，不共享 Google 密码、不传 service-account JSON key、不修改业务代码。默认选择 Cloud Run 与 Firestore 的 `asia-east1`（台湾）区域；Gemini 通过 Vertex AI `global` endpoint 调用。
 
+唯一源码来源：[`https://github.com/narratorzhang0307/pocketbuddy`](https://github.com/narratorzhang0307/pocketbuddy) 的 `main`。不要从 `Pocket-Buddy`、`Pocket-Earth-Google` 或本机旧工作区复制文件；预检会验证正式 `main` 的 upstream。
+
+## 当前落实状态
+
+| 朋友建议 | 当前落实 | 她这次需要做什么 |
+| --- | --- | --- |
+| 前后端在同一仓库统一修改 | 已落实：React/iOS、`server.mjs`、`server/`、Docker、部署和文档都在正式仓库 | 只拉正式 `main`，不要另建后端仓库 |
+| 后端直接上 GCP serverless | 已落实：单一 Cloud Run 容器和 Cloud Build | 用自己的 GCP 项目运行预检和部署脚本 |
+| Prompt Harness 统一逻辑 | 已落实：服务端策略、profile、预算、JSON 校验、非敏感 provenance | 不从前端新增任意 system prompt；新任务必须同 PR 改 profile 与测试 |
+| Firestore 结构化数据 | 已落实比赛运行证据；完整用户集合有合同但未启用 | 创建 Firestore Native；验证同 trace ID 证据 |
+| GCS 二进制媒体 | 路径构造器和测试已落实；匿名媒体 API 未启用 | 本次不建桶、不授予 Storage role；等 Firebase 身份、同意和删除策略完成后另开 PR |
+| TTS / STT / 通知改成 Google 服务 | 本次不迁移：已验证链路使用 iPhone 本地 ASR、现有语音与设备反馈 | 不增加新服务；先保证 Taskmaster + OJBadge 演示稳定 |
+| 地图改 Google 服务 | 不采纳：大陆产品继续使用成熟的 AMap | 配置受最终域名限制的 AMap key |
+
+这个边界不是少做：比赛主链需要证明 Cloud Run → Prompt Harness → Gemini → Taskmaster → Firestore。把尚无身份/同意/删除链路的原图、录音临时上传到 GCS，反而会扩大风险且不增加 Taskmaster 证明力。
+
 ## A. 先确认参赛身份
 
 - 如果朋友参与部署、架构或代码修改，最稳妥的做法是把她添加为 Devpost Project Team 成员；官方规则要求所有团队成员都是 eligible individuals，并全部出现在 Devpost 项目中。
@@ -35,6 +51,15 @@ npm ci
 ```sh
 git rev-parse HEAD
 ```
+
+同时确认唯一 upstream：
+
+```sh
+git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}'
+git remote get-url origin
+```
+
+应分别看到 `origin/main` 和 `https://github.com/narratorzhang0307/pocketbuddy.git`（SSH URL 也可以，但仓库 owner/name 必须相同）。
 
 ## D. 登录与环境变量
 
@@ -72,6 +97,7 @@ npm run agentic:preflight
 - Cloud Run / Firestore 区域
 - AMap key 与保护方式（只显示 configured）
 - 所需 API；未启用只提示，因为部署脚本会启用
+- 当前 `main` 的 upstream 确实是正式 `narratorzhang0307/pocketbuddy/main`
 
 ## F. 本地回归与部署
 
@@ -135,6 +161,8 @@ gcloud run services describe frost-taskmaster-agent \
 提交代表再完成：公开仓库链接、架构图、英文文案、公开 YouTube/Vimeo 视频、hosted URL、第三方数据源和既有代码披露。
 
 Photos 的 Qwen + SAM 服务不是本次 Gemini/Cloud Run/Firestore 主链的部署前提。只有在 `/api/photos-harness/health` 为 ready、且一张真实餐食图完成识别和人工确认后，才把 Photos 放进比赛视频；否则主视频坚持路线 Taskmaster + OJBadge，不把示例预览当识别结果。
+
+GCS 也不是本次部署前提。当前代码只提供经过测试的用户媒体和临时任务对象路径，不提供匿名 signed-upload API；她不应临时给公开 Cloud Run 运行账号增加 `roles/storage.admin` 或把 bucket 设为公开。
 
 ## I. 故障处理顺序
 

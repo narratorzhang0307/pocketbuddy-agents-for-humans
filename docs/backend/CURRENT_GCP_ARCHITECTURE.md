@@ -41,4 +41,4 @@ flowchart LR
 
 ## 参考仓库取舍
 
-参考 `jessie0215/Smart_LTC_System` 后采用了：单一技术栈说明、分层提示词、上下文预算、provider 隔离、部署/验证脚本、日志不保存原文。没有照搬其 AWS Lambda/ECS/Cognito/DynamoDB 服务数量，因为 Pocket Buddy 的比赛闭环用一个 Cloud Run 服务即可，过度拆分会增加交接和失败面。
+参考 [`jessie0215/Smart_LTC_System`](https://github.com/jessie0215/Smart_LTC_System) 的 `81ceb74` 后采用了：单一技术栈说明、分层提示词、上下文预算、provider 隔离、部署/验证脚本、日志不保存原文。没有照搬其 AWS Lambda/ECS/Cognito/DynamoDB 服务数量，因为 Pocket Buddy 的比赛闭环用一个 Cloud Run 服务即可，过度拆分会增加交接和失败面。逐项取舍见 [`REFERENCE_ARCHITECTURE_REVIEW.md`](REFERENCE_ARCHITECTURE_REVIEW.md)。
