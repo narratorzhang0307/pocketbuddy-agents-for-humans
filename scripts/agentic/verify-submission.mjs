@@ -42,6 +42,7 @@ const requiredFiles = [
   'server/agent-evidence-store.mjs',
   'server/cloud-data-contracts.mjs',
   'scripts/clean-generated.mjs',
+  'scripts/repo/verify-source-tree.mjs',
   'scripts/agentic/preflight-cloud.mjs',
   'deploy/all-things-agentic/deploy.sh',
   'deploy/all-things-agentic/cloudbuild.yaml',
@@ -80,6 +81,7 @@ check('Google Gen AI SDK', pkg.dependencies?.['@google/genai'] === '2.19.0', '@g
 check('Firestore SDK', pkg.dependencies?.['@google-cloud/firestore'] === '9.0.0', '@google-cloud/firestore must be pinned to 9.0.0');
 check('Hardware host verification', pkg.scripts?.['hardware:check'] === 'node scripts/hardware/verify-agent-link.mjs', 'package.json must expose the AgentLink host verification');
 check('Generated output cleanup', pkg.scripts?.['clean:generated'] === 'node scripts/clean-generated.mjs', 'package.json must expose the guarded generated-output cleanup');
+check('Source tree verification', pkg.scripts?.['repo:check'] === 'node scripts/repo/verify-source-tree.mjs', 'package.json must expose the source tree verification');
 check('Full Web build starts clean', pkg.scripts?.['build:web']?.startsWith('node scripts/clean-generated.mjs --web &&'), 'build:web must remove generated Web outputs first');
 check('Local server rebuilds current source', pkg.scripts?.start === 'npm run build:web && node server.mjs', 'npm start must never serve an existing dist without rebuilding');
 

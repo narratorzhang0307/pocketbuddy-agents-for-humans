@@ -19,7 +19,7 @@
 
 - [ ] Default `main` contains the submitted commit
 - [ ] README links this competition package
-- [ ] `npm ci`, typecheck, tests, build, and agentic verification pass
+- [ ] `npm ci`, `npm run repo:check`, typecheck, tests, build, and agentic verification pass
 - [ ] `npm run hardware:check` passes; fresh BLE/PTT/screen/speaker behavior is recorded separately
 - [ ] No `.env`, credentials, private evidence, personal media, model weights, or build caches tracked
 - [ ] Cloud Run and local spin-up instructions are reproducible

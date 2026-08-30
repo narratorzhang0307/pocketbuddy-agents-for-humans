@@ -12,6 +12,7 @@ npm --prefix vendor/her-motion ci
 # 删除本机旧 Web/iOS/硬件构建、生成的子应用和部署依赖。
 # 遇到正在进行的 iOS install/archive 锁会拒绝清理。
 npm run clean:generated
+npm run repo:check
 
 npm run typecheck
 npm test
@@ -37,6 +38,11 @@ SAM/训练推理服务及对应权重仍需按模块说明部署；它们不是 
 `npm start` 与 `npm run preview` 都会先执行 `build:web`，不会直接托管遗留的
 `dist`。直接运行 `node server.mjs` 只用于已经由受控流水线构建好的容器运行层，
 不作为本机启动方式。
+
+根目录只使用 `npm` 与 `package-lock.json`。历史 `pnpm-lock.yaml` / `pnpm-workspace.yaml`
+已删除，因为其依赖版本与当前 `package.json` 不一致。`npm run repo:check` 会阻止旧
+`dist`、安装缓存、IPA/APP、私密环境文件、退役技能画布或超过 25 MiB 的新交付包
+重新进入 Git；当前 OCR/WASM 等构建源资产均低于该单文件上限并继续保留。
 
 源码已明确退役的旧技能画布、旧鸟图清单不应重新拷贝进来。图标固定为已确认的小狗单眼眨眼图；
 所有 iOS 发布必须通过来源、画布、Frost Skills、识鸟和图标检查。

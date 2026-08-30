@@ -176,6 +176,7 @@ npm run dev -- --host 127.0.0.1 --port 5174
 npm run typecheck
 npm test -- --maxWorkers=2
 npm run build
+npm run repo:check
 npm run hardware:check
 ```
 

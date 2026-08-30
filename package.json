@@ -15,6 +15,7 @@
     "postbuild": "node scripts/ios/verify-frost-skills.mjs dist",
     "clean:generated": "node scripts/clean-generated.mjs",
     "clean:check": "node scripts/clean-generated.mjs --check",
+    "repo:check": "node scripts/repo/verify-source-tree.mjs",
     "mobile:sync": "npm run build && cap sync android",
     "ios:prepare": "node scripts/ios/prepare.mjs",
     "ios:check": "node scripts/hardware/check-bird-release.mjs --web-dir ios/App/App/public && node scripts/ios/check.mjs",
