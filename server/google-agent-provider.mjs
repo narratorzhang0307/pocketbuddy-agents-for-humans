@@ -26,14 +26,6 @@ export function selectFrostAgentBackend(env = process.env, availability = {}) {
   return availability.google ? 'gemini' : 'qwen'
 }
 
-function outputTokens(task) {
-  const name = String(task || 'default').toLowerCase()
-  if (name.startsWith('subagent:')) return 1536
-  if (name === 'run-route-intent') return 512
-  if (name.startsWith('skill-answer:')) return 768
-  return 2048
-}
-
 export function createGoogleAgentProvider(env = process.env, options = {}) {
   const clientOptions = googleAgentClientOptions(env)
   const vertexai = clientOptions.vertexai === true
@@ -47,13 +39,13 @@ export function createGoogleAgentProvider(env = process.env, options = {}) {
     return client
   }
 
-  const params = ({ prompt, system = '', json = false, task = 'default', signal, temperature }) => ({
+  const params = ({ prompt, system = '', json = false, signal, temperature, maxOutputTokens = 2048 }) => ({
     model,
     contents: String(prompt || ''),
     config: {
       ...(system ? { systemInstruction: String(system) } : {}),
       temperature: temperature ?? (json ? 0.1 : 0.55),
-      maxOutputTokens: outputTokens(task),
+      maxOutputTokens: Math.max(1, Math.min(8192, Number(maxOutputTokens) || 2048)),
       ...(json ? { responseMimeType: 'application/json' } : {}),
       ...(signal ? { abortSignal: signal } : {}),
     },

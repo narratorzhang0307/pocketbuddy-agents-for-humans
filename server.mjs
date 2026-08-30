@@ -20,6 +20,7 @@ import { getTravelPlaceSources } from './knowledge/travel-place-sources.mjs'
 import { buildQwenChatBody, buildQwenImageBody, createQwenProvider, qwenModelForTask, qwenVisionConfigForPurpose, qwenVisionSystemForPurpose, readQwenImageUrl } from './server/qwen-provider.mjs'
 import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs'
 import { createAgentEvidenceStore } from './server/agent-evidence-store.mjs'
+import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, prepareAgentPromptRequest } from './server/agent-prompt-harness.mjs'
 import { applySecurityHeaders, boundedText, clientAddress, createSlidingWindowLimiter, isSafeDataImage, isSafeInlineImage } from './server/security.mjs'
 import { publishYoutubeMusic } from './server/music-publish.mjs'
 import { MappingCloudError, runMappingCloud } from './server/mapping-cloud.mjs'
@@ -136,6 +137,7 @@ function agenticReadiness() {
     },
     evidence,
     firestore: evidence,
+    promptHarness: { protocol: AGENT_PROMPT_PROTOCOL, version: '1.0.0', serverOwned: true },
     mapProvider: 'amap',
   }
 }
@@ -502,10 +504,10 @@ async function handleFrostLlm(req, res) {
   res.setHeader('x-frost-trace-id', traceId)
   try {
     const { prompt, system, json, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
-    const safePrompt = boundedText(prompt, 24000)
-    const safeSystem = boundedText(system, 5000)
-    if (!safePrompt) return sendJSON(res, { text: '', error: 'invalid_prompt' }, 400)
-    const taskName = String(task || 'default')
+    let prepared
+    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task }) }
+    catch (error) { return sendJSON(res, { text: '', error: error instanceof Error ? error.message : 'invalid_prompt' }, 400) }
+    const { prompt: safePrompt, system: safeSystem, task: taskName } = prepared
 
     if (FROST_AGENT_BACKEND === 'gemini') {
       if (!GOOGLE_AGENT.configured) return sendJSON(res, { text: '', error: 'google_agent_not_configured', traceId }, 503)
@@ -513,15 +515,20 @@ async function handleFrostLlm(req, res) {
         prompt: safePrompt,
         system: safeSystem,
         task: taskName,
-        json: Boolean(json),
-        signal: AbortSignal.timeout(taskName.startsWith('research-') ? 60_000 : 30_000),
-        temperature: json ? 0.1 : (taskName.startsWith('exhibition-') || taskName.startsWith('mapping-') ? 0.35 : 0.55),
+        json: prepared.json,
+        signal: AbortSignal.timeout(prepared.timeoutMs),
+        temperature: prepared.temperature,
+        maxOutputTokens: prepared.maxOutputTokens,
       })
+      const text = normalizeAgentResponseText(result.text, { json: prepared.json })
       const completedAt = new Date()
       const evidence = await recordAgentRun({
         traceId,
         status: 'completed',
         task: taskName,
+        promptProtocol: prepared.protocol,
+        promptVersion: prepared.version,
+        promptProfile: prepared.profile,
         provider: GOOGLE_AGENT.provider,
         model: GOOGLE_AGENT.model,
         transport: GOOGLE_AGENT.transport,
@@ -531,12 +538,13 @@ async function handleFrostLlm(req, res) {
         startedAt: startedAt.toISOString(),
         completedAt: completedAt.toISOString(),
         latencyMs: completedAt.getTime() - startedAt.getTime(),
-        promptChars: safePrompt.length + safeSystem.length,
-        responseChars: result.text.length,
+        promptChars: prepared.rawPromptChars,
+        clientInstructionChars: prepared.clientInstructionChars,
+        responseChars: text.length,
       })
       return sendJSON(res, {
-        text: result.text,
-        ...answerSpeechTicket(taskName, result.text),
+        text,
+        ...answerSpeechTicket(taskName, text),
         model: GOOGLE_AGENT.model,
         provider: GOOGLE_AGENT.provider,
         modelOwner: GOOGLE_AGENT.owner,
@@ -544,6 +552,7 @@ async function handleFrostLlm(req, res) {
         framework: GOOGLE_AGENT.framework,
         traceId,
         evidence,
+        promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
       })
     }
 
@@ -553,20 +562,24 @@ async function handleFrostLlm(req, res) {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${QWEN.key}` },
       body: JSON.stringify(buildQwenChatBody(QWEN, {
-        prompt: safePrompt, system: safeSystem, task: taskName, json: !!json,
-        search: taskName.startsWith('research-'),
-        temperature: json ? 0 : (taskName.startsWith('exhibition-') || taskName.startsWith('mapping-') ? 0.35 : 0.65),
+        prompt: safePrompt, system: safeSystem, task: taskName, json: prepared.json,
+        search: prepared.search,
+        temperature: prepared.temperature,
+        maxTokens: prepared.maxOutputTokens,
       })),
-      signal: AbortSignal.timeout(taskName.startsWith('research-') ? 60000 : 30000),
+      signal: AbortSignal.timeout(prepared.timeoutMs),
     })
     if (!r.ok) return sendJSON(res, { text: '', error: 'upstream_' + r.status }, r.status)   // 透传上游 429/5xx：客户端 enrichJSON 的 withRetry 才能据 r.ok 重试瞬时故障（否则恒 200+空串、重试形同虚设）
     const data = await r.json()
-    const text = data?.choices?.[0]?.message?.content || ''
+    const text = normalizeAgentResponseText(data?.choices?.[0]?.message?.content || '', { json: prepared.json })
     const completedAt = new Date()
     const evidence = await recordAgentRun({
       traceId,
       status: 'completed',
       task: taskName,
+      promptProtocol: prepared.protocol,
+      promptVersion: prepared.version,
+      promptProfile: prepared.profile,
       provider: QWEN.provider,
       model,
       transport: QWEN.transport,
@@ -576,7 +589,8 @@ async function handleFrostLlm(req, res) {
       startedAt: startedAt.toISOString(),
       completedAt: completedAt.toISOString(),
       latencyMs: completedAt.getTime() - startedAt.getTime(),
-      promptChars: safePrompt.length + safeSystem.length,
+      promptChars: prepared.rawPromptChars,
+      clientInstructionChars: prepared.clientInstructionChars,
       responseChars: text.length,
     })
     sendJSON(res, {
@@ -589,6 +603,7 @@ async function handleFrostLlm(req, res) {
       framework: 'frost-agent-runtime',
       traceId,
       evidence,
+      promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
     })
   } catch (e) {
     sendJSON(res, { text: '', error: e instanceof Error ? e.message : String(e), traceId }, 502)
@@ -607,11 +622,11 @@ async function handleFrostLlmStream(req, res) {
   res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-cache', connection: 'keep-alive', 'x-accel-buffering': 'no' })
   const sse = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`)
   try {
-    const { prompt, system, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
-    const safePrompt = boundedText(prompt, 24000)
-    const safeSystem = boundedText(system, 5000)
-    if (!safePrompt) { sse({ done: true, error: 'invalid_prompt' }); res.end(); return }
-    const taskName = String(task || 'default')
+    const { prompt, system, json, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
+    let prepared
+    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task }) }
+    catch (error) { sse({ done: true, error: error instanceof Error ? error.message : 'invalid_prompt' }); res.end(); return }
+    const { prompt: safePrompt, system: safeSystem, task: taskName } = prepared
 
     if (FROST_AGENT_BACKEND === 'gemini') {
       if (!GOOGLE_AGENT.configured) { sse({ done: true, error: 'google_agent_not_configured', traceId }); res.end(); return }
@@ -619,8 +634,10 @@ async function handleFrostLlmStream(req, res) {
         prompt: safePrompt,
         system: safeSystem,
         task: taskName,
+        json: prepared.json,
         signal: AbortSignal.timeout(120_000),
-        temperature: 0.55,
+        temperature: prepared.temperature,
+        maxOutputTokens: prepared.maxOutputTokens,
       })
       let responseChars = 0
       for await (const chunk of stream) {
@@ -634,6 +651,9 @@ async function handleFrostLlmStream(req, res) {
         traceId,
         status: 'completed',
         task: taskName,
+        promptProtocol: prepared.protocol,
+        promptVersion: prepared.version,
+        promptProfile: prepared.profile,
         provider: GOOGLE_AGENT.provider,
         model: GOOGLE_AGENT.model,
         transport: GOOGLE_AGENT.transport,
@@ -643,10 +663,11 @@ async function handleFrostLlmStream(req, res) {
         startedAt: startedAt.toISOString(),
         completedAt: completedAt.toISOString(),
         latencyMs: completedAt.getTime() - startedAt.getTime(),
-        promptChars: safePrompt.length + safeSystem.length,
+        promptChars: prepared.rawPromptChars,
+        clientInstructionChars: prepared.clientInstructionChars,
         responseChars,
       })
-      sse({ done: true, traceId, model: GOOGLE_AGENT.model, provider: GOOGLE_AGENT.provider, evidence })
+      sse({ done: true, traceId, model: GOOGLE_AGENT.model, provider: GOOGLE_AGENT.provider, evidence, promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile } })
       res.end()
       return
     }
@@ -655,7 +676,7 @@ async function handleFrostLlmStream(req, res) {
     const r = await fetch(QWEN.url, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${QWEN.key}` },
-      body: JSON.stringify(buildQwenChatBody(QWEN, { prompt: safePrompt, system: safeSystem, task: taskName, stream: true, temperature: 0.65 })),
+      body: JSON.stringify(buildQwenChatBody(QWEN, { prompt: safePrompt, system: safeSystem, task: taskName, json: prepared.json, stream: true, temperature: prepared.temperature, maxTokens: prepared.maxOutputTokens })),
       signal: AbortSignal.timeout(120000),   // 逐 token 流：只兜「上游挂死永不吐」，给足最长叙事时间；30s 会从中间砍断正常长回答
     })
     if (!r.ok || !r.body) { sse({ done: true, error: 'http_' + r.status }); res.end(); return }

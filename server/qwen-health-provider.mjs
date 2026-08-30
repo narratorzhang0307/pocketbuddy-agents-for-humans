@@ -30,17 +30,20 @@ export function qwenModelForTask(provider, task) {
   return provider.model
 }
 
-export function buildQwenChatBody(provider, { prompt, system = '', task = 'default', json = false, temperature } = {}) {
+export function buildQwenChatBody(provider, { prompt, system = '', task = 'default', json = false, temperature, maxTokens } = {}) {
   const messages = []
   if (system) messages.push({ role: 'system', content: system })
   messages.push({ role: 'user', content: prompt || '' })
+  const boundedTokens = maxTokens
+    || (String(task).startsWith('subagent:') ? 1536 : 0)
+    || (String(task).startsWith('skill-answer:') ? 768 : 0)
+    || (task === 'run-route-intent' ? 512 : 0)
   return {
     model: qwenModelForTask(provider, task),
     messages,
     temperature: temperature ?? (json ? 0 : 0.55),
-    ...(String(task).startsWith('subagent:') ? { max_tokens: 1536, enable_thinking: false } : {}),
-    ...(String(task).startsWith('skill-answer:') ? { max_tokens: 768, enable_thinking: false } : {}),
-    ...(task === 'run-route-intent' ? { max_tokens: 512, enable_thinking: false } : {}),
+    ...(boundedTokens ? { max_tokens: Math.max(1, Math.min(8192, Number(boundedTokens) || 2048)) } : {}),
+    ...(String(task).startsWith('subagent:') || String(task).startsWith('skill-answer:') || task === 'run-route-intent' ? { enable_thinking: false } : {}),
     ...(json ? { response_format: { type: 'json_object' } } : {}),
   }
 }

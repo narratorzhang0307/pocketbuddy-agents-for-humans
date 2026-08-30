@@ -14,6 +14,8 @@ import { skillCanvasReleasePlugin } from './scripts/ios/verify-skill-canvas.mjs'
 import { buildQwenChatBody, createQwenProvider, qwenModelForTask } from './server/qwen-health-provider.mjs';
 // @ts-expect-error Server-only Google agent provider for local competition verification.
 import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs';
+// @ts-expect-error Plain ESM is shared with the production server.
+import { normalizeAgentResponseText, prepareAgentPromptRequest } from './server/agent-prompt-harness.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { createHealthSkillBridge } from './server/health-skill-bridge.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
@@ -116,20 +118,25 @@ function qwenChatDev(env: Record<string, string>): Plugin {
         };
         try {
           const { prompt, system, json, task } = JSON.parse(await readBody(req) || '{}');
-          const taskName = String(task || 'default');
+          const prepared = prepareAgentPromptRequest({ prompt, system, json, task });
+          const taskName = prepared.task;
           if (backend === 'gemini') {
             if (!google.configured) { send({ text: '', error: 'google_agent_not_configured' }, 503); return; }
             const result = await google.complete({
-              prompt, system, task: taskName, json: Boolean(json), signal: AbortSignal.timeout(60_000),
+              prompt: prepared.prompt, system: prepared.system, task: taskName, json: prepared.json,
+              temperature: prepared.temperature, maxOutputTokens: prepared.maxOutputTokens,
+              signal: AbortSignal.timeout(prepared.timeoutMs),
             });
+            const text = normalizeAgentResponseText(result.text, { json: prepared.json });
             send({
-              text: result.text,
-              ...answerSpeechTicket(taskName, result.text),
+              text,
+              ...answerSpeechTicket(taskName, text),
               model: google.model,
               provider: google.provider,
               modelOwner: google.owner,
               transport: google.transport,
               framework: google.framework,
+              promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
             });
             return;
           }
@@ -138,19 +145,22 @@ function qwenChatDev(env: Record<string, string>): Plugin {
             method: 'POST',
             headers: { 'content-type': 'application/json', authorization: `Bearer ${qwen.key}` },
             body: JSON.stringify(buildQwenChatBody(qwen, {
-              prompt, system, task: taskName, json: !!json, temperature: json ? 0 : 0.55,
+              prompt: prepared.prompt, system: prepared.system, task: taskName, json: prepared.json,
+              temperature: prepared.temperature, maxTokens: prepared.maxOutputTokens,
             })),
             signal: AbortSignal.timeout(60_000),
           });
           const data = await upstream.json();
           if (!upstream.ok) { send({ text: '', error: data?.error || `upstream_${upstream.status}` }, upstream.status); return; }
+          const text = normalizeAgentResponseText(data?.choices?.[0]?.message?.content || '', { json: prepared.json });
           send({
-            text: data?.choices?.[0]?.message?.content || '',
-            ...answerSpeechTicket(taskName, data?.choices?.[0]?.message?.content || ''),
+            text,
+            ...answerSpeechTicket(taskName, text),
             model: qwenModelForTask(qwen, taskName),
             provider: qwen.provider,
             modelOwner: qwen.owner,
             transport: qwen.transport,
+            promptHarness: { protocol: prepared.protocol, version: prepared.version, profile: prepared.profile },
           });
         } catch (error) {
           send({ text: '', error: error instanceof Error ? error.message : String(error) }, 502);

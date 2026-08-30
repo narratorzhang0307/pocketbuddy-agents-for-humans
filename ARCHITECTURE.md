@@ -61,6 +61,7 @@ Photos 实际入口是 [FoodPhotosTab](src/app/components/FoodPhotosTab.tsx)，�
 ## 5. 模型、配置与部署
 
 - 参赛部署通过官方 `@google/genai` SDK 在 Cloud Run 调用 Gemini 3.5；Taskmaster 的确定性控制面、工具注册和证据门不交给模型绕过。
+- 所有服务端 Gemini / Qwen 文本请求先经过版本化 [Prompt Harness](docs/backend/PROMPT_HARNESS.md)；前端旧 `system` 文本只是低权威任务说明，不能覆盖服务端策略。
 - Firestore 只保存 Agent 运行状态、模型、时延、字符计数和 Cloud Run 修订等证据元数据，不保存提示词、回复正文、健康事实或位置。
 - Qwen 兼容路径仍可按服务端配置启用，且继续用于既有视觉能力；任何云端密钥都不进入前端包。
 - MiniMax 用于已接入的语音合成路径；录音转写与本地提示音有自己的路径。
@@ -68,6 +69,7 @@ Photos 实际入口是 [FoodPhotosTab](src/app/components/FoodPhotosTab.tsx)，�
 - SAM、训练模型、原始音频等外部输入不进入普通 Git 源码快照。
 - MNN 等模型兼容代码仍可存在，但不是当前所有手机功能的必需前提。
 - 参赛 Cloud Run 发布入口是 [deploy/all-things-agentic](deploy/all-things-agentic/README.md)；常规 Web 发布入口仍是 [deploy/pocketbuddy](deploy/pocketbuddy/README.md)。
+- 当前 GCP 拓扑与“已实现/已预留”数据范围见 [当前 GCP 架构](docs/backend/CURRENT_GCP_ARCHITECTURE.md) 与 [云数据边界](docs/backend/CURRENT_DATA_BOUNDARIES.md)。
 
 ## 6. 验证边界
 
