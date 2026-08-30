@@ -5,7 +5,10 @@ This is separate from every `pocketearth`, `pocket-earth`, and contest deploymen
 Do not run the old `deploy/online/deploy.sh`: it targets a different app and build flow.
 
 - Source of truth: the desktop checkout, not `ios/App/App/public`.
-- Build: `node deploy/pocketbuddy/stage.mjs /absolute/output-directory` (use the mounted development SSD when internal disk space is limited).
+- Build: set the host-restricted `VITE_AMAP_KEY` and private
+  `VITE_AMAP_SECURITY_JSCODE`, then run
+  `node deploy/pocketbuddy/stage.mjs /absolute/output-directory` (use the
+  mounted development SSD when internal disk space is limited).
 - The command rebuilds both 练了吗 and Her Motion in isolated directories before the main app. It no longer accepts external exports or copies generated sub-apps from `public/`. Install all three projects' locked dependencies first; see `docs/development/CURRENT-SOURCE-BUILD.md`.
 - The actual output must pass the shared iOS Canvas, Frost Skills, bird, voice-answer and Frost wink icon checks. `release-files.json`, outside the public directory, records every emitted file for upload verification.
 - Private server root: `/root/pocketbuddy`; releases are unique directories under `releases/`.
@@ -20,6 +23,11 @@ Upload only the prepared `release/`, not the workspace, source `.env`, phone bac
 private media, or models. The generated `runtime.env` must be installed with mode
 `600` into `shared/.env`, never into the static directory. Existing configuration
 must be reviewed and preserved on repeat deployments.
+
+The build also emits a private, mode-0600 `amap-proxy.conf` next to the release.
+Install it as `/root/pocketbuddy/shared/amap-proxy.conf` before promoting the
+release. The public bundle contains only the host-restricted browser key and the
+same-origin `/_AMapService` URL; the AMap security code never enters `dist/`.
 
 The server build copies a filtered `public/` into its isolated staging directory.
 It excludes only the retired `mediapipe/` browser GenAI runtime and the standalone

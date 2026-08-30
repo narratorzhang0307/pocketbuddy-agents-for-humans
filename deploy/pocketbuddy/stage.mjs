@@ -14,6 +14,7 @@ import { WINK_ICONS } from '../../scripts/ios/verify-app-icon.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const outputParent = process.argv[2];
+const PUBLIC_ORIGIN = 'https://pocketbuddy.throughtheglass.art';
 // A server release always rebuilds both sub-apps from this workspace.
 // Do not accept exports/snapshots whose source may no longer match the main app.
 if (process.argv[3]) throw new Error('External export input is no longer accepted. Run stage.mjs with only the output parent; both sub-apps are rebuilt automatically.');
@@ -23,6 +24,26 @@ if (!outputParent || !path.isAbsolute(outputParent) || !existsSync(outputParent)
 const stage = mkdtempSync(path.join(outputParent, 'pocketbuddy-web-'));
 const release = path.join(stage, 'release');
 mkdirSync(release);
+
+// A production Web release must never silently ship the decorative map fallback.
+// The public JS key is host-restricted; its security code remains server-side and
+// is consumed only while generating the private Nginx include below.
+const buildEnv = loadEnv('production', root, '');
+const amapKey = String(process.env.VITE_AMAP_KEY || buildEnv.VITE_AMAP_KEY || '').trim();
+const amapSecurityCode = String(process.env.VITE_AMAP_SECURITY_JSCODE || buildEnv.VITE_AMAP_SECURITY_JSCODE || '').trim();
+if (!/^[a-f0-9]{32}$/i.test(amapKey) || !/^[a-f0-9]{32}$/i.test(amapSecurityCode)) {
+  throw new Error('A host-restricted VITE_AMAP_KEY and VITE_AMAP_SECURITY_JSCODE are required for the hosted map.');
+}
+process.env.VITE_AMAP_KEY = amapKey;
+process.env.VITE_AMAP_SERVICE_HOST = `${PUBLIC_ORIGIN}/_AMapService`;
+process.env.VITE_AMAP_SECURITY_JSCODE = '';
+process.env.VITE_MAP_PROVIDER = 'amap';
+const amapProxyTemplate = readFileSync(new URL('./amap-proxy.conf.template', import.meta.url), 'utf8');
+writeFileSync(
+  path.join(stage, 'amap-proxy.conf'),
+  amapProxyTemplate.replaceAll('__AMAP_SECURITY_JSCODE__', amapSecurityCode),
+  { flag: 'wx', mode: 0o600 },
+);
 
 function sourceHash() {
   // Reuse the iOS source inventory, including native catalogs and original assets.
@@ -105,7 +126,8 @@ if (sourceHash() !== sourceSha256) throw new Error('Source changed while staging
 const marker = { app: 'pocketbuddy', builtAt: new Date().toISOString(), sourceSha256,
   coachSourceSha256: coachManifest.sourceSha256, fullSourceBuild: true,
   checks: ['approved-canvas', 'frost-skills', 'bird-release', 'voice-answers', 'frost-wink-icons'],
-  rebuiltSubApps: ['lianlema', 'her-motion'], excludedPublicDirectories: RETIRED_PUBLIC_DIRECTORIES };
+  rebuiltSubApps: ['lianlema', 'her-motion'], excludedPublicDirectories: RETIRED_PUBLIC_DIRECTORIES,
+  mapRuntime: { provider: 'amap', security: 'same-origin-service-host' } };
 writeFileSync(path.join(release, 'dist/release.json'), JSON.stringify(marker, null, 2) + '\n');
 writeFileSync(path.join(stage, 'release.json'), JSON.stringify(marker, null, 2) + '\n');
 writeFileSync(path.join(stage, 'release-files.json'), JSON.stringify(hashReleaseFiles(release), null, 2) + '\n');
