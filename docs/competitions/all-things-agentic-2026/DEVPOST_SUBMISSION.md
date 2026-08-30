@@ -62,9 +62,10 @@ We plan to extend the same evidence contract to more background workflows, add a
 
 User-authorized local health facts, device events, Open-Meteo weather, OpenStreetMap place sources where applicable, and AMap route/map services. The submission does not publish personal health records, precise location history, raw recordings, or provider credentials.
 
-## Links to fill before submission
+## Links
 
-- Hosted project: `CLOUD_RUN_URL`
-- English inspection page: `CLOUD_RUN_URL/agentic-demo.html`
+- Hosted interactive product: `https://pocketbuddy.throughtheglass.art/`
+- Google Cloud agent endpoint: `CLOUD_RUN_URL` (fill after the Taiwan deployment)
+- English Google-stack inspection page: `CLOUD_RUN_URL/agentic-demo.html`
 - Code: `https://github.com/narratorzhang0307/pocketbuddy`
 - Demo video: `PUBLIC_YOUTUBE_OR_VIMEO_URL`

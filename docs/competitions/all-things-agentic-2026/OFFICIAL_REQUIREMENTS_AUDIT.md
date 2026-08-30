@@ -1,6 +1,6 @@
 # Official requirements audit
 
-Verified against the [All Things Agentic overview](https://allthingsagentichackathon.devpost.com/) and [official rules](https://allthingsagentichackathon.devpost.com/rules) on 2026-08-30.
+Verified against the [All Things Agentic overview](https://allthingsagentichackathon.devpost.com/) and [official rules](https://allthingsagentichackathon.devpost.com/rules) on 2026-08-31.
 
 Deadline: **August 31, 2026 at 5:00 PM PDT** — **September 1, 2026 at 8:00 AM in China/Taiwan (UTC+8)**.
 
@@ -22,7 +22,8 @@ The app does not have to remain publicly live at submission time, but the submis
 | Material | Status / source |
 | --- | --- |
 | Category | The Taskmaster |
-| Hosted project URL | Filled after Taiwan deployment |
+| Hosted product UI | `https://pocketbuddy.throughtheglass.art/` |
+| Google Cloud Agent URL | Filled after Taiwan Cloud Run deployment; this is the URL used for GCP proof |
 | Text: features, technologies, data sources, learnings | `DEVPOST_SUBMISSION.md` |
 | Public/private code repository | `https://github.com/narratorzhang0307/pocketbuddy` |
 | Spin-up instructions | root README + `deploy/all-things-agentic/README.md` |

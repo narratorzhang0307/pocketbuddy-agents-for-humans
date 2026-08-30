@@ -2,7 +2,7 @@
 
 > 一个认识你的运动健康伙伴：记住今天，理解目标，把下一步交给合适的 Skill。
 
-**在线体验：[https://pocket-buddy.throughtheglass.art/](https://pocket-buddy.throughtheglass.art/)** · 首次加载地图和 3D 素材可能稍慢；定位、摄像头按需授权。原生能力与实体徽章体验需要对应设备。
+**在线体验：[https://pocketbuddy.throughtheglass.art/](https://pocketbuddy.throughtheglass.art/)** · 首次加载地图和 3D 素材可能稍慢；定位、摄像头按需授权。原生能力与实体徽章体验需要对应设备。
 
 **稳定节点：[0828最终版](docs/technical/0828-FINAL-MILESTONE.md)** · 标签 [`v2026.08.28-final`](https://github.com/narratorzhang0307/pocketbuddy/tree/v2026.08.28-final) · 对应 TestFlight `0.1.0 (2026082828)`。用户已反馈真机实测满意；源码范围、校验记录与安全回退步骤见节点说明。
 

@@ -2,6 +2,8 @@
 
 交接目标：由台湾团队成员使用自己的 Google Cloud 账号部署正式 `main`，不共享 Google 密码、不传 service-account JSON key、不修改业务代码。默认选择 Cloud Run 与 Firestore 的 `asia-east1`（台湾）区域；Gemini 通过 Vertex AI `global` endpoint 调用。
 
+落实结论：前后端、Google Agent 适配、统一 Prompt Harness、Cloud Run/Firestore 部署、数据边界、架构图和交接脚本都在同一正式仓库；高德地图按中国大陆产品适配保留，并与 Google Cloud Agent 主链明确分层。
+
 唯一源码来源：[`https://github.com/narratorzhang0307/pocketbuddy`](https://github.com/narratorzhang0307/pocketbuddy) 的 `main`。不要从 `Pocket-Buddy`、`Pocket-Earth-Google` 或本机旧工作区复制文件；预检会验证正式 `main` 的 upstream。
 
 ## 当前落实状态
