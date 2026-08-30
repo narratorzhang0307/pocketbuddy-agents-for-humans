@@ -5,16 +5,9 @@ import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { REQUIRED_GCP_APIS } from '../../server/google-cloud-service-contracts.mjs'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
-const REQUIRED_APIS = [
-  'aiplatform.googleapis.com',
-  'artifactregistry.googleapis.com',
-  'cloudbuild.googleapis.com',
-  'firestore.googleapis.com',
-  'run.googleapis.com',
-]
-
 function result(name, status, detail, blocking = status === 'fail') {
   return { name, status, detail, blocking }
 }
@@ -101,7 +94,7 @@ async function main() {
 
       const enabledApis = run(gcloud, ['services', 'list', '--enabled', '--project', base.project, '--format=value(config.name)'])
       const enabled = new Set(enabledApis.stdout.split('\n').filter(Boolean))
-      const missingApis = REQUIRED_APIS.filter((api) => !enabled.has(api))
+      const missingApis = REQUIRED_GCP_APIS.filter((api) => !enabled.has(api))
       checks.push(result('Required Google APIs', enabledApis.ok && missingApis.length === 0 ? 'pass' : 'warn', missingApis.length ? `deploy.sh will enable: ${missingApis.join(', ')}` : 'enabled', false))
 
       const firestore = run(gcloud, ['firestore', 'databases', 'describe', '--database=(default)', '--project', base.project, '--format=json'])

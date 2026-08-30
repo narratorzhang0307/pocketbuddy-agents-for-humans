@@ -19,6 +19,7 @@ import { randomUUID } from 'node:crypto'
 import { getTravelPlaceSources } from './knowledge/travel-place-sources.mjs'
 import { buildQwenChatBody, buildQwenImageBody, createQwenProvider, qwenModelForTask, qwenVisionConfigForPurpose, qwenVisionSystemForPurpose, readQwenImageUrl } from './server/qwen-provider.mjs'
 import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs'
+import { assertGoogleCloudServiceReadiness, googleCloudServiceReadiness } from './server/google-cloud-service-contracts.mjs'
 import { createAgentEvidenceStore } from './server/agent-evidence-store.mjs'
 import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, prepareAgentPromptRequest, promptHarnessMetadata } from './server/agent-prompt-harness.mjs'
 import { applySecurityHeaders, boundedText, clientAddress, createSlidingWindowLimiter, isSafeDataImage, isSafeInlineImage } from './server/security.mjs'
@@ -123,6 +124,7 @@ function activeAgentMetadata() {
 function agenticReadiness() {
   const agent = activeAgentMetadata()
   const evidence = AGENT_EVIDENCE.readiness()
+  const services = assertGoogleCloudServiceReadiness(googleCloudServiceReadiness({ model: GOOGLE_AGENT.model }))
   return {
     ok: agent.ready,
     ready: agent.ready,
@@ -139,6 +141,7 @@ function agenticReadiness() {
     firestore: evidence,
     promptHarness: { protocol: AGENT_PROMPT_PROTOCOL, version: '1.0.0', serverOwned: true },
     mapProvider: 'amap',
+    services,
   }
 }
 

@@ -37,6 +37,7 @@ const requiredFiles = [
   '.dockerignore',
   '.gcloudignore',
   'server/google-agent-provider.mjs',
+  'server/google-cloud-service-contracts.mjs',
   'server/agent-prompt-harness.mjs',
   'server/agent-evidence-store.mjs',
   'server/cloud-data-contracts.mjs',
@@ -62,6 +63,7 @@ const requiredFiles = [
   'docs/backend/CURRENT_API_CONTRACT.md',
   'docs/backend/PROMPT_HARNESS.md',
   'docs/backend/CURRENT_DATA_BOUNDARIES.md',
+  'docs/backend/GOOGLE_SERVICE_BOUNDARIES.md',
   'docs/backend/REFERENCE_ARCHITECTURE_REVIEW.md',
   'docs/backend/TAIWAN_GCP_HANDOFF.md',
 ];
@@ -103,6 +105,7 @@ check('Gemini provider wired', server.includes('createGoogleAgentProvider'), 'se
 check('Evidence store wired', server.includes('createAgentEvidenceStore'), 'server.mjs must wire the Firestore evidence store');
 check('Prompt harness wired', server.includes('prepareAgentPromptRequest'), 'server.mjs must apply the server-owned prompt harness');
 check('Prompt harness readiness', server.includes('promptHarness:'), 'readiness and responses must report the prompt harness');
+check('Service boundaries wired', server.includes('googleCloudServiceReadiness') && server.includes('services,'), 'readiness must expose the machine-checked Google service boundaries');
 
 const promptHarness = await text('server/agent-prompt-harness.mjs');
 check('Prompt harness protocol', promptHarness.includes("frost-agent-prompt-harness/v1"), 'prompt harness protocol must be versioned');
@@ -119,6 +122,13 @@ const dataContracts = await text('server/cloud-data-contracts.mjs');
 check('Competition data scope explicit', dataContracts.includes("implemented: Object.freeze(['frost_agent_runs'])"), 'competition Firestore scope must be explicit');
 check('Evidence allowlist enforced', dataContracts.includes('agent_evidence_field_not_allowed'), 'Firestore evidence must reject undeclared fields');
 check('Reserved GCS paths are machine-built', dataContracts.includes('gcsUserMediaObject') && dataContracts.includes('gcsPetJobPrefix'), 'reserved GCS object paths must use validated builders');
+
+const serviceContracts = await text('server/google-cloud-service-contracts.mjs');
+check('Google service protocol', serviceContracts.includes('pocket-buddy-google-service-boundaries/v1'), 'Google service boundaries must be versioned');
+check('AMap truthfully retained', serviceContracts.includes("provider: 'amap'") && serviceContracts.includes("reason: 'mainland-product-fit'"), 'AMap must remain an explicit retained product provider');
+for (const reserved of ['google-cloud-storage', 'google-cloud-speech-to-text', 'google-cloud-text-to-speech', 'firebase-cloud-messaging', 'firebase-auth']) {
+  check(`Reserved service disabled: ${reserved}`, serviceContracts.includes(`provider: '${reserved}', enabled: false`), `${reserved} must not be reported as implemented before its adapter and governance gates exist`);
+}
 
 const architecture = await text('docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg');
 check('Architecture shows prompt harness', architecture.includes('Server Prompt Harness v1'), 'architecture must show the server prompt boundary');

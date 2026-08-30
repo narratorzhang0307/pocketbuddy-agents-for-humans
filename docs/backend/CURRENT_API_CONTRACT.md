@@ -9,7 +9,7 @@
 | 方法与路径 | 认证 | 当前用途 |
 | --- | --- | --- |
 | `GET /healthz` | 无 | 容器存活检查，不返回凭据 |
-| `GET /api/agentic-readiness` | 无 | 返回 Gemini、Cloud Run revision、Firestore、Prompt Harness 与地图 provider 的非敏感就绪状态 |
+| `GET /api/agentic-readiness` | 无 | 返回 Gemini、Cloud Run revision、Firestore、Prompt Harness、地图 provider 与服务边界的非敏感就绪状态 |
 | `POST /api/frost-llm` | 公开演示入口，按来源限流 | 经服务端 Prompt Harness 调用 Gemini/Qwen，并返回完成证据 |
 | `POST /api/frost-llm-stream` | 公开演示入口，按来源限流 | 同一策略的 SSE 流式输出 |
 
@@ -52,6 +52,8 @@ Cloud Run 比赛服务设置 `FROST_AGENT_PROVIDER=gemini`，因此正式演示�
 ```
 
 响应头 `x-frost-trace-id` 与响应 `traceId`、Cloud Logging 事件和 Firestore `frost_agent_runs/{traceId}` 必须一致。
+
+readiness 的 `services.protocol` 必须为 `pocket-buddy-google-service-boundaries/v1`。其中 `implemented` 只包含当前 Google 比赛闭环；AMap 与端侧语音在 `retained`；尚无 adapter/身份/治理链路的 GCS、Google STT/TTS、FCM 与 Firebase Auth 在 `reserved` 且 `enabled:false`。
 
 ## 3. 流式请求
 
