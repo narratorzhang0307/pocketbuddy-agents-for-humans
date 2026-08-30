@@ -11,6 +11,7 @@ import {
   createSkillAgentTools,
   createTaskmasterAgentTools,
   edgeQwenCompletion,
+  httpFrostCompletion,
   issueFrostApproval,
   ReceiptApprovalGate,
   FrostGoalDriver,
@@ -104,7 +105,7 @@ async function createClient(sessionId: string): Promise<Client> {
   for (const tool of createTaskmasterAgentTools(health.taskmaster)) tools.register(tool);
   for (const tool of createFrostConversationTools(goals)) tools.register(tool);
   const taskModel = new QwenFrostModelAdapter(
-    edgeQwenCompletion(edgeSafe),
+    httpFrostCompletion(fetch, edgeQwenCompletion(edgeSafe)),
     tools,
     skills,
     { fallback: new LocalHealthFallbackModel(), max_events: 48, max_context_chars: 18_000 },

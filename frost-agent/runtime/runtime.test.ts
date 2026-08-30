@@ -11,7 +11,7 @@ import { FrostInbox } from './inbox';
 import { createFrostGoal, FrostGoalDriver, InMemoryFrostGoalStore } from './goalDriver';
 import { IndexedDbFrostSessionLog } from './indexedDbSessionLog';
 import { LocalHealthFallbackModel, routeHealthIntent } from './localHealthModel';
-import { buildFrostDecisionPrompt, QwenFrostModelAdapter } from './qwenModelAdapter';
+import { buildFrostDecisionPrompt, httpFrostCompletion, QwenFrostModelAdapter } from './qwenModelAdapter';
 import { InMemoryFrostSessionLog } from './sessionLog';
 import { createSkillAgentTools, TaskmasterSkillProvider } from './skillCatalog';
 import { createTaskmasterAgentTools } from './taskmasterAdapter';
@@ -231,6 +231,22 @@ describe('Frost Skill disclosure and Qwen decision boundary', () => {
       protocol: FROST_AGENT_DECISION_PROTOCOL,
       next_action: { type: 'load_skill', skill_id: 'frost.her-motion-warmup' },
     }));
+  });
+
+  it('routes Taskmaster decisions through the server-selected competition provider', async () => {
+    const calls: Array<{ url: string; init?: RequestInit }> = [];
+    const completion = httpFrostCompletion(async (url, init) => {
+      calls.push({ url: String(url), init });
+      return new Response(JSON.stringify({ text: '{"protocol":"frost-agent-decision/v1"}' }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      });
+    });
+
+    await expect(completion.complete('decide next action', new AbortController().signal))
+      .resolves.toBe('{"protocol":"frost-agent-decision/v1"}');
+    expect(calls[0].url).toBe('/api/frost-llm');
+    expect(JSON.parse(String(calls[0].init?.body))).toMatchObject({ json: true, task: 'taskmaster' });
   });
 
   it('preserves a tool call and its result as one context unit during compaction', () => {

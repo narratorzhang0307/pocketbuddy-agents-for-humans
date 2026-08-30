@@ -97,7 +97,7 @@ cpSync(path.join(root, 'knowledge/travel-place-sources.mjs'), path.join(release,
 // Private, server-only configuration: never copy the source .env or unrelated credentials.
 const env = loadEnv('production', root, '');
 const runtime = { API_PORT: '3020', API_HOST: '127.0.0.1', TRUST_PROXY: 'true', EDGE_BACKEND: 'stub', HEALTH_SKILL_LOCAL_BRIDGE: 'false', CLOUD_RATE_LIMIT_PER_MINUTE: '24' };
-for (const key of Object.keys(env).filter((key) => /^(?:DASHSCOPE_|QWEN_|MINIMAX_|FROST_VOICE_|PHOTOS_HARNESS_)/.test(key))) {
+for (const key of Object.keys(env).filter((key) => /^(?:DASHSCOPE_|QWEN_|MINIMAX_|FROST_VOICE_|FROST_AGENT_|FROST_FIRESTORE_|GEMINI_|GOOGLE_GENAI_|GOOGLE_CLOUD_|PHOTOS_HARNESS_)/.test(key))) {
   if (env[key] && !/[\r\n]/.test(env[key])) runtime[key] = env[key];
 }
 writeFileSync(path.join(stage, 'runtime.env'), Object.entries(runtime).map(([key, value]) => `${key}=${value}`).join('\n') + '\n', { mode: 0o600 });

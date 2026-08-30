@@ -1,0 +1,21 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag
+      - ${_IMAGE}
+      - --build-arg
+      - VITE_MAP_PROVIDER=amap
+      - --build-arg
+      - VITE_AMAP_KEY=${_VITE_AMAP_KEY}
+      - --build-arg
+      - VITE_AMAP_SERVICE_HOST=${_VITE_AMAP_SERVICE_HOST}
+      - --build-arg
+      - VITE_AMAP_SECURITY_JSCODE=${_VITE_AMAP_SECURITY_JSCODE}
+      - --build-arg
+      - VITE_AMAP_STYLE=amap://styles/dark
+      - .
+images:
+  - ${_IMAGE}
+options:
+  logging: CLOUD_LOGGING_ONLY

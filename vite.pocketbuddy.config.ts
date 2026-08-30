@@ -12,6 +12,8 @@ import { birdReleasePlugin } from './scripts/hardware/check-bird-release.mjs';
 import { skillCanvasReleasePlugin } from './scripts/ios/verify-skill-canvas.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { buildQwenChatBody, createQwenProvider, qwenModelForTask } from './server/qwen-health-provider.mjs';
+// @ts-expect-error Server-only Google agent provider for local competition verification.
+import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
 import { createHealthSkillBridge } from './server/health-skill-bridge.mjs';
 // @ts-expect-error Plain ESM is shared with the production Node server.
@@ -100,8 +102,10 @@ function healthSkillsDev(env: Record<string, string>): Plugin {
 
 function qwenChatDev(env: Record<string, string>): Plugin {
   const qwen = createQwenProvider(env);
+  const google = createGoogleAgentProvider(env);
+  const backend = selectFrostAgentBackend(env, { google: google.configured, qwen: Boolean(qwen.key) });
   return {
-    name: 'frost-qwen-chat',
+    name: 'frost-agent-chat',
     configureServer(server) {
       server.middlewares.use('/api/frost-llm', async (req, res) => {
         if (req.method !== 'POST') { res.statusCode = 405; res.end(); return; }
@@ -111,9 +115,25 @@ function qwenChatDev(env: Record<string, string>): Plugin {
           res.end(JSON.stringify(value));
         };
         try {
-          if (!qwen.key) { send({ text: '', error: 'no_qwen_key' }); return; }
           const { prompt, system, json, task } = JSON.parse(await readBody(req) || '{}');
           const taskName = String(task || 'default');
+          if (backend === 'gemini') {
+            if (!google.configured) { send({ text: '', error: 'google_agent_not_configured' }, 503); return; }
+            const result = await google.complete({
+              prompt, system, task: taskName, json: Boolean(json), signal: AbortSignal.timeout(60_000),
+            });
+            send({
+              text: result.text,
+              ...answerSpeechTicket(taskName, result.text),
+              model: google.model,
+              provider: google.provider,
+              modelOwner: google.owner,
+              transport: google.transport,
+              framework: google.framework,
+            });
+            return;
+          }
+          if (!qwen.key) { send({ text: '', error: 'no_qwen_key' }, 503); return; }
           const upstream = await fetch(qwen.url, {
             method: 'POST',
             headers: { 'content-type': 'application/json', authorization: `Bearer ${qwen.key}` },

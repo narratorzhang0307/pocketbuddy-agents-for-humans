@@ -1,7 +1,7 @@
 import { answerSpeechTicket } from './server/frost-voice-ticket.mjs';
-// Pocket Earth · 生产服务（线上 demo）
-// 单文件、零依赖（只用 Node 内置）：静态托管 dist/ + 把 dev 三中间件 1:1 搬到生产。
-//   /api/frost-llm  Qwen 云脑代理，密钥只在服务端
+// Pocket Buddy · 生产服务（线上 demo）
+// 静态托管 dist/ 并提供服务端模型、健康、照片、地图与硬件桥接 API。
+//   /api/frost-llm  服务端选定的 Agent provider；密钥只在服务端
 //   /api/qwen-image Qwen Image 明信片图像生成
 //   /api/edge       Qwen/MNN 端侧推理代理：文本、视觉、LoRA、展品抠图与资产管理
 //   /api/unsplash   星球 agent 抓图代理，access key 服务端读
@@ -15,12 +15,14 @@ import { gzipSync, brotliCompressSync, constants as zlibConstants } from 'node:z
 import { pipeline } from 'node:stream/promises'
 import { Readable } from 'node:stream'
 import dns from 'node:dns'
+import { randomUUID } from 'node:crypto'
 import { getTravelPlaceSources } from './knowledge/travel-place-sources.mjs'
 import { buildQwenChatBody, buildQwenImageBody, createQwenProvider, qwenModelForTask, qwenVisionConfigForPurpose, qwenVisionSystemForPurpose, readQwenImageUrl } from './server/qwen-provider.mjs'
+import { createGoogleAgentProvider, selectFrostAgentBackend } from './server/google-agent-provider.mjs'
+import { createAgentEvidenceStore } from './server/agent-evidence-store.mjs'
 import { applySecurityHeaders, boundedText, clientAddress, createSlidingWindowLimiter, isSafeDataImage, isSafeInlineImage } from './server/security.mjs'
 import { publishYoutubeMusic } from './server/music-publish.mjs'
 import { MappingCloudError, runMappingCloud } from './server/mapping-cloud.mjs'
-import { createPetApi } from './server/pet-api.mjs'
 import { createHealthSkillBridge } from './server/health-skill-bridge.mjs'
 import { handleIosApiCors } from './server/ios-api-cors.mjs'
 import { createFrostVoiceHandler } from './server/minimax-voice.mjs'
@@ -55,10 +57,13 @@ const HOSPITAL_AGENT = createHospitalAgentHandler({ env: process.env })
 const HEALTH_MEMORY = createHealthMemoryHandler({ env: process.env })
 const PHOTO_HARNESS = createPhotoHarnessHandler({ env: process.env })
 if (!process.env.DASHSCOPE_API_KEY && process.env.QWEN_API_KEY) process.env.DASHSCOPE_API_KEY = process.env.QWEN_API_KEY
-const PET_API = await createPetApi({
-  dataDir: path.join(__dirname, '.agent-forge-data'),
-  projectRoot: __dirname,
-})
+const PET_API_ENABLED = !/^(?:0|false|no|off)$/i.test(String(process.env.FROST_PET_API_ENABLED ?? 'true'))
+const PET_API = PET_API_ENABLED
+  ? await import('./server/pet-api.mjs').then(({ createPetApi }) => createPetApi({
+      dataDir: path.join(__dirname, '.agent-forge-data'),
+      projectRoot: __dirname,
+    }))
+  : null
 const MNN_URL = String(process.env.MNN_URL || '').replace(/\/$/, '')
 const MNN_EDGE_ENABLED = String(process.env.EDGE_BACKEND || 'stub').toLowerCase() === 'mnn'
 const QWEN = createQwenProvider(process.env)
@@ -67,6 +72,9 @@ const DASHSCOPE_BASE = QWEN.url.replace(/\/chat\/completions$/, '')
 const QWEN_SEARCH_MODEL = QWEN.searchModel
 const QWEN_PLACE_MODEL = process.env.QWEN_PLACE_MODEL || QWEN.model
 const QWEN_EXHIBITION_MODEL = process.env.QWEN_EXHIBITION_MODEL || QWEN.model
+const GOOGLE_AGENT = createGoogleAgentProvider(process.env)
+const FROST_AGENT_BACKEND = selectFrostAgentBackend(process.env, { google: GOOGLE_AGENT.configured, qwen: Boolean(QWEN.key) })
+const AGENT_EVIDENCE = createAgentEvidenceStore({ env: process.env })
 const HEALTH_SKILL_BRIDGE = createHealthSkillBridge({
   env: process.env,
   localBridgeEnabled: /^(1|true|yes)$/i.test(String(process.env.HEALTH_SKILL_LOCAL_BRIDGE || '')),
@@ -88,6 +96,62 @@ function sendJSON(res, obj, code = 200) {
   const body = JSON.stringify(obj)
   res.writeHead(code, { 'content-type': 'application/json; charset=utf-8' })
   res.end(body)
+}
+
+function activeAgentMetadata() {
+  if (FROST_AGENT_BACKEND === 'gemini') return {
+    ready: GOOGLE_AGENT.configured,
+    name: GOOGLE_AGENT.name,
+    provider: GOOGLE_AGENT.provider,
+    modelOwner: GOOGLE_AGENT.owner,
+    model: GOOGLE_AGENT.model,
+    transport: GOOGLE_AGENT.transport,
+    framework: GOOGLE_AGENT.framework,
+  }
+  return {
+    ready: Boolean(QWEN.key),
+    name: QWEN.name,
+    provider: QWEN.provider,
+    modelOwner: QWEN.owner,
+    model: QWEN.model,
+    transport: QWEN.transport,
+    framework: 'frost-agent-runtime',
+  }
+}
+
+function agenticReadiness() {
+  const agent = activeAgentMetadata()
+  const evidence = AGENT_EVIDENCE.readiness()
+  return {
+    ok: agent.ready,
+    ready: agent.ready,
+    ...(agent.ready ? {} : { reason: 'The selected server-side agent provider is not configured.' }),
+    project: 'Pocket Buddy · Frost Taskmaster',
+    track: 'The Taskmaster',
+    agent,
+    cloudRun: {
+      service: process.env.K_SERVICE || '',
+      revision: process.env.K_REVISION || '',
+      region: process.env.GOOGLE_CLOUD_REGION || process.env.GOOGLE_CLOUD_LOCATION || '',
+    },
+    evidence,
+    firestore: evidence,
+    mapProvider: 'amap',
+  }
+}
+
+async function recordAgentRun(value) {
+  const evidence = await AGENT_EVIDENCE.record(value)
+  console.log(JSON.stringify({
+    event: 'frost.agent.completed',
+    traceId: value.traceId,
+    task: value.task,
+    provider: value.provider,
+    model: value.model,
+    latencyMs: value.latencyMs,
+    evidence: evidence.status,
+  }))
+  return evidence
 }
 function readBody(req, maxBytes = 26 * 1024 * 1024) {   // 26MB 上限（略高于 nginx client_max_body_size 25m）：代码层兜底，防大 base64 图撑爆内存
   return new Promise((resolve, reject) => {
@@ -429,17 +493,61 @@ async function handleMappingCloud(req, res) {
   }
 }
 
-// ——————————————————— /api/frost-llm（统一 Qwen 云脑） ———————————————————
+// ——————————————————— /api/frost-llm（Frost Agent；参赛部署默认 Google Gemini） ———————————————————
 async function handleFrostLlm(req, res) {
   if (req.method !== 'POST') { res.statusCode = 405; res.end(); return }
   const raw = await readBody(req)
+  const traceId = `frost_${randomUUID()}`
+  const startedAt = new Date()
+  res.setHeader('x-frost-trace-id', traceId)
   try {
-    const { prompt, system, json, task } = JSON.parse(raw || '{}')
+    const { prompt, system, json, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
     const safePrompt = boundedText(prompt, 24000)
     const safeSystem = boundedText(system, 5000)
     if (!safePrompt) return sendJSON(res, { text: '', error: 'invalid_prompt' }, 400)
-    if (!QWEN.key) return sendJSON(res, { text: '', error: 'no_qwen_key' })
     const taskName = String(task || 'default')
+
+    if (FROST_AGENT_BACKEND === 'gemini') {
+      if (!GOOGLE_AGENT.configured) return sendJSON(res, { text: '', error: 'google_agent_not_configured', traceId }, 503)
+      const result = await GOOGLE_AGENT.complete({
+        prompt: safePrompt,
+        system: safeSystem,
+        task: taskName,
+        json: Boolean(json),
+        signal: AbortSignal.timeout(taskName.startsWith('research-') ? 60_000 : 30_000),
+        temperature: json ? 0.1 : (taskName.startsWith('exhibition-') || taskName.startsWith('mapping-') ? 0.35 : 0.55),
+      })
+      const completedAt = new Date()
+      const evidence = await recordAgentRun({
+        traceId,
+        status: 'completed',
+        task: taskName,
+        provider: GOOGLE_AGENT.provider,
+        model: GOOGLE_AGENT.model,
+        transport: GOOGLE_AGENT.transport,
+        framework: GOOGLE_AGENT.framework,
+        sessionId,
+        runId,
+        startedAt: startedAt.toISOString(),
+        completedAt: completedAt.toISOString(),
+        latencyMs: completedAt.getTime() - startedAt.getTime(),
+        promptChars: safePrompt.length + safeSystem.length,
+        responseChars: result.text.length,
+      })
+      return sendJSON(res, {
+        text: result.text,
+        ...answerSpeechTicket(taskName, result.text),
+        model: GOOGLE_AGENT.model,
+        provider: GOOGLE_AGENT.provider,
+        modelOwner: GOOGLE_AGENT.owner,
+        transport: GOOGLE_AGENT.transport,
+        framework: GOOGLE_AGENT.framework,
+        traceId,
+        evidence,
+      })
+    }
+
+    if (!QWEN.key) return sendJSON(res, { text: '', error: 'no_qwen_key', traceId }, 503)
     const model = qwenModelForTask(QWEN, taskName)
     const r = await fetch(QWEN.url, {
       method: 'POST',
@@ -453,16 +561,37 @@ async function handleFrostLlm(req, res) {
     })
     if (!r.ok) return sendJSON(res, { text: '', error: 'upstream_' + r.status }, r.status)   // 透传上游 429/5xx：客户端 enrichJSON 的 withRetry 才能据 r.ok 重试瞬时故障（否则恒 200+空串、重试形同虚设）
     const data = await r.json()
+    const text = data?.choices?.[0]?.message?.content || ''
+    const completedAt = new Date()
+    const evidence = await recordAgentRun({
+      traceId,
+      status: 'completed',
+      task: taskName,
+      provider: QWEN.provider,
+      model,
+      transport: QWEN.transport,
+      framework: 'frost-agent-runtime',
+      sessionId,
+      runId,
+      startedAt: startedAt.toISOString(),
+      completedAt: completedAt.toISOString(),
+      latencyMs: completedAt.getTime() - startedAt.getTime(),
+      promptChars: safePrompt.length + safeSystem.length,
+      responseChars: text.length,
+    })
     sendJSON(res, {
-      text: data?.choices?.[0]?.message?.content || '',
-      ...answerSpeechTicket(taskName, data?.choices?.[0]?.message?.content || ''),
+      text,
+      ...answerSpeechTicket(taskName, text),
       model,
       provider: QWEN.provider,
       modelOwner: QWEN.owner,
       transport: QWEN.transport,
+      framework: 'frost-agent-runtime',
+      traceId,
+      evidence,
     })
   } catch (e) {
-    sendJSON(res, { text: '', error: String(e) })
+    sendJSON(res, { text: '', error: e instanceof Error ? e.message : String(e), traceId }, 502)
   }
 }
 
@@ -471,16 +600,58 @@ async function handleFrostLlm(req, res) {
 async function handleFrostLlmStream(req, res) {
   if (req.method !== 'POST') { res.statusCode = 405; res.end(); return }
   const raw = await readBody(req)
+  const traceId = `frost_${randomUUID()}`
+  const startedAt = new Date()
   applySecurityHeaders(res)
+  res.setHeader('x-frost-trace-id', traceId)
   res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-cache', connection: 'keep-alive', 'x-accel-buffering': 'no' })
   const sse = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`)
   try {
-    if (!QWEN.key) { sse({ done: true, error: 'no_qwen_key' }); res.end(); return }
-    const { prompt, system, task } = JSON.parse(raw || '{}')
+    const { prompt, system, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
     const safePrompt = boundedText(prompt, 24000)
     const safeSystem = boundedText(system, 5000)
     if (!safePrompt) { sse({ done: true, error: 'invalid_prompt' }); res.end(); return }
     const taskName = String(task || 'default')
+
+    if (FROST_AGENT_BACKEND === 'gemini') {
+      if (!GOOGLE_AGENT.configured) { sse({ done: true, error: 'google_agent_not_configured', traceId }); res.end(); return }
+      const stream = await GOOGLE_AGENT.stream({
+        prompt: safePrompt,
+        system: safeSystem,
+        task: taskName,
+        signal: AbortSignal.timeout(120_000),
+        temperature: 0.55,
+      })
+      let responseChars = 0
+      for await (const chunk of stream) {
+        const token = chunk.text || ''
+        if (!token) continue
+        responseChars += token.length
+        sse({ token })
+      }
+      const completedAt = new Date()
+      const evidence = await recordAgentRun({
+        traceId,
+        status: 'completed',
+        task: taskName,
+        provider: GOOGLE_AGENT.provider,
+        model: GOOGLE_AGENT.model,
+        transport: GOOGLE_AGENT.transport,
+        framework: GOOGLE_AGENT.framework,
+        sessionId,
+        runId,
+        startedAt: startedAt.toISOString(),
+        completedAt: completedAt.toISOString(),
+        latencyMs: completedAt.getTime() - startedAt.getTime(),
+        promptChars: safePrompt.length + safeSystem.length,
+        responseChars,
+      })
+      sse({ done: true, traceId, model: GOOGLE_AGENT.model, provider: GOOGLE_AGENT.provider, evidence })
+      res.end()
+      return
+    }
+
+    if (!QWEN.key) { sse({ done: true, error: 'no_qwen_key', traceId }); res.end(); return }
     const r = await fetch(QWEN.url, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${QWEN.key}` },
@@ -946,6 +1117,7 @@ const server = http.createServer(async (req, res) => {
       }
     }
     if (p.startsWith('/api/pets')) {
+      if (!PET_API) return sendJSON(res, { error: 'pet_api_disabled' }, 503)
       const handled = await PET_API(req, res)
       if (handled) return
     }
@@ -955,6 +1127,10 @@ const server = http.createServer(async (req, res) => {
     }
     if (p.startsWith('/her-motion/api/yoga')) return await handleHerMotionYoga(req, res, url)
     if (p.startsWith('/tongue-observer/api')) return await handleTongueObserver(req, res, url)
+    if (p === '/api/agentic-readiness') {
+      if (req.method !== 'GET') return sendJSON(res, { error: 'method_not_allowed' }, 405)
+      return sendJSON(res, agenticReadiness(), activeAgentMetadata().ready ? 200 : 503)
+    }
     if (p === '/api/frost-llm') return await handleFrostLlm(req, res)
     if (p === '/api/qwen-vision') return await handleQwenVision(req, res)
     if (p === '/api/mapping-cloud') return await handleMappingCloud(req, res)
@@ -970,12 +1146,18 @@ const server = http.createServer(async (req, res) => {
     if (p === '/api/travel-place-brief') return await handleTravelPlaceBrief(req, res)
     if (p === '/api/edge') return await handleEdge(req, res)
     if (p === '/api/edge-assets') return await handleEdgeAssetImport(req, res)
-    if (p === '/healthz') return sendJSON(res, { ok: true, edge: MNN_EDGE_ENABLED ? 'qwen-mnn' : 'stub', edgeModelInstalled: false, llm: QWEN.key ? QWEN.name : 'off', model: QWEN.key ? QWEN.model : '', memory: 'private-local', travelMcp: 'osm+openmeteo' })
+    if (p === '/healthz') {
+      const agent = activeAgentMetadata()
+      return sendJSON(res, { ok: true, edge: MNN_EDGE_ENABLED ? 'qwen-mnn' : 'stub', edgeModelInstalled: false,
+        llm: agent.ready ? agent.name : 'off', model: agent.ready ? agent.model : '', provider: agent.provider,
+        framework: agent.framework, firestoreEvidence: AGENT_EVIDENCE.enabled, memory: 'private-local', travelMcp: 'osm+openmeteo', mapProvider: 'AMap' })
+    }
     return await serveStatic(req, res, p)
   } catch (e) {
     if (!res.headersSent) { res.writeHead(500); res.end('server error') } else { try { res.destroy() } catch { /* socket 已断 */ } }
   }
 })
 server.listen(PORT, HOST, () => {
-  console.log(`[pocket-earth] 监听 :${PORT}  llm=${QWEN.key ? QWEN.name + '/' + QWEN.model : 'off'}  edge=${MNN_EDGE_ENABLED ? 'qwen-mnn' : 'stub'}  unsplash=${UNSPLASH_KEY ? 'on' : 'off'}`)
+  const agent = activeAgentMetadata()
+  console.log(`[pocket-buddy] listening :${PORT}  agent=${agent.ready ? agent.name + '/' + agent.model : 'off'}  framework=${agent.framework}  firestore=${AGENT_EVIDENCE.enabled ? 'on' : 'off'}  map=AMap`)
 })

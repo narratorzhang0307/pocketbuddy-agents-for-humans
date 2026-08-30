@@ -5,7 +5,7 @@ export interface SubagentCompletion {
   complete(input: { agent: FrostSkillSubagent; prompt: string; signal: AbortSignal }): Promise<{ text: string; model: string }>;
 }
 
-/** Uses the existing server-side DashScope key. No client credentials or provider endpoint override. */
+/** Uses the server-selected model provider (Gemini on the competition deployment). No client credentials. */
 export const httpSubagentCompletion: SubagentCompletion = {
   async complete({ agent, prompt, signal }) {
     const response = await fetch('/api/frost-llm', {

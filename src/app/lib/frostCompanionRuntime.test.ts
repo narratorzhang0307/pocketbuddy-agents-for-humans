@@ -18,9 +18,9 @@ beforeEach(() => {
     setItem: (key: string, value: string) => values.set(key, value), removeItem: (key: string) => values.delete(key) });
   vi.stubGlobal('sessionStorage', { getItem: (key: string) => values.get(`session:${key}`) ?? null,
     setItem: (key: string, value: string) => values.set(`session:${key}`, value), removeItem: (key: string) => values.delete(`session:${key}`) });
-  // Every network call is replaced: these tests never spend speech/model API credits.
-  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: true, json: async () => ({ model: 'qwen3.8-max',
-    text: JSON.stringify({ ...completeDecision('准备任务'), next_action: { type: 'call_tool', tool: 'skill.prepare_handoff', arguments: { note: '请在手机继续。' } } }) }) })));
+  // Default to an unavailable cloud provider so safety and permission tests exercise the real offline control plane.
+  // Individual model-routing cases install their own successful response; no test spends provider credits.
+  vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 503, json: async () => ({ error: 'test_provider_unavailable' }) })));
   ensureBuiltinSkills(); setFrostBrain(stubBrain);
 });
 afterEach(() => { vi.restoreAllMocks(); vi.unstubAllGlobals(); });
@@ -143,6 +143,8 @@ describe('badge inputs use the main Frost runtime', () => {
   });
 
   it('shows the same Frost conversation on voice input before opening the actual returned skill', async () => {
+    vi.mocked(fetch).mockResolvedValueOnce({ ok: true, json: async () => ({ model: 'gemini-3.5-flash',
+      text: JSON.stringify({ ...completeDecision('准备任务'), next_action: { type: 'call_tool', tool: 'skill.prepare_handoff', arguments: { note: '请在手机继续。' } } }) }) } as Response);
     const text = '请把我带到能纠正深蹲动作的助手';
     const origin = { channel: 'badge_voice' as const, inputId: 'badge:test:recording:show-conversation' };
     // Exercise the real Skills page resolver, not just the navigation callback.
