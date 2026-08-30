@@ -8,15 +8,17 @@ if [[ -z "${VITE_AMAP_SERVICE_HOST:-}" && -z "${VITE_AMAP_SECURITY_JSCODE:-}" ]]
   exit 2
 fi
 
-agentic_region="${GOOGLE_CLOUD_REGION:-us-central1}"
+agentic_region="${GOOGLE_CLOUD_REGION:-asia-east1}"
 agentic_location="${GOOGLE_CLOUD_LOCATION:-global}"
 agentic_service="${FROST_CLOUD_RUN_SERVICE:-frost-taskmaster-agent}"
 agentic_repository="${FROST_ARTIFACT_REPOSITORY:-frost-agentic}"
 agentic_runtime_account="${FROST_RUNTIME_SERVICE_ACCOUNT:-frost-agentic-run}"
-agentic_firestore_location="${FROST_FIRESTORE_LOCATION:-nam5}"
+agentic_firestore_location="${FROST_FIRESTORE_LOCATION:-$agentic_region}"
 agentic_tag="$(git rev-parse --short=12 HEAD)"
 agentic_image="${agentic_region}-docker.pkg.dev/${GOOGLE_CLOUD_PROJECT}/${agentic_repository}/${agentic_service}:${agentic_tag}"
 agentic_runtime_email="${agentic_runtime_account}@${GOOGLE_CLOUD_PROJECT}.iam.gserviceaccount.com"
+
+node scripts/agentic/preflight-cloud.mjs --project "$GOOGLE_CLOUD_PROJECT"
 
 gcloud services enable run.googleapis.com cloudbuild.googleapis.com artifactregistry.googleapis.com aiplatform.googleapis.com firestore.googleapis.com \
   --project "$GOOGLE_CLOUD_PROJECT"
@@ -66,7 +68,7 @@ gcloud run deploy "$agentic_service" \
   --cpu 2 \
   --min 0 \
   --max 3 \
-  --set-env-vars "FROST_AGENT_PROVIDER=gemini,GEMINI_MODEL=gemini-3.5-flash,GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT,GOOGLE_CLOUD_LOCATION=$agentic_location,GOOGLE_CLOUD_REGION=$agentic_region,FROST_FIRESTORE_ENABLED=true,FROST_FIRESTORE_REQUIRED=false,FROST_FIRESTORE_COLLECTION=frost_agent_runs,FROST_PET_API_ENABLED=false,EDGE_BACKEND=stub,HEALTH_SKILL_LOCAL_BRIDGE=false,TRUST_PROXY=true"
+  --set-env-vars "FROST_AGENT_PROVIDER=gemini,GEMINI_MODEL=gemini-3.5-flash,GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT,GOOGLE_CLOUD_LOCATION=$agentic_location,GOOGLE_CLOUD_REGION=$agentic_region,FROST_FIRESTORE_ENABLED=true,FROST_FIRESTORE_REQUIRED=true,FROST_FIRESTORE_COLLECTION=frost_agent_runs,FROST_PET_API_ENABLED=false,EDGE_BACKEND=stub,HEALTH_SKILL_LOCAL_BRIDGE=false,TRUST_PROXY=true"
 
 gcloud run services describe "$agentic_service" \
   --project "$GOOGLE_CLOUD_PROJECT" \

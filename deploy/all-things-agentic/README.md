@@ -10,12 +10,12 @@ This deployment keeps AMap as Pocket Buddy's route and map provider. Gemini is t
 - A default Firestore Native database
 - An AMap Web JS API key configured for the final hosted origin
 
-The deployment script creates a dedicated `frost-agentic-run` service account, grants only `Vertex AI User` and `Cloud Datastore User`, creates an Artifact Registry repository, and creates the default Firestore Native database if any of them are missing. Override `FROST_RUNTIME_SERVICE_ACCOUNT`, `FROST_ARTIFACT_REPOSITORY`, or `FROST_FIRESTORE_LOCATION` before running it when the project requires different names or locations.
+The deployment script first runs a read-only account, billing, Git, region, and AMap preflight. It then creates a dedicated `frost-agentic-run` service account, grants only `Vertex AI User` and `Cloud Datastore User`, creates an Artifact Registry repository, and creates the default Firestore Native database if any of them are missing. Override `FROST_RUNTIME_SERVICE_ACCOUNT`, `FROST_ARTIFACT_REPOSITORY`, or `FROST_FIRESTORE_LOCATION` before running it when the project requires different names or locations. The Chinese operator checklist is in [`docs/backend/TAIWAN_GCP_HANDOFF.md`](../../docs/backend/TAIWAN_GCP_HANDOFF.md).
 
 To create Firestore manually instead, select the permanent database location carefully:
 
 ```sh
-gcloud firestore databases create --database='(default)' --location=nam5 --type=firestore-native
+gcloud firestore databases create --database='(default)' --location=asia-east1 --type=firestore-native
 ```
 
 If IAM must be managed outside the script, grant the Cloud Run service identity these minimum roles:
@@ -46,15 +46,22 @@ From the repository root:
 
 ```sh
 export GOOGLE_CLOUD_PROJECT='YOUR_PROJECT_ID'
-export GOOGLE_CLOUD_REGION='us-central1'
+export GOOGLE_CLOUD_REGION='asia-east1'
+export FROST_FIRESTORE_LOCATION='asia-east1'
 export VITE_AMAP_KEY='YOUR_HOST_RESTRICTED_AMAP_WEB_KEY'
 export VITE_AMAP_SERVICE_HOST='https://YOUR_HOST/_AMapService'
 ./deploy/all-things-agentic/deploy.sh
 ```
 
+`asia-east1` keeps Cloud Run and Firestore in Taiwan for this handoff. Choose the Firestore location deliberately: it is permanent for the database. Run the non-mutating check separately when diagnosing setup:
+
+```sh
+npm run agentic:preflight
+```
+
 The existing AMap security-code mode is also supported when a production proxy cannot be added before the deadline: export `VITE_AMAP_SECURITY_JSCODE` instead of `VITE_AMAP_SERVICE_HOST`. Keep the AMap key restricted to the final Cloud Run origin in either mode.
 
-The script uses Cloud Build to build the root `Dockerfile`, pushes the immutable commit-tagged image to Artifact Registry, deploys it to Cloud Run, and prints the service URL. It does not upload `.env` files or server API keys. The AMap browser key is compiled into the public client bundle by design and therefore must be host-restricted; Vertex AI and Firestore use the dedicated Cloud Run service identity. The unrelated pet-image upload API is disabled in this minimal judging container, reducing runtime dependencies and attack surface without changing the submitted Taskmaster workflow.
+The script uses Cloud Build to build the root `Dockerfile`, pushes the immutable commit-tagged image to Artifact Registry, deploys it to Cloud Run, and prints the service URL. It does not upload `.env` files or server API keys. The AMap browser key is compiled into the public client bundle by design and therefore must be host-restricted; Vertex AI and Firestore use the dedicated Cloud Run service identity. Firestore evidence is required in this production profile, so a failed evidence write fails the agent request instead of overstating the audit trail. The unrelated pet-image upload API is disabled in this minimal judging container, reducing runtime dependencies and attack surface without changing the submitted Taskmaster workflow.
 
 Verify the public, non-secret evidence endpoints:
 
