@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self'; img-src 'self' data:; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+    />
+    <meta name="color-scheme" content="dark" />
+    <title>Frost Taskmaster · Agentic Proof</title>
+    <style>
+      :root {
+        color: #f8fbff;
+        background: #07111e;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(circle at 12% 0%, rgba(90, 203, 255, 0.22), transparent 38rem),
+          radial-gradient(circle at 90% 15%, rgba(141, 114, 255, 0.2), transparent 34rem),
+          #07111e;
+      }
+      main {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+      header {
+        display: grid;
+        gap: 14px;
+        margin-bottom: 28px;
+      }
+      .eyebrow {
+        color: #6ee7f7;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+      h1 {
+        max-width: 780px;
+        margin: 0;
+        font-size: clamp(2.4rem, 7vw, 5.2rem);
+        line-height: 0.98;
+        letter-spacing: -0.055em;
+      }
+      header p {
+        max-width: 760px;
+        margin: 0;
+        color: #b7c9dc;
+        font-size: 1.05rem;
+        line-height: 1.65;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+      .card {
+        min-width: 0;
+        padding: 22px;
+        border: 1px solid rgba(182, 214, 243, 0.17);
+        border-radius: 22px;
+        background: rgba(10, 25, 42, 0.82);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(14px);
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      h2 {
+        margin: 0 0 14px;
+        font-size: 1rem;
+        letter-spacing: 0.01em;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 10px 14px;
+        margin: 0;
+      }
+      dt {
+        color: #7f9ab2;
+      }
+      dd {
+        min-width: 0;
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 30px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        color: #b7c9dc;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #9db1c4;
+      }
+      .ready .dot {
+        background: #59f2a1;
+        box-shadow: 0 0 16px rgba(89, 242, 161, 0.75);
+      }
+      .not-ready .dot {
+        background: #ffcf5c;
+      }
+      textarea {
+        width: 100%;
+        min-height: 108px;
+        resize: vertical;
+        border: 1px solid rgba(182, 214, 243, 0.2);
+        border-radius: 14px;
+        padding: 14px;
+        color: #f8fbff;
+        background: rgba(1, 10, 19, 0.7);
+        font: inherit;
+        line-height: 1.5;
+      }
+      button,
+      a.button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 44px;
+        margin-top: 12px;
+        border: 0;
+        border-radius: 999px;
+        padding: 0 18px;
+        color: #04111c;
+        background: linear-gradient(135deg, #6ee7f7, #8cffb5);
+        font: inherit;
+        font-weight: 800;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      pre {
+        min-height: 112px;
+        margin: 14px 0 0;
+        padding: 16px;
+        overflow: auto;
+        border-radius: 14px;
+        color: #cde9ff;
+        background: #030a12;
+        font: 0.86rem/1.55 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        white-space: pre-wrap;
+      }
+      .note {
+        margin: 16px 0 0;
+        color: #8ca7bf;
+        font-size: 0.86rem;
+        line-height: 1.55;
+      }
+      @media (max-width: 760px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .wide {
+          grid-column: auto;
+        }
+        dl {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+        dd {
+          margin-bottom: 8px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <span class="eyebrow">All Things Agentic · The Taskmaster</span>
+        <h1>Frost Taskmaster proof console</h1>
+        <p>
+          A judge-facing view of Pocket Buddy's bounded agent runtime. It reports the active model,
+          Google SDK transport, Cloud Run revision, and privacy-preserving Firestore evidence status
+          without exposing credentials or private user data.
+        </p>
+      </header>
+
+      <section class="grid" aria-live="polite">
+        <article class="card">
+          <h2>Deployment readiness</h2>
+          <p id="status" class="pill"><span class="dot"></span><span>Checking…</span></p>
+          <p class="note" id="status-note">Reading the same-origin agent API.</p>
+        </article>
+
+        <article class="card">
+          <h2>Active Google stack</h2>
+          <dl>
+            <dt>Provider</dt><dd id="provider">—</dd>
+            <dt>Model</dt><dd id="model">—</dd>
+            <dt>Framework</dt><dd id="framework">—</dd>
+            <dt>Transport</dt><dd id="transport">—</dd>
+            <dt>Cloud Run</dt><dd id="cloud-run">—</dd>
+            <dt>Firestore</dt><dd id="firestore">—</dd>
+            <dt>Map layer</dt><dd id="map">AMap (preserved product integration)</dd>
+          </dl>
+        </article>
+
+        <article class="card wide">
+          <h2>Live bounded planning call</h2>
+          <textarea id="prompt">I have 35 minutes before sunset. Plan a safe neighborhood walk, explain what you still need from me, and do not claim any action is complete without evidence.</textarea>
+          <button id="run" type="button">Run Gemini task</button>
+          <pre id="result">The response, trace ID, and evidence status will appear here.</pre>
+          <p class="note">
+            Prompts and response bodies are used for the live request but are not written to the
+            Firestore evidence collection. Only bounded operational metadata is recorded.
+          </p>
+        </article>
+      </section>
+
+      <a class="button" href="/">Open Pocket Buddy</a>
+    </main>
+
+    <script>
+      const byId = (id) => document.getElementById(id);
+      const write = (id, value) => {
+        byId(id).textContent = value ?? '—';
+      };
+
+      async function loadReadiness() {
+        const status = byId('status');
+        try {
+          const response = await fetch('/api/agentic-readiness', { headers: { accept: 'application/json' } });
+          const data = await response.json();
+          status.className = `pill ${data.ready ? 'ready' : 'not-ready'}`;
+          status.lastElementChild.textContent = data.ready ? 'Ready for live judging' : 'Configuration incomplete';
+          write('status-note', data.ready ? 'The Google agent path is configured.' : data.reason || 'Check server configuration.');
+          write('provider', data.agent?.provider);
+          write('model', data.agent?.model);
+          write('framework', data.agent?.framework);
+          write('transport', data.agent?.transport);
+          write('cloud-run', data.cloudRun?.revision || data.cloudRun?.service || 'Local / not reported');
+          write('firestore', data.evidence?.enabled ? `Enabled · ${data.evidence.collection}` : 'Disabled');
+          write('map', data.mapProvider === 'amap' ? 'AMap (preserved product integration)' : data.mapProvider);
+        } catch (error) {
+          status.className = 'pill not-ready';
+          status.lastElementChild.textContent = 'API unavailable';
+          write('status-note', error instanceof Error ? error.message : String(error));
+        }
+      }
+
+      byId('run').addEventListener('click', async () => {
+        const button = byId('run');
+        const result = byId('result');
+        button.disabled = true;
+        result.textContent = 'Running the bounded agent call…';
+        try {
+          const response = await fetch('/api/frost-llm', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json', accept: 'application/json' },
+            body: JSON.stringify({ prompt: byId('prompt').value, task: 'taskmaster' }),
+          });
+          const data = await response.json();
+          if (!response.ok) throw new Error(data.error || `HTTP ${response.status}`);
+          result.textContent = [
+            data.text,
+            '',
+            `provider: ${data.provider || 'unknown'}`,
+            `model: ${data.model || 'unknown'}`,
+            `framework: ${data.framework || 'unknown'}`,
+            `traceId: ${data.traceId || 'not reported'}`,
+            `evidence: ${data.evidence?.stored ? `stored in ${data.evidence.collection}` : 'not stored'}`,
+          ].join('\n');
+        } catch (error) {
+          result.textContent = `Request failed: ${error instanceof Error ? error.message : String(error)}`;
+        } finally {
+          button.disabled = false;
+        }
+      });
+
+      loadReadiness();
+    </script>
+  </body>
+</html>

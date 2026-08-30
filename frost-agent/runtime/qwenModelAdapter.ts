@@ -19,6 +19,31 @@ export interface FrostQwenCompletion {
   complete(prompt: string, signal: AbortSignal): Promise<string>;
 }
 
+export function httpFrostCompletion(
+  fetcher: typeof fetch = fetch,
+  fallback?: FrostQwenCompletion,
+): FrostQwenCompletion {
+  return {
+    async complete(prompt, signal) {
+      try {
+        const response = await fetcher('/api/frost-llm', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ prompt, json: true, task: 'taskmaster' }),
+          signal,
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (typeof data?.text === 'string' && data.text.trim()) return data.text;
+        }
+      } catch {
+        // The registered on-device model remains the explicit offline fallback.
+      }
+      return fallback?.complete(prompt, signal) || '';
+    },
+  };
+}
+
 export interface FrostQwenModelOptions {
   max_events?: number;
   max_context_chars?: number;
