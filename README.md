@@ -14,6 +14,170 @@
 
 ![Pocket Buddy Google Agentic 架构](docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg)
 
+### Final English competition story
+
+The complete English video storyboard is preserved in this repository and rendered below without cropping. It shows the product, the physical badge, the Taskmaster boundaries, the Skill model, and the deployed Google Cloud evidence as one end-to-end story.
+
+<p align="center">
+  <img src="docs/competitions/all-things-agentic-2026/slides/00-Overview.png" alt="Pocket Buddy final English competition storyboard overview" width="100%">
+</p>
+
+#### Featured: Google Cloud architecture and live execution proof
+
+Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns the server-side Prompt Harness and Taskmaster boundary; Firestore stores privacy-bounded execution evidence. The phone, BLE badge, registered Skills, AMap route presentation, and user confirmation remain explicit system boundaries.
+
+<p align="center">
+  <img src="docs/competitions/all-things-agentic-2026/slides/25.png" alt="Pocket Buddy Google Cloud architecture: Gemini 3.5, Google GenAI SDK, Vertex AI, Cloud Run, Firestore, Agent Taskmaster and Skill Taskmaster" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/competitions/all-things-agentic-2026/slides/26.png" alt="Pocket Buddy live deployment evidence: Cloud Run readiness and matching Firestore agent run record" width="100%">
+</p>
+
+<details open>
+<summary><strong>01–05 · Physical Taskmaster, Frost, and human confirmation</strong></summary>
+
+**01 / 30 — A physical Taskmaster you can carry**
+
+![Pocket Buddy physical Taskmaster badge and capabilities](docs/competitions/all-things-agentic-2026/slides/01.png)
+
+**02 / 30 — Turn a passing idea into real action**
+
+![Pocket Buddy Taskmaster flow from intent to action](docs/competitions/all-things-agentic-2026/slides/02.png)
+
+**03 / 30 — Why the agent is called Frost**
+
+![Roger Zelazny inspiration and the Frost agent](docs/competitions/all-things-agentic-2026/slides/03.png)
+
+**04 / 30 — Software holds the day; the badge stays close**
+
+![Pocket Buddy software and badge across one day](docs/competitions/all-things-agentic-2026/slides/04.png)
+
+**05 / 30 — A photo proposes; the user confirms**
+
+![Meal photo candidates and explicit user confirmation](docs/competitions/all-things-agentic-2026/slides/05.png)
+
+</details>
+
+<details open>
+<summary><strong>06–10 · Local media, meals, and movement</strong></summary>
+
+**06 / 30 — Complexity on the phone; response on the badge**
+
+![Phone-side detail and badge-side response](docs/competitions/all-things-agentic-2026/slides/06.png)
+
+**07 / 30 — One day with Frost**
+
+![Breakfast, training, route and bird-listening timeline](docs/competitions/all-things-agentic-2026/slides/07.png)
+
+**08 / 30 — The phone sees the meal; the badge carries the cue**
+
+![Meal recognition on the phone and Frost cue on the badge](docs/competitions/all-things-agentic-2026/slides/08.png)
+
+**09 / 30 — Photos stay on the phone; summaries return to Frost**
+
+![Local raw media and purpose-limited confirmed summary](docs/competitions/all-things-agentic-2026/slides/09.png)
+
+**10 / 30 — The phone sees the body; the badge keeps the cue close**
+
+![Motion guidance across phone and wearable badge](docs/competitions/all-things-agentic-2026/slides/10.png)
+
+</details>
+
+<details open>
+<summary><strong>11–15 · Controlled motion and real-road routes</strong></summary>
+
+**11 / 30 — Look less; keep the next step close**
+
+![Phone motion interface and wearable next-step cue](docs/competitions/all-things-agentic-2026/slides/11.png)
+
+**12 / 30 — Sensing, action, and memory stay user-controlled**
+
+![User-controlled sensing, action and memory boundaries](docs/competitions/all-things-agentic-2026/slides/12.png)
+
+**13 / 30 — Movement feedback keeps uncertainty visible**
+
+![Motion feedback with visible uncertainty](docs/competitions/all-things-agentic-2026/slides/13.png)
+
+**14 / 30 — Real roads on the phone; essential cues beside you**
+
+![AMap real-road route planning and badge guidance](docs/competitions/all-things-agentic-2026/slides/14.png)
+
+**15 / 30 — The route stays on the phone; the turn stays beside you**
+
+![Phone route display and physical Frost badge](docs/competitions/all-things-agentic-2026/slides/15.png)
+
+</details>
+
+<details open>
+<summary><strong>16–20 · Bird Listener and closed-loop discovery</strong></summary>
+
+**16 / 30 — A real route has constraints**
+
+![Route constraints and planning boundaries](docs/competitions/all-things-agentic-2026/slides/16.png)
+
+**17 / 30 — Hold to record; candidates return through the same loop**
+
+![Physical Bird Listener capture and phone candidates](docs/competitions/all-things-agentic-2026/slides/17.png)
+
+**18 / 30 — Turn a nearby sound into an explainable discovery**
+
+![Capture, validate, decide and recognize bird-listening loop](docs/competitions/all-things-agentic-2026/slides/18.png)
+
+**19 / 30 — One walk becomes more than one visible discovery**
+
+![Bird discovery returned to the wearable display](docs/competitions/all-things-agentic-2026/slides/19.png)
+
+**20 / 30 — Sound enters the badge; the result returns to the same round display**
+
+![Physical input, agent decision, Skill execution and visible output](docs/competitions/all-things-agentic-2026/slides/20.png)
+
+</details>
+
+<details open>
+<summary><strong>21–24 · Route-linked context, Taskmasters, and hardware I/O</strong></summary>
+
+**21 / 30 — A bird call becomes part of the route**
+
+![Route-linked bird observation with time, place and evidence](docs/competitions/all-things-agentic-2026/slides/21.png)
+
+**22 / 30 — Run equipped Skills reliably to completion**
+
+![Skill Taskmaster execution layer and Skill Canvas](docs/competitions/all-things-agentic-2026/slides/22.png)
+
+**23 / 30 — Frost is the only primary agent facing the user**
+
+![Agent Taskmaster goal layer and Skill Taskmaster execution graph](docs/competitions/all-things-agentic-2026/slides/23.png)
+
+**24 / 30 — Turn board functions into agent capabilities**
+
+![ESP32-S3 badge input and output mapped to registered capabilities](docs/competitions/all-things-agentic-2026/slides/24.png)
+
+</details>
+
+<details open>
+<summary><strong>25–30 · Google Cloud proof, user-owned Skills, and judging path</strong></summary>
+
+Slides **25** and **26** are featured above at full width because they contain the submission's Google Cloud architecture and live execution evidence.
+
+**27 / 30 — One badge can become different companions**
+
+![One badge with different user-owned and permissioned Skill sets](docs/competitions/all-things-agentic-2026/slides/27.png)
+
+**28 / 30 — A physical entrance for everyday capabilities**
+
+![Portable Frost badge as an entrance to equipped capabilities](docs/competitions/all-things-agentic-2026/slides/28.png)
+
+**29 / 30 — Software shows the full picture; hardware keeps the response close**
+
+![Pocket Buddy public software, wearable badge and current source](docs/competitions/all-things-agentic-2026/slides/29.png)
+
+**30 / 30 — Experience the software; carry the action**
+
+![Pocket Buddy judge-ready software and physical hardware experience](docs/competitions/all-things-agentic-2026/slides/30.png)
+
+</details>
+
 - [English submission overview](docs/competitions/all-things-agentic-2026/README.md)
 - [Devpost submission copy](docs/competitions/all-things-agentic-2026/DEVPOST_SUBMISSION.md)
 - [Cloud Run deployment](deploy/all-things-agentic/README.md)
