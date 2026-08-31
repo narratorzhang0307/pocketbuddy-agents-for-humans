@@ -1,41 +1,244 @@
 # Pocket Buddy
 
-> 一个认识你的运动健康伙伴：记住今天，理解目标，把下一步交给合适的 Skill。
+**Live experience: [Open Frost Taskmaster on Google Cloud Run](https://frost-taskmaster-agent-1000610846732.asia-east1.run.app)**
 
-**在线体验：[https://pocketbuddy.throughtheglass.art/](https://pocketbuddy.throughtheglass.art/)** · 首次加载地图和 3D 素材可能稍慢；定位、摄像头按需授权。原生能力与实体徽章体验需要对应设备。
+> A fitness and health companion that remembers today, understands your goals, and hands the next step to the right Skill.
 
-**稳定节点：[0828最终版](docs/technical/0828-FINAL-MILESTONE.md)** · 标签 [`v2026.08.28-final`](https://github.com/narratorzhang0307/pocketbuddy/tree/v2026.08.28-final) · 对应 TestFlight `0.1.0 (2026082828)`。用户已反馈真机实测满意；源码范围、校验记录与安全回退步骤见节点说明。
+**Stable milestone: [0828 Final Release](docs/technical/0828-FINAL-MILESTONE.md)** · Tag [`v2026.08.28-final`](https://github.com/narratorzhang0307/pocketbuddy/tree/v2026.08.28-final) · TestFlight `0.1.0 (2026082828)`. The milestone documents the verified source scope, release checks, device feedback, and safe rollback path.
+
+<p align="center">
+  <img src="docs/assets/readme/pocket-buddy-presentation/physical-agent-overview.jpg" alt="Pocket Buddy physical agent with round display, microphone, speaker, buttons, touch input, and BLE" width="100%">
+</p>
+
+Pocket Buddy brings meal logging, movement coaching, route guidance, nature discovery, and everyday questions into one long-lived companion: **Frost**. People can type on the phone or talk through the physical badge. Frost uses only authorized context, selects an equipped capability, and returns the real result to the same conversation.
+
+Personalization is more than swapping a workout plan. Different people can equip different Skills while keeping their own goals, preferences, permissions, and history. The model interprets intent; Taskmaster enforces execution boundaries; the phone and badge handle real sensing and interaction.
+
+This is the current Pocket Buddy product repository and the official Google All Things Agentic Hackathon submission repository: [`narratorzhang0307/pocketbuddy`](https://github.com/narratorzhang0307/pocketbuddy). Product design, implemented behavior, and capabilities that still require verification are kept distinct: a mockup, navigation event, or successful build is not treated as proof that a real-world task finished.
+
+## Why the agent is called Frost
+
+The name comes from American science-fiction writer **Roger Zelazny** and his short story *For a Breath I Tarry*. Its machine, Frost, learns about humanity by gathering fragments of knowledge and experience. Pocket Buddy turns that idea into a user-owned agent: it learns only from authorized moments, then uses Taskmaster to convert understanding into bounded action.
+
+![Roger Zelazny, the short story For a Breath I Tarry, and the inspiration for Frost](docs/competitions/all-things-agentic-2026/slides/03.png)
+
+## A day with Frost
+
+![A day with Frost across breakfast, training, running, bird listening, and reflection](docs/assets/readme/pocket-buddy-presentation/a-day-with-frost.jpg)
+
+1. **Record today.** Choose a meal photo in Photos and review the candidate foods and calorie range. Nothing becomes a consumed-meal fact until the user confirms it.
+2. **Add context.** Save long-term goals, preferences, and health constraints. With permission, read today's phone step count; missing data remains unknown rather than becoming zero.
+3. **State a goal.** Ask Frost what to eat next or what movement still fits the day.
+4. **Explain the recommendation.** The cloud model uses the authorized summary, fact provenance, and constraints. The competition deployment uses Gemini 3.5, but a recommendation does not mean a workout has started.
+5. **Invoke a capability.** Ask for the Fitness Agent, Her Motion, Run Route, or Bird Listener. Camera, microphone, location, and session checks still apply.
+6. **Return to the same memory.** Confirmed meals, completed movement, and connected step events update the health fact record for the next recommendation.
+
+This loop describes the current product and source structure. First-time system permission, external-service configuration, device connection, and feature-by-feature acceptance remain necessary. Not every third-party Skill has an account connection or completed-result callback.
 
 ## All Things Agentic Hackathon 2026
 
-本分支把 Frost Taskmaster 作为 **The Taskmaster** 赛道作品提交：`@google/genai` 驱动的 Gemini 3.5 负责受限任务决策，Cloud Run 承载 Agent API，Firestore 仅保存不含提示词和健康内容的运行证据元数据。设备端确定性控制面、确认门、超时和真实完成证据仍是最终执行边界。
+Pocket Buddy enters **The Taskmaster** track with Frost Taskmaster. Gemini 3.5 Flash, accessed through the Google Gen AI SDK on Vertex AI, performs bounded task decisions. Cloud Run hosts the Agent API and server-owned Prompt Harness. Firestore stores an allowlisted execution-evidence record without prompts, model responses, health content, raw media, or precise location.
 
-地图层继续使用高德地图（AMap），因为它是产品在中国大陆场景中的成熟地图与路线展示能力；Google 技术栈负责 Agent 推理、云端运行与可审计证据，两者职责清晰、不相互冒充。
+AMap remains the mature map and route presentation layer for the product's mainland-China use cases. Google Cloud owns agent reasoning, cloud execution, and auditable evidence. The architecture names these boundaries explicitly instead of presenting one service as another.
 
-![Pocket Buddy Google Agentic 架构](docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg)
+![Pocket Buddy Google Agentic architecture](docs/competitions/all-things-agentic-2026/ARCHITECTURE.svg)
 
-### Final English competition story
+### Google Cloud implementation
 
-The complete English video storyboard is preserved in this repository and rendered below without cropping. It shows the product, the physical badge, the Taskmaster boundaries, the Skill model, and the deployed Google Cloud evidence as one end-to-end story.
+| Layer | Current implementation | Boundary |
+| --- | --- | --- |
+| Model | Gemini 3.5 Flash through `@google/genai` and Vertex AI | Produces bounded decisions; it does not directly perform side effects |
+| Agent runtime | Cloud Run service `frost-taskmaster-agent` | Owns the Prompt Harness, request budgets, Taskmaster profiles, and readiness contract |
+| Evidence | Firestore Native | Stores allowlisted execution metadata keyed by trace ID; sensitive content is excluded |
+| Build and operations | Cloud Build, Artifact Registry, Cloud Logging, and least-privilege IAM | Builds immutable revisions and exposes deployment and trace evidence |
+| Client control plane | Phone, BLE badge, registered Skills, permissions, confirmations, and timeouts | Decides what may run and what counts as real completion |
+| Map presentation | AMap | Keeps real roads and route display separate from Google agent infrastructure |
 
-<p align="center">
-  <img src="docs/competitions/all-things-agentic-2026/slides/00-Overview.png" alt="Pocket Buddy final English competition storyboard overview" width="100%">
-</p>
+![Google Cloud architecture with Gemini, Vertex AI, Cloud Run, Firestore, Agent Taskmaster, and Skill Taskmaster](docs/competitions/all-things-agentic-2026/slides/25.png)
 
-#### Featured: Google Cloud architecture and live execution proof
+The deployed service exposes a readiness contract, and a real Gemini task produces a matching Cloud Run trace and Firestore evidence record. Firestore is required for the competition path: a model response without stored evidence is not reported as a successful run.
 
-Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns the server-side Prompt Harness and Taskmaster boundary; Firestore stores privacy-bounded execution evidence. The phone, BLE badge, registered Skills, AMap route presentation, and user confirmation remain explicit system boundaries.
+![Live Cloud Run readiness and matching Firestore execution evidence](docs/competitions/all-things-agentic-2026/slides/26.png)
 
-<p align="center">
-  <img src="docs/competitions/all-things-agentic-2026/slides/25.png" alt="Pocket Buddy Google Cloud architecture: Gemini 3.5, Google GenAI SDK, Vertex AI, Cloud Run, Firestore, Agent Taskmaster and Skill Taskmaster" width="100%">
-</p>
+- [English submission overview](docs/competitions/all-things-agentic-2026/README.md)
+- [Devpost submission copy](docs/competitions/all-things-agentic-2026/DEVPOST_SUBMISSION.md)
+- [Cloud Run deployment](deploy/all-things-agentic/README.md)
+- [Backend contract and Taiwan deployment handoff](docs/backend/README.md)
+- [Judge-facing demo page](public/agentic-demo.html)
 
-<p align="center">
-  <img src="docs/competitions/all-things-agentic-2026/slides/26.png" alt="Pocket Buddy live deployment evidence: Cloud Run readiness and matching Firestore agent run record" width="100%">
-</p>
+## Product problem and intended users
 
-<details open>
-<summary><strong>01–05 · Physical Taskmaster, Frost, and human confirmation</strong></summary>
+Movement, nutrition, routes, and personal discovery are usually split across unrelated apps. General AI assistants often stop at advice instead of connecting advice to controlled action and completion evidence. Pocket Buddy links **record → understand → act → reflect** through Frost, Taskmaster, specialized Skills, the phone, and the physical badge.
+
+| Intended user | Need | Pocket Buddy experience |
+| --- | --- | --- |
+| City residents who want more everyday activity | A low-friction way to begin | Run Route, city exploration, virtual planting, and lightweight feedback |
+| People who train alone | Encouragement, records, and concrete coaching | Frost, Lianlema, Her Motion, and explicit health-fact boundaries |
+| People who enjoy pets, nature, and gentle collection loops | More discovery in ordinary routes | Walking companions, Bird Listener, plants, and place-linked memory |
+| People who cannot keep operating a phone while moving | Short voice and glanceable interaction | Badge button, round display, BLE, and the same Frost conversation |
+
+![One badge can become different companions through user-owned Skills](docs/assets/readme/pocket-buddy-presentation/one-badge-multiple-skills.jpg)
+
+## Core experiences
+
+### Photos: observe first, confirm before logging
+
+The real Photos entry is [FoodPhotosTab](src/app/components/FoodPhotosTab.tsx). Server-side Qwen vision, SAM segmentation, and quality checks produce meal candidates. Low-confidence or failed segmentation remains pending review instead of silently becoming an intake fact.
+
+Food names, portions, and calorie ranges can be corrected. Calories are estimates, not weighed measurements. Confirmation and withdrawal cross the health-fact boundary. SAM weights, the Python environment, and the inference service are prepared separately; see [Photos Harness deployment](deploy/pocketbuddy/PHOTOS-HARNESS.md).
+
+![Meal recognition stays on the phone until the user confirms what was actually eaten](docs/competitions/all-things-agentic-2026/slides/08.png)
+
+### Frost: one Agent across text and badge voice
+
+Phone messages and text transcribed from the badge enter the same `sendFrostAgentMessage` path. They share Skill selection, task handoff, response handling, and memory rather than forming two disconnected chat systems.
+
+The repository contains the OJBadge ESP32-S3 firmware, the iOS BLE bridge, and the AgentLink protocol. Retained device evidence includes a complete physical-button PCM capture delivered to the phone—39,360 samples, 78,720 bytes, 2.46 seconds, and zero device-queue packet loss—plus touch coordinates, battery state, display avatars, and speaker downlink. Frame reconstruction, acknowledgements, upload CRC, the push-to-talk privacy gate, and the 30-second audio buffer can be rechecked with `npm run hardware:check`. See the [current OJBadge device record](hardware/ojbadge-agent-link/README-OJBADGE.md).
+
+- Read-only questions such as weather, food references, and recorded sleep or training summaries can be answered in the conversation.
+- Explicit capability requests can hand off to the appropriate page; the visible **Run** action remains available as a manual entry and fallback.
+- Multi-step, under-specified, sensitive, or unauthorized operations still ask, wait, or stop instead of running indefinitely.
+- Model output must be validated. A generated plan, `waiting_external` state, or hardware acknowledgement is not proof of completion.
+
+![AgentLink exposes buttons, touch, microphone, round display, speaker, and battery state to the Agent](docs/assets/readme/pocket-buddy-presentation/agentlink-hardware-capabilities.jpg)
+
+### Lianlema and Her Motion: two movement capabilities
+
+- **Lianlema / Did You Train?** provides movement recognition, repetition counting, and correction through camera and uploaded-video entries. Its sub-application lives in [lianlema-portable](lianlema-portable/app_project/README.md).
+- **Her Motion** provides warm-up and movement observation. A validated, fresh Frost handoff can initiate the camera flow; the user still grants the first system permission.
+- Camera behavior depends on foreground state, permission, device, and model conditions. A normal page visit, expired handoff, or denied permission cannot silently start capture.
+- Source entries and automated tests do not replace real-device camera, movement-accuracy, or badge-audio acceptance.
+
+![Motion guidance keeps the detailed view on the phone and the next cue on the badge](docs/competitions/all-things-agentic-2026/slides/10.png)
+
+### Today memory and long-term context
+
+The [Today Memory panel](src/app/components/HealthMemoryPanel.tsx) shows confirmed meals, movement, and phone steps for the current day and allows incorrect records to be withdrawn.
+
+- The day is calculated in the user's time zone while preserving source, time, estimate markers, and unknown fields.
+- Recommendation context includes today's summary, the most recent 28 recorded days, and user-confirmed long-term goals, preferences, and constraints.
+- Phone steps retain their read time; unread steps are not treated as zero or double-counted with run records.
+- Cloud recommendations are bound to a memory version. After the record changes, an older recommendation is not authorization to act on the new state.
+- Cloud analysis and badge-summary display have separate authorization. Raw photos and complete medical conversations are not sent by default.
+
+![Raw media stays local while a purpose-limited confirmed summary returns to Frost](docs/competitions/all-things-agentic-2026/slides/09.png)
+
+### Action Map and nature discovery
+
+The map carries routes, place context, activity, and natural moments. Bird Listener, plant observation, and virtual planting are companion capabilities inside real activity. A model candidate is never written as a certain species fact, and a virtual tree is never presented as a real-world planting claim.
+
+GPS, microphone, species recognition, and their data sources each require independent permission and validation. Low-confidence results return unknown or request review.
+
+![The route stays on the phone while the next turn stays beside the user](docs/competitions/all-things-agentic-2026/slides/15.png)
+
+### The physical badge: a lightweight interaction surface
+
+The badge handles recording, the on-screen character, status, and sound. The phone handles BLE bridging, on-device transcription, model requests, and camera-dependent capabilities. Firmware, iOS bridge code, app integration, and assets are all present in this repository.
+
+The regular voice path is **button recording → BLE → on-device iPhone ASR → Frost → selected server model or Skill → text response → authorized speech synthesis and playback**. MiniMax supports an integrated speech-response path; it does not mean every prompt sound calls a cloud API.
+
+**Code alone cannot guarantee a continuing session while the phone is locked, background speech, or lock-screen playback.** Those claims require the matching build, system state, and real-device acceptance evidence.
+
+## Frost, Taskmaster, and Skill Canvas
+
+The historical product baseline used “two Taskmasters” to distinguish goal orchestration from Skill-graph execution. That design remains documented in the [historical product overview](docs/product/POCKET-BUDDY-OVERVIEW-2026-08-24.md), while the current code uses the component boundaries below.
+
+| Current component | Responsibility | Boundary |
+| --- | --- | --- |
+| Frost Agent / Harness | Understand goals, maintain the conversation, and handle questions, interruption, waiting, and bounded continuation | The model proposes candidates and cannot directly write health facts |
+| Agent Taskmaster | Supervise tasks, subagent delegation, permissions, confirmation, timeouts, and results | Uses only registered capabilities and fixed tools |
+| Skill Taskmaster / Skill subagent | Compile and execute bounded Skill steps or ask domain-specific questions in an isolated task context | Cannot arbitrarily change the goal, spawn unlimited Agents, or directly control a device |
+| Health Fact & Effect Boundary | Validate and idempotently commit facts, events, and side effects | Cannot fabricate a completion record without real evidence |
+| Skill Canvas | Compose capability cards, compile, preview structure, and save | Currently a creation and preview surface, not an unrestricted automatic execution engine |
+
+The current `frost-agent/skill-taskmaster/` directory is a compatibility forwarding layer; the Canvas implementation lives in `frost-agent/skill-canvas/`. See [Frost architecture](frost-agent/ARCHITECTURE.md) for execution states and source anchors.
+
+![Frost as the primary user-facing Agent above Agent Taskmaster and Skill Taskmaster](docs/competitions/all-things-agentic-2026/slides/23.png)
+
+### A Skill is a capability contract, not just a button
+
+A Skill declares identity, version, inputs, outputs, permissions, data scope, runtime, errors, and evidence requirements. Device Skills may call trusted native capabilities; declarative flows describe bounded compositions. A third-party web sandbox is a future product direction that still requires isolation and permission design—it is not evidence of a completed open Skill marketplace.
+
+People do not need to understand internal module names. Frost should explain what it is doing, what it is waiting for, whether the task completed, and how to stop it.
+
+![Skill Taskmaster and Skill Canvas turn equipped capabilities into a bounded execution graph](docs/competitions/all-things-agentic-2026/slides/22.png)
+
+## Technical map
+
+| Area | Current source entry |
+| --- | --- |
+| Application and three primary tabs | [src/app/App.tsx](src/app/App.tsx), React, and Vite |
+| Shared Frost conversation | [frostAgentRuntime.ts](src/app/lib/frostAgentRuntime.ts) and [frostConversation.ts](src/app/lib/frostConversation.ts) |
+| Agent loop and subagents | [runtime](frost-agent/runtime/), [subagents](frost-agent/subagents/), and [taskmaster](frost-agent/taskmaster/) |
+| Today memory and health facts | [frostHealthMemory.ts](src/app/lib/frostHealthMemory.ts) and [Health Taskmaster](frost-agent/taskmaster/README.md) |
+| Gemini Agent, Qwen-compatible capabilities, health advice, voice, and Photos | [server](server/) and [server.mjs](server.mjs) |
+| iOS BLE and health bridges | [native/frost-badge](native/frost-badge/) and [native/frost-health](native/frost-health/) |
+| OJBadge firmware | [hardware/ojbadge-agent-link](hardware/ojbadge-agent-link/) |
+| Training sub-applications | [lianlema-portable](lianlema-portable/) and [vendor/her-motion](vendor/her-motion/) |
+
+Gemini, Qwen, SAM, MiniMax, maps, and health connectors each have their own configuration and authorization requirements. Other model adapters retained in the repository do not mean the current phone has complete offline inference, and they do not change Pocket Buddy's product identity.
+
+## Documentation map
+
+- [Product documentation and historical baseline](docs/product/README.md)
+- [Current system architecture](ARCHITECTURE.md)
+- [Frost Agent technical guide](frost-agent/README.md)
+- [Web deployment guide](deploy/pocketbuddy/README.md)
+- [Hardware engineering](hardware/ojbadge-agent-link/README-OJBADGE.md)
+- [Hardware release branch](https://github.com/narratorzhang0307/pocketbuddy/tree/hardware/20260828)
+
+## Run locally
+
+Use **Node.js 22+**; the current iOS preparation script requires this version. Install the root dependencies and create local configuration:
+
+```sh
+cp .env.example .env.local
+npm ci
+npm run dev -- --host 127.0.0.1 --port 5174
+```
+
+Open `http://127.0.0.1:5174/`. Without a model credential or external service, the corresponding capability reports missing configuration or waits for the real service. It must not substitute simulated output and claim the integration is connected.
+
+- Configure the map frontend through [.env.example](.env.example), with domain and quota restrictions.
+- Keep Gemini, Qwen, and MiniMax credentials on the server. Never add a `VITE_` prefix that would put them into the browser bundle. On Cloud Run, use the runtime service account for Vertex AI and Firestore.
+- Python services, model weights, health connectors, and raw audio are not installed automatically with the source tree.
+- The offline coaching MP3 files referenced by Lianlema are included in that sub-application's `assets/audio/`. See the [current-source build guide](docs/development/CURRENT-SOURCE-BUILD.md).
+
+### Build and verify
+
+```sh
+npm run typecheck
+npm test -- --maxWorkers=2
+npm run build
+npm run repo:check
+npm run hardware:check
+```
+
+`npm run build` builds the primary Web application. For the complete training surfaces, follow the [deployment guide](deploy/pocketbuddy/README.md) to install the Lianlema subproject dependencies, prepare external resources, rebuild the sub-applications, and then build the root package. Do not substitute a missing sub-application or historical build directory for the current source.
+
+For iOS, use `npm run ios:prepare`, `npm run ios:check`, and `npm run ios:open`. The preparation script rebuilds the training pages and synchronizes resources; signing and physical installation are separate steps and do not by themselves prove device acceptance.
+
+Web releases use only the independent process in [deploy/pocketbuddy](deploy/pocketbuddy/README.md). A successful build, service health check, phone installation, camera test, and lock-screen voice test are separate acceptance layers.
+
+## Privacy, health, and truthful completion
+
+- Fitness, health, and Hospital Agent surfaces provide supporting information and do not replace diagnosis, treatment, or emergency services.
+- Health records preserve provenance and uncertainty. Unknown is not zero; a recommendation is not a fact; a model response is not completion evidence.
+- Raw photos, recordings, health information, and precise location use least-capability authorization. Calling a Skill does not grant permission to publish sensitive data.
+- API credentials, signing material, dependency directories, model weights, personal media, and build caches are not committed to Git.
+- Third-party code and models remain subject to their own licenses. A repository snapshot grants no additional redistribution rights.
+- This README describes source and product boundaries; it does not promise completion across every device, account connector, or unattended background state.
+
+## Complete English competition storyboard
+
+The complete 30-slide story remains in the repository without cropping. It is collapsed by default so the main README keeps product explanations and their supporting visuals together.
+
+<details>
+<summary><strong>Open the complete 30-slide storyboard</strong></summary>
+
+![Complete English competition storyboard overview](docs/competitions/all-things-agentic-2026/slides/00-Overview.png)
+
+### 01–05 · Physical Taskmaster, Frost, and human confirmation
 
 **01 / 30 — A physical Taskmaster you can carry**
 
@@ -57,10 +260,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 ![Meal photo candidates and explicit user confirmation](docs/competitions/all-things-agentic-2026/slides/05.png)
 
-</details>
-
-<details open>
-<summary><strong>06–10 · Local media, meals, and movement</strong></summary>
+### 06–10 · Local media, meals, and movement
 
 **06 / 30 — Complexity on the phone; response on the badge**
 
@@ -68,7 +268,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 **07 / 30 — One day with Frost**
 
-![Breakfast, training, route and bird-listening timeline](docs/competitions/all-things-agentic-2026/slides/07.png)
+![Breakfast, training, route, and Bird Listener timeline](docs/competitions/all-things-agentic-2026/slides/07.png)
 
 **08 / 30 — The phone sees the meal; the badge carries the cue**
 
@@ -82,10 +282,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 ![Motion guidance across phone and wearable badge](docs/competitions/all-things-agentic-2026/slides/10.png)
 
-</details>
-
-<details open>
-<summary><strong>11–15 · Controlled motion and real-road routes</strong></summary>
+### 11–15 · Controlled motion and real-road routes
 
 **11 / 30 — Look less; keep the next step close**
 
@@ -93,7 +290,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 **12 / 30 — Sensing, action, and memory stay user-controlled**
 
-![User-controlled sensing, action and memory boundaries](docs/competitions/all-things-agentic-2026/slides/12.png)
+![User-controlled sensing, action, and memory boundaries](docs/competitions/all-things-agentic-2026/slides/12.png)
 
 **13 / 30 — Movement feedback keeps uncertainty visible**
 
@@ -107,10 +304,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 ![Phone route display and physical Frost badge](docs/competitions/all-things-agentic-2026/slides/15.png)
 
-</details>
-
-<details open>
-<summary><strong>16–20 · Bird Listener and closed-loop discovery</strong></summary>
+### 16–20 · Bird Listener and closed-loop discovery
 
 **16 / 30 — A real route has constraints**
 
@@ -122,7 +316,7 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 **18 / 30 — Turn a nearby sound into an explainable discovery**
 
-![Capture, validate, decide and recognize bird-listening loop](docs/competitions/all-things-agentic-2026/slides/18.png)
+![Capture, validate, decide, and recognize Bird Listener loop](docs/competitions/all-things-agentic-2026/slides/18.png)
 
 **19 / 30 — One walk becomes more than one visible discovery**
 
@@ -130,16 +324,13 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 **20 / 30 — Sound enters the badge; the result returns to the same round display**
 
-![Physical input, agent decision, Skill execution and visible output](docs/competitions/all-things-agentic-2026/slides/20.png)
+![Physical input, agent decision, Skill execution, and visible output](docs/competitions/all-things-agentic-2026/slides/20.png)
 
-</details>
-
-<details open>
-<summary><strong>21–24 · Route-linked context, Taskmasters, and hardware I/O</strong></summary>
+### 21–25 · Route context, Taskmasters, hardware, and cloud architecture
 
 **21 / 30 — A bird call becomes part of the route**
 
-![Route-linked bird observation with time, place and evidence](docs/competitions/all-things-agentic-2026/slides/21.png)
+![Route-linked bird observation with time, place, and evidence](docs/competitions/all-things-agentic-2026/slides/21.png)
 
 **22 / 30 — Run equipped Skills reliably to completion**
 
@@ -153,12 +344,15 @@ Gemini 3.5 Flash runs through the Google GenAI SDK on Vertex AI. Cloud Run owns 
 
 ![ESP32-S3 badge input and output mapped to registered capabilities](docs/competitions/all-things-agentic-2026/slides/24.png)
 
-</details>
+**25 / 30 — Google Cloud architecture**
 
-<details open>
-<summary><strong>25–30 · Google Cloud proof, user-owned Skills, and judging path</strong></summary>
+![Google Cloud implementation and explicit system boundaries](docs/competitions/all-things-agentic-2026/slides/25.png)
 
-Slides **25** and **26** are featured above at full width because they contain the submission's Google Cloud architecture and live execution evidence.
+### 26–30 · Live proof, user-owned Skills, and judging path
+
+**26 / 30 — One real task, one matching evidence record**
+
+![Cloud Run and Firestore live execution proof](docs/competitions/all-things-agentic-2026/slides/26.png)
 
 **27 / 30 — One badge can become different companions**
 
@@ -170,191 +364,10 @@ Slides **25** and **26** are featured above at full width because they contain t
 
 **29 / 30 — Software shows the full picture; hardware keeps the response close**
 
-![Pocket Buddy public software, wearable badge and current source](docs/competitions/all-things-agentic-2026/slides/29.png)
+![Pocket Buddy public software, wearable badge, and current source](docs/competitions/all-things-agentic-2026/slides/29.png)
 
 **30 / 30 — Experience the software; carry the action**
 
 ![Pocket Buddy judge-ready software and physical hardware experience](docs/competitions/all-things-agentic-2026/slides/30.png)
 
 </details>
-
-- [English submission overview](docs/competitions/all-things-agentic-2026/README.md)
-- [Devpost submission copy](docs/competitions/all-things-agentic-2026/DEVPOST_SUBMISSION.md)
-- [Cloud Run deployment](deploy/all-things-agentic/README.md)
-- [当前统一后端与台湾部署交接入口](docs/backend/README.md)
-- [Judge-facing demo page](public/agentic-demo.html)
-
-Pocket Buddy 把餐食记录、运动训练、路线、自然观察和日常问答放进同一个长期陪伴角色 **Frost**。你可以在手机里打字，也可以通过电子吧唧说话；Frost 结合已授权的记忆理解目标，选择能力，把真实结果带回同一个会话。
-
-个性化不只是换一份训练计划：不同用户可以装备不同 Skill，保留自己的目标、偏好和使用记录。模型负责理解与建议，Taskmaster 负责执行边界，手机和硬件承担真实的采集与交互。
-
-本仓库是 **Pocket Buddy 当前产品工程与 Google All Things Agentic Hackathon 正式提交仓库**：[`narratorzhang0307/pocketbuddy`](https://github.com/narratorzhang0307/pocketbuddy)。根目录说明以这里为准；已有产品设计、当前实现和仍待验证的能力分别列出，不能把设计稿、页面跳转或编译成功当作真实任务完成。
-
-<p align="center">
-  <img src="docs/assets/readme/pocket-buddy-presentation/physical-agent-overview.jpg" alt="Pocket Buddy 实体 Agent 总览：圆屏、麦克风、扬声器、按键、触摸与 BLE" width="100%">
-</p>
-
-> 产品图来自《口袋搭子 · Pocket Buddy》演示材料；功能完成度与验证边界以当前源码、测试和提交文档为准。
-
-## 产品问题与目标用户
-
-运动、饮食记录、路线规划和兴趣探索往往散落在不同应用里；普通 AI 助手又容易停留在“给建议”，没有把建议接到真实行动与完成证据。Pocket Buddy 用持续陪伴角色 Frost 连接“记录—理解—行动—反馈”，再由 Taskmaster、专业 Skill、手机和电子吧唧分别承担受控执行。
-
-| 目标用户 | 主要需求 | Pocket Buddy 对应体验 |
-| --- | --- | --- |
-| 想增加日常活动的城市用户 | 希望低门槛开始行动 | 路线 Taskmaster、城市探索、虚拟种植与轻量反馈 |
-| 独自运动、需要鼓励与记录的人 | 希望建议能进入具体训练 | Frost、练了吗、Her Motion 与健康事实边界 |
-| 喜欢宠物、自然和轻量养成的用户 | 希望日常路线更有发现感 | 同行伙伴、识鸟、植物与地点记忆 |
-| 运动中不方便持续操作手机的人 | 希望通过简单语音获得回应 | 电子吧唧按键、圆屏、BLE 和同一 Frost 会话 |
-
-## 阅读入口
-
-- [产品文档与历史基线](docs/product/README.md)：找回的完整 Pocket Buddy 说明、原版产品文档与设计图。
-- [当前系统架构](ARCHITECTURE.md)：Frost、Taskmaster、记忆、手机和硬件如何协作。
-- [Frost Agent 技术说明](frost-agent/README.md)：统一对话入口、子 Agent、预算与安全边界。
-- [Web 部署说明](deploy/pocketbuddy/README.md)：Pocket Buddy 独立构建和发布流程。
-- [硬件工程](hardware/ojbadge-agent-link/README-OJBADGE.md) · [硬件专用分支](https://github.com/narratorzhang0307/pocketbuddy/tree/hardware/20260828)。
-
-## 一天的使用体验
-
-1. **记录今天**：在 Photos 选择餐食照片，观察菜品与热量估算；只有确认确实吃过，才写入今天的记忆。
-2. **补全背景**：保存长期目标、偏好和健康限制；授权后读取手机今日步数，缺失信息保持“未知”。
-3. **提出目标**：对 Frost 说“今天接下来适合吃什么？”或“今天还适合做什么运动？”。
-4. **解释建议**：云端模型依据本次授权的摘要、事实来源和限制返回建议；参赛部署使用 Gemini 3.5，建议本身不代表训练已开始。
-5. **调用能力**：明确要求“调用健身 Agent”或“调用女性运动 Agent”，进入相应训练入口，继续遵守相机权限和会话校验。
-6. **回到同一份记忆**：已接通的餐食确认、训练完成和步数事件进入健康事实记录；下次建议使用更新后的状态。
-
-这是产品闭环与当前源码的组织方式。首次系统授权、外部服务、真实设备连接及逐项验收仍是必要条件；不是所有第三方 Skill 都已接入账户或完成结果回传。
-
-![跟着 Frost 过一天：早餐、训练、跑步、识鸟与回顾](docs/assets/readme/pocket-buddy-presentation/a-day-with-frost.jpg)
-
-## 核心体验
-
-### Photos：先观察，再确认记餐
-
-左侧 Photos 的实际入口是 [FoodPhotosTab](src/app/components/FoodPhotosTab.tsx)。餐食观察通过服务端 Qwen 视觉、SAM 分割和质量校验形成候选；低置信度或分割失败会保留待复核状态，不把图片自动当成摄入事实。
-
-菜名、份量和热量可以核对；热量是估算范围，不是称重结果。确认和撤回走健康事实边界。SAM 的权重、Python 环境与推理服务需要独立准备，见 [Photos Harness 部署](deploy/pocketbuddy/PHOTOS-HARNESS.md)。
-
-### Frost：文字与硬件语音共用一个 Agent
-
-手机对话与吧唧转写后的文字进入同一个 `sendFrostAgentMessage`，共用 Skill 选择、任务交接、回复和记忆，不是两套互不相通的聊天系统。
-
-OJBadge 的 ESP32-S3 固件、iOS BLE 桥与 AgentLink 协议都在当前仓库。已经留存的真机证据包括实体键采音到手机的完整 PCM（39,360 采样、78,720 字节、2.46 秒、设备入队丢包 0）、触摸坐标、电量、屏幕头像和扬声器下行；当前源码的帧重组、ACK、上传 CRC、PTT 隐私门与 30 秒音频缓冲可用 `npm run hardware:check` 重验。详见 [OJBadge 当前真机记录](hardware/ojbadge-agent-link/README-OJBADGE.md)。
-
-- 只读查询可以直接在会话回答，例如天气、食品参考、已记录的睡眠或训练摘要。
-- 明确的能力调用可以自动交接到对应页面，手动“运行”保留为可见入口和回退。
-- 多步骤、缺信息、敏感操作或未授权能力仍会询问、等待或停止，不无限自动执行。
-- 模型返回的内容需要校验；生成了计划、进入 `waiting_external` 或出现硬件回执，都不等于任务完成。
-
-### 练了吗与 Her Motion：两种运动能力
-
-- **练了吗**：动作识别、训练计数和纠正，包含摄像头与上传视频入口；子应用位于 [lianlema-portable](lianlema-portable/app_project/README.md)。
-- **Her Motion / 女性运动**：热身与动作观察；通过校验的新鲜 Frost 交接可以发起相机流程，首次系统权限仍由用户授予。
-- 相机依赖前台、权限、设备和模型条件；普通页面访问、过期交接或拒绝授权不能静默启动采集。
-- 两者的源码入口与自动化测试不代替真机摄像头、真实动作准确率或硬件播报验收。
-
-### 今日记忆与长期信息
-
-[今天记忆面板](src/app/components/HealthMemoryPanel.tsx) 展示当日已确认餐食、运动和手机步数，并允许撤回错误记录。
-
-- 按用户所在时区汇总今天，保留事实来源、时间、估算标记和未知项。
-- 建议上下文包含今日摘要、最近 28 天有记录的摘要及用户确认的长期目标、偏好、限制。
-- 手机累计步数保留读取时间，不把未读取当成零，也不与跑步记录重复累加。
-- 云端建议绑定记忆版本；记录变更后，旧建议不能直接当作新状态下的执行授权。
-- 云端分析与硬件摘要显示有独立授权；不默认发送原图或完整医疗对话。
-
-### Action Map 与自然观察
-
-地图承载路线、位置、活动和自然时刻。识鸟、植物观察与虚拟种树是实际行动中的陪伴能力，不把模型猜测写成确定事实，也不把虚拟树宣称为现实植树。
-
-GPS、麦克风、物种识别和各自的数据源都需要独立权限与验证；低置信度应返回未知或请求复核。
-
-### 电子吧唧：轻交互入口
-
-吧唧承担录音、屏幕角色、状态和声音交互；手机承担蓝牙桥接、本机转写、模型请求及需要相机的能力。硬件固件、iOS 桥接、App 适配和资源都在本仓库。
-
-![同一枚 Pocket Buddy 徽章组合动作训练、女性运动、自然发现与 Skill Canvas](docs/assets/readme/pocket-buddy-presentation/one-badge-multiple-skills.jpg)
-
-![AgentLink 将按键、触摸、麦克风、圆屏、扬声器和电量能力交给 Agent](docs/assets/readme/pocket-buddy-presentation/agentlink-hardware-capabilities.jpg)
-
-常规语音链路是：**按键录音 → BLE → iPhone 本机 ASR → Frost → 服务端选定模型 / 对应 Skill → 文字回复 → 按授权合成并播放语音**。MiniMax 用于已接入的语音回复路径，不代表全部提示音都要调用云 API。
-
-**手机黑屏、后台持续会话和锁屏出声不能仅凭代码存在而承诺可用。** 应以对应安装包、系统状态和真实设备测试为准；本次文档恢复没有安装手机或刷写固件。
-
-## Frost、Taskmaster 与 Skill Canvas
-
-历史产品基线用“双 Taskmaster”区分目标调度和 Skill 图执行。这个设计完整保留在 [历史产品说明](docs/product/POCKET-BUDDY-OVERVIEW-2026-08-24.md)，但当前代码已经调整，不能把旧稿的全部运行时描述直接当成现状。
-
-| 当前组件 | 职责 | 边界 |
-| --- | --- | --- |
-| Frost Agent / Harness | 理解目标、维持会话、处理追问、中断、等待与有限续行 | 模型提出候选，不直接写健康事实 |
-| Taskmaster | 监督任务、子 Agent 委派、权限、确认、超时与结果 | 只使用登记的能力和固定工具 |
-| Skill 子 Agent | 在独立任务上下文中准备交接或提出领域追问 | 不能任意换目标、派生无限 Agent 或直接控制设备 |
-| Health Fact & Effect Boundary | 校验并幂等提交健康事实、事件和副作用 | 没有真实完成证据不能伪造完成记录 |
-| Skill Canvas | 编排能力卡、编译、结构预览和保存 | 当前是创作/预览入口，不是自动执行引擎 |
-
-当前 `frost-agent/skill-taskmaster/` 是兼容转发目录；Canvas 实现位于 `frost-agent/skill-canvas/`。详细执行状态与源码锚点见 [Frost 架构](frost-agent/ARCHITECTURE.md)。
-
-### Skill 是能力合同，不只是一个按钮
-
-Skill 描述身份、版本、输入输出、权限、数据范围、运行方式、错误和证据要求。设备型 Skill 可以调用可信原生能力；声明式流程描述能力组合；第三方 Web 沙箱是需要额外隔离和权限设计的产品方向，不能据此宣称已有完整 Skill 市场。
-
-用户不需要理解内部模块名；Frost 应把“正在做什么、等什么、是否完成、能否停止”解释清楚。
-
-## 技术组成与代码位置
-
-| 部分 | 当前入口 |
-| --- | --- |
-| App 与三个主入口 | [src/app/App.tsx](src/app/App.tsx)、React / Vite |
-| Frost 统一会话 | [frostAgentRuntime.ts](src/app/lib/frostAgentRuntime.ts)、[frostConversation.ts](src/app/lib/frostConversation.ts) |
-| Agent 循环与子 Agent | [runtime](frost-agent/runtime/)、[subagents](frost-agent/subagents/)、[taskmaster](frost-agent/taskmaster/) |
-| 今日记忆与健康事实 | [frostHealthMemory.ts](src/app/lib/frostHealthMemory.ts)、[Health Taskmaster](frost-agent/taskmaster/README.md) |
-| Gemini Agent、Qwen 兼容能力、健康建议、语音与 Photos | [server](server/)、[server.mjs](server.mjs) |
-| iOS 蓝牙与健康桥接 | [native/frost-badge](native/frost-badge/)、[native/frost-health](native/frost-health/) |
-| OJBadge 固件 | [hardware/ojbadge-agent-link](hardware/ojbadge-agent-link/) |
-| 训练子应用 | [lianlema-portable](lianlema-portable/)、[vendor/her-motion](vendor/her-motion/) |
-
-Gemini、Qwen、SAM、MiniMax、地图和健康连接器各有配置与授权要求。仓库中保留的其他模型适配代码不等于当前手机已具备完整离线推理，也不改变 Pocket Buddy 的产品定位。
-
-## 本地运行
-
-建议使用 **Node.js 22+**；当前 iOS 准备脚本明确要求这一版本。先准备根目录依赖和本机配置：
-
-```sh
-cp .env.example .env.local
-npm ci
-npm run dev -- --host 127.0.0.1 --port 5174
-```
-
-打开 `http://127.0.0.1:5174/`。没有模型 Key 或某个外部服务时，相应功能会报缺配置或等待真实服务，不应使用模拟输出假装已接通。
-
-- 地图前端配置按 [.env.example](.env.example) 设置，并限制域名与额度。
-- Gemini / Qwen / MiniMax 的密钥只放服务端，不能加 `VITE_` 前缀进入浏览器包；Cloud Run 推荐使用服务账号连接 Vertex AI 与 Firestore。
-- Python 服务、模型权重、健康连接器和原始音频不随源码自动安装。
-- 练了吗源码引用的离线教练 MP3 已纳入该子应用的 `assets/audio/`；完整构建步骤见 [当前源码构建说明](docs/development/CURRENT-SOURCE-BUILD.md)。
-
-### 构建与验证
-
-```sh
-npm run typecheck
-npm test -- --maxWorkers=2
-npm run build
-npm run repo:check
-npm run hardware:check
-```
-
-最后一条只构建主 Web 应用。需要完整训练页面时，先按 [部署说明](deploy/pocketbuddy/README.md) 安装练了吗子项目依赖、准备外部资源并重建子应用，再构建主包；不要把缺失的子应用或旧构建目录当成当前版本。
-
-iOS 使用 `npm run ios:prepare`、`npm run ios:check` 和 `npm run ios:open`。准备脚本重建训练页并同步资源，签名和真机安装是后续步骤，不自动代表设备验收通过。
-
-Web 发布只使用 [deploy/pocketbuddy](deploy/pocketbuddy/README.md) 的独立流程。构建成功、服务健康检查、手机安装、相机测试和锁屏语音是不同的验收层级。
-
-## 隐私、健康与真实完成度
-
-- 运动健康与“医院 Agent”入口提供辅助信息，不替代诊断、治疗或紧急服务。
-- 健康记录保留来源和不确定性；未知不是零，建议不是事实，模型回复不是完成证据。
-- 原图、录音、健康信息与精确位置按能力最小授权处理，敏感数据不会因为调用了 Skill 就自动获得公开发布权限。
-- API 密钥、签名材料、依赖目录、模型权重、个人媒体与构建缓存不提交 Git。
-- 第三方代码和模型按各自许可证使用；仓库快照不授予额外再分发权。
-- 本 README 描述源码与产品边界，不为所有设备、账户连接器或无人值守后台运行作完成承诺。
