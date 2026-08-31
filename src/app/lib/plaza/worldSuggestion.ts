@@ -23,31 +23,31 @@ export type WorldSuggestionAgent = {
 export type PlazaWorldSuggestion = Pick<PlazaWorldDraft, 'name' | 'toneId' | 'agentId' | 'publishedSkillId'>;
 
 const KEYWORD_SKILLS: ReadonlyArray<[RegExp, string]> = [
-  [/跑步|readiness|训练处方|配速/i, 'frost.running-coach'],
-  [/路线|GPS|跑到|几公里/i, 'frost.run-route'],
-  [/瑜伽|普拉提|热身|拉伸|产后恢复/i, 'pocket.her-motion'],
-  [/深蹲|俯卧撑|动作计数|姿势纠正/, 'pocket.lianlema'],
-  [/Apple\s*Health|HRV|健康导出|步数/i, 'frost.healthsync'],
-  [/睡眠|咖啡|饮酒|晚间训练/, 'frost.sleep-detective'],
-  [/包装食品|条码|营养标签|OpenFoodFacts/i, 'frost.openfoodfacts'],
-  [/餐食照片|记一餐|份量|中餐/, 'frost.meal-lens'],
-  [/AQI|紫外线|空气质量|户外运动/i, 'frost.outdoor-window'],
-  [/力量训练|今天练什么|wger/i, 'frost.wger-planner'],
-  [/恢复餐|训练日食谱|mealie/i, 'frost.mealie-kitchen'],
+  [/跑步|readiness|训练处方|配速|\brunning\b|\bjog\w*|\bpace\b|training plan/i, 'frost.running-coach'],
+  [/路线|GPS|跑到|几公里|\broute\b|\bkm\b|kilomet(er|re)|\bmap\b|run to/i, 'frost.run-route'],
+  [/瑜伽|普拉提|热身|拉伸|产后恢复|yoga|pilates|warm[- ]?up|stretch|postnatal|postpartum/i, 'pocket.her-motion'],
+  [/深蹲|俯卧撑|动作计数|姿势纠正|squat|push[- ]?up|rep count|form correction|posture/i, 'pocket.lianlema'],
+  [/Apple\s*Health|HRV|健康导出|步数|health export|step count|\bsteps\b/i, 'frost.healthsync'],
+  [/睡眠|咖啡|饮酒|晚间训练|\bsleep\b|coffee|caffeine|alcohol|evening (workout|training)/i, 'frost.sleep-detective'],
+  [/包装食品|条码|营养标签|OpenFoodFacts|barcode|nutrition label|packaged food/i, 'frost.openfoodfacts'],
+  [/餐食照片|记一餐|份量|中餐|meal photo|log a meal|portion|photo of my (meal|food)/i, 'frost.meal-lens'],
+  [/AQI|紫外线|空气质量|户外运动|air quality|\bUV\b|outdoor/i, 'frost.outdoor-window'],
+  [/力量训练|今天练什么|wger|strength training|\blift\w*|what to train|workout plan/i, 'frost.wger-planner'],
+  [/恢复餐|训练日食谱|mealie|recovery meal|recipe|training[- ]day meal/i, 'frost.mealie-kitchen'],
 ] as const;
 
 const LOCAL_WORLD_NAMES: Readonly<Record<string, string>> = {
-  'frost.running-coach': '跑者决策室',
-  'frost.run-route': '跑者行动地图',
-  'pocket.her-motion': '温和动作室',
-  'pocket.lianlema': '动作训练场',
-  'frost.healthsync': '健康数据站',
-  'frost.sleep-detective': '睡眠观察室',
-  'frost.openfoodfacts': '食品标签站',
-  'frost.meal-lens': '餐食观察台',
-  'frost.outdoor-window': '户外运动窗口',
-  'frost.wger-planner': '力量训练室',
-  'frost.mealie-kitchen': '恢复厨房',
+  'frost.running-coach': 'Runner Decisions',
+  'frost.run-route': 'Runner Route Map',
+  'pocket.her-motion': 'Gentle Motion Room',
+  'pocket.lianlema': 'Training Ground',
+  'frost.healthsync': 'Health Data Hub',
+  'frost.sleep-detective': 'Sleep Watch Room',
+  'frost.openfoodfacts': 'Food Label Station',
+  'frost.meal-lens': 'Meal Watch Deck',
+  'frost.outdoor-window': 'Outdoor Window',
+  'frost.wger-planner': 'Strength Room',
+  'frost.mealie-kitchen': 'Recovery Kitchen',
 };
 
 function safeName(value: unknown, fallback: string): string {
@@ -74,13 +74,13 @@ export function createWorldSuggestionPrompt(
   skills: readonly WorldSuggestionSkill[],
 ): string {
   return [
-    `用户想定义一个只保存在手机本机的 Agent World：${description.trim()}`,
-    '请从给定白名单里选择世界气质、常驻子 Agent 与一个 Skill。只输出一个 JSON 对象，不解释。',
-    `世界气质：${tones.map((tone) => `${tone.id}=${tone.name}（${tone.copy}）`).join('；')}`,
-    `子 Agents：${agents.map((agent) => `${agent.id}=${agent.name}/${agent.role}`).join('；')}`,
-    `Skills：${skills.map((skill) => `${skill.id}=${skill.name}，发布者${skill.publisher}/${skill.role}，${skill.description}`).join('；')}`,
-    '输出结构：{"name":"18字以内世界名","toneId":"白名单ID","agentId":"白名单Agent ID","publishedSkillId":"白名单Skill ID"}',
-    '不要输出链接、Markdown、额外字段或新的 ID。',
+    `The user wants to define an Agent World that is kept only on this phone: ${description.trim()}`,
+    'Pick the world tone, the resident sub-Agent and one Skill from the whitelists below. Output one JSON object only, with no explanation.',
+    `World tones: ${tones.map((tone) => `${tone.id}=${tone.name} (${tone.copy})`).join('; ')}`,
+    `Sub-Agents: ${agents.map((agent) => `${agent.id}=${agent.name}/${agent.role}`).join('; ')}`,
+    `Skills: ${skills.map((skill) => `${skill.id}=${skill.name}, published by ${skill.publisher}/${skill.role}, ${skill.description}`).join('; ')}`,
+    'Output shape: {"name":"world name, 18 characters or fewer","toneId":"whitelisted ID","agentId":"whitelisted Agent ID","publishedSkillId":"whitelisted Skill ID"}',
+    'Do not output links, Markdown, extra fields or new IDs.',
   ].join('\n');
 }
 
@@ -111,11 +111,11 @@ export function suggestWorldLocally(
   validSkillIds: readonly string[],
 ): PlazaWorldSuggestion {
   const text = description.trim();
-  const toneId = /营养|餐食|条码|数据|同步|报告|Apple\s*Health|HRV|步数/i.test(text)
+  const toneId = /营养|餐食|条码|数据|同步|报告|Apple\s*Health|HRV|步数|nutrition|\bmeal\b|barcode|\bdata\b|\bsync\b|report|\bsteps\b/i.test(text)
     ? 'paper'
-    : /睡眠|恢复|呼吸|放松|晚间/.test(text)
+    : /睡眠|恢复|呼吸|放松|晚间|\bsleep\b|recovery|breath\w*|relax\w*|evening/i.test(text)
       ? 'night'
-      : /跑步|路线|健身|动作|户外|热身/.test(text)
+      : /跑步|路线|健身|动作|户外|热身|\brun\w*|\broute\b|fitness|workout|motion|outdoor|warm[- ]?up/i.test(text)
       ? 'field'
       : fallback.toneId;
   const matched = KEYWORD_SKILLS.find(([pattern, skillId]) => pattern.test(text) && validSkillIds.includes(skillId));

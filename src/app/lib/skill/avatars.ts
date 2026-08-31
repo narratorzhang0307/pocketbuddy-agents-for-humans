@@ -19,28 +19,28 @@ function avatar(id: string, target: string, name: string, badgeIndex: number): S
   return { id, target, name, badgeIndex, src: cloud?.webUrl || `${ROOT}/web/${id}.webp` };
 }
 
-export const FROST_AVATAR = avatar('frost', 'frost', 'Frost 焦糖腊肠犬', 0);
+export const FROST_AVATAR = avatar('frost', 'frost', 'Frost Caramel Dachshund', 0);
 // Consultation has a separate phone portrait but deliberately retains Frost on
 // the badge: no new unprovisioned avatar index is sent to existing firmware.
 export const SKILLS_WITH_FROST_AVATAR = ['frost.health-consultation'] as const;
 export const SKILL_AVATARS: readonly SkillAvatar[] = [
-  avatar('frost.bird-listener', 'frost-bird-listener', '识鸟 聆听小鸟', 17),
-  avatar('pocket.her-motion', 'her-motion', 'Her Motion 火烈鸟', 1),
-  avatar('pocket.lianlema', 'lianlema-coach', '练了吗 小熊', 2),
-  avatar('frost.run-route', 'frost-run-route', '跑步路线 探路鸟', 3),
-  avatar('frost.running-coach', 'frost-running-coach', '跑步教练 小兔', 4),
-  avatar('frost.healthsync', 'frost-healthsync', '健康同步 苹果', 5),
-  avatar('frost.mediapipe-motion', 'frost-motion-vision', '动作信号 壁虎', 6),
-  avatar('frost.endurance-guard', 'frost-endurance-guard', '耐力校验 乌龟', 7),
-  avatar('frost.openfoodfacts', 'frost-openfoodfacts', '包装食品 小盒子', 8),
-  avatar('frost.garmin-readonly', 'frost-garmin-readonly', 'Garmin 同步 企鹅', 9),
-  avatar('frost.cn-health-library', 'frost-cn-health-library', '中国食品 西兰花', 10),
-  avatar('frost.outdoor-window', 'frost-outdoor-window', '户外窗口 向日葵', 11),
-  avatar('frost.strava-replay', 'frost-strava-replay', '训练回放 狐狸', 12),
-  avatar('frost.sleep-detective', 'frost-sleep-detective', '睡眠侦探 猫头鹰', 13),
-  avatar('frost.meal-lens', 'frost-meal-lens', '饮食镜头 米饭碗', 14),
-  avatar('frost.wger-planner', 'frost-wger-planner', '训练计划 大猩猩', 15),
-  avatar('frost.mealie-kitchen', 'frost-mealie-kitchen', '恢复厨房 蘑菇', 16),
+  avatar('frost.bird-listener', 'frost-bird-listener', 'Bird ID Listening Bird', 17),
+  avatar('pocket.her-motion', 'her-motion', 'Her Motion Flamingo', 1),
+  avatar('pocket.lianlema', 'lianlema-coach', 'Lianlema Bear', 2),
+  avatar('frost.run-route', 'frost-run-route', 'Run Route Pathfinder Bird', 3),
+  avatar('frost.running-coach', 'frost-running-coach', 'Running Coach Rabbit', 4),
+  avatar('frost.healthsync', 'frost-healthsync', 'Health Sync Apple', 5),
+  avatar('frost.mediapipe-motion', 'frost-motion-vision', 'Motion Signal Gecko', 6),
+  avatar('frost.endurance-guard', 'frost-endurance-guard', 'Endurance Check Tortoise', 7),
+  avatar('frost.openfoodfacts', 'frost-openfoodfacts', 'Packaged Food Box', 8),
+  avatar('frost.garmin-readonly', 'frost-garmin-readonly', 'Garmin Sync Penguin', 9),
+  avatar('frost.cn-health-library', 'frost-cn-health-library', 'Chinese Food Broccoli', 10),
+  avatar('frost.outdoor-window', 'frost-outdoor-window', 'Outdoor Window Sunflower', 11),
+  avatar('frost.strava-replay', 'frost-strava-replay', 'Training Replay Fox', 12),
+  avatar('frost.sleep-detective', 'frost-sleep-detective', 'Sleep Detective Owl', 13),
+  avatar('frost.meal-lens', 'frost-meal-lens', 'Meal Lens Rice Bowl', 14),
+  avatar('frost.wger-planner', 'frost-wger-planner', 'Training Plan Gorilla', 15),
+  avatar('frost.mealie-kitchen', 'frost-mealie-kitchen', 'Recovery Kitchen Mushroom', 16),
 ];
 
 const byIdentity = new Map([FROST_AVATAR, ...SKILL_AVATARS].flatMap(item => [

@@ -10,22 +10,22 @@ const MOSSBACK_AVATAR = '/assets/pocket-buddy/agent-world-original-v2/mossback-t
 const HER_MOTION_AVATAR = '/assets/plaza/her-motion-yoga.svg';
 
 export const SKILL_PUBLISHERS: Record<string, SkillPublisher> = {
-  'frost.running-coach': { name: 'Puff', role: '跑步决策员', avatar: PUFF_AVATAR },
-  'frost.run-route': { name: 'Puff', role: '跑步路线员', avatar: PUFF_AVATAR },
-  'frost.healthsync': { name: 'Pip', role: '健康数据员', avatar: PIP_AVATAR },
-  'frost.mediapipe-motion': { name: 'Mossback', role: '动作信号员', avatar: MOSSBACK_AVATAR },
-  'frost.endurance-guard': { name: 'Mossback', role: '耐力审计员', avatar: MOSSBACK_AVATAR },
-  'frost.openfoodfacts': { name: 'Pip', role: '包装食品员', avatar: PIP_AVATAR },
-  'frost.garmin-readonly': { name: 'Puff', role: '运动数据员', avatar: PUFF_AVATAR },
-  'frost.cn-health-library': { name: 'Pip', role: '中国食品员', avatar: PIP_AVATAR },
-  'frost.outdoor-window': { name: 'Puff', role: '户外条件员', avatar: PUFF_AVATAR },
-  'frost.strava-replay': { name: 'Puff', role: '训练回放员', avatar: PUFF_AVATAR },
-  'frost.sleep-detective': { name: 'Pip', role: '睡眠观察员', avatar: PIP_AVATAR },
-  'frost.meal-lens': { name: 'Pip', role: '中国饮食镜头', avatar: PIP_AVATAR },
-  'frost.wger-planner': { name: 'Mossback', role: '训练计划员', avatar: MOSSBACK_AVATAR },
-  'frost.mealie-kitchen': { name: 'Pip', role: '恢复厨房员', avatar: PIP_AVATAR },
-  'pocket.her-motion': { name: 'Her Motion', role: '女性动作视觉陪伴', avatar: HER_MOTION_AVATAR },
-  'pocket.lianlema': { name: 'Mossback', role: 'AI 动作教练', avatar: MOSSBACK_AVATAR },
+  'frost.running-coach': { name: 'Puff', role: 'Run decisions', avatar: PUFF_AVATAR },
+  'frost.run-route': { name: 'Puff', role: 'Run route planner', avatar: PUFF_AVATAR },
+  'frost.healthsync': { name: 'Pip', role: 'Health data', avatar: PIP_AVATAR },
+  'frost.mediapipe-motion': { name: 'Mossback', role: 'Motion signals', avatar: MOSSBACK_AVATAR },
+  'frost.endurance-guard': { name: 'Mossback', role: 'Endurance audit', avatar: MOSSBACK_AVATAR },
+  'frost.openfoodfacts': { name: 'Pip', role: 'Packaged food', avatar: PIP_AVATAR },
+  'frost.garmin-readonly': { name: 'Puff', role: 'Sports data', avatar: PUFF_AVATAR },
+  'frost.cn-health-library': { name: 'Pip', role: 'Chinese food', avatar: PIP_AVATAR },
+  'frost.outdoor-window': { name: 'Puff', role: 'Outdoor conditions', avatar: PUFF_AVATAR },
+  'frost.strava-replay': { name: 'Puff', role: 'Training replay', avatar: PUFF_AVATAR },
+  'frost.sleep-detective': { name: 'Pip', role: 'Sleep observer', avatar: PIP_AVATAR },
+  'frost.meal-lens': { name: 'Pip', role: 'Chinese meal lens', avatar: PIP_AVATAR },
+  'frost.wger-planner': { name: 'Mossback', role: 'Training planner', avatar: MOSSBACK_AVATAR },
+  'frost.mealie-kitchen': { name: 'Pip', role: 'Recovery kitchen', avatar: PIP_AVATAR },
+  'pocket.her-motion': { name: 'Her Motion', role: 'Movement vision companion', avatar: HER_MOTION_AVATAR },
+  'pocket.lianlema': { name: 'Mossback', role: 'AI movement coach', avatar: MOSSBACK_AVATAR },
 };
 
 const AGENT_TO_PUBLISHER: Record<string, string> = {

@@ -9,7 +9,7 @@ const herMotionSkill = (): SkillManifest => ({
   protocol: 'pocket-skill/v1',
   identity: {
     id: 'pocket.her-motion', name: 'Her Motion', version: '1.0.0', author: 'Her Motion × Frost',
-    description: '由 Frost 创建私有动作会话并嵌入 Her Motion 本地视觉运行时；记录动作、时长、姿态确认与停止状态，完成后写入 health_event/v1。',
+    description: 'Frost opens a private movement session and embeds the Her Motion local vision runtime; it records the move, duration, pose confirmation and stop state, then writes health_event/v1 on completion.',
   },
   kind: 'markdown',
   entry: { target: 'her-motion' },
@@ -19,11 +19,11 @@ const herMotionSkill = (): SkillManifest => ({
   quality_gate: {
     policy_id: 'pocket.her-motion-safety-gate/v1',
     checks: [
-      '开始前确认当前没有锐痛、眩晕或明显不适',
-      '摄像头开启时必须持续显示可见状态',
-      'Yoga-82 不确定时保持静默且不得伪造姿态确认',
-      '用户停止或关闭 Frost 运行页时会话必须安全结束',
-      '只有完成事件可以写入 health_event/v1，且默认私密并保留来源',
+      'Confirm there is no sharp pain, dizziness or clear discomfort before starting',
+      'While the camera is on, a visible active indicator must stay shown',
+      'When Yoga-82 is uncertain it stays silent and must not fake a pose confirmation',
+      'The session must end safely when the user stops or closes the Frost run page',
+      'Only completion events may be written to health_event/v1, private by default and keeping their source',
     ],
   },
   fallback: { order: ['rules', 'user-confirmation', 'stop'] },
@@ -36,8 +36,8 @@ const herMotionSkill = (): SkillManifest => ({
 const lianlemaSkill = (): SkillManifest => ({
   protocol: 'pocket-skill/v1',
   identity: {
-    id: 'pocket.lianlema', name: '练了吗', version: '1.0.0', author: '练了吗 × Frost',
-    description: '由 Frost 嵌入「练了吗」运动教练，同意后使用摄像头与 Pocket Buddy 的 RTMO / ST-GCN 服务进行动作计数和纠正反馈。',
+    id: 'pocket.lianlema', name: 'Lianlema', version: '1.0.0', author: 'Lianlema × Frost',
+    description: 'Frost embeds the Lianlema exercise coach; once you consent it uses the camera and the Pocket Buddy RTMO / ST-GCN service for rep counting and correction feedback.',
   },
   kind: 'markdown',
   entry: { target: 'lianlema-coach' },
@@ -51,11 +51,11 @@ const lianlemaSkill = (): SkillManifest => ({
   quality_gate: {
     policy_id: 'pocket.lianlema-safety-gate/v1',
     checks: [
-      '摄像头必须由用户明确开启并持续显示运行状态',
-      '姿态低置信度或无人入镜时不得伪造动作计数',
-      '压缩画面仅在用户同意后发往 Pocket Buddy 模型服务，不保存画面或写入健康事件；开发环境可使用本机服务',
-      '出现锐痛、眩晕或明显不适时必须立即停止',
-      '训练结果只作运动反馈，不构成医疗诊断',
+      'The camera must be switched on explicitly by the user and keep showing its running state',
+      'No fabricated rep counts when pose confidence is low or nobody is in frame',
+      'Compressed frames go to the Pocket Buddy model service only after the user consents; frames are not stored and no health event is written. A local service may be used in development',
+      'Stop immediately on sharp pain, dizziness or clear discomfort',
+      'Results are exercise feedback only and are not a medical diagnosis',
     ],
   },
   fallback: { order: ['rules', 'user-confirmation', 'stop'] },
@@ -68,8 +68,8 @@ const lianlemaSkill = (): SkillManifest => ({
 const runRouteSkill = (): SkillManifest => ({
   protocol: 'pocket-skill/v1',
   identity: {
-    id: 'frost.run-route', name: '跑步路线规划', version: '1.0.0', author: 'Pocket Buddy × Frost',
-    description: '把距离、时长或目的地转成高德步行路线，创建可恢复的 RouteSession，并交给中间行动地图绘制规划线、GPS 实际轨迹与偏航重算。',
+    id: 'frost.run-route', name: 'Run Route Planning', version: '1.0.0', author: 'Pocket Buddy × Frost',
+    description: 'Turns a distance, duration or destination into an AMap walking route, creates a resumable RouteSession, and hands it to the route map to draw the planned line, the real GPS track and off-route recalculation.',
   },
   kind: 'markdown',
   entry: { target: 'frost-run-route' },
@@ -83,11 +83,11 @@ const runRouteSkill = (): SkillManifest => ({
   quality_gate: {
     policy_id: 'frost.run-route-amap-gate/v1',
     checks: [
-      '未获得真实定位时不伪造起点或轨迹',
-      '浏览器 GPS 在绘制前经高德 convertFrom 转为 GCJ-02',
-      '规划路线与实际轨迹必须分开存储与显示',
-      '偏航只根据合格 GPS 点判定，低精度与不可能跳点必须丢弃',
-      '路线预览不写健康事件；只有真实跑步结束后由 Taskmaster 写入一次 run_completed',
+      'Never fabricate a start point or a track without a real fix',
+      'Browser GPS is converted to GCJ-02 through AMap convertFrom before drawing',
+      'The planned route and the actual track must be stored and shown separately',
+      'Off-route is judged only from qualified GPS points; low-accuracy and impossible jumps must be discarded',
+      'A route preview writes no health event; only after a real run ends does Taskmaster write run_completed once',
     ],
   },
   fallback: { order: ['rules', 'user-confirmation', 'stop'] },

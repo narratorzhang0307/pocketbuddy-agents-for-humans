@@ -16,7 +16,7 @@ describe('Frost 自由对话页', () => {
       'const FROST_DACHSHUND_AVATAR = FROST_AVATAR.src',
     );
     expect(source).not.toContain('portrait-agent-world-v2.png');
-    expect(source).toContain('aria-label="Frost 腊肠犬头像"');
+    expect(source).toContain('aria-label="Frost dachshund avatar"');
     expect(source).not.toContain("from './FrostPersona'");
   });
 
@@ -51,13 +51,13 @@ describe('Frost 自由对话页', () => {
     const quick = source.match(/(<details\b[^>]*className="frost-quick-skills\b[^\"]*"[^>]*>)([\s\S]*?)<\/details>/);
     expect(quick).not.toBeNull();
     expect(quick![1]).not.toMatch(/\sopen\b/);
-    expect(quick![2]).toMatch(/<summary\b[\s\S]*?调用 Skills[\s\S]*?展开[\s\S]*?收起[\s\S]*?<\/summary>/);
+    expect(quick![2]).toMatch(/<summary\b[\s\S]*?Call Skills[\s\S]*?Expand[\s\S]*?Collapse[\s\S]*?<\/summary>/);
     expect(quick![2]).toContain('{QUICK.map');
     expect(quick![2]).toContain('onRun?.(q.target)');
   });
 
   it('保留指定开场白，不带入选项、骰子和对话树', () => {
-    expect(source).toContain('我是 Frost。你说目标，我会先在已装备的 Skills 里选择能力、列出计划和权限，再把任务交到正确入口；没有把握时，我不会擅自执行。');
+    expect(source).toContain('I am Frost. Tell me the goal and I will first pick capabilities from your equipped Skills, list the plan and permissions, then hand the task to the right entry point. When I am not sure, I will not act on my own.');
     expect(source).not.toContain('buddy-encounter__choices');
     expect(source).not.toContain('prepareCheck');
     expect(source).not.toContain('rollCheck');

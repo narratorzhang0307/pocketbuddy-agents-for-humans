@@ -87,7 +87,7 @@ const ROUTE_HINTS: Record<string, RouteHint> = {
   'frost.openfoodfacts': { triggers: ['open food facts', 'openfoodfacts', '食品条码', '包装食品', '每100g', '营养标签'] },
   'frost.garmin-readonly': { triggers: ['garmin', '佳明', 'body battery', '训练状态', '佳明hrv', '佳明活动'] },
   'frost.cn-health-library': { triggers: ['中国健康库', '中国食品库', '奶茶热量', '中餐营养', '健康周报', '中国品牌食品'] },
-  'frost.outdoor-window': { triggers: ['户外窗口', '适合跑步吗', '空气质量运动', 'aqi跑步', '紫外线运动', '雷暴跑步', '户外训练天气'] },
+  'frost.outdoor-window': { triggers: ['户外窗口', '适合跑步吗', '空气质量运动', 'aqi跑步', '紫外线运动', '雷暴跑步', '户外训练天气', 'aqi', '紫外线', '空气质量', '雷暴', 'outdoor window', 'air quality'] },
   'frost.strava-replay': { triggers: ['strava', '训练回放', '活动复盘', '配速分段', '骑行复盘', '游泳复盘'] },
   'frost.sleep-detective': { triggers: ['睡眠侦探', '咖啡影响睡眠', '下午咖啡', '饮酒影响睡眠', '晚间训练睡眠', '睡眠质量', '睡眠因素', '睡眠相关性'] },
   'frost.meal-lens': { triggers: ['饮食镜头', '拍照记一餐', '餐食照片', '估算这顿饭', '识别中餐'] },

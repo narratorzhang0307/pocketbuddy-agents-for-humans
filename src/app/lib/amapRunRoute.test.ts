@@ -67,6 +67,21 @@ describe('AMap run route adapter', () => {
     if (shape === 'out_and_back') expect(requests.some(([from]) => from[0] === end[0] && from[1] === end[1])).toBe(true);
   });
 
+  it('plans an English distance request on the same AMap roads and reports the caveats in English', async () => {
+    vi.useFakeTimers();
+    const start: RoutePoint = [120.17, 30.26];
+    gridRoads(start, [120.16, 30.26]);
+    const dialogue = await advanceRunRouteDialogue('Plan a 5 km running route, scenic, few crossings, loop', undefined, true);
+    expect(dialogue.input).toMatchObject({ goal: { type: 'distance', distance_m: 5000 }, shape: 'loop', preferences: ['scenic', 'low_crossings'] });
+    const session = createRunRouteSessionFromTaskmaster(runRouteTaskInput(dialogue.input!));
+    const job = planRunRouteSession(session.session_id);
+    await vi.runAllTimersAsync();
+    const result = await job;
+    expect(result.status).toBe('ready');
+    expect(result.metrics.target_distance_m).toBe(5000);
+    expect(result.warnings.join(' ')).toContain('Few crossings is based on comparing AMap crossing instructions');
+  });
+
   it('does not ignore a distance target shorter than the direct road', async () => {
     vi.useFakeTimers();
     const requests = gridRoads([120.17, 30.26], [120.11, 30.26]);
@@ -76,7 +91,7 @@ describe('AMap run route adapter', () => {
     await vi.runAllTimersAsync();
     const result = await job;
     expect(result.status).toBe('failed');
-    expect(result.error).toContain('超过目标 3.00 公里');
+    expect(result.error).toContain('more than the 3.00 km target');
     expect(result.planned_path).toEqual([]);
     expect(requests).toHaveLength(1);
   });
@@ -93,7 +108,7 @@ describe('AMap run route adapter', () => {
     expect(result.planned_path).toEqual([start, end]);
     expect(result.metrics.planned_distance_m).toBe(Math.round(routeDistance([start, end])));
     expect(result.route_evidence?.target_met).toBe(false);
-    expect(result.warnings.join(' ')).toContain('不会自动开始');
+    expect(result.warnings.join(' ')).toContain('will not start automatically');
     expect(requests.length).toBeLessThanOrEqual(37);
   });
 
@@ -111,7 +126,7 @@ describe('AMap run route adapter', () => {
     expect(runRouteDistanceMatches(3000, routeDistance(road))).toBe(true);
     expect(result.status).toBe('failed');
     expect(result.planned_path).toEqual([]);
-    expect(result.error).toContain('支路折返');
+    expect(result.error).toContain('side-street backtracking');
   });
 
   it('detects retracing with different vertex segmentation, without rejecting a proper U or deliberate return', () => {
@@ -185,12 +200,12 @@ describe('AMap run route adapter', () => {
     const outbound = joinWalkingLegs([{ points: [[120, 30], [120, 30.003]], distance_m: 333, cues: [], crossings: 0 }])!;
     const inbound = joinWalkingLegs([{ points: [[120, 30.003], [120, 30]], distance_m: 333, cues: [], crossings: 0 }])!;
     const combined = joinWalkingLegs([outbound, inbound])!;
-    expect(combined.cues).toContainEqual(expect.objectContaining({ point_index: 1, source: 'geometry', instruction: '在安全位置掉头，沿规划道路返回' }));
+    expect(combined.cues).toContainEqual(expect.objectContaining({ point_index: 1, source: 'geometry', instruction: 'Turn around where it is safe and follow the planned road back' }));
     expect(combined.cues.filter(c => c.source === 'arrival')).toEqual([expect.objectContaining({ point_index: 2 })]);
   });
 
   it('fails closed instead of drawing unconverted GPS coordinates', async () => {
-    await expect(toAmapPosition({} as never, [120, 30])).rejects.toThrow('坐标转换不可用');
+    await expect(toAmapPosition({} as never, [120, 30])).rejects.toThrow('coordinate conversion is unavailable');
   });
 
   it.each([false, true])('plans the exact spoken destination through Taskmaster using current GPS (permission denied: %s)', async denied => {
@@ -233,7 +248,7 @@ describe('AMap run route adapter', () => {
     expect(planned.actual_track).toEqual([]);
     if (denied) {
       expect(planned.status).toBe('failed');
-      expect(planned.error).toContain('允许定位');
+      expect(planned.error).toContain('allow location access');
       expect(planned.planned_path).toEqual([]);
       expect(walk).not.toHaveBeenCalled();
       expect(nearby).not.toHaveBeenCalled();

@@ -73,7 +73,7 @@ function pendingHealthQuestion(events: FrostAgentEvent[]): PreparedHealthDelegat
 }
 
 function delegationReply(original: FrostPlan, delegations: SkillDelegationResult[], summary: string, originalTrace: string[]): FrostAgentToolResult {
-  const trace = [...originalTrace, ...delegations.map((item) => `SUBAGENT · ${item.agent_id} · ${item.model || '未形成模型结果'} · ${item.status}`)];
+  const trace = [...originalTrace, ...delegations.map((item) => `SUBAGENT · ${item.agent_id} · ${item.model || 'no model result'} · ${item.status}`)];
   const blocked = delegations.find((item) => item.status === 'blocked');
   if (blocked) return { status: 'success', data: { reply: blocked.reply, trace, delegations: delegations as unknown as JsonObject[] } };
   const plan: FrostPlan = { ...original, steps: original.steps.map((step, index) => {
@@ -85,7 +85,7 @@ function delegationReply(original: FrostPlan, delegations: SkillDelegationResult
   }) };
   const questions = delegations.filter((item) => item.status === 'waiting_user').map((item) => item.reply);
   const incomplete = delegations.some((item) => item.status === 'failed');
-  const reply = questions.length ? questions.join('\n') : `${summary}${incomplete ? '部分子 Agent 暂不可用，已保留原 Skill 的手动入口，未声称任务已完成。' : '子 Agent 的准备结果已记录，真实执行仍由对应 Skill 完成。'}`;
+  const reply = questions.length ? questions.join('\n') : `${summary}${incomplete ? 'Some subagents are unavailable, so the original Skill keeps its manual entry and the task is not claimed to be complete.' : 'The subagent preparation result is recorded; the actual execution is still done by the matching Skill.'}`;
   return { status: 'success', data: { reply, trace, plan: plan as unknown as JsonObject, delegations: delegations as unknown as JsonObject[] } };
 }
 
@@ -171,8 +171,8 @@ export class FrostConversationModel implements FrostAgentModelAdapter {
     if (input?.event.data.source === 'skill' && typeof input.content.page_result_id === 'string') {
       const report = context.events.find(event => event.event_id === input.content.page_result_id
         && event.type === 'skill.result' && event.session_id === context.session.session_id);
-      if (!report || typeof report.data.summary !== 'string') return completeDecision('能力结果缺少交接证据，未标记为完成。');
-      const summary = `${report.data.status === 'completed' ? '能力页面已返回实际结果' : '能力尚未完成'}：${report.data.summary}`;
+      if (!report || typeof report.data.summary !== 'string') return completeDecision('The capability result has no handoff evidence, so it was not marked as complete.');
+      const summary = `${report.data.status === 'completed' ? 'The capability page returned an actual result' : 'The capability is not finished yet'}: ${report.data.summary}`;
       return { ...completeDecision(summary), observations: [report.event_id],
         next_action: report.data.status === 'completed'
           ? { type: 'complete', summary, evidence_ids: [report.event_id] }
@@ -186,13 +186,13 @@ export class FrostConversationModel implements FrostAgentModelAdapter {
       ? { ...completeDecision(reply.reply), next_action: { type: 'ask_user', question: reply.reply, reason: 'subagent_needs_user' } }
       : completeDecision(reply.reply);
     const failed = sinceInput.find((event) => event.type === 'tool.result' && REPLY_TOOLS.has(String(event.data.tool)));
-    if (failed) return completeDecision('这次能力调用没有完成，请重试；没有把它记作任务成功。');
+    if (failed) return completeDecision('This capability call did not finish. Please try again; it was not recorded as a successful task.');
 
     const delegated = sinceInput.find((event) => event.type === 'tool.result' && event.data.tool === 'frost.task_delegate');
     const delegation = (delegated?.data.result as { data?: PreparedHealthDelegation } | undefined)?.data;
     if (delegation?.status === 'blocked' || delegation?.status === 'waiting_user') return {
-      ...completeDecision(delegation.reply || '子 Agent 需要你补充信息。'),
-      next_action: { type: 'ask_user', question: delegation.reply || '请补充任务信息。', reason: 'subagent_needs_user' },
+      ...completeDecision(delegation.reply || 'The subagent needs more information from you.'),
+      next_action: { type: 'ask_user', question: delegation.reply || 'Please add the task details.', reason: 'subagent_needs_user' },
     };
     // Resume the same health execution after delegation/load/start/get, or a correlated Skill signal.
     if (sinceInput.some((event) => event.type === 'tool.called')
@@ -251,7 +251,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         const inbox = latestFrostInput(context.events);
         if (inbox?.event.data.source !== 'user') return { status: 'error', data: {}, message: 'user_request_required' };
         const text = inputText(context.events);
-        if (isRunRouteCancellation(text)) return { status: 'success', data: { reply: '已取消这次路线规划，没有开启定位或导航。', trace: ['RUN ROUTE · cancelled'] } };
+        if (isRunRouteCancellation(text)) return { status: 'success', data: { reply: 'Route planning cancelled. No location tracking or navigation was started.', trace: ['RUN ROUTE · cancelled'] } };
         const dialogue = await advanceRunRouteDialogue(text, pendingRunRoute(context.events)?.draft, inbox.content.input_channel === 'badge_voice', context.signal);
         context.signal.throwIfAborted();
         let routeSessionId: string | undefined;
@@ -259,17 +259,17 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         if (dialogue.input) {
           const activeId = getActiveRunRouteSessionId();
           const active = activeId ? readRunRouteSession(activeId) : null;
-          if (active && ['navigating', 'off_route'].includes(active.status)) return { status: 'success', data: { reply: '已有路线正在导航，请先在中间的行动地图暂停或结束，再规划新路线；蓝牙无需断开。', trace: ['RUN ROUTE · existing navigation preserved'] } };
+          if (active && ['navigating', 'off_route'].includes(active.status)) return { status: 'success', data: { reply: 'A route is already navigating. Pause or end it on the action map in the middle first, then plan a new route; there is no need to disconnect Bluetooth.', trace: ['RUN ROUTE · existing navigation preserved'] } };
           const task = await startRunRouteTask(dialogue.input, `${context.session.session_id}:route:${inbox.event.seq}`);
           routeTaskId = task.task_id;
           routeSessionId = task.actions.map(action => action.result?.route_session_id).find((id): id is string => typeof id === 'string');
-          if (!routeSessionId) return { status: 'success', data: { reply: '条件已收齐，但路线任务未创建，请重试。没有开启导航。', trace: ['RUN ROUTE · handoff failed'] } };
+          if (!routeSessionId) return { status: 'success', data: { reply: 'All the conditions are in, but the route task was not created. Please try again. No navigation was started.', trace: ['RUN ROUTE · handoff failed'] } };
         }
         return { status: 'success', data: {
           reply: dialogue.reply, needsInput: dialogue.needsInput,
           routeDialogue: dialogue as unknown as JsonObject,
           ...(routeSessionId ? { routeSessionId, routeTaskId: routeTaskId! } : {}),
-          trace: [dialogue.parser, routeSessionId ? `ROUTE SESSION · ${routeSessionId} · 高德待计算` : 'RUN ROUTE · waiting for conditions'],
+          trace: [dialogue.parser, routeSessionId ? `ROUTE SESSION · ${routeSessionId} · AMap pending` : 'RUN ROUTE · waiting for conditions'],
         } };
       },
     },
@@ -284,11 +284,11 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
           const decision = previous?.data.tool === 'frost.health_advice' ? (previous.data.result as { data?: FrostConversationReply } | undefined)?.data?.healthDecision : undefined;
           if (!healthSettings().cloud || !decision?.next_skill || !['pocket.lianlema', 'pocket.her-motion', 'frost.run-route'].includes(decision.next_skill)
             || !Number.isFinite(Date.parse(decision.expires_at)) || Date.parse(decision.expires_at) <= Date.now() || (await readHealthMemory()).revision !== decision.revision)
-            return { status: 'success', data: { reply: '建议已过期、记忆已变化或没有可执行运动。请重新问我今天适合做什么；没有打开摄像头。', trace: ['HEALTH · stale or missing decision'] } };
+            return { status: 'success', data: { reply: 'The suggestion has expired, the memory has changed, or there is no exercise to run. Please ask me again what suits you today; the camera was not opened.', trace: ['HEALTH · stale or missing decision'] } };
           const command = { 'pocket.lianlema': '调用练了吗', 'pocket.her-motion': '调用女性运动', 'frost.run-route': '调用跑步路线规划' }[decision.next_skill];
           const plan = planFrostWorkspaceLaunch(command);
           if (!plan || plan.steps[0].skillId !== decision.next_skill) return { status: 'error', data: {}, message: 'skill_not_available' };
-          return { status: 'success', data: { reply: `已接受建议，正在打开${plan.steps[0].skillName}；以真实训练结果记账，系统权限仍需授权。`,
+          return { status: 'success', data: { reply: `Suggestion accepted, opening ${plan.steps[0].skillName}; it is recorded from the real workout result, and system permissions still need your approval.`,
             plan: plan as unknown as JsonObject, trace: ['HEALTH · accepted current evidence revision · original Skill handoff'] } };
         }
         try {
@@ -299,7 +299,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
             trace: [`HEALTH MEMORY · ${answer.revision.slice(0, 10)} · ${answer.evidence_ids.length} evidence`, `QWEN · ${answer.model} · advice only, no health write`] } };
         } catch (error) {
           if (context.signal.aborted) return { status: 'cancelled', data: {} };
-          return { status: 'success', data: { reply: error instanceof Error ? error.message : '健康分析暂不可用；未生成建议或写入事实。', trace: ['HEALTH · not completed · no automatic retry'] } };
+          return { status: 'success', data: { reply: error instanceof Error ? error.message : 'Health analysis is unavailable right now; no suggestion was produced and no facts were written.', trace: ['HEALTH · not completed · no automatic retry'] } };
         }
       },
     },
@@ -321,16 +321,16 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         const workspace = workspaceLaunchInput(context.events);
         if (workspace) return { status: 'success', data: {
           reply: workspace.steps[0].skillId === 'frost.health-consultation' ? HEALTH_GREETING
-            : `正在打开${workspace.steps[0].skillName}。使用原有 Skill 页面和服务，沿用已有权限；首次系统权限仍需授权。`,
+            : `Opening ${workspace.steps[0].skillName}. It uses the existing Skill page and services with the permissions already granted; a first-time system permission still needs your approval.`,
           plan: workspace as unknown as JsonObject,
-          trace: ['WORKSPACE OPEN · 同一 Frost 入口 · 已装备页面直接交接 · 未调用云端子 Agent 准备'],
+          trace: ['WORKSPACE OPEN · same Frost entry · equipped page handed off directly · no cloud subagent preparation called'],
         } };
         const pending = pendingSkillQuestion(context.events);
         if (pending) {
           const step = pending.plan.steps.find((item) => item.skillId === pending.child.skill_id)!;
           const child = await delegateSkillTask({ skillId: step.skillId, objective: step.objective, followup: ctx.userText,
             runId: pending.child.run_id, userId: context.session.user_id, signal: context.signal });
-          return delegationReply(pending.plan, pending.delegations.map((item) => item.run_id === child.run_id ? child : item), '子 Agent 已收到你的补充。', []);
+          return delegationReply(pending.plan, pending.delegations.map((item) => item.run_id === child.run_id ? child : item), 'The subagent received your additional information.', []);
         }
         const routed = await runFrostOrchestrator(ctx);
         if (context.signal.aborted) return { status: 'cancelled', data: {} };
@@ -340,7 +340,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
             && latestFrostInput(context.events)?.event.data.source === 'user') {
             // The router may understand wording outside the fast local intent gate.
             // Return a request for the registered route tool, not a blank form or an invented route.
-            return { status: 'success', data: { reply: '正在核对跑步路线条件。', routeRequest: true, trace: routed.trace || [] } };
+            return { status: 'success', data: { reply: 'Checking the running route conditions.', routeRequest: true, trace: routed.trace || [] } };
           }
           // Installed/blocked connectors stay visible as setup guidance, but never
           // receive a child worker until they are actually equipped.
@@ -377,7 +377,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
       async execute(_input, context): Promise<FrostAgentToolResult> {
         const reply = await answerFrostMemoryRecallRequest(inputText(context.events));
         if (reply === null) return { status: 'error', data: {}, message: 'memory_recall_not_requested' };
-        return { status: 'success', data: { reply, trace: ['本机长期记忆检索 · 未调用 Qwen/MNN', '只读取已确认交接摘要 · 不含聊天、图片与 OCR 正文'] } };
+        return { status: 'success', data: { reply, trace: ['Local long-term memory lookup · no Qwen/MNN call', 'Reads only confirmed handoff summaries · no chat, image or OCR text'] } };
       },
     },
     {
@@ -393,7 +393,7 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
           objective: scheduled.objective, run_at: scheduled.run_at, interval_ms: 24 * 60 * 60 * 1000, max_rounds: 30,
         }));
         return { status: 'success', data: {
-          reply: `已创建本地每日目标，首次计划时间为 ${new Date(scheduled.run_at).toLocaleString()}，最多 30 轮。需要应用保持运行；应用关闭时不会后台执行。`,
+          reply: `Created a local daily goal. The first run is scheduled for ${new Date(scheduled.run_at).toLocaleString()}, up to 30 rounds. The app has to stay running; it will not run in the background when the app is closed.`,
           trace: [`GOAL · ${goalId}`, 'SCHEDULE · 24H', 'BUDGET · 30 ROUNDS'],
         } };
       },

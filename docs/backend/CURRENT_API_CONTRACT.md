@@ -23,12 +23,13 @@ Cloud Run 比赛服务设置 `FROST_AGENT_PROVIDER=gemini`，因此正式演示�
   "system": "legacy client task instruction, optional, accepted max 5000 chars",
   "json": true,
   "task": "taskmaster",
+  "locale": "optional response language: en (default) | zh-CN | zh-TW",
   "session_id": "optional public correlation id",
   "run_id": "optional public correlation id"
 }
 ```
 
-`system` 只是兼容字段，会作为不可信、低权威的客户端任务说明放入 user content；它不能覆盖服务端策略。`task` 只允许规范化名称并映射到固定 profile。请求先受 Cloud Run 入口限流，再受确定性字符预算和结构化输出校验。
+`system` 只是兼容字段，会作为不可信、低权威的客户端任务说明放入 user content；它不能覆盖服务端策略。`task` 只允许规范化名称并映射到固定 profile。`locale` 只接受白名单值，非白名单或缺省一律回落 `en`；回复语言与 profile 一样由服务端策略拼入 system，客户端任务说明不能覆盖它。请求先受 Cloud Run 入口限流，再受确定性字符预算和结构化输出校验。
 
 成功响应保留现有客户端字段，并额外暴露非敏感执行信息：
 
@@ -43,6 +44,7 @@ Cloud Run 比赛服务设置 `FROST_AGENT_PROVIDER=gemini`，因此正式演示�
     "protocol": "frost-agent-prompt-harness/v1",
     "version": "1.0.0",
     "profile": "taskmaster",
+    "responseLocale": "en",
     "budget": {
       "prompt": { "limitChars": 24000, "receivedChars": 100, "acceptedChars": 100, "truncated": false },
       "clientInstruction": { "limitChars": 5000, "receivedChars": 0, "acceptedChars": 0, "truncated": false }

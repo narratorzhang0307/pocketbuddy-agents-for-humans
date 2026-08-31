@@ -32,16 +32,16 @@ function renderPanel() {
 describe('compact badge panel', () => {
   it('keeps the normal view short, with two commands and no checkboxes or manual forms', () => {
     const { primary, more } = renderPanel();
-    expect(primary).toContain('扫描吧唧');
+    expect(primary).toContain('Scan for badge');
     expect(primary).toContain('「进入地图模式」');
     expect(primary).toContain('「帮我种下一棵树」');
-    expect(primary).toContain('GPS 就绪后说');
+    expect(primary).toContain('say it once GPS is ready');
     expect(primary).not.toContain('type="checkbox"');
     expect(primary).not.toContain('<textarea');
     expect(primary).not.toContain('local-session');
     expect(primary).not.toContain('手动转文字');
-    expect(primary.replace(/<[^>]+>/g, '').length).toBeLessThan(180);
-    expect(more).toContain('>更多</summary>');
+    expect(primary.replace(/<[^>]+>/g, '').length).toBeLessThan(300);
+    expect(more).toContain('>More</summary>');
   });
 
   it('starts secondary controls collapsed', () => {
@@ -51,8 +51,8 @@ describe('compact badge panel', () => {
     expect(details.every(tag => !/\bopen(?:[\s=>])/.test(tag))).toBe(true);
     expect(more).toContain('手动转文字');
     expect(more).toContain('手动生成语音');
-    expect(more).toContain('任务完成提示音（本机）');
-    expect(more).toContain('设备诊断');
+    expect(more).toContain('Task-done chime (on-device)');
+    expect(more).toContain('Device diagnostics');
   });
 
   it('removes the old long explanations instead of hiding them under More', () => {
@@ -64,20 +64,20 @@ describe('compact badge panel', () => {
     const paragraphs = [...html.matchAll(/<p\b[^>]*>([\s\S]*?)<\/p>/g)]
       .map(match => match[1].replace(/<[^>]+>/g, ''));
     expect(paragraphs.length).toBeGreaterThan(0);
-    expect(paragraphs.every(text => text.length <= 40)).toBe(true);
+    expect(paragraphs.every(text => text.length <= 130)).toBe(true);
   });
 
   it('keeps the default automatic voice preference, but does not override an opt-out', () => {
     expect(renderPanel().more).toMatch(/type="checkbox"[^>]*checked=""/);
     state.shared.voice.autoSend = false;
     const { primary, more } = renderPanel();
-    expect(primary).toContain('自动语音已关闭');
+    expect(primary).toContain('Auto voice is off');
     expect(more).not.toMatch(/type="checkbox"[^>]*checked=""/);
   });
 
   it('keeps foreground, permission, privacy and cost notices accessible', () => {
     const { primary, more } = renderPanel();
-    for (const notice of ['需保持前台', '首次定位请允许', '录音不上传', '云端问答可能计费']) {
+    for (const notice of ['Keep the app in the foreground', 'allow location the first time', 'Recordings are not uploaded', 'cloud answers may be billed']) {
       expect(primary).toContain(notice);
     }
     expect(more).toContain('生成语音（可能计费）');
@@ -90,7 +90,7 @@ describe('compact badge panel', () => {
     state.shared.voice.enabled = true;
     state.shared.voice.phase = 'ready';
     const { primary, more } = renderPanel();
-    for (const control of ['断开连接', '停止播放', '音量', '按住实体键说话，松手发送。']) {
+    for (const control of ['Disconnect', 'Stop playback', 'Volume', 'Hold the physical key to speak, release to send.']) {
       expect(primary).toContain(control);
     }
     expect(primary).not.toContain('type="checkbox"');
@@ -106,13 +106,13 @@ describe('compact badge panel', () => {
     state.badge.captureStats = { samples: 16000, peak: 0, dropped: 2, reason: 1, complete: false };
     const { primary, more } = renderPanel();
     expect(primary).toContain('蓝牙通道异常');
-    expect(primary).toContain('麦克风未启用');
-    expect(primary).toContain('未检测到声音');
-    expect(primary).toContain('录音待校验');
-    expect(primary).not.toContain('峰值');
-    expect(more).toContain('峰值 0');
-    expect(more).toContain('丢包 2');
-    expect(more).toContain('会话 ·');
+    expect(primary).toContain('Microphone not enabled');
+    expect(primary).toContain('No sound detected');
+    expect(primary).toContain('Recording pending check');
+    expect(primary).not.toContain('Peak ');
+    expect(more).toContain('Peak 0');
+    expect(more).toContain('dropped 2');
+    expect(more).toContain('Session ·');
   });
 
   it('never hides the current speech failure under More', () => {
@@ -122,8 +122,8 @@ describe('compact badge panel', () => {
     state.shared.voice.error = '本机识别暂不可用';
     state.shared.voice.transcript = '进入地图模式';
     const { primary } = renderPanel();
-    expect(primary).toContain('语音异常');
+    expect(primary).toContain('Voice error');
     expect(primary).toContain('本机识别暂不可用');
-    expect(primary).toContain('本次识别：进入地图模式');
+    expect(primary).toContain('Heard: 进入地图模式');
   });
 });

@@ -168,7 +168,7 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
     const app = await runtime(); const route = await app.send('帮我规划 5 公里跑步路线');
     expect(route.session.status).toBe('waiting_user');
     expect(route.view.autoStep).toBeUndefined();
-    expect(route.view.routeChoices).toContain('环线');
+    expect(route.view.routeChoices).toContain('Loop');
     const ready = await app.send('环线，风景好、少路口');
     expect(ready.events.some(event => event.data.tool === 'frost.run_route_dialogue')).toBe(true);
     const reply = ready.events.find(event => event.type === 'tool.result')?.data.result as { data?: { routeSessionId?: string; routeTaskId?: string } };
@@ -199,7 +199,7 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
     const first = await app.send('给我一条适合今天出门的线路');
     expect(complete).toHaveBeenCalled();
     expect(first.view.autoStep).toBeUndefined();
-    expect(first.view.routeChoices).toContain('3 公里');
+    expect(first.view.routeChoices).toContain('3 km');
     expect(first.events.filter(event => event.type === 'tool.called').map(event => event.data.tool))
       .toEqual(['frost.skill_plan', 'frost.run_route_dialogue']);
     const ready = await app.send('三公里，环线，风景好、少路口');
@@ -209,9 +209,25 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
   it('cancels a pending route and does not steal an unrelated workspace launch', async () => {
     const app = await runtime();
     await app.send('帮我规划5公里跑步路线');
-    expect((await app.send('取消规划')).view.text).toContain('已取消');
+    expect((await app.send('取消规划')).view.text).toContain('Route planning cancelled');
     await app.send('帮我规划5公里跑步路线');
     expect((await app.send('打开包装食品')).view.autoStep?.target).toBe('frost-openfoodfacts');
+  });
+
+  it('plans an English request through the same route dialogue and cancels it with the English button text', async () => {
+    const app = await runtime();
+    const first = await app.send('Plan a 5 km running route, scenic, few crossings');
+    expect(first.session.status).toBe('waiting_user');
+    expect(first.view.autoStep).toBeUndefined();
+    expect(first.events.some(event => event.data.tool === 'frost.run_route_dialogue')).toBe(true);
+    const ready = await app.send('loop');
+    expect(ready.view.routeSessionId).toBeTruthy();
+    expect(readRunRouteSession(ready.view.routeSessionId!)?.input).toMatchObject({
+      goal: { type: 'distance', distance_m: 5000 }, shape: 'loop', preferences: ['scenic', 'low_crossings'],
+    });
+    const second = await runtime();
+    await second.send('Plan a running route around West Lake');
+    expect((await second.send('cancel route planning')).view.text).toContain('Route planning cancelled');
   });
 
   it('continues a page subagent question in the same child context', async () => {
@@ -229,7 +245,7 @@ describe('one Frost conversation entry, registered subagents and UI compatibilit
   it('keeps scheduled goals bounded and does not recursively schedule Goal Driver inputs', async () => {
     const app = await runtime();
     const result = await app.send('每天晚上8点生成今日健康总结');
-    expect(result.view.text).toContain('应用关闭时不会后台执行');
+    expect(result.view.text).toContain('will not run in the background when the app is closed');
     const goals = await app.goals.listSession(result.session.session_id);
     expect(goals).toHaveLength(1); expect(goals[0]).toMatchObject({ objective: '生成今日健康总结', budget: { max_rounds: 30 } });
     await app.loop.followup({ objective: goals[0].objective }, 'goal'); await app.loop.whenIdle();

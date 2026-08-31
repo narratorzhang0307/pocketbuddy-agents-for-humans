@@ -46,6 +46,6 @@ describe('health advice is a read-only proposal until explicitly accepted', () =
       type: 'skill.result', occurred_at: new Date().toISOString(), data: { status: 'completed' } } as FrostAgentEvent : undefined;
     const result = await tool().execute({}, context('开始这个训练', proposal, extra));
     expect(result.data.plan).toBeUndefined();
-    expect(result.data.reply).toContain('没有打开摄像头');
+    expect(result.data.reply).toContain('the camera was not opened');
   });
 });

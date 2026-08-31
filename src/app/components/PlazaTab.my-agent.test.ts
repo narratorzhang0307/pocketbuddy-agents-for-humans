@@ -13,7 +13,7 @@ describe('Skills 顶部 MY AGENT 子页', () => {
     const header = plazaSource.slice(plazaSource.indexOf('function NetworkHeader'), plazaSource.indexOf('function PublisherStack'));
     expect(header).toContain('grid grid-cols-3');
     const skills = header.indexOf('>MY SKILLS</button>');
-    const canvas = header.indexOf('>技能画布</button>');
+    const canvas = header.indexOf('>SKILL CANVAS</button>');
     const myAgent = header.indexOf('>MY AGENT</button>');
     const agentWorld = header.indexOf('>AGENT WORLD</button>');
     expect(skills).toBeGreaterThan(-1);
@@ -51,8 +51,8 @@ describe('Skills 顶部 MY AGENT 子页', () => {
     expect(forgeSource.indexOf('创建属于你自己的 Agent')).toBeLessThan(forgeSource.indexOf('一键定义我的 Agent World'));
     expect(plazaSource).toContain('CREATE YOUR AGENT WORLD');
     expect(plazaSource).toContain("['pet-caramel-dachshund', 'puff', 'pip', 'mossback']");
-    expect(plazaSource).toContain('01 · 选择常驻子 AGENT');
-    expect(plazaSource).toContain('02 · 定义世界名字');
+    expect(plazaSource).toContain('01 · PICK A RESIDENT SUB-AGENT');
+    expect(plazaSource).toContain('02 · NAME YOUR WORLD');
     expect(plazaSource).not.toContain('02 · 定义世界气质与名字');
     expect(plazaSource).not.toContain('NIGHT SIGNAL</span><b');
   });

@@ -11,8 +11,8 @@ describe('Plaza world suggestion', () => {
     const prompt = createWorldSuggestionPrompt('评估我今天是否适合跑步', tones, agents, skills);
     expect(prompt).toContain('frost.running-coach');
     expect(prompt).toContain('puff=Puff/恢复陪伴');
-    expect(prompt).toContain('只输出一个 JSON 对象');
-    expect(prompt).toContain('不要输出链接');
+    expect(prompt).toContain('Output one JSON object only');
+    expect(prompt).toContain('Do not output links');
   });
 
   it('accepts fenced model JSON and rejects invented ids', () => {
@@ -34,6 +34,6 @@ describe('Plaza world suggestion', () => {
     expect(result.toneId).toBe('field');
     expect(result.publishedSkillId).toBe('frost.run-route');
     expect(result.agentId).toBe('puff');
-    expect(result.name).toBe('跑者行动地图');
+    expect(result.name).toBe('Runner Route Map');
   });
 });

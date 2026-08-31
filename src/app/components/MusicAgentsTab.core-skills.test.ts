@@ -9,8 +9,8 @@ import { resolveSkillRunTarget } from '../lib/plaza/skillRoutes';
 describe('My Skills core capabilities', () => {
   it('puts running and bird listening first while keeping the existing movement skills core', () => {
     const html = renderToStaticMarkup(createElement(MusicAgentsTab, { embedded: true }));
-    const coreStart = html.indexOf('<section aria-label="核心能力"');
-    const moreStart = html.indexOf('<section aria-label="更多能力"');
+    const coreStart = html.indexOf('<section aria-label="Core abilities"');
+    const moreStart = html.indexOf('<section aria-label="More abilities"');
     const core = html.slice(coreStart, moreStart);
 
     expect(coreStart).toBeGreaterThan(-1);
@@ -18,16 +18,16 @@ describe('My Skills core capabilities', () => {
     expect([...core.matchAll(/data-skill-id="([^"]+)"/g)].map((match) => match[1])).toEqual([
       'frost.run-route', 'frost.bird-listener', 'pocket.her-motion', 'pocket.lianlema',
     ]);
-    expect(core.match(/>核心<\/span>/g)).toHaveLength(4);
+    expect(core.match(/>CORE<\/span>/g)).toHaveLength(4);
     expect(core).toContain('4 CORE');
-    expect(html.indexOf('SME2 加速对比')).toBeGreaterThan(moreStart);
+    expect(html.indexOf('SME2 SPEEDUP A/B')).toBeGreaterThan(moreStart);
     expect(html).not.toContain('FITNESS AGENT');
     expect(html).not.toContain('HEALTH CONSULTATION · SUB AGENT');
   });
 
   it('keeps every other catalogue skill in the lower section without duplication or core badges', () => {
     const html = renderToStaticMarkup(createElement(MusicAgentsTab, { embedded: true }));
-    const more = html.slice(html.indexOf('<section aria-label="更多能力"'));
+    const more = html.slice(html.indexOf('<section aria-label="More abilities"'));
     const ids = [...more.matchAll(/data-skill-id="([^"]+)"/g)].map((match) => match[1]);
 
     expect(ids).toEqual([
@@ -35,7 +35,7 @@ describe('My Skills core capabilities', () => {
       'frost.healthsync', 'frost.mediapipe-motion', 'frost.openfoodfacts',
       'frost.cn-health-library', 'frost.outdoor-window', 'frost.sleep-detective', 'frost.meal-lens',
     ]);
-    expect(more).not.toContain('>核心</span>');
+    expect(more).not.toContain('>CORE</span>');
     expect(html.match(/data-skill-id=/g)).toHaveLength(13);
   });
 

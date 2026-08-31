@@ -59,6 +59,27 @@ const PROFILES = {
   },
 }
 
+// Response language is server-owned like every other policy line. English is the
+// default so the deployed judging build answers in the language of its UI; a
+// client that serves a different audience passes an explicit allowlisted locale.
+const RESPONSE_LANGUAGES = {
+  en: 'Write every natural-language string you return in English, including text inside JSON values.',
+  'zh-CN': 'Write every natural-language string you return in Simplified Chinese, including text inside JSON values.',
+  'zh-TW': 'Write every natural-language string you return in Traditional Chinese, including text inside JSON values.',
+}
+const DEFAULT_RESPONSE_LOCALE = 'en'
+
+export function normalizeResponseLocale(value) {
+  const requested = String(value ?? '').trim()
+  if (!requested) return DEFAULT_RESPONSE_LOCALE
+  const exact = Object.keys(RESPONSE_LANGUAGES).find((key) => key.toLowerCase() === requested.toLowerCase())
+  return exact || DEFAULT_RESPONSE_LOCALE
+}
+
+export function responseLanguageInstruction(locale) {
+  return RESPONSE_LANGUAGES[normalizeResponseLocale(locale)]
+}
+
 function bounded(value, maxChars) {
   return String(value ?? '').trim().slice(0, maxChars)
 }
@@ -102,12 +123,14 @@ export function prepareAgentPromptRequest(input = {}) {
   const policy = PROFILES[profile]
   const clientInstruction = bounded(input.system, MAX_CLIENT_INSTRUCTION_CHARS)
   const json = policy.forceJson === true || input.json === true
+  const responseLocale = normalizeResponseLocale(input.locale)
 
   return {
     protocol: AGENT_PROMPT_PROTOCOL,
     version: '1.0.0',
     profile,
     task,
+    responseLocale,
     prompt: userContent(prompt, clientInstruction),
     rawPromptChars: prompt.length,
     clientInstructionChars: clientInstruction.length,
@@ -125,7 +148,7 @@ export function prepareAgentPromptRequest(input = {}) {
         truncated: receivedClientInstruction.length > clientInstruction.length,
       },
     },
-    system: `${SERVER_POLICY} ${policy.instruction}`,
+    system: `${SERVER_POLICY} ${policy.instruction} ${responseLanguageInstruction(responseLocale)}`,
     json,
     maxOutputTokens: policy.maxOutputTokens,
     temperature: json ? Math.min(policy.temperature, 0.1) : policy.temperature,
@@ -139,6 +162,7 @@ export function promptHarnessMetadata(prepared) {
     protocol: prepared.protocol,
     version: prepared.version,
     profile: prepared.profile,
+    responseLocale: prepared.responseLocale,
     budget: prepared.budget,
   }
 }

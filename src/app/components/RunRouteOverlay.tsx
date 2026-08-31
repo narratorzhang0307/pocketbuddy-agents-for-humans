@@ -33,9 +33,9 @@ function km(value: number): string {
 
 function requestSummary(session: RunRouteSession): string {
   if (session.input.request_text) return session.input.request_text;
-  if (session.input.goal.type === 'distance') return `规划 ${km(session.input.goal.distance_m)} 跑步路线`;
-  if (session.input.goal.type === 'duration') return `规划 ${session.input.goal.duration_min} 分钟跑步路线`;
-  return `规划跑到${session.input.goal.query}的路线`;
+  if (session.input.goal.type === 'distance') return `Plan a ${km(session.input.goal.distance_m)} running route`;
+  if (session.input.goal.type === 'duration') return `Plan a ${session.input.goal.duration_min}-minute running route`;
+  return `Plan a route to ${session.input.goal.query}`;
 }
 
 function statusCopy(status: RunRouteSession['status'], adjusted = false): string {
@@ -105,24 +105,24 @@ export default function RunRouteOverlay({ map, sessionId, onClose, collapsed = f
     try {
       await startRunNavigation(sessionId, automatic);
     } catch (error) {
-      updateRunRouteSession(sessionId, { status: 'paused', error: error instanceof Error ? error.message : '导航未启动，请更新 iOS App 或检查定位权限。' });
+      updateRunRouteSession(sessionId, { status: 'paused', error: error instanceof Error ? error.message : 'Navigation did not start. Update the iOS app or check the location permission.' });
     } finally { setStarting(false); }
   }, [sessionId, starting]);
 
   useEffect(() => {
     if (!session?.input.auto_start || session.status !== 'ready' || autoStartedRef.current) return;
     autoStartedRef.current = true;
-    if (!geometry?.valid) { updateRunRouteSession(sessionId, { error: geometry?.reason || '路线尚未通过形状校验，请重新规划。' }); return; }
+    if (!geometry?.valid) { updateRunRouteSession(sessionId, { error: geometry?.reason || 'This route has not passed the shape check. Please plan it again.' }); return; }
     const target = session.metrics.target_distance_m;
     if (session.actual_shape !== session.input.shape || !runRouteDistanceMatches(target, session.metrics.planned_distance_m)) {
-      updateRunRouteSession(sessionId, { error: '路线形状或距离与请求有偏差，未自动开始。请确认地图后手动开始。' }); return;
+      updateRunRouteSession(sessionId, { error: 'The route shape or distance differs from your request, so it did not start automatically. Check the map, then start it manually.' }); return;
     }
     void startTracking(true);
   }, [session, sessionId, startTracking, geometry]);
 
   const pause = async () => {
     try { await pauseRunNavigation(sessionId); }
-    catch { updateRunRouteSession(sessionId, { error: '未能确认导航已暂停，请重试；不要将此状态当作停止。' }); }
+    catch { updateRunRouteSession(sessionId, { error: 'Could not confirm that navigation is paused. Please try again; do not treat this state as stopped.' }); }
   };
 
   const replan = async () => {
@@ -147,7 +147,7 @@ export default function RunRouteOverlay({ map, sessionId, onClose, collapsed = f
 
   const useSampleStart = () => {
     if (!session) return;
-    const warning = '当前使用杭州西湖示例起点，仅供路线预览；不会记录为真实位置。';
+    const warning = 'Using the Hangzhou West Lake sample start point for route preview only; it is not recorded as a real position.';
     updateRunRouteSession(sessionId, {
       start_source: 'sample',
       warnings: session.warnings.includes(warning) ? session.warnings : [...session.warnings, warning],
@@ -174,7 +174,7 @@ export default function RunRouteOverlay({ map, sessionId, onClose, collapsed = f
       }
       updateRunRouteSession(sessionId, { status: 'completed', error: undefined });
     } catch (error) {
-      updateRunRouteSession(sessionId, { status: 'paused', error: error instanceof Error ? error.message : '运动记录写入失败' });
+      updateRunRouteSession(sessionId, { status: 'paused', error: error instanceof Error ? error.message : 'Writing the workout record failed' });
     } finally {
       setFinalizing(false);
     }
@@ -200,38 +200,38 @@ export default function RunRouteOverlay({ map, sessionId, onClose, collapsed = f
 
   return (
     <div className="pointer-events-none absolute inset-0 z-[38]" data-run-route-overlay={session.session_id}>
-      <svg className="absolute inset-0 h-full w-full overflow-visible" aria-label="跑步规划路线">
+      <svg className="absolute inset-0 h-full w-full overflow-visible" aria-label="Planned running route">
         {plannedPoints.length >= 2 && <>
           <polyline points={plannedPoints.map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke="#111" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" opacity=".82" />
           <polyline points={plannedPoints.map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke="#00ff88" strokeWidth="6" strokeLinejoin="round" strokeLinecap="round" />
         </>}
         {actualPoints.length >= 2 && <polyline points={actualPoints.map((point) => `${point.x},${point.y}`).join(' ')} fill="none" stroke="#ff6b35" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />}
         {marker && <><circle cx={marker.x} cy={marker.y} r="11" fill="#fff" stroke="#111" strokeWidth="3" /><circle cx={marker.x} cy={marker.y} r="5" fill="#ff6b35" /></>}
-        {marker && <text x={marker.x} y={marker.y - 17} textAnchor="middle" fontSize="12" fontWeight="bold" stroke="white" strokeWidth="3" paintOrder="stroke" fill="#111">{actualPoints.length ? '当前位置' : closed ? '起 / 终' : '起点'}</text>}
-        {endpoint && !closed && <g aria-label="跑步路线终点"><rect x={endpoint.x - 9} y={endpoint.y - 9} width="18" height="18" fill="#111" stroke="white" strokeWidth="2" /><text x={endpoint.x} y={endpoint.y - 17} textAnchor="middle" fontSize="12" fontWeight="bold" stroke="white" strokeWidth="3" paintOrder="stroke" fill="#111">终点</text></g>}
+        {marker && <text x={marker.x} y={marker.y - 17} textAnchor="middle" fontSize="12" fontWeight="bold" stroke="white" strokeWidth="3" paintOrder="stroke" fill="#111">{actualPoints.length ? 'You are here' : closed ? 'Start / Finish' : 'Start'}</text>}
+        {endpoint && !closed && <g aria-label="Running route finish"><rect x={endpoint.x - 9} y={endpoint.y - 9} width="18" height="18" fill="#111" stroke="white" strokeWidth="2" /><text x={endpoint.x} y={endpoint.y - 17} textAnchor="middle" fontSize="12" fontWeight="bold" stroke="white" strokeWidth="3" paintOrder="stroke" fill="#111">Finish</text></g>}
       </svg>
 
-      {collapsed && <button type="button" onClick={onExpand} className="pointer-events-auto absolute bottom-5 left-4 min-h-11 border-[3px] border-black bg-[#00ff88] px-4 text-[13px] font-bold">返回跑步路线 / 导航</button>}
+      {collapsed && <button type="button" onClick={onExpand} className="pointer-events-auto absolute bottom-5 left-4 min-h-11 border-[3px] border-black bg-[#00ff88] px-4 text-[13px] font-bold">Back to route / navigation</button>}
 
-      {busy && <div className="pointer-events-auto absolute left-1/2 top-[42%] w-[72%] -translate-x-1/2 border-[3px] border-black bg-white p-4 text-center"><RefreshCw className="mx-auto h-6 w-6 animate-spin text-[#087a43]" /><b className="mt-2 block text-[13px]">{session.status === 'locating' ? '正在确定起点' : '高德正在计算真实道路'}</b><p className="mt-2 text-[11px] text-black/60">会比较完整路段，不使用直线冒充路线</p><button type="button" onClick={() => { cancelRunRoutePlanning(sessionId); updateRunRouteSession(sessionId, { status: 'failed', error: '已取消规划' }); setActiveRunRouteSession(null); onClose(); }} className="mt-3 min-h-9 border-2 border-black px-3 text-[12px]">取消规划</button></div>}
+      {busy && <div className="pointer-events-auto absolute left-1/2 top-[42%] w-[72%] -translate-x-1/2 border-[3px] border-black bg-white p-4 text-center"><RefreshCw className="mx-auto h-6 w-6 animate-spin text-[#087a43]" /><b className="mt-2 block text-[13px]">{session.status === 'locating' ? 'Finding your start point' : 'AMap is computing the real roads'}</b><p className="mt-2 text-[11px] text-black/60">Full road segments are compared; a straight line is never passed off as a route</p><button type="button" onClick={() => { cancelRunRoutePlanning(sessionId); updateRunRouteSession(sessionId, { status: 'failed', error: 'Route planning cancelled' }); setActiveRunRouteSession(null); onClose(); }} className="mt-3 min-h-9 border-2 border-black px-3 text-[12px]">Cancel planning</button></div>}
 
-      {session.status === 'failed' && !session.start && <section className="pointer-events-auto absolute bottom-3 left-3 right-3 border-[3px] border-black bg-white p-4"><div className="flex items-start justify-between gap-3"><span><b className="font-pixel text-[7px] text-[#b3261e]">LOCATION NEEDED</b><p className="mt-2 text-[9px] leading-relaxed">{session.error}</p></span><button type="button" onClick={close} className="grid h-8 w-8 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={retryRealLocation} className="min-h-10 border-2 border-black bg-[#00ff88] px-2 font-pixel text-[6px]">重新定位</button><button type="button" onClick={useSampleStart} className="min-h-10 border-2 border-black bg-[#fff0b5] px-2 font-pixel text-[6px]">预览杭州示例</button></div></section>}
+      {session.status === 'failed' && !session.start && <section className="pointer-events-auto absolute bottom-3 left-3 right-3 border-[3px] border-black bg-white p-4"><div className="flex items-start justify-between gap-3"><span><b className="font-pixel text-[7px] text-[#b3261e]">LOCATION NEEDED</b><p className="mt-2 text-[9px] leading-relaxed">{session.error}</p></span><button type="button" onClick={close} className="grid h-8 w-8 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div><div className="mt-3 grid grid-cols-2 gap-2"><button type="button" onClick={retryRealLocation} className="min-h-10 border-2 border-black bg-[#00ff88] px-2 font-pixel text-[6px]">Locate again</button><button type="button" onClick={useSampleStart} className="min-h-10 border-2 border-black bg-[#fff0b5] px-2 font-pixel text-[6px]">Preview Hangzhou sample</button></div></section>}
 
       {!collapsed && !busy && !(session.status === 'failed' && !session.start) && <section ref={panelRef} className="pointer-events-auto absolute bottom-3 left-3 right-3 border-[3px] border-black bg-white/95 p-3 backdrop-blur-sm">
-        <div className="flex items-start gap-2"><Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#087a43]" /><div className="min-w-0 flex-1"><div className="font-pixel text-[6px] text-[#087a43]">FROST → RUN ROUTE → ACTION MAP</div><p className="mt-1 truncate text-[9px] font-bold">你说·“{requestSummary(session)}”</p><small className="mt-1 block truncate text-[7px] text-black/45">{sample ? '杭州示例起点 · 仅预览' : session.start_label || session.destination_label || '真实 GPS 起点'}{session.input.source_task_id ? ` · TASK ${session.input.source_task_id.split(':').at(-1)}` : ''}</small></div><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${session.status === 'failed' ? 'bg-[#ff8f86]' : ['ready', 'navigating', 'completed'].includes(session.status) ? 'bg-[#7CFF6B]' : 'bg-[#fff0b5]'}`}>{statusCopy(session.status, Boolean(adjusted))}</span><button type="button" onClick={close} aria-label="收起路线规划" className="grid h-7 w-7 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div>
+        <div className="flex items-start gap-2"><Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-[#087a43]" /><div className="min-w-0 flex-1"><div className="font-pixel text-[6px] text-[#087a43]">FROST → RUN ROUTE → ACTION MAP</div><p className="mt-1 truncate text-[9px] font-bold">You said · “{requestSummary(session)}”</p><small className="mt-1 block truncate text-[7px] text-black/45">{sample ? 'Hangzhou sample start · preview only' : session.start_label || session.destination_label || 'Real GPS start'}{session.input.source_task_id ? ` · TASK ${session.input.source_task_id.split(':').at(-1)}` : ''}</small></div><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${session.status === 'failed' ? 'bg-[#ff8f86]' : ['ready', 'navigating', 'completed'].includes(session.status) ? 'bg-[#7CFF6B]' : 'bg-[#fff0b5]'}`}>{statusCopy(session.status, Boolean(adjusted))}</span><button type="button" onClick={close} aria-label="Collapse route panel" className="grid h-7 w-7 shrink-0 place-items-center border-2 border-black bg-white"><X className="h-4 w-4" /></button></div>
         <div className="mt-2 grid grid-cols-3 border-2 border-black bg-[#f7f1df]"><div className="border-r-2 border-black px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">TARGET</small><b className="text-[10px]">{session.metrics.target_distance_m ? km(session.metrics.target_distance_m) : '--'}</b></div><div className="border-r-2 border-black px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">PLANNED</small><b className="text-[10px]">{session.metrics.planned_distance_m ? km(session.metrics.planned_distance_m) : '--'}</b></div><div className="px-2 py-1.5 text-center"><small className="block font-pixel text-[5px] text-black/45">ACTUAL</small><b className="text-[10px]">{km(session.metrics.actual_distance_m)}</b></div></div>
-        {session.metrics.target_distance_m && session.status !== 'failed' && <p aria-label="目标里程校验" className={`mt-2 border-2 px-2 py-1.5 text-[11px] ${adjusted ? 'border-[#b3261e] bg-[#fff0ed] text-[#b3261e]' : 'border-[#087a43] bg-[#e4f7ed]'}`}>{adjusted ? '未满足请求，需确认 · ' : '里程已匹配 · '}与目标相差 {Math.round(session.metrics.planned_distance_m - session.metrics.target_distance_m)} 米（允许 ±{Math.round(runRouteDistanceTolerance(session.metrics.target_distance_m))} 米）</p>}
-        {session.input.goal.type === 'destination' && <p className="mt-2 text-[11px] font-bold">{session.input.shape === 'out_and_back' ? '途经' : '终点'}：{session.destination_label || session.input.goal.query}</p>}
-        {geometry && <p aria-label="路线形状校验" className={`mt-2 text-[11px] ${geometry.valid ? 'text-[#087a43]' : 'font-bold text-[#b3261e]'}`}>{geometry.valid ? `道路形状已校验 · ${session.actual_shape === 'out_and_back' ? '去程与回程分别检查' : '无明显支路折返'} · 额外重复约 ${geometry.repeated_distance_m} 米` : geometry.reason}</p>}
+        {session.metrics.target_distance_m && session.status !== 'failed' && <p aria-label="Target distance check" className={`mt-2 border-2 px-2 py-1.5 text-[11px] ${adjusted ? 'border-[#b3261e] bg-[#fff0ed] text-[#b3261e]' : 'border-[#087a43] bg-[#e4f7ed]'}`}>{adjusted ? 'Request not met, needs confirmation · ' : 'Distance matched · '}{Math.round(session.metrics.planned_distance_m - session.metrics.target_distance_m)} m from the target (±{Math.round(runRouteDistanceTolerance(session.metrics.target_distance_m))} m allowed)</p>}
+        {session.input.goal.type === 'destination' && <p className="mt-2 text-[11px] font-bold">{session.input.shape === 'out_and_back' ? 'Via' : 'Finish'}: {session.destination_label || session.input.goal.query}</p>}
+        {geometry && <p aria-label="Route shape check" className={`mt-2 text-[11px] ${geometry.valid ? 'text-[#087a43]' : 'font-bold text-[#b3261e]'}`}>{geometry.valid ? `Road shape verified · ${session.actual_shape === 'out_and_back' ? 'outbound and return checked separately' : 'no obvious side-street backtracking'} · about ${geometry.repeated_distance_m} m of extra repeat` : geometry.reason}</p>}
         {session.error && <p className="mt-2 border-2 border-[#b3261e] bg-[#fff0ed] px-2 py-1.5 text-[8px] text-[#b3261e]">{session.error}</p>}
-        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px]"><span>🟢 规划线</span><span>🟠 实跑轨迹</span><b>{session.actual_shape ? { loop: '环线', out_and_back: '往返', one_way: '单程' }[session.actual_shape] : ''}</b>{session.start_label && <span>起点：{session.start_label}</span>}</div>
-        {nav?.active && <div className="mt-2 border-2 border-black bg-[#e4f7ed] p-2" aria-live="polite"><b className="block text-[16px]">{nav.state === 'navigating' && nav.distanceToTurnM > 20 ? `前方 ${Math.round(nav.distanceToTurnM)} 米 · ` : ''}{nav.message}</b><p className="mt-1 text-[11px]">{nav.backgroundLocation ? 'iOS 原生定位 · 可锁屏继续' : '仅前台定位'} · {nav.useBadge ? nav.badgeConnected ? '硬件蓝牙已连接' : '硬件断连，正在重连' : '手机语音'}</p></div>}
-        {!nav?.active && <p className="mt-2 text-[11px] text-black/65">{session.navigation_message || (supportsNativeRunNavigation() ? '开始后由 iOS 持续定位，锁屏不主动断开蓝牙。' : '网页版仅前台导航；锁屏硬件播报需新版 iOS App。')}</p>}
-        {session.warnings.length > 0 && <details className="mt-2 text-[11px]"><summary className="cursor-pointer font-bold">路线依据与限制 · {session.route_evidence?.candidates || 1} 个可用方案</summary><ul className="mt-1 max-h-24 list-disc overflow-y-auto pl-4 text-black/65">{session.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>}
-        {session.status === 'off_route' && <button type="button" onClick={() => void replan()} className="mt-2 min-h-10 w-full border-2 border-black bg-[#fff0b5] px-3 text-[12px] font-bold">安全停下后，重算到原终点</button>}
-        {(session.status === 'failed' || (!live && geometry && !geometry.valid)) && <button type="button" onClick={retryRealLocation} className="mt-2 min-h-10 w-full border-2 border-black px-3 text-[12px]">重新规划</button>}
-        <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">{!live ? <button type="button" disabled={starting || finalizing || !geometry?.valid || session.status === 'failed' || session.status === 'completed'} onClick={sample ? retryRealLocation : () => void startTracking()} className={`flex min-h-11 items-center justify-center gap-2 border-2 border-black px-3 text-[13px] font-bold disabled:opacity-40 ${sample ? 'bg-[#fff0b5]' : 'bg-[#00ff88]'}`}><Play className="h-4 w-4" fill="currentColor" />{starting ? '正在启动定位…' : sample ? '获取真实定位后开始' : session.status === 'paused' ? '继续沿线跑' : adjusted ? `确认 ${km(session.metrics.planned_distance_m)} 后开始` : '开始沿线跑'}</button> : <button type="button" onClick={() => void pause()} className="flex min-h-11 items-center justify-center gap-2 border-2 border-black bg-[#ffd65a] px-3 text-[13px] font-bold"><Pause className="h-4 w-4" fill="currentColor" />暂停导航</button>}<button type="button" disabled={finalizing || starting || session.status === 'completed'} onClick={() => void finishTracking()} aria-label="结束跑步" className="grid min-h-11 w-11 place-items-center border-2 border-black bg-white disabled:opacity-40"><Square className="h-4 w-4" fill="currentColor" /></button></div>
-        {live && <p className="mt-1 text-center text-[10px] text-black/55">右上角收起面板后导航继续；点 ■ 结束定位。两者都不会断蓝牙。</p>}
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px]"><span>🟢 Planned</span><span>🟠 Actual track</span><b>{session.actual_shape ? { loop: 'Loop', out_and_back: 'Out and back', one_way: 'One way' }[session.actual_shape] : ''}</b>{session.start_label && <span>Start: {session.start_label}</span>}</div>
+        {nav?.active && <div className="mt-2 border-2 border-black bg-[#e4f7ed] p-2" aria-live="polite"><b className="block text-[16px]">{nav.state === 'navigating' && nav.distanceToTurnM > 20 ? `In ${Math.round(nav.distanceToTurnM)} m · ` : ''}{nav.message}</b><p className="mt-1 text-[11px]">{nav.backgroundLocation ? 'Native iOS location · continues with the screen locked' : 'Foreground location only'} · {nav.useBadge ? nav.badgeConnected ? 'Hardware Bluetooth connected' : 'Hardware disconnected, reconnecting' : 'Phone voice'}</p></div>}
+        {!nav?.active && <p className="mt-2 text-[11px] text-black/65">{session.navigation_message || (supportsNativeRunNavigation() ? 'Once started, iOS keeps locating you and does not disconnect Bluetooth when the screen locks.' : 'The web version navigates in the foreground only; lock-screen hardware cues need the newer iOS app.')}</p>}
+        {session.warnings.length > 0 && <details className="mt-2 text-[11px]"><summary className="cursor-pointer font-bold">Route evidence and limits · {session.route_evidence?.candidates || 1} option(s) available</summary><ul className="mt-1 max-h-24 list-disc overflow-y-auto pl-4 text-black/65">{session.warnings.map((warning, index) => <li key={index}>{warning}</li>)}</ul></details>}
+        {session.status === 'off_route' && <button type="button" onClick={() => void replan()} className="mt-2 min-h-10 w-full border-2 border-black bg-[#fff0b5] px-3 text-[12px] font-bold">Stop safely, then recalculate to the original finish</button>}
+        {(session.status === 'failed' || (!live && geometry && !geometry.valid)) && <button type="button" onClick={retryRealLocation} className="mt-2 min-h-10 w-full border-2 border-black px-3 text-[12px]">Plan again</button>}
+        <div className="mt-2 grid grid-cols-[1fr_auto] gap-2">{!live ? <button type="button" disabled={starting || finalizing || !geometry?.valid || session.status === 'failed' || session.status === 'completed'} onClick={sample ? retryRealLocation : () => void startTracking()} className={`flex min-h-11 items-center justify-center gap-2 border-2 border-black px-3 text-[13px] font-bold disabled:opacity-40 ${sample ? 'bg-[#fff0b5]' : 'bg-[#00ff88]'}`}><Play className="h-4 w-4" fill="currentColor" />{starting ? 'Starting location…' : sample ? 'Get a real fix to start' : session.status === 'paused' ? 'Resume running the route' : adjusted ? `Confirm ${km(session.metrics.planned_distance_m)} to start` : 'Start running the route'}</button> : <button type="button" onClick={() => void pause()} className="flex min-h-11 items-center justify-center gap-2 border-2 border-black bg-[#ffd65a] px-3 text-[13px] font-bold"><Pause className="h-4 w-4" fill="currentColor" />Pause navigation</button>}<button type="button" disabled={finalizing || starting || session.status === 'completed'} onClick={() => void finishTracking()} aria-label="Finish run" className="grid min-h-11 w-11 place-items-center border-2 border-black bg-white disabled:opacity-40"><Square className="h-4 w-4" fill="currentColor" /></button></div>
+        {live && <p className="mt-1 text-center text-[10px] text-black/55">Collapsing the panel from the top right keeps navigation running; tap ■ to end location tracking. Neither disconnects Bluetooth.</p>}
       </section>}
     </div>
   );

@@ -11,8 +11,8 @@ export function verifyFrostSkillsBundle(webDir) {
   }
   const bundle = path.join(assets, bundles[0]);
   const code = readFileSync(bundle, 'utf8');
-  const required = ['frost-quick-skills', '调用 Skills', 'group-open:hidden', 'hidden group-open:inline'];
-  if (!required.every(marker => code.includes(marker)) || code.includes('调用 Skill →')) {
+  const required = ['frost-quick-skills', 'Call Skills', 'group-open:hidden', 'hidden group-open:inline'];
+  if (!required.every(marker => code.includes(marker)) || code.includes('调用 Skill →') || code.includes('调用 Skills')) {
     throw new Error('Frost 资源包仍是旧版或缺少 Skills 折叠栏；禁止打包，请从当前源码重新构建。');
   }
   return bundle;

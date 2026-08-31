@@ -1,21 +1,12 @@
+# Build/tooling caches — excluded at any depth.
 .git
 .gitignore
 node_modules
-dist
-dist-ios
 .ios-build
 .agent-forge-data
 .local-models
 .codex*
 .tmp
-tmp
-output
-deliverables
-GoogleAIVibeathon
-ios
-android
-hardware
-training
 *.xcarchive
 *.ipa
 *.gguf
@@ -23,5 +14,22 @@ training
 .env
 .env.*
 !.env.example
-docs/evidence
-docs/technical-evidence
+
+# Repository-root directories only. These MUST stay anchored with a leading
+# slash: a bare `ios` / `hardware` / `android` / `dist` pattern matches a
+# directory of that name at ANY depth, which silently drops build inputs such
+# as scripts/ios/, scripts/hardware/, scripts/android/ and
+# native/frost-badge/ios/ and makes `gcloud builds submit .` fail on a clean
+# checkout. Keep the leading slash when adding new entries here.
+/ios/
+/android/
+/hardware/
+/training/
+/dist/
+/dist-ios/
+/tmp/
+/output/
+/deliverables/
+/GoogleAIVibeathon/
+/docs/evidence/
+/docs/technical-evidence/

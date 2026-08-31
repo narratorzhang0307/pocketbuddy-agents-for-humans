@@ -54,6 +54,6 @@ describe('page results return to the same Frost, without inventing Taskmaster fa
     await reportFrostSkillPageResult(handoff, { status: 'blocked', summary: '尚未配置服务' });
     const events = await readFrostAgentEvents();
     expect(events.filter(event => event.type === 'skill.result').at(-1)?.data.status).toBe('blocked');
-    expect(events.filter(event => event.type === 'assistant.message').at(-1)?.data.text).toContain('尚未完成');
+    expect(events.filter(event => event.type === 'assistant.message').at(-1)?.data.text).toContain('is not finished yet');
   });
 });
