@@ -41,7 +41,7 @@ export function routeRevision(session: RunRouteSession): string {
 
 /** Map runtime and CoreLocation both use WGS84. Convert exactly once at their boundary. */
 export function nativeRunRoutePayload(session: RunRouteSession, useBadge: boolean) {
-  if (session.start_source === 'sample' || session.planned_path.length < 2 || !session.cues?.length) throw new Error('示例或缺少转弯数据的路线不能开始真实导航，请重新规划。');
+  if (session.start_source === 'sample' || session.planned_path.length < 2 || !session.cues?.length) throw new Error('A sample route, or one without turn data, cannot start real navigation. Please plan the route again.');
   return { sessionId: session.session_id, revision: routeRevision(session), coordinateSystem: 'wgs84', provider: session.provider,
     points: session.planned_path.map(gcj02ToWgs84), cues: session.cues, useBadge,
     distanceOffsetM: session.metrics.actual_distance_m, elapsedOffsetS: session.metrics.elapsed_s };
@@ -115,22 +115,22 @@ export async function startRunNavigation(id: string, requireBadge = false): Prom
   starting = true;
   try {
     const session = readRunRouteSession(id);
-    if (!session) throw new Error('路线会话不存在');
+    if (!session) throw new Error('This route session no longer exists.');
     if (requireBadge && (session.actual_shape !== session.input.shape || !runRouteDistanceMatches(session.metrics.target_distance_m, session.metrics.planned_distance_m)))
-      throw new Error('路线形状或里程未达到目标，未自动开始。请先在地图明确确认。');
+      throw new Error('The route shape or distance does not meet the target, so it did not start automatically. Please confirm it explicitly on the map first.');
     const geometry = assessRunRouteGeometry(session.planned_path, session.actual_shape || session.input.shape, session.route_evidence?.turnaround_index);
     if (!geometry.valid) throw new Error(geometry.reason);
     const useBadge = frostBadge.snapshot().status === 'connected';
     const payload = nativeRunRoutePayload(session, useBadge);
     if (supportsNativeRunNavigation()) {
       await initializeRunNavigation();
-      if (current?.active && current.sessionId !== id) throw new Error('已有路线正在导航，请先结束当前路线。');
-      if (requireBadge && !useBadge) throw new Error('硬件未连接，未自动开始。请连接后重试，或手动使用手机导航。');
+      if (current?.active && current.sessionId !== id) throw new Error('A route is already navigating. Please end the current route first.');
+      if (requireBadge && !useBadge) throw new Error('The hardware is not connected, so it did not start automatically. Connect it and try again, or start navigation manually on your phone.');
       updateRunRouteSession(id, { navigation_owner: 'native', navigation_revision: payload.revision, error: undefined });
       accept(await native.startRunNavigation(payload));
       return;
     }
-    if (!navigator.geolocation) throw new Error('当前浏览器不支持定位');
+    if (!navigator.geolocation) throw new Error('This browser does not support location services');
     if (webId && webId !== id) await pauseRunNavigation(webId);
     if (webWatch !== null) return;
     const generation = ++webGeneration; webId = id;
@@ -140,13 +140,13 @@ export async function startRunNavigation(id: string, requireBadge = false): Prom
     const spoken = webRun.spoken;
     const cumulative = [0];
     for (let i = 1; i < session.planned_path.length; i++) cumulative.push(cumulative[i - 1] + distanceInMeters(session.planned_path[i - 1], session.planned_path[i]));
-    updateRunRouteSession(id, { status: 'navigating', navigation_owner: 'web', navigation_message: '网页仅支持前台导航；锁屏提醒需要新版 iOS App。', error: undefined });
+    updateRunRouteSession(id, { status: 'navigating', navigation_owner: 'web', navigation_message: 'The web page only navigates in the foreground; lock-screen cues need the newer iOS app.', error: undefined });
     webWatch = navigator.geolocation.watchPosition(position => {
       if (generation !== webGeneration || webId !== id) return;
-      if (!Number.isFinite(position.coords.accuracy) || position.coords.accuracy < 0 || position.coords.accuracy > 50 || Date.now() - position.timestamp > 15000 || position.timestamp > Date.now() + 2000) { updateRunRouteSession(id, { navigation_message: '定位精度不足，暂停转弯提示' }); return; }
+      if (!Number.isFinite(position.coords.accuracy) || position.coords.accuracy < 0 || position.coords.accuracy > 50 || Date.now() - position.timestamp > 15000 || position.timestamp > Date.now() + 2000) { updateRunRouteSession(id, { navigation_message: 'Location accuracy is too low, so turn cues are paused' }); return; }
       const point = wgs84ToGcj02([position.coords.longitude, position.coords.latitude]);
       if (lastFix && (position.timestamp <= lastFix.time || distanceInMeters(lastFix.point, point) > Math.max(30, (position.timestamp - lastFix.time) / 1000 * 9 + position.coords.accuracy))) return;
-      if (progress < 1 && distanceInMeters(point, session.planned_path[0]) > 120) { updateRunRouteSession(id, { navigation_message: '请到路线起点附近再开始，未记录为有效跑步' }); return; }
+      if (progress < 1 && distanceInMeters(point, session.planned_path[0]) > 120) { updateRunRouteSession(id, { navigation_message: 'Please move closer to the route start before beginning; this was not recorded as a valid run' }); return; }
       const projected = projectRunProgress(point, session.planned_path, progress);
       offCount = projected.deviation > 55 ? offCount + 1 : 0;
       if (offCount === 0) progress = projected.progress;
@@ -154,7 +154,7 @@ export async function startRunNavigation(id: string, requireBadge = false): Prom
       appendRunRouteTrackPoint(id, { position: point, accuracy_m: position.coords.accuracy, recorded_at: new Date(position.timestamp).toISOString() });
       const cue = session.cues?.find(c => cumulative[c.point_index] >= progress - 8);
       const remaining = cue ? Math.max(0, cumulative[cue.point_index] - progress) : 0;
-      const message = offCount >= 3 ? '已偏离路线，请先安全停下查看地图' : cue?.instruction || '沿路线继续';
+      const message = offCount >= 3 ? 'You are off the route. Stop somewhere safe first and check the map' : cue?.instruction || 'Continue along the route';
       const snapshot: RunNavigationSnapshot = { sessionId: id, revision: payload.revision, state: offCount >= 3 ? 'off_route' : 'navigating', active: true, message,
         progressM: progress, deviationM: projected.deviation, distanceToTurnM: remaining, useBadge: false, badgeConnected: false, audioError: '', backgroundLocation: false,
         distanceM: readRunRouteSession(id)?.metrics.actual_distance_m || 0, elapsedS: readRunRouteSession(id)?.metrics.elapsed_s || 0 };
@@ -163,21 +163,21 @@ export async function startRunNavigation(id: string, requireBadge = false): Prom
       const key = `${cue?.id}:${remaining < 20 ? 'now' : 'ahead'}`;
       if (cue && remaining <= 80 && projected.deviation <= 35 && !spoken.has(key) && 'speechSynthesis' in window && !window.speechSynthesis.speaking) {
         if (cue.source === 'arrival' && (progress < cumulative[cumulative.length - 1] - 18 || progress < cumulative[cumulative.length - 1] * .8)) return;
-        const utterance = new SpeechSynthesisUtterance(cue.source === 'arrival' ? cue.instruction : `前方约${Math.round(remaining / 10) * 10}米，${cue.instruction}`);
-        utterance.lang = 'zh-CN'; window.speechSynthesis.speak(utterance); spoken.add(key);
+        const utterance = new SpeechSynthesisUtterance(cue.source === 'arrival' ? cue.instruction : `In about ${Math.round(remaining / 10) * 10} metres, ${cue.instruction}`);
+        utterance.lang = 'en-US'; window.speechSynthesis.speak(utterance); spoken.add(key);
       }
       const total = cumulative[cumulative.length - 1];
       if (progress >= total - 18 && progress > total * .8 && distanceInMeters(point, session.planned_path.at(-1)!) < 30) {
         ++webGeneration;
         if (webWatch !== null) navigator.geolocation.clearWatch(webWatch);
         webWatch = null; webId = null;
-        current = { ...snapshot, state: 'arrived', active: false, message: '已到达跑步路线终点，请安全停下' };
+        current = { ...snapshot, state: 'arrived', active: false, message: 'You have reached the end of the running route. Please stop safely' };
         listeners.forEach(listener => listener(current!));
         updateRunRouteSession(id, { status: 'paused', navigation_message: current.message });
       }
     }, error => {
       if (generation !== webGeneration) return;
-      void pauseRunNavigation(id).then(() => updateRunRouteSession(id, { error: error.message || '定位已中断' }));
+      void pauseRunNavigation(id).then(() => updateRunRouteSession(id, { error: error.message || 'Location updates were interrupted' }));
     }, { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 });
   } finally { starting = false; }
 }
@@ -191,7 +191,7 @@ export async function pauseRunNavigation(id: string): Promise<void> {
     if (webWatch !== null) navigator.geolocation.clearWatch(webWatch);
     webWatch = null; webId = null;
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) window.speechSynthesis.cancel();
-    if (current?.sessionId === id) { current = { ...current, active: false, state: 'paused', message: '导航已暂停' }; listeners.forEach(listener => listener(current!)); }
+    if (current?.sessionId === id) { current = { ...current, active: false, state: 'paused', message: 'Navigation paused' }; listeners.forEach(listener => listener(current!)); }
   }
   const session = readRunRouteSession(id);
   if (session && session.status !== 'completed') updateRunRouteSession(id, { status: 'paused' });
@@ -207,6 +207,6 @@ export async function stopRunNavigation(id: string): Promise<void> {
 if (typeof document !== 'undefined') document.addEventListener('visibilitychange', () => {
   if (!supportsNativeRunNavigation() && document.visibilityState === 'hidden' && webId) {
     const id = webId;
-    void pauseRunNavigation(id).then(() => updateRunRouteSession(id, { navigation_message: '网页已进入后台，导航已暂停；锁屏导航请使用 iOS App。' }));
+    void pauseRunNavigation(id).then(() => updateRunRouteSession(id, { navigation_message: 'The web page moved to the background, so navigation is paused; use the iOS app for lock-screen navigation.' }));
   }
 });

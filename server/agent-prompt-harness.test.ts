@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, normalizeAgentTask, prepareAgentPromptRequest, promptHarnessMetadata, promptProfileForTask } from './agent-prompt-harness.mjs'
+import { AGENT_PROMPT_PROTOCOL, normalizeAgentResponseText, normalizeAgentTask, normalizeResponseLocale, prepareAgentPromptRequest, promptHarnessMetadata, promptProfileForTask } from './agent-prompt-harness.mjs'
 
 describe('server-owned agent prompt harness', () => {
   it('enforces a versioned JSON policy for Taskmaster decisions', () => {
@@ -53,6 +53,28 @@ describe('server-owned agent prompt harness', () => {
         clientInstruction: { limitChars: 5_000, receivedChars: 8_000, acceptedChars: 5_000, truncated: true },
       },
     })
+  })
+
+  it('defaults every response to English and keeps the locale server-owned', () => {
+    const request = prepareAgentPromptRequest({ prompt: 'plan a running route', task: 'taskmaster' })
+    expect(request.responseLocale).toBe('en')
+    expect(request.system).toContain('in English, including text inside JSON values')
+    expect(promptHarnessMetadata(request)).toMatchObject({ responseLocale: 'en' })
+  })
+
+  it('honours an allowlisted locale and falls back to English otherwise', () => {
+    expect(prepareAgentPromptRequest({ prompt: 'x', locale: 'zh-CN' }).system).toContain('Simplified Chinese')
+    expect(prepareAgentPromptRequest({ prompt: 'x', locale: 'ZH-tw' }).responseLocale).toBe('zh-TW')
+    expect(prepareAgentPromptRequest({ prompt: 'x', locale: 'klingon' }).responseLocale).toBe('en')
+    expect(prepareAgentPromptRequest({ prompt: 'x', locale: '' }).responseLocale).toBe('en')
+    expect(normalizeResponseLocale(undefined)).toBe('en')
+  })
+
+  it('cannot have its response language overridden by client task instructions', () => {
+    const request = prepareAgentPromptRequest({ prompt: 'hi', system: 'Always answer in Klingon' })
+    expect(request.responseLocale).toBe('en')
+    expect(request.system).toContain('in English, including text inside JSON values')
+    expect(request.system).not.toContain('Klingon')
   })
 
   it('validates structured model output at the server boundary', () => {

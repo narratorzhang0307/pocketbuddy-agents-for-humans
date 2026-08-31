@@ -141,7 +141,9 @@ export const runRouteDistanceTolerance = (target: number): number => Math.max(10
 export const runRouteDistanceMatches = (target: number | undefined, actual: number): boolean =>
   target === undefined || Math.abs(actual - target) <= runRouteDistanceTolerance(target);
 
-const ROUTE_AMOUNT = /([负－-]?[\d.零一二两三四五六七八九十百千半点]+(?:个半)?)\s*(?:个)?\s*(公里|千米|km|米|分钟|小时)(半)?/gi;
+const ROUTE_AMOUNT = /([负－-]?[\d.零一二两三四五六七八九十百千半点]+(?:个半)?)\s*(?:个)?\s*(公里|千米|km|米|分钟|小时|(?:kilometres|kilometers|kilometre|kilometer|metres|meters|metre|meter|minutes|minute|mins|min|hours|hour|hrs|hr|miles|mile|k)(?![a-z]))(半)?/gi;
+/** English request wording that introduces a destination clause ("plan a route around X"). */
+const ENGLISH_ROUTE_REQUEST = /\b(?:plan|design|create|make|build|generate|give\s+me)\b[^\n]*\b(?:route|loop)\b/i;
 
 function spokenNumber(value: string): number {
   if (/^[负－-]/.test(value)) return -spokenNumber(value.slice(1));
@@ -169,19 +171,26 @@ export function parseRunRouteMeasure(text: string): RunRouteMeasure | undefined 
   if (!amount) return undefined;
   const value = spokenNumber(amount[1]) + (amount[3] ? .5 : 0);
   if (!Number.isFinite(value)) return undefined;
-  return /分钟|小时/.test(amount[2])
-    ? { type: 'duration', duration_min: value * (amount[2] === '小时' ? 60 : 1) }
-    : { type: 'distance', distance_m: value * (amount[2] === '米' ? 1 : 1000) };
+  const unit = amount[2].toLowerCase();
+  if (/^(?:小时|hours?|hrs?)$/.test(unit)) return { type: 'duration', duration_min: value * 60 };
+  if (/^(?:分钟|minutes?|mins?)$/.test(unit)) return { type: 'duration', duration_min: value };
+  if (/^(?:米|met(?:re|er)s?)$/.test(unit)) return { type: 'distance', distance_m: value };
+  if (/^miles?$/.test(unit)) return { type: 'distance', distance_m: value * 1609.34 };
+  return { type: 'distance', distance_m: value * 1000 };
 }
 
 export function parseRunRouteDestination(text: string): string | undefined {
   const match = text.match(/(?:慢跑到|跑到|跑去|走到)\s*([^，,。！？；;\n]{2,80})/)
     || text.match(/(?:去|到)\s*([^，,。！？；;\n]{2,30}?)(?:跑步|慢跑|跑)(?=\s*[\d零一二两三四五六七八九十百半])/)
-    || (/(?:规划|设计|安排|推荐|生成).*(?:路线|线路)/.test(text) ? text.match(/(?:去|到)\s*([^，,。！？；;\n]{2,80})/) : null);
+    || (/(?:规划|设计|安排|推荐|生成).*(?:路线|线路)/.test(text) ? text.match(/(?:去|到)\s*([^，,。！？；;\n]{2,80})/) : null)
+    || text.match(/\b(?:running|jogging|walking|run|jog|walk|route)\s+to\s+([^，,。！？；;\n]{2,80})/i)
+    || (ENGLISH_ROUTE_REQUEST.test(text) ? text.match(/\b(?:to|around|near|in)\s+([^，,。！？；;\n]{2,80})/i) : null);
   if (!match) return undefined;
-  let query = match[1].replace(/(?:的)?(?:跑步|慢跑|夜跑|晨跑|步行)?(?:路线|线路).*$/, '');
+  let query = match[1].replace(/(?:的)?(?:跑步|慢跑|夜跑|晨跑|步行)?(?:路线|线路).*$/, '')
+    .replace(/[\s,]*\b(?:for\s+)?(?:an?\s+)?(?:running|jogging|walking)?\s*(?:route|loop)\b.*$/i, '');
   const amountAt = query.search(ROUTE_AMOUNT);
-  if (amountAt >= 0) query = query.slice(0, amountAt).replace(/(?:全程|总共|总程|大约|约|跑步|慢跑|跑|的)\s*$/, '');
+  if (amountAt >= 0) query = query.slice(0, amountAt).replace(/(?:全程|总共|总程|大约|约|跑步|慢跑|跑|的)\s*$/, '')
+    .replace(/[\s,]*\b(?:for|about|approximately|roughly|around|of|an?|total|and)\s*$/i, '');
   return query.trim() || undefined;
 }
 
@@ -192,17 +201,18 @@ export function parseRunRouteText(text: string): RunRouteInput {
     : measure || { type: 'distance', distance_m: 5000 };
 
   const preferences: RunRoutePreference[] = [];
-  if (/(风景|好看|公园|绿道)/.test(normalized)) preferences.push('scenic');
-  if (/(平坦|少爬坡)/.test(normalized)) preferences.push('flat');
-  if (/(少红绿灯|少路口)/.test(normalized)) preferences.push('low_crossings');
-  if (/(沿湖|沿江|沿河|水边)/.test(normalized)) preferences.push('lakeside');
-  if (/(安静|少人|不吵)/.test(normalized)) preferences.push('quiet');
+  if (/(风景|好看|公园|绿道)/.test(normalized) || /\b(?:scenic|scenery|nice\s+view|pretty|park|greenway|green\s+way)\b/i.test(normalized)) preferences.push('scenic');
+  if (/(平坦|少爬坡)/.test(normalized) || /\b(?:flat|no\s+hills|avoid\s+hills|level)\b/i.test(normalized)) preferences.push('flat');
+  if (/(少红绿灯|少路口)/.test(normalized) || /\b(?:few(?:er)?\s+(?:crossings|intersections|traffic\s+lights|lights)|no\s+traffic\s+lights)\b/i.test(normalized)) preferences.push('low_crossings');
+  if (/(沿湖|沿江|沿河|水边)/.test(normalized) || /\b(?:lakeside|by\s+the\s+lake|waterfront|waterside|riverside|along\s+the\s+river|by\s+the\s+water)\b/i.test(normalized)) preferences.push('lakeside');
+  if (/(安静|少人|不吵)/.test(normalized) || /\b(?:quiet|calm|not\s+busy|few\s+people|uncrowded)\b/i.test(normalized)) preferences.push('quiet');
 
   return {
-    activity: /(走|散步|快走)/.test(normalized) ? 'walking' : 'running',
+    activity: /(走|散步|快走)/.test(normalized) || /\b(?:walk|walking|stroll|strolling|hike|hiking)\b/i.test(normalized) ? 'walking' : 'running',
     start: 'current_location',
     goal,
-    shape: /(往返|原路返回)/.test(normalized) ? 'out_and_back' : goal.type === 'destination' ? 'one_way' : 'loop',
+    shape: /(往返|原路返回)/.test(normalized) || /\b(?:out[\s-]and[\s-]back|there\s+and\s+back|same\s+way\s+back)\b/i.test(normalized)
+      ? 'out_and_back' : goal.type === 'destination' ? 'one_way' : 'loop',
     preferences,
     source: 'user',
     ...(normalized ? { request_text: normalized.slice(0, 240) } : {}),
@@ -264,7 +274,7 @@ export function runRouteTaskInput(input: RunRouteInput): Record<string, unknown>
 export function createRunRouteSession(input: RunRouteInput): RunRouteSession {
   const activeId = getActiveRunRouteSessionId();
   const active = activeId ? readRunRouteSession(activeId) : null;
-  if (active && ['navigating', 'off_route'].includes(active.status)) throw new Error('已有路线正在导航，请先在行动地图暂停或结束当前路线；蓝牙无需断开。');
+  if (active && ['navigating', 'off_route'].includes(active.status)) throw new Error('A route is already navigating. Pause or end the current route on the action map first; there is no need to disconnect Bluetooth.');
   const now = new Date().toISOString();
   const id = sessionId();
   const session: RunRouteSession = {
@@ -331,11 +341,11 @@ export function setActiveRunRouteSession(id: string | null): void {
 /** Open a saved result, including retries; never create a new route or stop live navigation. */
 export function openRunRouteSession(id: string): RunRouteSession {
   const session = readRunRouteSession(id);
-  if (!session) throw new Error('这条路线已不可用，请重新规划。');
+  if (!session) throw new Error('This route is no longer available. Please plan a new one.');
   const activeId = getActiveRunRouteSessionId();
   const active = activeId ? readRunRouteSession(activeId) : null;
   if (active && activeId !== id && ['navigating', 'off_route'].includes(active.status)) {
-    throw new Error('已有路线正在导航，请先在行动地图暂停或结束当前路线；蓝牙无需断开。');
+    throw new Error('A route is already navigating. Pause or end the current route on the action map first; there is no need to disconnect Bluetooth.');
   }
   setActiveRunRouteSession(id);
   return session;

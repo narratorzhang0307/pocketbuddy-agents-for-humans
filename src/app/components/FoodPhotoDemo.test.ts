@@ -28,7 +28,7 @@ describe('Photos sample preview', () => {
     const html = renderToStaticMarkup(createElement(FoodPhotoDemo, { onRemove: () => {} }));
     for (const label of ['香草鸡肉考伯碗', '示例能量账本', '480–590', '非 SAM 分割结果', '不会写入健康记忆', '移除示例', '餐食记录示例']) expect(html).toContain(label);
     expect(html).toContain('data-food-demo="preview-only"');
-    expect(html).not.toContain('确认实际吃过，记入对应日期');
+    expect(html).not.toContain('Confirm you ate this, log it to that date');
   });
   it('renders all four sample meals and sample week, never a real-time health total', () => {
     const html = renderToStaticMarkup(createElement(FoodPhotoDemo, { initialView: 'records', onRemove: () => {} }));
@@ -48,7 +48,7 @@ describe('Photos sample preview', () => {
     const parent = readFileSync(new URL('./FoodPhotosTab.tsx', import.meta.url), 'utf8');
     expect(parent).toContain('useState(readFoodDemoVisible)');
     expect(parent).toContain('!manual && (demoVisible ? <FoodPhotoDemo');
-    expect(parent).toContain('恢复餐食示例预览');
+    expect(parent).toContain('Restore the sample meal preview');
     expect(parent).toContain('if (busy || confirmed || (!candidate && !manual)) return;');
     expect(parent).toContain('await analyzeFoodPhoto(image, controller.signal)');
   });

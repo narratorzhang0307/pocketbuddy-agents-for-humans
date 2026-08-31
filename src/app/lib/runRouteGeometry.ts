@@ -57,25 +57,25 @@ export function hasUsableLoopGeometry(points: RoutePoint[]): boolean {
  * half may contain additional spurs. Single-way/loop routes get no exemption. */
 export function assessRunRouteGeometry(points: RoutePoint[], shape: RunRouteShape, turnaroundIndex?: number): RunRouteGeometry {
   const empty = { valid: false, repeated_distance_m: 0, retraced_distance_m: 0, longest_retrace_m: 0 };
-  if (points.length < 2 || points.some(p => !Number.isFinite(p[0]) || !Number.isFinite(p[1]))) return { ...empty, reason: '路线道路数据不完整，请重新规划。' };
+  if (points.length < 2 || points.some(p => !Number.isFinite(p[0]) || !Number.isFinite(p[1]))) return { ...empty, reason: 'The road data for this route is incomplete. Please plan it again.' };
   if (shape === 'out_and_back') {
     // Legacy saved routes have no boundary. Their furthest point is only a
     // candidate boundary; both halves still have to pass the same checks.
     const turn = turnaroundIndex ?? points.reduce((best, p, i) => distanceInMeters(points[0], p) > distanceInMeters(points[0], points[best]) ? i : best, 0);
-    if (turn < 1 || turn >= points.length - 1 || distanceInMeters(points[0], points.at(-1)!) > 40) return { ...empty, reason: '往返路线缺少完整的去程或回程，请重新规划。' };
+    if (turn < 1 || turn >= points.length - 1 || distanceInMeters(points[0], points.at(-1)!) > 40) return { ...empty, reason: 'The out-and-back route is missing a complete outbound or return leg. Please plan it again.' };
     const outbound = assessRunRouteGeometry(points.slice(0, turn + 1), 'one_way');
     const inbound = assessRunRouteGeometry(points.slice(turn), 'one_way');
     return { valid: outbound.valid && inbound.valid,
       repeated_distance_m: outbound.repeated_distance_m + inbound.repeated_distance_m,
       retraced_distance_m: outbound.retraced_distance_m + inbound.retraced_distance_m,
       longest_retrace_m: Math.max(outbound.longest_retrace_m, inbound.longest_retrace_m),
-      ...(!outbound.valid || !inbound.valid ? { reason: '往返路线的单侧含额外支路折返，已拦截，请重新规划。' } : {}) };
+      ...(!outbound.valid || !inbound.valid ? { reason: 'One side of the out-and-back route contains extra side-street backtracking, so it was blocked. Please plan it again.' } : {}) };
   }
   const overlap = roadOverlap(points), length = routeDistance(points);
   if (overlap.longest_retrace_m > 45 || overlap.retraced_distance_m > Math.max(35, Math.min(70, length * .025))
     || overlap.repeated_distance_m > Math.max(50, Math.min(100, length * .04))) {
-    return { valid: false, ...overlap, reason: '路线包含明显的重复道路或支路折返，不能作为单程或环线，请重新规划。' };
+    return { valid: false, ...overlap, reason: 'This route contains obvious repeated road or side-street backtracking, so it cannot be used as a one-way or loop route. Please plan it again.' };
   }
-  if (shape === 'loop' && !hasUsableLoopGeometry(points)) return { valid: false, ...overlap, reason: '道路未形成完整环线，请重新规划。' };
+  if (shape === 'loop' && !hasUsableLoopGeometry(points)) return { valid: false, ...overlap, reason: 'The roads do not form a complete loop. Please plan it again.' };
   return { valid: true, ...overlap };
 }

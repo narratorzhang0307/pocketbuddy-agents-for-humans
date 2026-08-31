@@ -506,9 +506,9 @@ async function handleFrostLlm(req, res) {
   const startedAt = new Date()
   res.setHeader('x-frost-trace-id', traceId)
   try {
-    const { prompt, system, json, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
+    const { prompt, system, json, task, locale, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
     let prepared
-    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task }) }
+    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task, locale }) }
     catch (error) { return sendJSON(res, { text: '', error: error instanceof Error ? error.message : 'invalid_prompt' }, 400) }
     const { prompt: safePrompt, system: safeSystem, task: taskName } = prepared
 
@@ -629,9 +629,9 @@ async function handleFrostLlmStream(req, res) {
   res.writeHead(200, { 'content-type': 'text/event-stream; charset=utf-8', 'cache-control': 'no-cache', connection: 'keep-alive', 'x-accel-buffering': 'no' })
   const sse = (obj) => res.write(`data: ${JSON.stringify(obj)}\n\n`)
   try {
-    const { prompt, system, json, task, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
+    const { prompt, system, json, task, locale, session_id: sessionId, run_id: runId } = JSON.parse(raw || '{}')
     let prepared
-    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task }) }
+    try { prepared = prepareAgentPromptRequest({ prompt, system, json, task, locale }) }
     catch (error) { sse({ done: true, error: error instanceof Error ? error.message : 'invalid_prompt' }); res.end(); return }
     const { prompt: safePrompt, system: safeSystem, task: taskName } = prepared
 

@@ -50,15 +50,15 @@ export default function OnDeviceBrainPanel({ onOpenLedger }: { onOpenLedger?: ()
 
   const applyConfiguration = async (nextSme2: boolean) => {
     if (!native || !base?.installed) return;
-    setActing(true); setError(''); setProgress(`切换 SME2 ${nextSme2 ? 'ON' : 'OFF'}…`);
+    setActing(true); setError(''); setProgress(`Switching SME2 ${nextSme2 ? 'ON' : 'OFF'}…`);
     try {
       const response = await configureEdgeRuntime(true, nextSme2);
       if (response.error) throw new Error(response.error);
       const applied = response.runtime;
-      if (nextSme2 && (applied?.sme2Effective !== true || applied.cpuTarget !== 3)) throw new Error('SME2 请求已发送，但 JNI 未切到 target 3');
-      if (!nextSme2 && (applied?.sme2Effective === true || applied?.cpuTarget === 3)) throw new Error('SME2 OFF 未真正下沉到 JNI');
+      if (nextSme2 && (applied?.sme2Effective !== true || applied.cpuTarget !== 3)) throw new Error('The SME2 request was sent, but JNI did not switch to target 3');
+      if (!nextSme2 && (applied?.sme2Effective === true || applied?.cpuTarget === 3)) throw new Error('SME2 OFF did not actually reach JNI');
       setRuntime(response);
-      setProgress(`已切换到 ${nextSme2 ? 'ON · target 3' : `OFF · target ${applied?.cpuTarget ?? '—'}`}。`);
+      setProgress(`Switched to ${nextSme2 ? 'ON · target 3' : `OFF · target ${applied?.cpuTarget ?? '—'}`}.`);
     } catch (reason) { setError(String(reason)); }
     finally { setActing(false); await refresh(); window.setTimeout(() => setProgress(''), 1200); }
   };
@@ -66,28 +66,28 @@ export default function OnDeviceBrainPanel({ onOpenLedger }: { onOpenLedger?: ()
   const runQuickComparison = async () => {
     if (!native || !base?.installed || !hardwareSme2 || acting) return;
     setActing(true); setError('');
-    const prompt = '只回复 SME2_AB_OK';
-    const options = { system: '你只能输出 SME2_AB_OK，不要解释。', maxTokens: 16 } as const;
+    const prompt = 'Reply only SME2_AB_OK';
+    const options = { system: 'Output only SME2_AB_OK. Do not explain.', maxTokens: 16 } as const;
     try {
-      setProgress('准备 SME2 OFF · 释放 Session 并切换 target 2…');
+      setProgress('Preparing SME2 OFF · releasing the session and switching to target 2…');
       const offConfiguration = await configureEdgeRuntime(true, false);
-      if (offConfiguration.error || offConfiguration.runtime?.sme2Effective === true || offConfiguration.runtime?.cpuTarget === 3) throw new Error('SME2 OFF 配置未真实生效');
-      setProgress('SME2 OFF · 同一固定输入推理中…');
+      if (offConfiguration.error || offConfiguration.runtime?.sme2Effective === true || offConfiguration.runtime?.cpuTarget === 3) throw new Error('The SME2 OFF configuration did not actually take effect');
+      setProgress('SME2 OFF · running inference on the same fixed input…');
       const off = await runEdgeChatEvidence(prompt, options);
-      if (off.backend !== 'mnn' || !(off.text || '').includes('SME2_AB_OK') || off.stats?.sme2Effective === true || off.stats?.cpuTarget === 3) throw new Error(`SME2 OFF 实测失败：${off.error || off.text || '无输出'}`);
+      if (off.backend !== 'mnn' || !(off.text || '').includes('SME2_AB_OK') || off.stats?.sme2Effective === true || off.stats?.cpuTarget === 3) throw new Error(`SME2 OFF measurement failed: ${off.error || off.text || 'no output'}`);
 
-      setProgress('准备 SME2 ON · 释放 Session 并切换 target 3…');
+      setProgress('Preparing SME2 ON · releasing the session and switching to target 3…');
       const onConfiguration = await configureEdgeRuntime(true, true);
-      if (onConfiguration.error || onConfiguration.runtime?.sme2Effective !== true || onConfiguration.runtime?.cpuTarget !== 3) throw new Error('SME2 ON 未切到 target 3；当前 APK 或手机硬件未真正启用 SME2');
-      setProgress('SME2 ON · 同一固定输入推理中…');
+      if (onConfiguration.error || onConfiguration.runtime?.sme2Effective !== true || onConfiguration.runtime?.cpuTarget !== 3) throw new Error('SME2 ON did not switch to target 3; this APK or this phone hardware has not actually enabled SME2');
+      setProgress('SME2 ON · running inference on the same fixed input…');
       const on = await runEdgeChatEvidence(prompt, options);
-      if (on.backend !== 'mnn' || !(on.text || '').includes('SME2_AB_OK') || on.stats?.sme2Effective !== true || on.stats?.cpuTarget !== 3) throw new Error(`SME2 ON 实测失败：${on.error || on.text || '无输出'}`);
+      if (on.backend !== 'mnn' || !(on.text || '').includes('SME2_AB_OK') || on.stats?.sme2Effective !== true || on.stats?.cpuTarget !== 3) throw new Error(`SME2 ON measurement failed: ${on.error || on.text || 'no output'}`);
 
       const offMs = off.stats?.elapsedMs || 0;
       const onMs = on.stats?.elapsedMs || 0;
       setRuntime(onConfiguration);
       await refresh();
-      setProgress(`A/B 已记录 · OFF ${(offMs / 1000).toFixed(1)}s / ON ${(onMs / 1000).toFixed(1)}s · 当前保持 ON`);
+      setProgress(`A/B recorded · OFF ${(offMs / 1000).toFixed(1)}s / ON ${(onMs / 1000).toFixed(1)}s · staying ON`);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : String(reason));
       await configureEdgeRuntime(true, true).catch(() => undefined);
@@ -100,26 +100,26 @@ export default function OnDeviceBrainPanel({ onOpenLedger }: { onOpenLedger?: ()
   return <section className="border-[3px] border-black bg-[#f6f1e5]">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex w-full items-center gap-2 bg-black px-3 py-2 text-left text-white">
       <Cpu className="h-4 w-4 shrink-0" style={{ color: ACCENT }} strokeWidth={2.6} />
-      <span className="font-pixel text-[9px] tracking-wider">SME2 加速对比</span><span className="flex-1" />
-      <span className="text-[8px] font-bold" style={{ color: ACCENT }}>{comparisons.length ? `${comparisons.length} 组对比` : `${inferenceRecords.length} 次运行`}</span>
-      <span className="border border-white/55 px-1.5 py-1 text-[7px] font-bold">{open ? '收起' : '展开'}</span>
+      <span className="font-pixel text-[9px] tracking-wider">SME2 SPEEDUP A/B</span><span className="flex-1" />
+      <span className="text-[8px] font-bold" style={{ color: ACCENT }}>{comparisons.length ? `${comparisons.length} comparisons` : `${inferenceRecords.length} runs`}</span>
+      <span className="border border-white/55 px-1.5 py-1 text-[7px] font-bold">{open ? 'Close' : 'Open'}</span>
       <ChevronDown className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`} />
     </button>
 
     {open && <div className="space-y-2 p-2.5">
       <HealthQwenMnnCard onStateChange={handleHealthBaseState} />
 
-      <div className="flex items-center justify-between border-2 border-black bg-[#dceff3] px-2.5 py-2 text-[9px]"><b>MNN 端侧运行底座</b><span className="font-pixel text-[8px]">固定 ON</span></div>
-      <Toggle label="SME2 指令加速" value={sme2Effective} disabled={!native || acting || !base?.installed || !mnnEnabled || !hardwareSme2} color={SME} onChange={(value) => void applyConfiguration(value)} />
+      <div className="flex items-center justify-between border-2 border-black bg-[#dceff3] px-2.5 py-2 text-[9px]"><b>MNN on-device runtime base</b><span className="font-pixel text-[8px]">ALWAYS ON</span></div>
+      <Toggle label="SME2 instruction speedup" value={sme2Effective} disabled={!native || acting || !base?.installed || !mnnEnabled || !hardwareSme2} color={SME} onChange={(value) => void applyConfiguration(value)} />
 
       <button type="button" disabled={!native || acting || !base?.installed || !mnnEnabled || !hardwareSme2} onClick={() => void runQuickComparison()} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-[#f7e1b7] py-2.5 text-[10px] font-black shadow-[2px_2px_0_#000] active:translate-y-px disabled:opacity-35">
-        {acting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />} 一键实测 OFF → ON（结束保持 ON）
+        {acting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Cpu className="h-4 w-4" />} Measure OFF → ON in one tap (ends staying ON)
       </button>
 
-      {onOpenLedger && <button type="button" onClick={onOpenLedger} className="w-full border-2 border-black bg-white py-2 text-[9px] font-black">查看 SME2 效率记录（{inferenceRecords.length} 次 / {comparisons.length} 组）→</button>}
-      {(acting || progress) && <div className="flex items-center gap-2 border-2 border-black bg-[#fff4d6] p-2 text-[9px] font-bold">{acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5 text-[#087c49]" />}{progress || '切换中…'}</div>}
+      {onOpenLedger && <button type="button" onClick={onOpenLedger} className="w-full border-2 border-black bg-white py-2 text-[9px] font-black">View the SME2 efficiency ledger ({inferenceRecords.length} runs / {comparisons.length} comparisons) →</button>}
+      {(acting || progress) && <div className="flex items-center gap-2 border-2 border-black bg-[#fff4d6] p-2 text-[9px] font-bold">{acting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5 text-[#087c49]" />}{progress || 'Switching…'}</div>}
       {error && <div className="flex items-start gap-1.5 border-2 border-black bg-[#fff0f0] p-2 text-[9px] text-[#b3261e]"><AlertTriangle className="h-3.5 w-3.5 shrink-0" />{error}</div>}
-      <div className="text-[8px] leading-relaxed text-black/40">每次真实 MNN 推理都会记录 ON/OFF、target、耗时与输入哈希；同一输入的 OFF / ON 自动生成对比。</div>
+      <div className="text-[8px] leading-relaxed text-black/40">Every real MNN inference records ON/OFF, target, elapsed time and the input hash; an OFF / ON pair on the same input becomes a comparison automatically.</div>
     </div>}
   </section>;
 }

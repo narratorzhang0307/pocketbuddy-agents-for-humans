@@ -39,7 +39,7 @@ describe('iOS integrated web resources', () => {
 
 describe('Frost packaged Skills regression guard', () => {
   const fixtures: string[] = [];
-  const current = 'frost-quick-skills 调用 Skills group-open:hidden hidden group-open:inline';
+  const current = 'frost-quick-skills Call Skills group-open:hidden hidden group-open:inline';
   afterEach(() => {
     for (const directory of fixtures.splice(0)) rmSync(directory, { recursive: true, force: true });
   });
@@ -64,6 +64,11 @@ describe('Frost packaged Skills regression guard', () => {
     const result = checkBundle({ 'FrostBuddyPage-old.js': '调用 Skill →' });
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('禁止打包');
+  });
+
+  it('rejects a stale Chinese-labelled bundle after the English UI change', () => {
+    const stale = 'frost-quick-skills 调用 Skills group-open:hidden hidden group-open:inline';
+    expect(checkBundle({ 'FrostBuddyPage-stale.js': stale }).status).toBe(1);
   });
 
   const invalidBundles: Record<string, string>[] = [

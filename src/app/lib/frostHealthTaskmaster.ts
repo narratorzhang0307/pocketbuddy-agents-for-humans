@@ -154,10 +154,10 @@ export async function startRunRouteTask(input: RunRouteInput, taskId = `health-p
     input: runRouteTaskInput(input) as JsonObject,
     source: input.source === 'taskmaster' ? 'agent' : input.source,
   });
-  if (task.status !== 'completed') throw new Error(task.error || '路线任务尚未创建成功，请重试。');
+  if (task.status !== 'completed') throw new Error(task.error || 'The route task was not created. Please try again.');
   const id = task.actions.map(action => action.result?.route_session_id).find((value): value is string => typeof value === 'string');
   const session = id ? readRunRouteSession(id) : null;
-  if (!session || session.input.source_task_id !== task.task_id) throw new Error('路线任务没有返回可打开的路线，请重新规划。');
+  if (!session || session.input.source_task_id !== task.task_id) throw new Error('The route task did not return a route that can be opened. Please plan it again.');
   // A reused task does not run planRoute again. Re-issue the handoff from its verified result.
   openRunRouteSession(session.session_id);
   return task;

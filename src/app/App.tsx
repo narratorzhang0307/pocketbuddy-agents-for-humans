@@ -97,10 +97,10 @@ export default function App() {
       const unobserve = runtime.subscribeFrostAgentEvents(event => { showConversation(event); });
       const unruns = runtime.subscribeFrostAgentRuns(notice => {
         if (notice.input?.origin.channel !== 'badge_voice') return;
-        void navigate(notice).catch(error => { if (active) setVoiceNavigationError(`硬件指令未打开页面：${String(error)}`); });
+        void navigate(notice).catch(error => { if (active) setVoiceNavigationError(`Hardware command did not open the page: ${String(error)}`); });
       });
       release = () => { unobserve(); unruns(); unbird(); document.removeEventListener('visibilitychange', syncBirdPage); };
-    }).catch(() => { if (active) setVoiceNavigationError('硬件导航尚未就绪，请重开 App。'); });
+    }).catch(() => { if (active) setVoiceNavigationError('Hardware navigation is not ready. Please reopen the App.'); });
     return () => { active = false; release?.(); };
   }, []);
   // 记一笔等入口钉完会请求地图焦点 → 自动切到地球 tab，并由 MyMap 消费焦点。
@@ -116,7 +116,7 @@ export default function App() {
   useEffect(() => {
     const request = getVoiceMapState();
     if (activeTab !== 'earth' && request && ['opening', 'locating'].includes(request.status)) {
-      cancelVoiceMapMode(request.inputId, '已离开地图，这次真实 GPS 定位已取消。');
+      cancelVoiceMapMode(request.inputId, 'You left the map, so this real GPS fix was cancelled.');
     }
   }, [activeTab]);
   const standalone = useStandalone();
@@ -186,7 +186,7 @@ export default function App() {
       >
         <Suspense fallback={null}><FrostPresenceHost /></Suspense>
         {/* 每个 tab 各包一层 ErrorBoundary（key=activeTab 切 tab 自动复位）：单 tab 崩溃 tab bar 仍在、可切走 */}
-        {voiceNavigationError && <div role="alert" className="border-b border-black bg-[#fff0b5] p-2 text-xs">{voiceNavigationError}<button type="button" className="ml-2 underline" onClick={() => setVoiceNavigationError('')}>关闭提示</button></div>}
+        {voiceNavigationError && <div role="alert" className="border-b border-black bg-[#fff0b5] p-2 text-xs">{voiceNavigationError}<button type="button" className="ml-2 underline" onClick={() => setVoiceNavigationError('')}>Dismiss</button></div>}
         <ErrorBoundary key={activeTab}>
           <Suspense fallback={<TabFallback />}>
             {activeTab === 'photos' && <PhotosTab />}
@@ -196,7 +196,7 @@ export default function App() {
                 key={voiceNavigationId}
                 initialMode="skills"
                 externalSkillTarget={voiceSkillTarget}
-                externalSkillBackLabel="返回 Skills"
+                externalSkillBackLabel="Back to Skills"
                 onExternalSkillTargetHandled={() => setVoiceSkillTarget(null)}
               />
             )}
@@ -229,7 +229,7 @@ export default function App() {
                   ? 'shadow-[inset_0_0_15px_rgba(0,255,136,0.35)] translate-y-1'
                   : 'shadow-[0_4px_0_#000] hover:-translate-y-0.5 hover:shadow-[0_5px_0_#000] active:translate-y-1 active:shadow-[0_0_0_#000]'
               }`}
-              title="地球"
+              title="Earth"
             >
               <Globe className="w-7 h-7 text-[#00ff88]" strokeWidth={2.5} />
             </button>
@@ -260,7 +260,7 @@ export default function App() {
           <button
             key={slice}
             type="button"
-            aria-label={`4K 截图分片 ${slice + 1}`}
+            aria-label={`4K capture slice ${slice + 1}`}
             onClick={() => setCapture4kSlice(slice)}
             className="h-12 w-12 border-0 bg-[#dcdcdc] p-0 outline-none"
           />

@@ -68,7 +68,7 @@ describe('Plaza world registry', () => {
   it('replaces the succulent demo with the tongue observation experience', () => {
     expect(PLAZA_WORLDS.some((world) => world.name === '多肉银行')).toBe(false);
     expect(PLAZA_WORLDS.find((world) => world.id === 'w_tongue')).toMatchObject({
-      name: '舌苔观察站',
+      name: 'Tongue Coating Station',
       launchUrl: '/tongue-observer/',
       skillIds: [],
     });

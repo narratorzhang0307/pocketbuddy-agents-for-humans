@@ -9,13 +9,13 @@ import { readFoodDemoVisible, saveFoodDemoVisible } from '../lib/foodPhotoDemo';
 
 function localInputTime() { const now = new Date(); return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16); }
 async function compactPhoto(file: File): Promise<string> {
-  if (!file.type.startsWith('image/') || file.size > 15 * 1024 * 1024) throw new Error('请选择 15 MB 以内的图片');
+  if (!file.type.startsWith('image/') || file.size > 15 * 1024 * 1024) throw new Error('Please choose an image under 15 MB');
   const url = URL.createObjectURL(file);
   try {
     const image = new Image(); image.src = url; await image.decode();
     const scale = Math.min(1, 1024 / Math.max(image.naturalWidth, image.naturalHeight));
     const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(image.naturalWidth * scale)); canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
-    const context = canvas.getContext('2d'); if (!context) throw new Error('无法准备图片');
+    const context = canvas.getContext('2d'); if (!context) throw new Error('Could not prepare the image');
     context.drawImage(image, 0, 0, canvas.width, canvas.height);
     // Re-encode pixels so camera EXIF/location are not sent to the cloud.
     return canvas.toDataURL('image/jpeg', 0.78);
@@ -47,7 +47,7 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
   const choose = async (selected?: File) => {
     if (!selected || busy) return;
     reset(); setBusy(true); const selectedId = id.current;
-    try { const data = await compactPhoto(selected); if (id.current === selectedId) { setImage(data); setNotice('照片只在本机预览。点击同意后，才发送压缩照片到 Qwen 和阿里云 SAM 服务。Qwen 调用可能计费。'); } }
+    try { const data = await compactPhoto(selected); if (id.current === selectedId) { setImage(data); setNotice('The photo is previewed on this device only. The compressed photo is sent to Qwen and the Alibaba Cloud SAM service only after you tap to consent. Qwen calls may be billed.'); } }
     catch (error) { setNotice(String(error)); }
     finally { if (id.current === selectedId) setBusy(false); }
   };
@@ -55,23 +55,23 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
     if (!image || busy || confirmed) return;
     const selectedId = id.current, controller = new AbortController(); request.current = controller;
     setBusy(true); setCandidate(undefined); setSegmentation(undefined); setManual(false);
-    setNotice('正在执行 Qwen 定位 → SAM 像素分割 → Harness 校验。CPU 推理可能需要一两分钟；不会自动记成吃过，也不自动重试。');
+    setNotice('Running Qwen localisation → SAM pixel segmentation → Harness check. CPU inference can take a minute or two; nothing is logged as eaten automatically, and there is no automatic retry.');
     try {
       const result = await analyzeFoodPhoto(image, controller.signal);
       if (selectedId !== id.current) return;
       const value = result.meal; setSegmentation(result.segmentation);
       setCandidate(value); setTitle(value.title); setLow(String(value.calories_kcal_range[0])); setHigh(String(value.calories_kcal_range[1]));
-      setNotice('识别候选已返回。请核对菜名、估算范围、实际吃过的比例与时间，再确认。');
+      setNotice('A candidate came back. Check the dish name, the estimate range, how much you actually ate and the time before confirming.');
     } catch (error) { if (!controller.signal.aborted) setNotice(String(error)); }
     finally { if (selectedId === id.current) setBusy(false); }
   };
   const confirm = async () => {
     if (busy || confirmed || (!candidate && !manual)) return;
     if (!title.trim() || !low.trim() || !high.trim() || !Number.isFinite(Number(low)) || !Number.isFinite(Number(high))
-      || Number(low) < 0 || Number(high) < Number(low) || Number(high) > 8000) { setNotice('请填写真实餐食名称与有效热量估算范围；不确定时不要编造数值。'); return; }
+      || Number(low) < 0 || Number(high) < Number(low) || Number(high) > 8000) { setNotice('Enter a real meal name and a valid calorie estimate range; do not invent numbers when you are unsure.'); return; }
     const value = editedMealCandidate(candidate, title, [Number(low), Number(high)]);
     setBusy(true);
-    try { await recordConfirmedMeal({ id: id.current, candidate: value, portion, consumedAt: new Date(at).toISOString(), note }); setConfirmed(true); setNotice('已由 Taskmaster 确认并记入对应日期，重复点击不会新增第二餐。今天记忆和下一次建议会更新。'); }
+    try { await recordConfirmedMeal({ id: id.current, candidate: value, portion, consumedAt: new Date(at).toISOString(), note }); setConfirmed(true); setNotice("Taskmaster confirmed it and logged it to that date; tapping again will not add a second meal. Today's memory and the next suggestion will update."); }
     catch (error) { setNotice(String(error)); }
     finally { setBusy(false); }
   };
@@ -80,49 +80,49 @@ export default function FoodPhotosTab({ embedded = false }: { embedded?: boolean
   const changeDemoVisibility = (visible: boolean) => {
     setDemoVisible(visible);
     const saved = saveFoodDemoVisible(visible);
-    setDemoNotice(saved ? (visible ? '示例已恢复；不会写入真实记录。' : '示例已移除，真实照片和记录未受影响。') : '本次显示已切换，但无法保存偏好；下次打开可能恢复默认显示。');
+    setDemoNotice(saved ? (visible ? 'Sample restored; it never writes into your real records.' : 'Sample removed; your real photos and records are untouched.') : 'Toggled for this session, but the preference could not be saved; it may go back to the default next time you open it.');
   };
   return <div className={'h-full bg-[#eaeaea] ' + (embedded ? 'overflow-y-auto' : 'flex flex-col overflow-hidden')}>
     <input ref={file} type="file" accept="image/*" className="hidden" onChange={e => { void choose(e.target.files?.[0]); e.target.value = ''; }} />
     <input ref={camera} type="file" accept="image/*" capture="environment" className="hidden" onChange={e => { void choose(e.target.files?.[0]); e.target.value = ''; }} />
-    <header className="shrink-0 border-b-2 border-black bg-white p-4"><h1 className="font-pixel text-[18px] tracking-wider">PHOTOS</h1><p className="mt-1 text-[11px] text-black/60">看懂一餐，确认记进今天，再交给 Frost 决定</p></header>
-    <div className="grid shrink-0 grid-cols-2 gap-2 border-b-2 border-black bg-black p-2">{(['photo', 'memory'] as const).map(value => <button key={value} className={'p-2 text-[12px] ' + (tab === value ? 'bg-[#7cff6b]' : 'bg-white')} onClick={() => setTab(value)}>{value === 'photo' ? '餐食识别' : '今天记忆 / 长期信息'}</button>)}</div>
+    <header className="shrink-0 border-b-2 border-black bg-white p-4"><h1 className="font-pixel text-[18px] tracking-wider">PHOTOS</h1><p className="mt-1 text-[11px] text-black/60">Read a meal, confirm it into today, then let Frost decide</p></header>
+    <div className="grid shrink-0 grid-cols-2 gap-2 border-b-2 border-black bg-black p-2">{(['photo', 'memory'] as const).map(value => <button key={value} className={'p-2 text-[12px] ' + (tab === value ? 'bg-[#7cff6b]' : 'bg-white')} onClick={() => setTab(value)}>{value === 'photo' ? 'Meal check' : 'Today / Long-term'}</button>)}</div>
     <main className={(embedded ? '' : 'min-h-0 flex-1 overflow-y-auto ') + 'space-y-3 p-3 pb-8'}>
       {tab === 'memory' ? <HealthMemoryPanel /> : <>
-        <div role="group" aria-label="添加餐食照片" className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 py-2">
+        <div role="group" aria-label="Add a meal photo" className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 py-2">
           <button type="button" className={photoAction} disabled={busy} onClick={() => camera.current?.click()}>
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-black text-[#7cff6b]"><Camera size={20} aria-hidden="true" /></span>
-            拍一餐
+            Snap a meal
           </button>
           <button type="button" className={photoAction} disabled={busy} onClick={() => file.current?.click()}>
             <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-black"><ImagePlus size={20} aria-hidden="true" /></span>
-            从相册选择
+            Choose from library
           </button>
         </div>
-        {image ? <section className="overflow-hidden border-2 border-black bg-white"><img src={image} alt="本次选择的餐食照片" className="max-h-[300px] w-full object-contain" /><p className="p-2 text-[10px]">本机预览 · 最长边 1024 像素 · 不附带照片定位</p></section>
-          : !manual && (demoVisible ? <FoodPhotoDemo onRemove={() => changeDemoVisibility(false)} /> : <section className="space-y-3 border-2 border-black bg-[#f5f0e4] p-5 text-[12px]"><p>选择你实际吃过的一餐，识别并核对后再记入今天。示例已移除，不会自动恢复。</p><button type="button" className={button + ' w-full'} onClick={() => changeDemoVisibility(true)}>恢复餐食示例预览</button></section>)}
+        {image ? <section className="overflow-hidden border-2 border-black bg-white"><img src={image} alt="The meal photo you selected" className="max-h-[300px] w-full object-contain" /><p className="p-2 text-[10px]">On-device preview · long edge 1024 px · no photo location attached</p></section>
+          : !manual && (demoVisible ? <FoodPhotoDemo onRemove={() => changeDemoVisibility(false)} /> : <section className="space-y-3 border-2 border-black bg-[#f5f0e4] p-5 text-[12px]"><p>Pick a meal you actually ate, check the result, then log it into today. The sample is removed and will not come back on its own.</p><button type="button" className={button + ' w-full'} onClick={() => changeDemoVisibility(true)}>Restore the sample meal preview</button></section>)}
         {demoNotice && !image && !manual && <p role="status" className="text-[10px] text-black/55">{demoNotice}</p>}
-        {image && <button className={button + ' w-full bg-[#7cff6b]'} disabled={busy || confirmed} onClick={() => void analyze()}>{busy ? '处理中…' : '同意识别：Qwen + SAM（Qwen 可能计费）'}</button>}
+        {image && <button className={button + ' w-full bg-[#7cff6b]'} disabled={busy || confirmed} onClick={() => void analyze()}>{busy ? 'Working…' : 'Consent to recognition: Qwen + SAM (Qwen may be billed)'}</button>}
         {segmentation && <PhotoHarnessMasks key={id.current} image={image} result={segmentation} />}
-        {!candidate && <button className={button + ' w-full'} disabled={busy || confirmed} onClick={() => setManual(true)}>不用照片，手动填写已吃过的餐食</button>}
+        {!candidate && <button className={button + ' w-full'} disabled={busy || confirmed} onClick={() => setManual(true)}>No photo — enter a meal you ate by hand</button>}
         {(candidate || manual) && <section className="space-y-3 border-2 border-black bg-white p-3 text-[12px]">
-          <p className="font-bold">{candidate ? 'Qwen 观察候选 · ' + candidate.model : '手动记录 · 非模型识别'}</p>
-          <p className="text-black/60">{candidate?.uncertainty || '请填写你知道的估算范围；不把估算当成精确测量。'}</p>
-          <label className="block">餐食名称<input className="mt-1 w-full border border-black p-2" maxLength={100} value={title} disabled={confirmed || busy} onChange={e => {
+          <p className="font-bold">{candidate ? 'Qwen candidate · ' + candidate.model : 'Manual entry · not model recognition'}</p>
+          <p className="text-black/60">{candidate?.uncertainty || 'Enter the range you actually know; an estimate is not a precise measurement.'}</p>
+          <label className="block">Meal name<input className="mt-1 w-full border border-black p-2" maxLength={100} value={title} disabled={confirmed || busy} onChange={e => {
             setTitle(e.target.value);
-            if (candidate && e.target.value.trim() !== candidate.title.trim()) { setLow(''); setHigh(''); setNotice('餐名已修改：请重新填写热量范围，原菜品和营养估算不会沿用。'); }
+            if (candidate && e.target.value.trim() !== candidate.title.trim()) { setLow(''); setHigh(''); setNotice('Meal name changed: re-enter the calorie range. The original dish and nutrition estimate are not carried over.'); }
           }} /></label>
-          <div className="grid grid-cols-2 gap-2"><label>整餐估算下限 kcal<input aria-label="热量下限" className="mt-1 w-full border border-black p-2" type="number" min="0" max="8000" value={low} disabled={confirmed || busy} onChange={e => setLow(e.target.value)} /></label>
-            <label>整餐估算上限 kcal<input aria-label="热量上限" className="mt-1 w-full border border-black p-2" type="number" min="0" max="8000" value={high} disabled={confirmed || busy} onChange={e => setHigh(e.target.value)} /></label></div>
-          <label className="block">实际吃了多少<select className="ml-2 border border-black p-2" value={portion} disabled={confirmed || busy} onChange={e => setPortion(Number(e.target.value))}><option value={1}>全部</option><option value={0.75}>约 3/4</option><option value={0.5}>一半</option><option value={0.25}>约 1/4</option></select></label>
-          <label className="block">实际食用时间（本地）<input className="mt-1 w-full border border-black p-2" type="datetime-local" value={at} disabled={confirmed || busy} onChange={e => setAt(e.target.value)} /></label>
-          <label className="block">补充说明<input className="mt-1 w-full border border-black p-2" maxLength={300} value={note} placeholder="例如未吃酱汁；无法准确估计的地方" disabled={confirmed || busy} onChange={e => setNote(e.target.value)} /></label>
-          <button className={button + ' w-full bg-[#7cff6b]'} disabled={busy || confirmed} onClick={() => void confirm()}>{confirmed ? <><Check size={16} />已记入健康记忆</> : <><Plus size={16} />确认实际吃过，记入对应日期</>}</button>
+          <div className="grid grid-cols-2 gap-2"><label>Whole-meal low estimate kcal<input aria-label="Calorie low bound" className="mt-1 w-full border border-black p-2" type="number" min="0" max="8000" value={low} disabled={confirmed || busy} onChange={e => setLow(e.target.value)} /></label>
+            <label>Whole-meal high estimate kcal<input aria-label="Calorie high bound" className="mt-1 w-full border border-black p-2" type="number" min="0" max="8000" value={high} disabled={confirmed || busy} onChange={e => setHigh(e.target.value)} /></label></div>
+          <label className="block">How much you actually ate<select className="ml-2 border border-black p-2" value={portion} disabled={confirmed || busy} onChange={e => setPortion(Number(e.target.value))}><option value={1}>All</option><option value={0.75}>About 3/4</option><option value={0.5}>Half</option><option value={0.25}>About 1/4</option></select></label>
+          <label className="block">Actual time eaten (local)<input className="mt-1 w-full border border-black p-2" type="datetime-local" value={at} disabled={confirmed || busy} onChange={e => setAt(e.target.value)} /></label>
+          <label className="block">Notes<input className="mt-1 w-full border border-black p-2" maxLength={300} value={note} placeholder="e.g. skipped the sauce; anything you cannot estimate accurately" disabled={confirmed || busy} onChange={e => setNote(e.target.value)} /></label>
+          <button className={button + ' w-full bg-[#7cff6b]'} disabled={busy || confirmed} onClick={() => void confirm()}>{confirmed ? <><Check size={16} />Logged to health memory</> : <><Plus size={16} />Confirm you ate this, log it to that date</>}</button>
         </section>}
         {notice && <p role="status" className="border-l-4 border-black bg-white p-3 text-[12px]">{notice}</p>}
-        {confirmed && <button className={button + ' w-full'} onClick={reset}>记录下一餐</button>}
-        <button className={button + ' w-full'} onClick={() => setTab('memory')}>查看今天记忆，让 Frost 综合分析</button>
-        <p className="text-[10px] text-black/55">原始照片与分割掩膜不写入记忆；只有你确认过的结构化餐食进入本机账本。Qwen 或 SAM 不可用时明确失败，不使用示例数据或矩形代替分割。</p>
+        {confirmed && <button className={button + ' w-full'} onClick={reset}>Log the next meal</button>}
+        <button className={button + ' w-full'} onClick={() => setTab('memory')}>Open Today's memory and let Frost analyse</button>
+        <p className="text-[10px] text-black/55">Raw photos and segmentation masks are never written to memory; only the structured meals you confirm enter the on-device ledger. If Qwen or SAM is unavailable it fails openly — no sample data and no rectangles standing in for segmentation.</p>
       </>}
     </main>
   </div>;

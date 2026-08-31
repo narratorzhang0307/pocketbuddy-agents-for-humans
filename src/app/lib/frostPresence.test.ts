@@ -61,7 +61,7 @@ describe('public-only widget data', () => {
   it('does not copy raw device, voice, recording or account data', () => {
     const badge = { ...ready(), pcm: new Uint8Array([42]), deviceId: 'private-device',
       nativeTranscript: { inputId: 'private-input', text: 'private medical transcript' } };
-    expect(publicPresence('frost', 'heart', badge)).toEqual({ avatarIndex: 0, name: 'Frost 焦糖腊肠犬',
+    expect(publicPresence('frost', 'heart', badge)).toEqual({ avatarIndex: 0, name: 'Frost Caramel Dachshund',
       pose: 'heart', connected: true, battery: null });
   });
   it.each([null, -1, 101, NaN, 3.5])('keeps invalid battery %s unknown', percent => {

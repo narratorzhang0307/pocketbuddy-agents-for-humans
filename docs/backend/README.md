@@ -17,6 +17,7 @@
 | Google / 端侧 / 第三方服务边界 | 已逐项标明“已实现、预留、保留”，不把计划冒充上线能力 | [`GOOGLE_SERVICE_BOUNDARIES.md`](GOOGLE_SERVICE_BOUNDARIES.md) |
 | 地图 | 保留高德地图，不迁移 | [当前架构](CURRENT_GCP_ARCHITECTURE.md) |
 | 台湾 GCP 交接 | 已实现只读预检、部署步骤和证据清单 | [`TAIWAN_GCP_HANDOFF.md`](TAIWAN_GCP_HANDOFF.md) |
+| 改代码后的测试与部署 | 已实现本地验证、预检、部署、验收与回滚手册 | [`CHANGE_TEST_DEPLOY.md`](CHANGE_TEST_DEPLOY.md) |
 | 参考架构取舍 | 已逐项映射朋友截图与 Smart LTC 参考仓库 | [`REFERENCE_ARCHITECTURE_REVIEW.md`](REFERENCE_ARCHITECTURE_REVIEW.md) |
 
 ## 修改规则
@@ -28,3 +29,5 @@
 5. 部署只使用 Cloud Run 服务账号访问 Vertex AI / Firestore；密钥不能进入 `VITE_*`、Git 或视频画面。
 6. 正式部署前必须在 `main` 运行 `npm run agentic:preflight`；预检会确认 `main` 的 upstream 确实属于 `narratorzhang0307/pocketbuddy`。
 7. STT、TTS、通知、媒体或地图 provider 的状态只能在真实 adapter、测试、readiness 和部署证据同时存在后改为“已实现”。
+8. 界面文案为英文；改文案必须同步改对应测试断言。匹配用户输入的中文正则要保留中文分支、并列新增英文；匹配高德返回数据的正则保持中文。
+9. 回复语言由服务端 prompt harness 决定，默认 `en`，客户端只能通过白名单 `locale` 请求 `zh-CN` / `zh-TW`。

@@ -59,7 +59,7 @@ describe('pocket-skill/v1', () => {
       permissions: { tools: ['pose'] },
     });
     expect(lianlema?.permissions.scopes).toEqual(expect.arrayContaining(['camera', 'audio', 'network']));
-    expect(lianlema?.quality_gate.checks.join(' ')).toContain('仅在用户同意后发往 Pocket Buddy 模型服务，不保存画面');
+    expect(lianlema?.quality_gate.checks.join(' ')).toContain('go to the Pocket Buddy model service only after the user consents; frames are not stored');
     expect(lianlema?.permissions.network_hosts).toEqual(['localhost', 'pocketbuddy.throughtheglass.art', 'pocket-buddy.throughtheglass.art']);
     expect(resolveSkillRunTarget(lianlema?.entry.target || '')).toBe('lianlema');
   });

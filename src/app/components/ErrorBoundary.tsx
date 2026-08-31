@@ -19,13 +19,13 @@ export default class ErrorBoundary extends Component<Props, State> {
     return (
       <div className="w-full h-full bg-[#EAEAEA] flex flex-col items-center justify-center gap-3 px-6 text-center">
         <div className="w-4 h-4 bg-[#d23b3b] border-2 border-black" />
-        <div className="text-[13px] font-bold text-black">这个页面出了点问题</div>
-        <div className="text-[11px] text-black/55 leading-snug max-w-[260px]">可以重试这个页面，或切到底部其它标签继续用。</div>
+        <div className="text-[13px] font-bold text-black">Something went wrong on this page</div>
+        <div className="text-[11px] text-black/55 leading-snug max-w-[260px]">You can retry this page, or switch to another tab below to keep going.</div>
         <div className="flex gap-2 mt-1">
           <button onClick={() => this.setState({ hasError: false, msg: undefined })}
-            className="border-2 border-black bg-white px-3 py-1.5 text-[12px] font-bold shadow-[2px_2px_0_#000] active:translate-y-px">重试</button>
+            className="border-2 border-black bg-white px-3 py-1.5 text-[12px] font-bold shadow-[2px_2px_0_#000] active:translate-y-px">Retry</button>
           <button onClick={() => location.reload()}
-            className="border-2 border-black bg-black text-[#7CFF6B] px-3 py-1.5 text-[12px] font-bold shadow-[2px_2px_0_#000] active:translate-y-px">重载应用</button>
+            className="border-2 border-black bg-black text-[#7CFF6B] px-3 py-1.5 text-[12px] font-bold shadow-[2px_2px_0_#000] active:translate-y-px">Reload app</button>
         </div>
       </div>
     );
