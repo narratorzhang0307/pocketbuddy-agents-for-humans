@@ -27,6 +27,9 @@ import { createHealthMemoryHandler } from './server/health-memory.mjs';
 // @ts-expect-error Server-only real SAM gateway.
 import { createPhotoHarnessHandler } from './server/photo-harness.mjs';
 
+// @ts-expect-error Shared server-only ESM pose adapter.
+import { createSportsCoachHandler } from './server/sports-coach.mjs';
+
 function hospitalAgentDev(env: Record<string, string>): Plugin {
   return {
     name: 'hospital-agent-health',
@@ -34,9 +37,11 @@ function hospitalAgentDev(env: Record<string, string>): Plugin {
       const handle = createHospitalAgentHandler({ env: { ...env, ...process.env } });
       const healthMemory = createHealthMemoryHandler({ env: { ...env, ...process.env }, localDev: true });
       const photoHarness = createPhotoHarnessHandler({ env: { ...env, ...process.env }, localDev: true });
+      const sportsCoach = createSportsCoachHandler({ env: { ...env, ...process.env } });
       server.middlewares.use(async (req, res, next) => {
         if (await healthMemory(req, res)) return;
         if (await photoHarness(req, res)) return;
+        if (await sportsCoach(req, res)) return;
         if (!await handle(req, res) && !res.writableEnded) next();
       });
     },

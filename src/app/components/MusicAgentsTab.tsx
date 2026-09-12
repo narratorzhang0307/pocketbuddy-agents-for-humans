@@ -24,12 +24,14 @@ import SkillAvatar from './SkillAvatar';
 import { skillAvatarForPage } from '../lib/skill/avatars';
 import { getFrostCompanion } from '../lib/frostCompanion';
 import FitnessAgentEntry from './FitnessAgentEntry';
+import { SPORTS, sportForTarget } from '../lib/sports/pose';
 
 // Skill 运行页不属于控制台首屏；用户打开时再按需加载。
 const FrostBuddyPage = lazy(() => import('./FrostBuddyPage'));
 const DeviceEvidenceLedgerPage = lazy(() => import('./DeviceEvidenceLedgerPage'));
 const HerMotionSkillPage = lazy(() => import('./HerMotionSkillPage'));
 const LianlemaSkillPage = lazy(() => import('./LianlemaSkillPage'));
+const SportsCoachSkillPage = lazy(() => import('./SportsCoachSkillPage'));
 const HospitalAgentPage = lazy(() => import('./HospitalAgentPage'));
 const HealthFoundationSkillPage = lazy(() => import('./HealthFoundationSkillPage'));
 const RunRouteSkillPage = lazy(() => import('./RunRouteSkillPage'));
@@ -110,17 +112,25 @@ const BIRD_SKILL: AgentItem = {
   role: 'The physical key wakes it and a touchscreen long-press records the call; reuses the T5 self-hosted service, and the twelve bird images reach the round screen from OSS on demand',
   status: 'On-device bring-up', kind: 'Bundle', runtimeBadge: 'BLE · NATIVE · OSS', background: '#ffe3ce',
 };
+const SPORTS_SKILL_ITEMS: AgentItem[] = SPORTS.map(sport => ({
+  name: sport.target, label: sport.englishName.toUpperCase(), zhLabel: sport.skillName,
+  publisher: { name: sport.mascot, role: 'Pose coaching', avatar: sport.avatar },
+  publisherRole: 'Pose coaching', runtimeBadge: 'POSE · RULES',
+  role: `${sport.actions.map(action => action.name).join(' / ')} · Live pose tracking and rule-based feedback`,
+  status: 'Packaged', kind: 'Bundle', background: sport.accent,
+}));
 const HEALTH_SKILL_ITEMS = [RUN_ROUTE_SKILL, HER_MOTION_SKILL, LIANLEMA_SKILL, WGER_SKILL, MEALIE_SKILL, ...HEALTH_FOUNDATION_SKILL_ITEMS];
-const CATALOG_SKILL_ITEMS = [BIRD_SKILL, ...HEALTH_SKILL_ITEMS];
+const CATALOG_SKILL_ITEMS = [BIRD_SKILL, ...HEALTH_SKILL_ITEMS, ...SPORTS_SKILL_ITEMS];
 const REGISTERED_SKILL_COUNT = CATALOG_SKILL_ITEMS.length;
 const CORE_SKILL_ITEMS = CORE_SKILL_TARGETS.flatMap((target) => CATALOG_SKILL_ITEMS.filter((item) => item.name === target));
-const MORE_SKILL_ITEMS = CATALOG_SKILL_ITEMS.filter((item) => !CORE_SKILL_TARGETS.includes(item.name));
+const MORE_SKILL_ITEMS = CATALOG_SKILL_ITEMS.filter((item) => !CORE_SKILL_TARGETS.includes(item.name) && !sportForTarget(item.name));
 
 const MANIFEST_ID_BY_AGENT: Record<string, string> = {
   'frost-bird-listener': 'frost.bird-listener',
   'frost-run-route': 'frost.run-route',
   'her-motion': 'pocket.her-motion',
   'lianlema-coach': 'pocket.lianlema',
+  ...Object.fromEntries(SPORTS.map(sport => [sport.target, sport.skillId])),
   'frost-healthsync': 'frost.healthsync',
   'frost-motion-vision': 'frost.mediapipe-motion',
   'frost-openfoodfacts': 'frost.openfoodfacts',
@@ -159,6 +169,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
   const [returnToExternalTarget, setReturnToExternalTarget] = useState(false);
   const [externalBackLabel, setExternalBackLabel] = useState('Back to Plaza');
   const [herMotionReturnToFrost, setHerMotionReturnToFrost] = useState(false);
+  const [sportsReturnToFrost, setSportsReturnToFrost] = useState(false);
   const [lianlemaReturnToFrost, setLianlemaReturnToFrost] = useState(false);
   // P2-I：已学技能（点击=路由到其目标 agent）
   const [learned, setLearned] = useState<LearnedSkill[]>(getLearnedSkills());
@@ -188,6 +199,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
     if (resolved) {
       setRunningEntry(target);
       if (resolved === 'hermotion') setHerMotionReturnToFrost(running === 'frost');
+      if (resolved === 'sportscoach') setSportsReturnToFrost(running === 'frost');
       if (resolved === 'lianlema') setLianlemaReturnToFrost(running === 'frost');
       setRunning(resolved);
     }
@@ -202,6 +214,9 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openTarget]);
   const closeRunning = () => {
+    if (running === 'sportscoach' && sportsReturnToFrost) {
+      setSportsReturnToFrost(false); setRunning('frost'); return;
+    }
     if (running === 'hermotion' && herMotionReturnToFrost) {
       setHerMotionReturnToFrost(false);
       setRunning('frost');
@@ -293,9 +308,9 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
                   </span>
                   {a.zhLabel && <span className="mt-0.5 block truncate font-pixel text-[6.5px] tracking-wider text-black/55">{label}</span>}
                   <span className="mt-0.5 flex min-w-0 flex-wrap items-center gap-1.5">
-                    <span className="min-w-0 flex-1 truncate text-[8.5px] font-bold text-[#18784b]">{publisher.name} · {a.publisherRole ?? publisher.role}</span>
+                    <span className={`min-w-0 truncate text-[8.5px] font-bold text-[#18784b] ${sportForTarget(a.name) ? 'basis-full' : 'flex-1'}`}>{publisher.name} · {a.publisherRole ?? publisher.role}</span>
                     {a.kind && <span className={`shrink-0 border border-black px-1 py-0.5 font-pixel text-[5px] ${a.kind === 'Markdown' ? 'bg-[#eef3df] text-[#326B55]' : a.kind === 'LoRA' ? loraPaused ? 'bg-[#d1d1d1] text-black/45' : 'bg-[#b388ff] text-black' : 'bg-black text-[#b388ff]'}`}>{a.kind}</span>}
-                    {edgeCoverage && a.name !== 'lianlema-coach' && <span title={edgeCoverage.proof} className="shrink-0 border border-[#087c49] bg-[#e8f8ef] px-1 py-0.5 font-pixel text-[5px] text-[#087c49]">{edgeCoverage.semanticRuntime === 'qwen3-4b-health-mnn' ? 'QWEN4B·MNN' : 'LOCAL RULES'}</span>}
+                    {edgeCoverage && a.name !== 'lianlema-coach' && !sportForTarget(a.name) && <span title={edgeCoverage.proof} className="shrink-0 border border-[#087c49] bg-[#e8f8ef] px-1 py-0.5 font-pixel text-[5px] text-[#087c49]">{edgeCoverage.semanticRuntime === 'qwen3-4b-health-mnn' ? 'QWEN4B·MNN' : 'LOCAL RULES'}</span>}
                     {a.runtimeBadge && <span className="shrink-0 border border-[#665ec7] bg-white px-1 py-0.5 font-pixel text-[5px] text-[#5148b5]">{a.runtimeBadge}</span>}
                     {manifest && <span className={`shrink-0 border px-1 py-0.5 font-pixel text-[5px] ${loraPaused ? 'border-black/35 bg-[#eeeeee] text-black/45' : equipped ? 'border-[#087c49] bg-[#e8f8ef] text-[#087c49]' : preparing ? 'border-[#9a6411] bg-[#fff3cd] text-[#7a4a00]' : installError ? 'border-[#b3261e] bg-[#fff0ed] text-[#b3261e]' : 'border-[#9a6411] bg-[#fff3cd] text-[#7a4a00]'}`}>{loraPaused ? 'BASE OK · LoRA PENDING' : equipped ? 'LOADED' : preparing ? 'LOADING' : installError ? 'FAILED' : 'NOT INSTALLED'}</span>}
                   </span>
@@ -323,6 +338,7 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
   if (running === 'frost') return <Suspense fallback={<SkillPageLoader label="FROST" />}><FrostBuddyPage onBack={closeRunning} onRun={runSkill} /></Suspense>;
   if (running === 'hermotion') return <Suspense fallback={<SkillPageLoader label="HER MOTION" />}><HerMotionSkillPage launchUrl={HER_MOTION_LAUNCH_URL} onBack={closeRunning} avatarSkillId={skillAvatarForPage(running, runningEntry).id} backLabel={herMotionReturnToFrost ? 'Back to Frost' : returnToExternalTarget ? externalBackLabel : 'Back to Skills'} /></Suspense>;
   if (running === 'lianlema') return <Suspense fallback={<SkillPageLoader label="LIANLEMA" />}><LianlemaSkillPage launchUrl={LIANLEMA_LAUNCH_URL} onBack={closeRunning} backLabel={lianlemaReturnToFrost ? 'Back to Frost' : returnToExternalTarget ? externalBackLabel : 'Back to Skills'} /></Suspense>;
+  if (running === 'sportscoach' && sportForTarget(runningEntry)) return <Suspense fallback={<SkillPageLoader label="SPORTS COACH" />}><SportsCoachSkillPage key={runningEntry} sport={sportForTarget(runningEntry)!} onBack={closeRunning} backLabel={sportsReturnToFrost ? 'Back to Frost' : returnToExternalTarget ? externalBackLabel : 'Back to Skills'} /></Suspense>;
   if (running === 'hospital') return <Suspense fallback={<SkillPageLoader label="HEALTH CONSULTATION" />}><HospitalAgentPage onBack={closeRunning} backLabel={returnToExternalTarget ? externalBackLabel : 'Back to Agents'} /></Suspense>;
   if (running === 'runroute') return <Suspense fallback={<SkillPageLoader label="RUN ROUTE" />}><RunRouteSkillPage onBack={closeRunning} /></Suspense>;
   if (running === 'birdlistener') return <Suspense fallback={<SkillPageLoader label="BIRD ID" />}><BirdSkillPage onBack={closeRunning} /></Suspense>;
@@ -358,6 +374,11 @@ export default function MusicAgentsTab({ embedded = false, openTarget, openTarge
             <span className="shrink-0 bg-[#00ff88] px-2 py-1 font-pixel text-[7px]">{CORE_SKILL_ITEMS.length} CORE</span>
           </div>
           {renderSkillCards(CORE_SKILL_ITEMS, true)}
+        </section>
+
+        <section aria-label="Sports coaching skills" className="space-y-3 border-t-2 border-black/20 pt-4">
+          <div className="flex items-end justify-between"><div><h2 className="text-[13px] font-black">Sports Coaching</h2><p className="mt-1 text-[10px] text-black/55">5 sports · 23 actions · Live pose feedback</p></div><span className="border border-black bg-[#7cff6b] px-2 py-1 text-[9px] font-bold">SPORTS</span></div>
+          {renderSkillCards(SPORTS_SKILL_ITEMS)}
         </section>
 
         <section aria-label="More abilities" className="space-y-4 border-t-2 border-black/20 pt-4">

@@ -13,6 +13,7 @@ import { setFrostBrain, stubBrain } from '../../../frost-agent/harness/brain';
 import { ensureBuiltinSkills, resetSkillRegistryForTests } from './skill';
 import { createFrostConversationTools, dailyFrostGoal, FrostConversationModel } from './frostConversation';
 import { presentFrostAgentRun } from './frostAgentPresentation';
+import { SPORTS } from './sports/pose';
 import { FROST_ANSWER_SKILLS } from './frostSkillAnswer';
 import { readRunRouteSession } from './runRouteSkill';
 
@@ -51,6 +52,18 @@ async function runtime() {
 describe('one Frost conversation entry, registered subagents and UI compatibility', () => {
   beforeEach(() => { resetSkillRegistryForTests(); ensureBuiltinSkills(); setFrostBrain(stubBrain); vi.stubGlobal('fetch', vi.fn(async () => childReply())); });
   afterEach(() => vi.unstubAllGlobals());
+
+  it.each(SPORTS.flatMap(sport => [
+    [`Open ${sport.skillName}`, sport.target],
+    [`Practice ${sport.name}`, sport.target],
+    [`开始练习${sport.sourceName}`, sport.target],
+  ]))('opens a sports coach through the main Frost loop: %s', async (text, target) => {
+    const result = await (await runtime()).send(text);
+    expect(result.view.autoStep?.target).toBe(target);
+    expect(result.task).toBeNull();
+    expect(fetch).not.toHaveBeenCalled();
+    expect(result.events.some(event => event.type === 'tool.called' && event.data.tool === 'taskmaster.confirm')).toBe(false);
+  });
 
   it.each([
     ['打开跑步路线规划', 'frost-run-route'],

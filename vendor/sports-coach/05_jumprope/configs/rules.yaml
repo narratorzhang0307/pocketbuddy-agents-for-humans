@@ -1,0 +1,30 @@
+# ============ 跳绳生物力学规则引擎（打分/纠错全部基于姿态数学偏差）============
+# 坐标系：图像归一化坐标，x向右，y向下。所有阈值作用于相对量（/躯干长 或 角度）。
+# 跳绳为周期动作：引擎对整个窗口做周期统计（腾空/落地占比/节奏CV/臂跳频率比），无单次触球帧。
+rules:
+  conf_gate: 0.35
+  fps: 30
+
+  lean_hunch_th: 0.30        # E01 前倾阈值（|肩中x-髋中x|/躯干）
+  head_hunch_th: -0.10       # E01 低头阈值（鼻-肩线/躯干 > 该值）；两者同时超限判驼背
+  hands_high_th: -0.25       # E02 腕-髋线均值（/躯干）< 该值 → 抬手过高
+  arm_spread_th: 0.45        # E03 腕-肩水平距峰值（/躯干）
+  contact_ratio_min: 0.15    # E04 落地帧占比下限（低于→全程踮脚漂浮）
+  airborne_min: 0.10         # E05 单摇/变速/不规范 平均腾空（/躯干）
+  airborne_double_min: 0.28  # E06 双摇平均腾空（/躯干）
+  landing_knee_th: 165       # E07 落地帧膝角上限（度）
+  rhythm_cv_th: 0.30         # E08 跳跃峰间隔变异系数
+  rhythm_tol: 0.10           # E08 超出容差即报
+  transition_jump_th: 3.0    # E09 变速跳相邻间隔比突变上限
+  ankle_asym_th: 0.10        # E10 跳跃峰处双踝高度差（/躯干）
+  knee_stiff_th: 165         # E11 窗口最小膝角上限（度）
+  sway_th: 0.25              # E12 |肩中x-髋中x|峰值（/躯干）
+  head_down_th: -0.05        # E13 鼻-肩线（/躯干）
+  freq_mismatch_th: 0.4      # E14 |臂周期数/跳周期数 - 期望|（单摇1，双摇2）
+  wrist_amp_th: 0.30         # E15 腕y波动幅度（/躯干）
+
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

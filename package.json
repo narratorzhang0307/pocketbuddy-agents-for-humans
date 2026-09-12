@@ -44,6 +44,7 @@
     "@google-cloud/firestore": "9.0.0",
     "@google/genai": "2.19.0",
     "@huggingface/transformers": "4.2.0",
+    "@mediapipe/tasks-vision": "1.0.1",
     "@mkkellogg/gaussian-splats-3d": "0.4.7",
     "@mlc-ai/web-llm": "0.2.84",
     "@paddleocr/paddleocr-js": "0.4.2",

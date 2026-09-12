@@ -1,3 +1,5 @@
+import { SPORTS } from '../lib/sports/pose';
+
 export type SkillPublisher = {
   name: string;
   role: string;
@@ -10,6 +12,7 @@ const MOSSBACK_AVATAR = '/assets/pocket-buddy/agent-world-original-v2/mossback-t
 const HER_MOTION_AVATAR = '/assets/plaza/her-motion-yoga.svg';
 
 export const SKILL_PUBLISHERS: Record<string, SkillPublisher> = {
+  ...Object.fromEntries(SPORTS.map(sport => [sport.skillId, { name: sport.mascot, role: 'Pose coaching', avatar: sport.avatar }])),
   'frost.running-coach': { name: 'Puff', role: 'Run decisions', avatar: PUFF_AVATAR },
   'frost.run-route': { name: 'Puff', role: 'Run route planner', avatar: PUFF_AVATAR },
   'frost.healthsync': { name: 'Pip', role: 'Health data', avatar: PIP_AVATAR },
@@ -29,6 +32,7 @@ export const SKILL_PUBLISHERS: Record<string, SkillPublisher> = {
 };
 
 const AGENT_TO_PUBLISHER: Record<string, string> = {
+  ...Object.fromEntries(SPORTS.map(sport => [sport.target, sport.skillId])),
   'frost-running-coach': 'frost.running-coach',
   'frost-run-route': 'frost.run-route',
   'frost-healthsync': 'frost.healthsync',

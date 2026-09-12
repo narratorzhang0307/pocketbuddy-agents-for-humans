@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
 import { BUILTIN_SKILLS } from './builtins';
-import { FROST_AVATAR, SKILL_AVATARS, SKILLS_WITH_FROST_AVATAR, skillAvatarFor, skillAvatarForPage } from './avatars';
+import { FROST_AVATAR, SKILL_AVATARS, PHONE_SKILL_AVATARS, SKILLS_WITH_FROST_AVATAR, skillAvatarFor, skillAvatarForPage } from './avatars';
 import { resolveSkillRunTarget } from '../plaza/skillRoutes';
 import birdCatalog from '../../../../native/frost-badge/ios/BirdCatalog.json';
 
@@ -28,14 +28,19 @@ describe('generated skill portraits', () => {
   });
   it('resolves every published manifest and page to a distinct bundled portrait', () => {
     const catalog = JSON.parse(readFileSync(resolve('public/assets/skill-avatars/20260827/catalog.json'), 'utf8'));
-    expect([...SKILL_AVATARS.map(item => item.id), ...SKILLS_WITH_FROST_AVATAR].sort()).toEqual(BUILTIN_SKILLS.map(item => item.identity.id).sort());
-    expect(new Set(SKILL_AVATARS.map(item => item.src)).size).toBe(BUILTIN_SKILLS.length - SKILLS_WITH_FROST_AVATAR.length);
+    expect([...SKILL_AVATARS.map(item => item.id), ...PHONE_SKILL_AVATARS.map(item => item.id), ...SKILLS_WITH_FROST_AVATAR].sort()).toEqual(BUILTIN_SKILLS.map(item => item.identity.id).sort());
+    expect(new Set([...SKILL_AVATARS, ...PHONE_SKILL_AVATARS].map(item => item.src)).size).toBe(BUILTIN_SKILLS.length - SKILLS_WITH_FROST_AVATAR.length);
     for (const manifest of BUILTIN_SKILLS) {
       const item = skillAvatarFor(manifest.identity.id);
       expect(skillAvatarFor(manifest.entry.target)).toBe(item);
       expect(skillAvatarForPage(resolveSkillRunTarget(manifest.entry.target), manifest.entry.target)).toBe(item);
       if (SKILLS_WITH_FROST_AVATAR.some(id => id === manifest.identity.id)) {
         expect(item).toBe(FROST_AVATAR);
+        continue;
+      }
+      if (PHONE_SKILL_AVATARS.some(avatar => avatar.id === item.id)) {
+        expect(item.badgeIndex).toBe(0);
+        expect(existsSync(resolve('public', item.src.slice(1)))).toBe(true);
         continue;
       }
       if (item.id === 'frost.bird-listener') {

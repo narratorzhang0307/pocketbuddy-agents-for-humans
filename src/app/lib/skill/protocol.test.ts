@@ -31,6 +31,8 @@ describe('pocket-skill/v1', () => {
     expect(BUILTIN_SKILLS.map((item) => item.identity.id)).toEqual([
       'pocket.her-motion',
       'pocket.lianlema',
+      'pocket.sports-badminton', 'pocket.sports-basketball', 'pocket.sports-football',
+      'pocket.sports-volleyball', 'pocket.sports-jumprope',
       'frost.run-route',
       'frost.running-coach',
       'frost.healthsync',

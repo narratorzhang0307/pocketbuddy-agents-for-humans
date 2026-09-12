@@ -1,0 +1,312 @@
+{
+  "badminton": {
+    "E01": {
+      "name": "Low contact point",
+      "cue": "Move into position and aim for contact above and in front of your shoulder."
+    },
+    "E02": {
+      "name": "Contact point behind the shoulder",
+      "cue": "Turn side-on and keep the contact point in front of your body."
+    },
+    "E03": {
+      "name": "Elbow not raised during preparation",
+      "cue": "Raise your elbow as you prepare the swing."
+    },
+    "E04": {
+      "name": "Limited swing extension",
+      "cue": "Let your upper arm and forearm extend through the swing."
+    },
+    "E05": {
+      "name": "Limited wrist movement at contact",
+      "cue": "Use a relaxed wrist and coordinate forearm rotation through contact."
+    },
+    "E06": {
+      "name": "Limited body rotation",
+      "cue": "Let the hips lead the shoulders through the swing."
+    },
+    "E07": {
+      "name": "Excessive vertical body movement",
+      "cue": "Keep your center of gravity steady through contact."
+    },
+    "E08": {
+      "name": "Lunge knee beyond the toe reference",
+      "cue": "Check your lunge alignment and keep the movement controlled and comfortable."
+    },
+    "E09": {
+      "name": "Shallow lunge",
+      "cue": "Move closer to the shuttle and lower into a controlled lunge."
+    },
+    "E10": {
+      "name": "Serve contact above the hip reference",
+      "cue": "Review the serve contact height relative to your hips; this pose check is not an officiating decision."
+    },
+    "E11": {
+      "name": "Uneven shoulder-elbow-wrist timing",
+      "cue": "Connect the leg drive, body rotation, arm swing and wrist movement smoothly."
+    },
+    "E12": {
+      "name": "Limited recovery after contact",
+      "cue": "Recover toward your ready position after the swing."
+    },
+    "E13": {
+      "name": "Stance width outside the reference range",
+      "cue": "Set a balanced ready stance around shoulder width."
+    },
+    "E14": {
+      "name": "Non-racket arm held low",
+      "cue": "Use your non-racket arm to help maintain balance."
+    },
+    "E15": {
+      "name": "Jump pattern outside the reference range",
+      "cue": "Review your takeoff and contact timing for the selected shot."
+    }
+  },
+  "basketball": {
+    "E01": {
+      "name": "Low shooting release",
+      "cue": "Extend the shooting arm and aim for a release above and in front of your head."
+    },
+    "E02": {
+      "name": "Limited wrist follow-through",
+      "cue": "Let your wrist follow through, with fingers pointing toward the basket."
+    },
+    "E03": {
+      "name": "Shooting elbow flared outward",
+      "cue": "Bring your shooting elbow into line with the basket."
+    },
+    "E04": {
+      "name": "Low release angle",
+      "cue": "Review your upward arm path through the release."
+    },
+    "E05": {
+      "name": "Forward or backward lean at release",
+      "cue": "Keep your body balanced through takeoff and release."
+    },
+    "E06": {
+      "name": "Limited jump height",
+      "cue": "Coordinate a controlled leg drive with the shot."
+    },
+    "E07": {
+      "name": "Limited knee bend",
+      "cue": "Bend your knees and hips before driving upward."
+    },
+    "E08": {
+      "name": "Uneven two-foot takeoff",
+      "cue": "Keep both feet coordinated for a balanced takeoff and landing."
+    },
+    "E09": {
+      "name": "Stiff dribbling wrist",
+      "cue": "Guide the ball with relaxed fingers and wrist movement."
+    },
+    "E10": {
+      "name": "Dribble above the hip reference",
+      "cue": "Lower the dribble toward hip level or below."
+    },
+    "E11": {
+      "name": "Head down or chest rounded",
+      "cue": "Keep your head up and look ahead while controlling the ball."
+    },
+    "E12": {
+      "name": "Limited knee lift during layup",
+      "cue": "Coordinate the knee drive with your layup steps."
+    },
+    "E13": {
+      "name": "High center of gravity",
+      "cue": "Bend your knees and lower your hips into a stable stance."
+    },
+    "E14": {
+      "name": "Stance width outside the reference range",
+      "cue": "Keep your feet around shoulder width for balance."
+    },
+    "E15": {
+      "name": "Excessive lateral body movement",
+      "cue": "Keep your center of gravity balanced between your feet."
+    }
+  },
+  "football": {
+    "E01": {
+      "name": "Support-foot position outside the reference range",
+      "cue": "Review the support-foot position beside the ball and its alignment with your target."
+    },
+    "E02": {
+      "name": "Straight support knee",
+      "cue": "Keep a slight, comfortable bend in the support knee."
+    },
+    "E03": {
+      "name": "Excessive forward or backward lean",
+      "cue": "Keep your torso controlled through contact."
+    },
+    "E04": {
+      "name": "Limited kicking-leg swing",
+      "cue": "Use a controlled backswing and forward swing."
+    },
+    "E05": {
+      "name": "Low kicking-leg speed",
+      "cue": "Coordinate the hip and leg swing smoothly through contact."
+    },
+    "E06": {
+      "name": "Unstable support foot",
+      "cue": "Keep the support foot planted through contact."
+    },
+    "E07": {
+      "name": "High center of gravity",
+      "cue": "Lower your hips and bend your knees before contact."
+    },
+    "E08": {
+      "name": "Uneven shoulder line",
+      "cue": "Keep your shoulders balanced instead of leaning sideways."
+    },
+    "E09": {
+      "name": "Limited cushioning during ball control",
+      "cue": "Let the receiving foot move with the ball to soften contact."
+    },
+    "E10": {
+      "name": "Large leg swing during juggling",
+      "cue": "Use smaller, controlled touches while juggling."
+    },
+    "E11": {
+      "name": "Uneven juggling rhythm",
+      "cue": "Aim for consistent touch timing and height."
+    },
+    "E12": {
+      "name": "Limited follow-through",
+      "cue": "Let the kicking leg follow through after contact."
+    },
+    "E13": {
+      "name": "Head down toward the ball",
+      "cue": "Look ahead and use peripheral vision to track the ball."
+    },
+    "E14": {
+      "name": "Stance width outside the reference range",
+      "cue": "Use a balanced stance around shoulder width."
+    },
+    "E15": {
+      "name": "Arms held close to the body",
+      "cue": "Let your arms help balance the movement."
+    }
+  },
+  "volleyball": {
+    "E01": {
+      "name": "Bent elbows during forearm pass",
+      "cue": "Keep both arms together and extend the elbows to form a steady platform."
+    },
+    "E02": {
+      "name": "Forearm-pass contact height outside the reference range",
+      "cue": "Keep the passing platform in front of your waist."
+    },
+    "E03": {
+      "name": "Contact point away from the body centerline",
+      "cue": "Move into position so the ball is in front of your body."
+    },
+    "E04": {
+      "name": "Low serve toss",
+      "cue": "Practice a steady upward toss in front of your hitting shoulder."
+    },
+    "E05": {
+      "name": "Low serve contact point",
+      "cue": "Reach above and in front of your head for contact."
+    },
+    "E06": {
+      "name": "Limited jump during spike",
+      "cue": "Coordinate the approach and a controlled takeoff with the spike."
+    },
+    "E07": {
+      "name": "Low spike contact point",
+      "cue": "Reach upward and keep the contact point in front of your head."
+    },
+    "E08": {
+      "name": "Low arm-swing speed",
+      "cue": "Coordinate the upper arm, forearm and wrist through the swing."
+    },
+    "E09": {
+      "name": "Blocking hands below head level",
+      "cue": "Extend both arms above your head for the block."
+    },
+    "E10": {
+      "name": "Limited jump during block",
+      "cue": "Review the takeoff and reach during your block."
+    },
+    "E11": {
+      "name": "Limited knee bend",
+      "cue": "Bend your knees before moving or jumping."
+    },
+    "E12": {
+      "name": "Torso lean outside the reference range",
+      "cue": "Keep a balanced ready position with a slight forward lean."
+    },
+    "E13": {
+      "name": "Stance width outside the reference range",
+      "cue": "Set a stable ready stance around shoulder width."
+    },
+    "E14": {
+      "name": "Excessive vertical body movement",
+      "cue": "Keep your center of gravity steady through the pass."
+    },
+    "E15": {
+      "name": "Hands separated during forearm pass",
+      "cue": "Bring your hands together to create a stable passing platform."
+    }
+  },
+  "jumprope": {
+    "E01": {
+      "name": "Rounded upper-body posture",
+      "cue": "Keep your chest open, shoulders relaxed and gaze forward."
+    },
+    "E02": {
+      "name": "Hands held too high",
+      "cue": "Keep the rope handles near the sides of your hips."
+    },
+    "E03": {
+      "name": "Arms spread too wide",
+      "cue": "Keep the upper arms close to your sides and turn the rope with your wrists."
+    },
+    "E04": {
+      "name": "Limited ground-contact transition",
+      "cue": "Allow a light, controlled landing between jumps."
+    },
+    "E05": {
+      "name": "Limited jump clearance",
+      "cue": "Use a small, controlled jump with enough clearance for the rope."
+    },
+    "E06": {
+      "name": "Limited clearance for double unders",
+      "cue": "Build enough controlled jump clearance for two rope turns."
+    },
+    "E07": {
+      "name": "Stiff landing",
+      "cue": "Land softly with a slight bend in your knees."
+    },
+    "E08": {
+      "name": "Uneven jump rhythm",
+      "cue": "Aim for consistent intervals between jumps."
+    },
+    "E09": {
+      "name": "Abrupt pace change",
+      "cue": "Increase or decrease your pace gradually."
+    },
+    "E10": {
+      "name": "Uneven two-foot takeoff",
+      "cue": "Coordinate both feet through takeoff and landing."
+    },
+    "E11": {
+      "name": "Limited knee bend",
+      "cue": "Keep a small, springy bend in your knees."
+    },
+    "E12": {
+      "name": "Side-to-side upper-body sway",
+      "cue": "Keep your torso centered as you jump."
+    },
+    "E13": {
+      "name": "Head down toward the feet",
+      "cue": "Look forward and track the rope with peripheral vision."
+    },
+    "E14": {
+      "name": "Rope-turn and jump rhythm mismatch",
+      "cue": "Match the rope turns to each jump; double unders use two turns per jump."
+    },
+    "E15": {
+      "name": "Large arm movement instead of wrist turns",
+      "cue": "Use small wrist movements instead of wide arm circles."
+    }
+  }
+}

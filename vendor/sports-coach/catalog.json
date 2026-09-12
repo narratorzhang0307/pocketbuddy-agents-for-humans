@@ -1,0 +1,202 @@
+[
+  {
+    "id": "badminton",
+    "name": "Badminton",
+    "folder": "01_badminton",
+    "package": "badminton_ai",
+    "engine": "BadmintonRuleEngine",
+    "skillId": "pocket.sports-badminton",
+    "target": "sports-badminton",
+    "actions": [
+      {
+        "id": 1,
+        "name": "Overhead clear",
+        "sourceName": "高远球"
+      },
+      {
+        "id": 2,
+        "name": "Drive",
+        "sourceName": "平抽"
+      },
+      {
+        "id": 3,
+        "name": "Smash",
+        "sourceName": "扣杀"
+      },
+      {
+        "id": 4,
+        "name": "Lift",
+        "sourceName": "挑球"
+      },
+      {
+        "id": 5,
+        "name": "Serve",
+        "sourceName": "发球"
+      }
+    ],
+    "skillName": "Badminton Coach",
+    "mascot": "Badminton Bird",
+    "englishName": "Badminton Coach",
+    "accent": "#ddf3e7",
+    "avatar": "/assets/skill-avatars/sports-20260912/badminton.png",
+    "sourceName": "羽毛球"
+  },
+  {
+    "id": "basketball",
+    "name": "Basketball",
+    "folder": "02_basketball",
+    "package": "basketball_ai",
+    "engine": "BasketballRuleEngine",
+    "skillId": "pocket.sports-basketball",
+    "target": "sports-basketball",
+    "actions": [
+      {
+        "id": 1,
+        "name": "Dribbling",
+        "sourceName": "运球"
+      },
+      {
+        "id": 2,
+        "name": "Layup",
+        "sourceName": "三步上篮"
+      },
+      {
+        "id": 3,
+        "name": "Shooting",
+        "sourceName": "投篮"
+      },
+      {
+        "id": 4,
+        "name": "Passing",
+        "sourceName": "传球"
+      },
+      {
+        "id": 5,
+        "name": "Defensive stance",
+        "sourceName": "防守姿势"
+      }
+    ],
+    "skillName": "Basketball Coach",
+    "mascot": "Basketball Bear",
+    "englishName": "Basketball Coach",
+    "accent": "#daecf9",
+    "avatar": "/assets/skill-avatars/sports-20260912/basketball.png",
+    "sourceName": "篮球"
+  },
+  {
+    "id": "football",
+    "name": "Football",
+    "folder": "03_football",
+    "package": "football_ai",
+    "engine": "FootballRuleEngine",
+    "skillId": "pocket.sports-football",
+    "target": "sports-football",
+    "actions": [
+      {
+        "id": 1,
+        "name": "Dribbling",
+        "sourceName": "带球"
+      },
+      {
+        "id": 2,
+        "name": "Passing",
+        "sourceName": "传球"
+      },
+      {
+        "id": 3,
+        "name": "Shooting",
+        "sourceName": "射门"
+      },
+      {
+        "id": 4,
+        "name": "Ball control",
+        "sourceName": "停球"
+      },
+      {
+        "id": 5,
+        "name": "Juggling",
+        "sourceName": "颠球"
+      }
+    ],
+    "skillName": "Football Coach",
+    "mascot": "Football Fox",
+    "englishName": "Football Coach",
+    "accent": "#e2f3db",
+    "avatar": "/assets/skill-avatars/sports-20260912/football.png",
+    "sourceName": "足球"
+  },
+  {
+    "id": "volleyball",
+    "name": "Volleyball",
+    "folder": "04_volleyball",
+    "package": "volleyball_ai",
+    "engine": "VolleyballRuleEngine",
+    "skillId": "pocket.sports-volleyball",
+    "target": "sports-volleyball",
+    "actions": [
+      {
+        "id": 1,
+        "name": "Forearm pass",
+        "sourceName": "垫球"
+      },
+      {
+        "id": 2,
+        "name": "Serve",
+        "sourceName": "发球"
+      },
+      {
+        "id": 3,
+        "name": "Spike",
+        "sourceName": "扣球"
+      },
+      {
+        "id": 4,
+        "name": "Block",
+        "sourceName": "拦网"
+      }
+    ],
+    "skillName": "Volleyball Coach",
+    "mascot": "Volleyball Seal",
+    "englishName": "Volleyball Coach",
+    "accent": "#ffe3e5",
+    "avatar": "/assets/skill-avatars/sports-20260912/volleyball.png",
+    "sourceName": "排球"
+  },
+  {
+    "id": "jumprope",
+    "name": "Jump Rope",
+    "folder": "05_jumprope",
+    "package": "jumprope_ai",
+    "engine": "JumpRopeRuleEngine",
+    "skillId": "pocket.sports-jumprope",
+    "target": "sports-jumprope",
+    "actions": [
+      {
+        "id": 1,
+        "name": "Single under",
+        "sourceName": "单摇"
+      },
+      {
+        "id": 2,
+        "name": "Double under",
+        "sourceName": "双摇"
+      },
+      {
+        "id": 3,
+        "name": "Variable pace",
+        "sourceName": "变速跳"
+      },
+      {
+        "id": 4,
+        "name": "Form check",
+        "sourceName": "不规范跳跃"
+      }
+    ],
+    "skillName": "Jump Rope Coach",
+    "mascot": "Jump Rope Rabbit",
+    "englishName": "Jump Rope Coach",
+    "accent": "#eee4fb",
+    "avatar": "/assets/skill-avatars/sports-20260912/jumprope.png",
+    "sourceName": "跳绳"
+  }
+]

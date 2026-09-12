@@ -1,0 +1,29 @@
+# ============ 足球生物力学规则引擎（打分/纠错全部基于姿态数学偏差）============
+# 坐标系：图像归一化坐标，x向右，y向下。所有阈值作用于相对量（/躯干长 或 角度）。
+# 说明：v1 不检测球，支撑脚站位以"摆动踝-支撑踝相对距离"近似（触球时摆动踝≈球位）。
+rules:
+  conf_gate: 0.35
+  fps: 30
+
+  kick_speed_min: {传球: 1.2, 射门: 2.0}   # E05 触球时摆动踝速度峰值（躯干/秒，按类别）
+  swing_amp_min_deg: {传球: 40, 射门: 55}  # E04 摆腿幅度：摆动腿大腿有符号角摆幅（度，按类别）
+  support_offset: {min: 0.05, max: 0.90}   # E01 支撑踝-摆动踝水平距（/躯干）
+  support_knee_th_deg: 150       # E02 支撑膝角大于该值 → 直腿支撑
+  lean_th: 0.28                  # E03 |肩中x-髋中x|（/躯干）峰值
+  support_lift_th: 0.12          # E06 支撑踝y相对窗口中位的抬升（/躯干）
+  hip_height_max: 1.10           # E07 (踝中y-髋中y)/躯干 窗口均值
+  shoulder_tilt_deg: 15          # E08 肩线与水平夹角（度）
+  soft_touch_max: 3.0            # E09 停球触球速度上限（躯干/秒）
+  juggle_thigh_deg: 45           # E10 触球时摆动腿大腿有符号角绝对值（度）
+  rhythm_jitter: 0.45            # E11 触球峰间隔变异系数（≥3峰才评）
+  rhythm_tol: 0.15               # E11 超出容差即报（ 轻=cv-0.45≥0.15 ）
+  follow_ratio: 0.35             # E12 触球后0.15s速度 / 触球速度
+  head_down_th: -0.05            # E13 鼻y-肩线y（/躯干）
+  stance_width: {min: 0.50, max: 2.00}
+  arms_th: 0.50                  # E15 双臂最大腕-肩水平距（/躯干）
+
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

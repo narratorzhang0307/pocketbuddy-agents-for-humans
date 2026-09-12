@@ -31,6 +31,7 @@ import { createFrostVoiceHandler } from './server/minimax-voice.mjs'
 import { createHospitalAgentHandler } from './server/hospital-agent.mjs'
 import { createHealthMemoryHandler } from './server/health-memory.mjs'
 import { createPhotoHarnessHandler } from './server/photo-harness.mjs'
+import { createSportsCoachHandler } from './server/sports-coach.mjs'
 
 // 阿里云盒子 IPv6 路由不通：node fetch 默认 v6 优先会 ETIMEDOUT（curl 正常的经典差异）→ 强制 v4 优先
 dns.setDefaultResultOrder('ipv4first')
@@ -58,6 +59,7 @@ const FROST_VOICE = createFrostVoiceHandler({ env: process.env })
 const HOSPITAL_AGENT = createHospitalAgentHandler({ env: process.env })
 const HEALTH_MEMORY = createHealthMemoryHandler({ env: process.env })
 const PHOTO_HARNESS = createPhotoHarnessHandler({ env: process.env })
+const SPORTS_COACH = createSportsCoachHandler({ env: process.env })
 if (!process.env.DASHSCOPE_API_KEY && process.env.QWEN_API_KEY) process.env.DASHSCOPE_API_KEY = process.env.QWEN_API_KEY
 const PET_API_ENABLED = !/^(?:0|false|no|off)$/i.test(String(process.env.FROST_PET_API_ENABLED ?? 'true'))
 const PET_API = PET_API_ENABLED
@@ -1136,6 +1138,7 @@ const server = http.createServer(async (req, res) => {
     if (await HOSPITAL_AGENT(req, res)) return
     if (await HEALTH_MEMORY(req, res)) return
     if (await PHOTO_HARNESS(req, res)) return
+    if (await SPORTS_COACH(req, res)) return
     if (p.startsWith('/api/frost-voice/')) { await FROST_VOICE(req, res); return }
     if (COSTLY_PATHS.has(p)) {
       const result = cloudLimiter.consume(clientAddress(req, TRUST_PROXY))

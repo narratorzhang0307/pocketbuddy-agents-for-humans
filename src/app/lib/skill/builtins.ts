@@ -1,6 +1,7 @@
 import type { SkillManifest } from './types';
 import { disableSkill, equipSkill, getEquippedSkill, getInstalledSkill, installSkillManifest, listInstalledSkills, uninstallSkill } from './registry';
 import { EXTERNAL_HEALTH_SKILLS } from './externalHealthBuiltins';
+import { SPORTS_SKILLS } from './sportsBuiltins';
 import { BIRD_LISTENER_SKILL } from './birdListenerBuiltin';
 import { HEALTH_CONSULTATION_SKILL } from './healthConsultationBuiltin';
 
@@ -105,6 +106,7 @@ const runRouteSkill = (): SkillManifest => ({
 export const BUILTIN_SKILLS: SkillManifest[] = [
   herMotionSkill(),
   lianlemaSkill(),
+  ...SPORTS_SKILLS,
   runRouteSkill(),
   ...EXTERNAL_HEALTH_SKILLS,
   BIRD_LISTENER_SKILL,

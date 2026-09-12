@@ -52,6 +52,8 @@ const SKILL_EXPERT: Readonly<Record<string, FrostExpertId>> = {
 
   'pocket.her-motion': 'mossback',
   'pocket.lianlema': 'mossback',
+  'pocket.sports-badminton': 'mossback', 'pocket.sports-basketball': 'mossback',
+  'pocket.sports-football': 'mossback', 'pocket.sports-volleyball': 'mossback', 'pocket.sports-jumprope': 'mossback',
   'frost.mediapipe-motion': 'mossback',
   'frost.endurance-guard': 'mossback',
   'frost.wger-planner': 'mossback',

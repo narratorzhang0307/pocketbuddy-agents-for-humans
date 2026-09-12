@@ -77,6 +77,11 @@ interface RouteHint { triggers: string[]; notFor?: string[] }
 const ROUTE_HINTS: Record<string, RouteHint> = {
   'frost.health-consultation': { triggers: ['健康咨询', '医院agent', '医院 agent', '医生agent', '医生 agent', '医院智能体', '医疗咨询'] },
   'frost.bird-listener': { triggers: ['鸟叫', '鸟声', '鸟类声音', '鸟类的声音', '鸟的声音', '鸟的叫声', '小鸟的声音', '鸟儿的声音', 'bird listener'] },
+  'pocket.sports-badminton': { triggers: ['羽毛球', '高远球', 'badminton'] },
+  'pocket.sports-basketball': { triggers: ['篮球', '投篮', '上篮', 'basketball'] },
+  'pocket.sports-football': { triggers: ['足球', '射门', '颠球', 'football', 'soccer'] },
+  'pocket.sports-volleyball': { triggers: ['排球', '垫球', '拦网', 'volleyball'] },
+  'pocket.sports-jumprope': { triggers: ['跳绳', '单摇', '双摇', 'jump rope', 'jump-rope', 'skipping rope'] },
   'pocket.lianlema': { triggers: ['练了吗', '练了吗教练', '健身', '动作识别', '动作纠正', '姿势纠正', '实时纠正', '动作计数', '深蹲', '弓步蹲', '俯卧撑', '哑铃肩推', '哑铃划船', '二头弯举', '仰卧起坐', '肱三头屈伸', '侧平举', '开合跳', 'rtmpose', 'st-gcn'] },
   'pocket.her-motion': { triggers: ['her motion', '女性运动', '运动', '热身', '瑜伽', '普拉提', '动作陪伴', '姿态识别'] },
   'frost.running-coach': { triggers: ['running coach', 'readiness', '今天能不能跑', '恢复状态', '跑步处方', '跑步复盘', '质量课'] },
@@ -199,8 +204,8 @@ function planId(text: string): string {
 
 function permissionsFor(skill: RoutableSkill): string[] {
   const values = [
-    ...skill.scopes.map((scope) => `范围:${scope}`),
-    ...skill.tools.map((tool) => `工具:${tool}`),
+    ...skill.scopes.map((scope) => `${skill.id.startsWith('pocket.sports-') ? 'Scope' : '范围'}:${scope}`),
+    ...skill.tools.map((tool) => `${skill.id.startsWith('pocket.sports-') ? 'Tool' : '工具'}:${tool}`),
   ];
   return values.length ? values : ['无额外权限'];
 }
@@ -223,7 +228,8 @@ function createPlan(text: string, skills: RoutableSkill[], source: FrostPlanSour
   const steps = skills.slice(0, MAX_STEPS).map((skill, index) => stepFor(
     skill,
     text,
-    source === 'qwen' ? '云端模型依据 Skill 语义指纹匹配'
+    skill.id.startsWith('pocket.sports-') ? 'Matched the requested sport to its registered coach'
+      : source === 'qwen' ? '云端模型依据 Skill 语义指纹匹配'
       : source === 'mnn' ? '端侧 Qwen/MNN 依据 Skill 语义指纹匹配' : '本地语义指纹命中',
     index,
   ));
@@ -253,7 +259,8 @@ function localPlan(text: string, catalog: RoutableSkill[]): { plan: FrostPlan | 
       return Number.isNaN(byMention) || byMention === 0 ? right.score - left.score : byMention;
     });
   }
-  const plan = createPlan(text, selected.map((item) => item.skill), 'local-rule', `Frost 找到 ${selected.length} 个适合这次任务的 Skill。`);
+  const plan = createPlan(text, selected.map((item) => item.skill), 'local-rule', selected.every(item => item.skill.id.startsWith('pocket.sports-'))
+    ? 'Frost found a sports coach for this practice.' : `Frost 找到 ${selected.length} 个适合这次任务的 Skill。`);
   // “然后”不等于必须跨 Skill：若只有一个领域命中，让该 Skill 自己完成内部流水线，
   // 避免把“整理书单然后落图”错误拆成 books + Book-to-Earth。
   return { plan, highConfidence: best >= 8 && (selected.length === 1 || !multi || selected.length >= 2) };

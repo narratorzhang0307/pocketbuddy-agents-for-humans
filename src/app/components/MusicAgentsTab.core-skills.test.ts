@@ -11,7 +11,7 @@ describe('My Skills core capabilities', () => {
     const html = renderToStaticMarkup(createElement(MusicAgentsTab, { embedded: true }));
     const coreStart = html.indexOf('<section aria-label="Core abilities"');
     const moreStart = html.indexOf('<section aria-label="More abilities"');
-    const core = html.slice(coreStart, moreStart);
+    const core = html.slice(coreStart, html.indexOf('<section aria-label="Sports coaching skills"'));
 
     expect(coreStart).toBeGreaterThan(-1);
     expect(moreStart).toBeGreaterThan(coreStart);
@@ -36,7 +36,7 @@ describe('My Skills core capabilities', () => {
       'frost.cn-health-library', 'frost.outdoor-window', 'frost.sleep-detective', 'frost.meal-lens',
     ]);
     expect(more).not.toContain('>CORE</span>');
-    expect(html.match(/data-skill-id=/g)).toHaveLength(13);
+    expect(html.match(/data-skill-id=/g)).toHaveLength(18);
   });
 
   it('uses the same core selection for the header count and preserves all four launch routes', () => {

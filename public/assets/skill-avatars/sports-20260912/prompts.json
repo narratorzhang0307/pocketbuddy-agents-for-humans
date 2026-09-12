@@ -1,0 +1,26 @@
+{
+  "method": "Built-in image_gen, one independent request per portrait",
+  "generatedAt": "2026-09-12",
+  "assets": [
+    {
+      "file": "badminton.png",
+      "prompt": "Use case: logo-brand. Asset type: ONE square app skill avatar, independent file. Generate a cute minimal character illustration: a cheerful round cream-colored small bird holding a very simple badminton racket and a clearly recognizable feather shuttlecock, warm coral accents, solid soft mint background. Match a coordinated Pocket Buddy family: very bold rounded forms, extremely simple dot eyes and tiny curved smile, flat warm colors, no black outlines, minimal or no texture, flat solid background. Character plus sport prop fill about 85 percent of frame, positioned in lower area, friendly face and sporting object unmistakable at 52px. Balanced large silhouette, no text, lettering, logo, watermark, borders, other avatars, grids, panels, or mockup. Output one finished 1024x1024 square avatar."
+    },
+    {
+      "file": "basketball.png",
+      "prompt": "Use case: logo-brand. Asset type: ONE square app skill avatar, independent file. Generate a cute minimal character illustration: a cheerful round caramel bear hugging an orange basketball with bold curved seams, cream face, solid muted sky-blue background. Match a coordinated Pocket Buddy family: very bold rounded forms, extremely simple dot eyes and tiny curved smile, flat warm colors, no black outlines, minimal or no texture, flat solid background. Character plus sport prop fill about 85 percent of frame, positioned in lower area, friendly face and sporting object unmistakable at 52px. Balanced large silhouette, no text, lettering, logo, watermark, borders, other avatars, grids, panels, or mockup. Output one finished 1024x1024 square avatar."
+    },
+    {
+      "file": "football.png",
+      "prompt": "Use case: logo-brand. Asset type: ONE square app skill avatar, independent file. Generate a cute minimal character illustration: a cheerful round orange fox with a cream muzzle hugging a classic black-and-white pentagon soccer football, solid muted mint-green background. Match a coordinated Pocket Buddy family: very bold rounded forms, extremely simple dot eyes and tiny curved smile, flat warm colors, no black outlines, minimal or no texture, flat solid background. Character plus sport prop fill about 85 percent of frame, positioned in lower area, friendly face and sporting object unmistakable at 52px. Balanced large silhouette, no text, lettering, logo, watermark, borders, other avatars, grids, panels, or mockup. Output one finished 1024x1024 square avatar."
+    },
+    {
+      "file": "volleyball.png",
+      "prompt": "Use case: logo-brand. Asset type: ONE square app skill avatar, independent file. Generate a cute minimal character illustration: a cheerful round cream seal holding a recognizable yellow-and-blue panel volleyball up near its cheek, solid warm pink background. Match a coordinated Pocket Buddy family: very bold rounded forms, extremely simple dot eyes and tiny curved smile, flat warm colors, no black outlines, minimal or no texture, flat solid background. Character plus sport prop fill about 85 percent of frame, positioned in lower area, friendly face and sporting object unmistakable at 52px. Balanced large silhouette, no text, lettering, logo, watermark, borders, other avatars, grids, panels, or mockup. Output one finished 1024x1024 square avatar."
+    },
+    {
+      "file": "jumprope.png",
+      "prompt": "Use case: logo-brand. Asset type: ONE square app skill avatar, independent file. Generate a cute minimal character illustration: a cheerful round cream rabbit with long chunky ears holding both handles of a coral jump rope, one clear rope curve below its body, solid pale lavender background. Match a coordinated Pocket Buddy family: very bold rounded forms, extremely simple dot eyes and tiny curved smile, flat warm colors, no black outlines, minimal or no texture, flat solid background. Character plus sport prop fill about 85 percent of frame, positioned in lower area, friendly face and sporting object unmistakable at 52px. Balanced large silhouette, no text, lettering, logo, watermark, borders, other avatars, grids, panels, or mockup. Output one finished 1024x1024 square avatar."
+    }
+  ]
+}

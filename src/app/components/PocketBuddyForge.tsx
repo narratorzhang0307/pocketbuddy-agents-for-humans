@@ -1,3 +1,4 @@
+import { SPORTS } from '../lib/sports/pose';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   BookHeart,
@@ -249,6 +250,7 @@ export const MY_AGENT_CARDS: readonly MyAgentCard[] = [
     skillRoutes: [
       { id: 'her-motion', name: 'Her Motion', description: '女性运动、恢复与瑜伽动作陪伴', target: 'her-motion', source: 'Pocket Buddy · Local Vision' },
       { id: 'lianlema', name: '练了吗', description: '实时姿势矫正、动作计数与本地文字教练', target: 'lianlema-coach', source: 'Pocket Buddy · RTMPose + ST-GCN' },
+      ...SPORTS.map(sport => ({ id: sport.id, name: sport.skillName, description: sport.actions.map(action => action.name).join(', ') + ' · Pose tracking and rule-based feedback', target: sport.target, source: 'Pocket Buddy · Sports Pose Rules' })),
       { id: 'wger-planner', name: '训练计划', description: '读取训练动作和进度，由 Frost 复核当天强度', target: 'frost-wger-planner', source: 'Pocket Buddy · wger' },
       { id: 'mealie-kitchen', name: '恢复厨房', description: '从自己的食谱与餐食计划中选择恢复餐', target: 'frost-mealie-kitchen', source: 'Pocket Buddy · Mealie' },
     ],

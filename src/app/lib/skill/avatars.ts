@@ -1,3 +1,4 @@
+import { SPORTS } from '../sports/pose';
 import { resolveSkillRunTarget, type SkillRunTarget } from '../plaza/skillRoutes';
 import cloudCatalog from './avatarCloudCatalog.json';
 import birdCatalog from '../../../../native/frost-badge/ios/BirdCatalog.json';
@@ -12,6 +13,7 @@ export interface SkillAvatar {
   name: string;
   badgeIndex: number;
   src: string;
+  accent?: string;
 }
 
 function avatar(id: string, target: string, name: string, badgeIndex: number): SkillAvatar {
@@ -43,7 +45,12 @@ export const SKILL_AVATARS: readonly SkillAvatar[] = [
   avatar('frost.mealie-kitchen', 'frost-mealie-kitchen', 'Recovery Kitchen Mushroom', 16),
 ];
 
-const byIdentity = new Map([FROST_AVATAR, ...SKILL_AVATARS].flatMap(item => [
+// New phone portraits reuse Frost's supported badge index until hardware assets are provisioned.
+export const PHONE_SKILL_AVATARS: readonly SkillAvatar[] = SPORTS.map(sport => ({
+  id: sport.skillId, target: sport.target, name: sport.mascot, badgeIndex: 0, src: sport.avatar, accent: sport.accent,
+}));
+
+const byIdentity = new Map([FROST_AVATAR, ...SKILL_AVATARS, ...PHONE_SKILL_AVATARS].flatMap(item => [
   [item.id, item] as const, [item.target, item] as const,
 ]));
 
@@ -56,7 +63,7 @@ export function skillAvatarFor(idOrTarget?: string): SkillAvatar {
 export function skillAvatarForPage(page: SkillRunTarget | null, entryTarget?: string): SkillAvatar {
   if (!page) return FROST_AVATAR;
   if (entryTarget && resolveSkillRunTarget(entryTarget) === page) return skillAvatarFor(entryTarget);
-  return SKILL_AVATARS.find(item => resolveSkillRunTarget(item.target) === page) || FROST_AVATAR;
+  return [...SKILL_AVATARS, ...PHONE_SKILL_AVATARS].find(item => resolveSkillRunTarget(item.target) === page) || FROST_AVATAR;
 }
 
 export const BADGE_AVATAR_ENDPOINT = 'avatar_skill_v1';

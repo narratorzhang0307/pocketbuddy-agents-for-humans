@@ -1,0 +1,26 @@
+# ============ 排球生物力学规则引擎（打分/纠错全部基于姿态数学偏差）============
+# 坐标系：图像归一化坐标，x向右，y向下。所有阈值作用于相对量（/躯干长 或 角度）。
+rules:
+  conf_gate: 0.35
+  fps: 30
+
+  dig_elbow_min_deg: 150        # E01 垫球触球时双肘角最小值（平台需伸直）
+  dig_wrist_rel_hip: {min: -0.45, max: 0.50}  # E02 垫球击球点（双腕中点y-髋线y / 躯干）
+  side_offset_th: 0.45          # E03 击球点侧偏 |双腕中点x-髋中x| / 躯干
+  toss_height_th: -0.35         # E04 发球抛球峰值（抛球腕-肩线 / 躯干，需≤该值即高于肩）
+  serve_low_th: 0.30            # E05 发球击球点（击球腕-肩线 / 躯干 大于该值→过低）
+  airborne_min: 0.12            # E06/E10 腾空高度（踝中离地 / 躯干）
+  spike_contact_th: -0.60       # E07 扣球击球点（击球腕-肩线 / 躯干 需≤该值）
+  whip_speed_min: 250           # E08 扣球鞭打：肘-腕连线角速度峰值（度/秒）
+  block_overhead_th: 0.02       # E09 拦网双腕中点y-鼻y ≤ 该值（过头顶）
+  knee_bend_th: {垫球: 150, 发球: 150, 扣球: 120, 拦网: 125}  # E11 最小膝角上限
+  lean_range: {min: 0.06, max: 0.45}   # E12 前倾 |肩中x-髋中x|/躯干 均值
+  stance_width: {min: 0.55, max: 1.80} # E13 双踝横距 / 躯干
+  hip_bob_th: 0.20              # E14 触球短窗内髋中y波动（/躯干）
+  hands_gap_th: 0.30            # E15 垫球双腕间距 / 躯干
+
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

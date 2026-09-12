@@ -11,6 +11,7 @@ import type { JsonObject } from '../../../frost-agent/taskmaster';
 import { delegateSkillPlan, delegateSkillTask, type SkillDelegationResult } from '../../../frost-agent/taskmaster/subagentDelegation';
 import { getFrostSkillSubagent } from '../../../frost-agent/subagents/registry';
 import { resolveSkillRunTarget } from './plaza/skillRoutes';
+import { SPORTS } from './sports/pose';
 
 import { answerFrostSkill, selectFrostAnswerSkill, type FrostSkillAnswer } from './frostSkillAnswer';
 import { askHealthAdvice, healthSettings, isHealthAdviceRequest, readHealthMemory, type HealthAdvice } from './frostHealthMemory';
@@ -100,7 +101,13 @@ function inputText(events: FrostAgentEvent[]): string {
  */
 export function planFrostWorkspaceLaunch(text: string): FrostPlan | null {
   const command = text.trim().replace(/^(?:(?:嗯+|呃+|那个)[，,\s]*)+/, '');
-  if (!/^(?:请(?:你|帮我)?|麻烦(?:你)?|帮我|我想(?:要)?|我需要)?\s*(?:打开|调用|调取|进入|切换到|启动)\s*(?:一下|下)?/.test(command)) return null;
+  const sportNamed = SPORTS.some(sport => [sport.name, sport.skillName, sport.sourceName,
+    ...(sport.id === 'football' ? ['soccer'] : []), ...(sport.id === 'jumprope' ? ['jump-rope', 'skipping rope'] : [])]
+    .some(name => command.toLowerCase().includes(name.toLowerCase())));
+  const sportsLaunch = sportNamed && (/^(?:(?:please|help me|i want to)\s+)?(?:open|launch|start|practice|train|play)\b/i.test(command)
+    || /^(?:请(?:你|帮我)?|帮我|我想)?(?:开始|练习|练|打)/.test(command));
+  if (!sportsLaunch && !/^(?:请(?:你|帮我)?|麻烦(?:你)?|帮我|我想(?:要)?|我需要)?\s*(?:打开|调用|调取|进入|切换到|启动)\s*(?:一下|下)?/.test(command)) return null;
+  if (sportsLaunch && /\b(?:not|never|don['’]t|cancel|stop|then|and|minutes?|hours?|seconds?|sets?|reps?)\b|\d/i.test(command)) return null;
   // Questions, negations and compound instructions still go through normal Frost planning.
   if (/[？?\n]|然后|之后|接着|同时|并|顺便|不要|不想|别(?:开|启|用|拍|录|调用)|取消|停止|如何|怎么|为什么|能不能|是否|删除|购买|付款|上传|发送|授权|允许/.test(command)
     || (/吗[。！!]?\s*$/.test(command) && !/练了吗[。！!]?\s*$/.test(command))
@@ -321,6 +328,8 @@ export function createFrostConversationTools(goals: FrostGoalStore): FrostAgentT
         const workspace = workspaceLaunchInput(context.events);
         if (workspace) return { status: 'success', data: {
           reply: workspace.steps[0].skillId === 'frost.health-consultation' ? HEALTH_GREETING
+            : SPORTS.some(sport => sport.skillId === workspace.steps[0].skillId)
+              ? `Opening ${workspace.steps[0].skillName}. The page will show pose-based feedback. The camera starts automatically if you have enabled it after your first camera access.`
             : `Opening ${workspace.steps[0].skillName}. It uses the existing Skill page and services with the permissions already granted; a first-time system permission still needs your approval.`,
           plan: workspace as unknown as JsonObject,
           trace: ['WORKSPACE OPEN · same Frost entry · equipped page handed off directly · no cloud subagent preparation called'],

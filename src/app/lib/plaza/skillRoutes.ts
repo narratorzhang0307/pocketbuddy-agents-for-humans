@@ -1,9 +1,12 @@
+import { SPORTS } from '../sports/pose';
+
 export type SkillRunTarget =
   | 'birdlistener'
   | 'frost'
   | 'deviceevidence'
   | 'hermotion'
   | 'lianlema'
+  | 'sportscoach'
   | 'hospital'
   | 'healthsync'
   | 'openfoodfacts'
@@ -24,6 +27,7 @@ const SKILL_RUN_BY_ENTRY_TARGET: Readonly<Record<string, SkillRunTarget>> = {
   'frost': 'frost',
   'her-motion': 'hermotion',
   'lianlema-coach': 'lianlema',
+  ...Object.fromEntries(SPORTS.map(sport => [sport.target, 'sportscoach' as const])),
   'hospital-agent': 'hospital',
   'health-consultation': 'hospital',
   'frost-motion-vision': 'hermotion',

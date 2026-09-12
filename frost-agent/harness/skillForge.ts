@@ -4,6 +4,7 @@
 //   **不包含、也不执行任何代码**；闸门用白名单校验目标、拒绝一切疑似代码/外链/未知字段。
 //   真·让 agent 自写可执行代码并自进化属高风险，列为前瞻、本实现不做。
 import { getFrostBrain } from './brain';
+import { SPORTS } from '../../src/app/lib/sports/pose';
 
 export interface LearnedSkill {
   id: string;
@@ -16,6 +17,7 @@ export interface LearnedSkill {
 
 // 白名单：技能唯一能路由到的目标 = 已存在的可运行 agent。名→中文用途（也喂给云脑拟稿）。
 export const ALLOWED_TARGETS: Record<string, string> = {
+  ...Object.fromEntries(SPORTS.map(sport => [sport.target, `${sport.skillName}: selected-action pose feedback`])),
   'lianlema-coach': '实时动作识别、计数与纠正',
   'her-motion': '瑜伽、普拉提与恢复动作陪伴',
   'frost-running-coach': '跑步 readiness 与训练处方',

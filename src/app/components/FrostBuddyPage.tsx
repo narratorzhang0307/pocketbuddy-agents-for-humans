@@ -15,6 +15,7 @@ import { openRunRouteSession } from '../lib/runRouteSkill';
 import { FROST_AVATAR } from '../lib/skill/avatars';
 import { BUILTIN_SKILLS, getEquippedSkill } from '../lib/skill';
 import './FrostBuddyPage.css';
+import { SPORTS } from '../lib/sports/pose';
 
 // Frost 的展示与页面导航；所有对话只进入同一个 Agent Runtime。
 
@@ -39,6 +40,7 @@ const QUICK: { label: string; target: string }[] = [
   { label: 'Run route planning', target: 'frost-run-route' },
   { label: 'Lianlema · Form check', target: 'lianlema-coach' },
   { label: 'Her Motion warm-up', target: 'her-motion' },
+  ...SPORTS.map(sport => ({ label: sport.skillName, target: sport.target })),
   { label: 'Packaged food', target: 'frost-openfoodfacts' },
   { label: 'China health library', target: 'frost-cn-health-library' },
   { label: 'Outdoor window', target: 'frost-outdoor-window' },

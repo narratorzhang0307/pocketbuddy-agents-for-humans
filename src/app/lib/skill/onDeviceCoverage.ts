@@ -1,3 +1,5 @@
+import { SPORTS } from '../sports/pose';
+
 export type OnDeviceCapability = 'local-data' | 'mnn-text' | 'mnn-vision' | 'mnn-tool';
 export type MobileSemanticRuntime = 'qwen3-4b-health-mnn' | 'not-required';
 
@@ -19,6 +21,12 @@ export const ON_DEVICE_SKILL_COVERAGE: OnDeviceSkillCoverage[] = [
   { manifestId: 'frost.bird-listener', label: 'Bird ID', capabilities: ['local-data'], semanticRuntime: 'not-required', semanticTasks: [], deterministicTasks: ['On-device ASR and command routing', 'Complete-recording check and T5 window selection', 'OSS image check and BLE return'], proof: 'The iPhone native coordinator handles Bluetooth and on-device ASR; species inference runs explicitly on the existing HearNature server, and no on-device bird ID model is claimed' },
   { manifestId: 'pocket.her-motion', label: 'HER MOTION', capabilities: ['mnn-vision', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['Movement intent understanding', 'Training feedback explanation'], deterministicTasks: ['Pose keypoints', 'Multi-frame confirmation', 'Confidence gating'], proof: 'Local pose pipeline + a Qwen3-4B health explanation layer; the camera feed is not a medical diagnosis' },
   { manifestId: 'pocket.lianlema', label: 'Lianlema', capabilities: ['mnn-vision', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['Movement feedback explanation'], deterministicTasks: ['RTMPose keypoints', 'ST-GCN move classification', 'Rep counting'], proof: 'The local movement service produces reviewable keypoints and counts; Qwen3-4B only handles the wording' },
+  ...SPORTS.map(sport => ({
+    manifestId: sport.skillId, label: sport.skillName, capabilities: ['local-data'] as OnDeviceCapability[],
+    semanticRuntime: 'not-required' as const, semanticTasks: [],
+    deterministicTasks: ['Browser MediaPipe pose extraction', 'Consecutive full-body visibility gate', 'User-selected action'],
+    proof: 'Only pose extraction and continuity checks run in the browser. COCO-17 coordinates go to the same-origin Python rules service; no trained sport classifier or on-device MNN sport inference is claimed.',
+  })),
   { manifestId: 'frost.run-route', label: 'RUN ROUTE', capabilities: ['local-data'], semanticRuntime: 'not-required', semanticTasks: [], deterministicTasks: ['AMap walking routing', 'GPS coordinate conversion', 'Off-route recalculation', 'Track deduplication'], proof: 'Deterministic AMap route results and an on-device RouteSession; the planned line and the real track are stored separately' },
   { manifestId: 'frost.running-coach', label: 'RUNNING COACH', capabilities: ['mnn-text', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['Readiness explanation', 'Prescription explanation', 'Training review'], deterministicTasks: ['Personal baselines', 'Stop rules', 'Load ceilings'], proof: 'Rules decide the safety boundary first, then Qwen3-4B explains the structured result' },
   { manifestId: 'frost.healthsync', label: 'HEALTHSYNC', capabilities: ['mnn-text', 'local-data'], semanticRuntime: QWEN4B, semanticTasks: ['Trend summary'], deterministicTasks: ['Apple Health import', 'Deduplication', 'Sleep, steps and HRV queries'], proof: 'Raw health data is parsed on the device, and the model receives only the minimum aggregated fields' },
