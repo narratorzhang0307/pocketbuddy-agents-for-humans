@@ -7,8 +7,10 @@ export const CANVAS_RELEASE = 'editorial-eaffa7f-v1';
 export const CANVAS_EDITOR = 'src/app/components/SkillCanvasEditor.tsx';
 const sourceFiles = [CANVAS_EDITOR, 'src/app/components/SkillCanvasPage.tsx',
   'src/app/components/PlazaTab.tsx', 'src/app/data/skillAvatarCatalog.ts',
+  'src/app/lib/skillTaskmasterRuntime.ts',
   'frost-agent/skill-canvas/contracts.ts', 'frost-agent/skill-canvas/compiler.ts',
-  'frost-agent/skill-canvas/store.ts', 'scripts/ios/verify-skill-canvas.mjs'];
+  'frost-agent/skill-canvas/store.ts', 'frost-agent/skill-taskmaster/contracts.ts',
+  'frost-agent/skill-taskmaster/runtime.ts', 'scripts/ios/verify-skill-canvas.mjs'];
 const artNames = ['01-manual-trigger', '02-location-input', '03-health-summary', '04-semantic-decision',
   '05-pose-recognition', '06-safety-gate', '07-voice-notification', '08-evidence-store'];
 const avatarNames = ['trigger-chicken', 'location-giraffe', 'health-tiger', 'semantic-owl',
@@ -18,7 +20,8 @@ export const CANVAS_ART = [
   ...avatarNames.map(name => `assets/skill-cards/city-agent-avatars/${name}.png`),
 ];
 const legacyCode = ['sdb-builder', 'sdb-mini-art', '把能力放进画布', '把草图变成任务'];
-const requiredCode = [CANVAS_RELEASE, 'editorial-line-art-v1/', '01 · 定义目标', '04 · 选择技能形象'];
+const requiredCode = [CANVAS_RELEASE, 'editorial-line-art-v1/', '01 · 定义目标', '04 · 选择技能形象',
+  'adapter-registry-v1'];
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const requireThat = (ok, message) => { if (!ok) throw Error(`技能画布构建拒绝：${message}`); };
 const read = file => readFileSync(file, 'utf8');

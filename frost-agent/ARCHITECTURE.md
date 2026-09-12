@@ -10,7 +10,7 @@ FrostBuddyPage（展示、用户手势、页面导航）
           ├─ 健康意图 → 独立 Skill 子 Agent → Health Taskmaster → 真实 Skill 结果
           └─ 兼容 Skill Router → Taskmaster 委派 → 独立 Skill 子 Agent → 原页面
 
-Skill Canvas → 编译任务图 → 结构预览 / 保存卡片
+Skill Canvas → 编译任务图 → 预览 / 保存 → 用户启动 → 已绑定能力执行与证据
              （不是 Taskmaster；不会自动注册、授权或执行）
 ```
 
@@ -47,9 +47,11 @@ Skill Canvas → 编译任务图 → 结构预览 / 保存卡片
 
 ## Canvas 边界与兼容
 
-实现位于 `skill-canvas/{compiler,preview,store,contracts}.ts`。旧 `skill-taskmaster/*` 路径仅转发，二者共享同一份存储。保持 `pocket.skill-canvas.v1` 存储键、`pocket-skill-graph/v1` 和已有卡片 ID；没有数据迁移、清空或重复存储。
+编译、预览与草稿位于 `skill-canvas/`，真实执行位于 `skill-taskmaster/{contracts,runtime}.ts`，浏览器绑定在 `src/app/lib/skillTaskmasterRuntime.ts`。保持 `pocket.skill-canvas.v1` 存储键、`pocket-skill-graph/v1` 和已有卡片 ID；无需清空或迁移旧草稿。
 
-预览只展示结构和权限声明；语音、写入、传感器、模型节点均为模拟状态。不能据此声称适配器已安装、权限已获得或真实模型已运行。
+预览保持 `mode: preview`，不执行外部能力。用户点击画布运行按钮后才创建 `mode: execute` 的运行：检查图、逐项授权、调用注册适配器、收集实际结果和证据。缺少适配器、权限拒绝、超时或主动停止会阻断后续步骤；编辑可执行内容后清除旧完成状态。
+
+七个绑定覆盖手动启动、定位、本机健康摘要、Frost 服务端模型、安全门、系统语音和本机使用记录。`model.qwen` 作为已有图的兼容 ID 保留，实际 provider 由 `/api/frost-llm` 决定；健康摘要发送云端还要求已有健康设置允许云端建议。`model.pose` 暂无画布相机适配器，整图按钮禁用。只写 Skill 使用事实，不推断完成了运动；草稿、证据与运行均留在本机，不提供后台调度。详见 [使用和验收范围](../docs/development/SKILL-CANVAS-RUNTIME.md)。
 
 ## 手机与吧唧共用同一 Agent
 

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { compileSkillDraft, previewSkillGraph, resetCanvasSkillsForTests, saveCanvasSkill, getCanvasSkill, type SkillCanvasDraft } from '.';
+import { compileSkillDraft, previewSkillGraph, resetCanvasSkillsForTests, saveCanvasSkill, getCanvasSkill,
+  runSkillGraph, SkillCapabilityRegistry, type SkillCanvasDraft } from '.';
 
 const storage = new Map<string, string>();
 vi.stubGlobal('localStorage', {
@@ -49,4 +50,34 @@ describe('Skill Taskmaster', () => {
     saveCanvasSkill(result.graph!, result.structured, trace);
     expect(getCanvasSkill(result.graph!.skill_id)?.latest_run?.run_id).toBe(trace.run_id);
   });
+
+  it('persists a real execution trace across later draft saves', async () => {
+    const result = compileSkillDraft(draft());
+    const registry = new SkillCapabilityRegistry();
+    result.graph!.nodes.forEach((node) => registry.register({ capability: node.capability, async execute() {
+      return { status: 'completed', output: { node: node.id }, evidence: [{ kind: 'runtime', summary: `evidence:${node.id}` }] };
+    }}));
+    const trace = await runSkillGraph(result.graph!, registry, { authorize: () => true, createRunId: () => 'persisted-run' });
+    saveCanvasSkill(result.graph!, result.structured, trace);
+    saveCanvasSkill(result.graph!, { ...result.structured, prompt: '编辑后仍保留最近运行' });
+    expect(getCanvasSkill(result.graph!.skill_id)?.latest_run).toMatchObject({ mode: 'execute', run_id: 'persisted-run', status: 'completed' });
+  });
+  it('clears stale completion when the executable graph changes', () => {
+    const before = compileSkillDraft(draft());
+    const trace = previewSkillGraph(before.graph!);
+    saveCanvasSkill(before.graph!, before.structured, trace);
+    const after = compileSkillDraft({ ...draft(), prompt: 'A different task' });
+    saveCanvasSkill(after.graph!, after.structured);
+    expect(getCanvasSkill(after.graph!.skill_id)?.latest_run).toBeUndefined();
+  });
+
+  it('does not change memory or notify observers when durable draft persistence fails', () => {
+    const result = compileSkillDraft(draft());
+    const previous = saveCanvasSkill(result.graph!, result.structured);
+    const setItem = vi.spyOn(localStorage, 'setItem').mockImplementationOnce(() => { throw new Error('quota'); });
+    expect(() => saveCanvasSkill({ ...result.graph!, title: 'Not saved' }, result.structured)).toThrow('quota');
+    expect(getCanvasSkill(result.graph!.skill_id)).toEqual(previous);
+    setItem.mockRestore();
+  });
+
 });

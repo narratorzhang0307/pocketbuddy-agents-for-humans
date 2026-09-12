@@ -34,7 +34,7 @@ Frost 是用户面对的长期伙伴。手机文字、吧唧本机转写后的�
 | [runtime](runtime/) | 有限循环、消息收件箱、审批、日志、恢复与 Goal Driver |
 | [subagents](subagents/) | 已装备 Skill 的子 Agent 身份、独立上下文和服务端模型请求 |
 | [taskmaster](taskmaster/) | 任务监督、子 Agent 委派、健康事实和幂等执行边界 |
-| [skill-canvas](skill-canvas/) | 能力卡编译、结构预览和保存，不自动执行真实任务 |
+| [skill-canvas](skill-canvas/) | 能力卡编译与保存；用户从画布明确启动后，由 skill-taskmaster 执行已绑定能力并记录证据 |
 | [skill-taskmaster](skill-taskmaster/) | 旧导入路径的兼容转发 |
 | [harness](harness/) | Brain、路由、交接、记忆和校验 |
 | [skills](skills/) | 能力说明与健康领域适配 |

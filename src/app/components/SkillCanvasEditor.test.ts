@@ -46,14 +46,20 @@ describe('用户确认的技能画布，失败不回退旧版', () => {
     expect(source).not.toContain('SkillCanvasTab');
   });
 
-  it('旧源码和样式不再存在，画布不恢复旧服务端执行接口', () => {
+  it('旧源码和样式不再存在，画布只通过新适配器注册表真实执行', () => {
     for (const file of ['SkillCanvasTab.tsx', 'SkillDeckBuilder.tsx', 'SkillDeckBuilder.css']) {
       expect(existsSync(new URL(file, import.meta.url)), file).toBe(false);
     }
     const source = readFileSync(new URL('./SkillCanvasEditor.tsx', import.meta.url), 'utf8');
-    expect(source).toContain('执行尚未接入当前 Qwen');
+    expect(source).toContain('data-skill-taskmaster-runtime="adapter-registry-v1"');
+    expect(source).toContain('runSkillGraph');
+    expect(source).toContain('外部执行面不可用时会阻断');
     expect(source).not.toContain('executeStoredSkillGraph');
     expect(source).not.toContain('previewSkillGraph');
     expect(source).not.toContain('/v1/llm/generate');
+    const runtime = readFileSync(new URL('../lib/skillTaskmasterRuntime.ts', import.meta.url), 'utf8');
+    expect(runtime).toContain('createBrowserSkillRegistry');
+    expect(runtime).not.toContain("capability: 'model.pose'");
+    expect(runtime).not.toContain('/v1/llm/generate');
   });
 });

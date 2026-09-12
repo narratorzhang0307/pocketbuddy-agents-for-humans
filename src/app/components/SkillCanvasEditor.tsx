@@ -9,10 +9,12 @@ import {
   type SkillBlockCapability, type SkillCanvasDraft,
   type SkillCanvasNode,
 } from '../../../frost-agent/skill-canvas';
+import { inspectSkillBindings, runSkillGraph, type SkillExecutionTrace } from '../../../frost-agent/skill-taskmaster';
 import { getSkillAvatar, recommendSkillAvatar, SKILL_AVATARS } from '../data/skillAvatarCatalog';
+import { createBrowserSkillRegistry } from '../lib/skillTaskmasterRuntime';
 
 // Approved visual baseline: GitHub eaffa7f (2026-08-24). Do not restore the removed deck renderer.
-// Execution stays fail-closed until the current Qwen/health adapters support custom graphs.
+// Runtime stays fail-closed: only explicitly registered adapters may execute a custom graph.
 type Stage = 'sketch' | 'structure';
 
 interface Props { skillId?: string | null; onSaved?: () => void }
@@ -27,11 +29,11 @@ const BLOCKS: Array<{
 }> = [
   { capability: 'trigger.manual', number: '01', label: '手动启动', detail: 'Manual Trigger', family: '启动条件', color: '#e5ba58', icon: Play, editorialArtwork: '01-manual-trigger.png', blurb: '由用户明确点击后创建一次技能运行（Skill Run）。', input: '用户确认', output: 'task.started', provider: '宿主界面', stats: { instant: 5, privacy: 5, evidence: 3, risk: 1 } },
   { capability: 'sensor.location', number: '02', label: '位置数据', detail: 'Location Input', family: '数据输入', color: '#83b8d2', icon: MapPin, editorialArtwork: '02-location-input.png', blurb: '按最小权限读取坐标、精度与时间戳。', input: '定位授权', output: 'location.point', provider: '手机 GPS', stats: { instant: 5, privacy: 2, evidence: 5, risk: 3 } },
-  { capability: 'sensor.health', number: '03', label: '健康摘要', detail: 'Readiness Input', family: '数据输入', color: '#72b9ad', icon: HeartPulse, editorialArtwork: '03-health-summary.png', blurb: '读取经确认的睡眠、HRV 与恢复摘要，不自行诊断。', input: 'Health Event', output: 'readiness.summary', provider: '本机健康桥', stats: { instant: 4, privacy: 2, evidence: 5, risk: 4 } },
-  { capability: 'model.qwen', number: '04', label: '语义决策', detail: 'Qwen Processor', family: '处理与模型', color: '#a8b77e', icon: Sparkles, editorialArtwork: '04-semantic-decision.png', blurb: '把结构化上下文转换为候选动作，不直接执行副作用。', input: '结构化上下文', output: 'candidate.action', provider: 'Qwen（执行接口待接入）', stats: { instant: 3, privacy: 4, evidence: 3, risk: 3 } },
+  { capability: 'sensor.health', number: '03', label: '健康摘要', detail: 'Readiness Input', family: '数据输入', color: '#72b9ad', icon: HeartPulse, editorialArtwork: '03-health-summary.png', blurb: '读取本机已确认的健康摘要；缺少的数据保持未知。', input: 'Health Event', output: 'readiness.summary', provider: '本机健康桥', stats: { instant: 4, privacy: 2, evidence: 5, risk: 4 } },
+  { capability: 'model.qwen', number: '04', label: '语义决策', detail: 'Frost Model Processor', family: '处理与模型', color: '#a8b77e', icon: Sparkles, editorialArtwork: '04-semantic-decision.png', blurb: '把结构化上下文转换为候选动作，不直接执行副作用。', input: '结构化上下文', output: 'candidate.action', provider: 'Frost 服务端模型', stats: { instant: 3, privacy: 4, evidence: 3, risk: 3 } },
   { capability: 'model.pose', number: '05', label: '姿态识别', detail: 'Pose Processor', family: '处理与模型', color: '#a99bc6', icon: Camera, editorialArtwork: '05-pose-recognition.png', blurb: '从连续帧输出可复查的姿态信号，低置信度返回 unknown。', input: '相机帧', output: 'pose.signal', provider: '本地视觉', stats: { instant: 4, privacy: 3, evidence: 4, risk: 4 } },
   { capability: 'gate.safety', number: '06', label: '安全门', detail: 'Safety Gate', family: '流程控制', color: '#ad91b8', icon: ShieldCheck, editorialArtwork: '06-safety-gate.png', blurb: '在疼痛、眩晕或停止指令出现时阻断后续动作。', input: '风险信号', output: 'safe / stop', provider: '确定性规则', stats: { instant: 5, privacy: 5, evidence: 5, risk: 1 } },
-  { capability: 'action.voice', number: '07', label: '语音通知', detail: 'Notification Action', family: '动作输出', color: '#df8a5f', icon: Volume2, editorialArtwork: '07-voice-notification.png', blurb: '把已确认的下一步发送为简短语音或系统提醒。', input: 'action.copy', output: 'user.notified', provider: '宿主通知', stats: { instant: 5, privacy: 4, evidence: 2, risk: 2 } },
+  { capability: 'action.voice', number: '07', label: '语音通知', detail: 'Notification Action', family: '动作输出', color: '#df8a5f', icon: Volume2, editorialArtwork: '07-voice-notification.png', blurb: '通过系统语音读出简短建议，结束播报后才算完成。', input: 'action.copy', output: 'user.notified', provider: '宿主通知', stats: { instant: 5, privacy: 4, evidence: 2, risk: 2 } },
   { capability: 'store.local', number: '08', label: '完成与证据', detail: 'Evidence Store', family: '状态与证据', color: '#95a77a', icon: Database, editorialArtwork: '08-evidence-store.png', blurb: '将结果、Evidence 与运行状态绑定并保存在本机。', input: 'result + evidence', output: 'local.memory', provider: '本机存储', stats: { instant: 4, privacy: 5, evidence: 5, risk: 1 } },
 ];
 
@@ -41,8 +43,8 @@ const FAMILY_FILTERS: Array<'全部' | CardFamily> = ['全部', '启动条件', 
 const STAGE_LABEL = { trigger: '启动条件', sense: '数据输入', think: '处理与模型', guard: '流程控制', act: '动作输出', remember: '状态与证据' } as const;
 
 const PERMISSION_LABEL: Record<string, string> = {
-  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': 'Qwen / 本地视觉模型',
-  'capture:camera': '摄像头', 'notify:user': '语音提醒', 'write:health_events': '本机证据 + 完成事实同步',
+  'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': '将本次技能目标和已读取数据交给 Frost 服务端模型',
+  'capture:camera': '摄像头', 'notify:user': '语音提醒', 'write:health_events': '本机技能使用记录（不记录运动完成）',
 };
 
 const EDITORIAL_ART_BASE = `${import.meta.env.BASE_URL}assets/skill-cards/editorial-line-art-v1/`;
@@ -142,7 +144,7 @@ function MiniAbilityCard({
   </article>;
 }
 
-function AbilityCardDialog({ block, onClose, onAdd }: { block: AbilityBlock; onClose: () => void; onAdd: () => void }) {
+function AbilityCardDialog({ block, bound, onClose, onAdd }: { block: AbilityBlock; bound: boolean; onClose: () => void; onAdd: () => void }) {
   const [flipped, setFlipped] = useState(false);
   const definition = CAPABILITY_DEFINITIONS[block.capability];
   const runtimeSignals = [
@@ -178,7 +180,7 @@ function AbilityCardDialog({ block, onClose, onAdd }: { block: AbilityBlock; onC
           <dl className="grid grid-cols-[72px_1fr] gap-x-2 gap-y-1.5 p-3 font-mono text-[8px]">
             <dt className="text-black/40">阶段</dt><dd>{STAGE_LABEL[definition.stage]} / {definition.stage}</dd>
             <dt className="text-black/40">执行方</dt><dd className="truncate">{block.provider}</dd>
-            <dt className="text-black/40">绑定</dt><dd className="truncate">尚未注册执行适配器</dd>
+            <dt className="text-black/40">绑定</dt><dd className={`truncate font-bold ${bound ? 'text-[#27643c]' : 'text-[#8b1c16]'}`}>{bound ? '已注册真实执行适配器' : '当前页面缺少执行适配器'}</dd>
             <dt className="text-black/40">输入</dt><dd className="truncate text-[#36697f]">{block.input}</dd>
             <dt className="text-black/40">输出</dt><dd className="truncate text-[#7b5630]">{block.output}</dd>
           </dl>
@@ -204,8 +206,11 @@ function AbilityCardDialog({ block, onClose, onAdd }: { block: AbilityBlock; onC
 export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
   const sequenceRef = useRef(100);
   const deckScrollRef = useRef<HTMLDivElement>(null);
+  const runAbortRef = useRef<AbortController | null>(null);
+  const runtimeRegistry = useMemo(() => createBrowserSkillRegistry(), []);
+  const initialRecord = useMemo(() => getCanvasSkill(skillId || ''), [skillId]);
   const [stage, setStage] = useState<Stage>('sketch');
-  const [draft, setDraft] = useState<SkillCanvasDraft>(() => getCanvasSkill(skillId || '')?.draft || emptyDraft());
+  const [draft, setDraft] = useState<SkillCanvasDraft>(() => initialRecord?.draft || emptyDraft());
   const [activeFamily, setActiveFamily] = useState<'全部' | CardFamily>('全部');
   const [selectedCapability, setSelectedCapability] = useState<SkillBlockCapability | null>(null);
   const [dragSource, setDragSource] = useState<DragSource | null>(null);
@@ -213,6 +218,11 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
   const [compileAttempted, setCompileAttempted] = useState(false);
   const [deckEdges, setDeckEdges] = useState({ left: true, right: false });
   const [comboExpanded, setComboExpanded] = useState(false);
+  const [runError, setRunError] = useState('');
+  const [stopSignal, setStopSignal] = useState(false);
+  const [running, setRunning] = useState(false);
+  const [liveSteps, setLiveSteps] = useState<SkillExecutionTrace['steps']>([]);
+  const [latestRun, setLatestRun] = useState<SkillExecutionTrace | null>(() => initialRecord?.latest_run?.mode === 'execute' ? initialRecord.latest_run : null);
   const compileIssuesRef = useRef<HTMLDivElement>(null);
 
   const updateDeckEdges = () => {
@@ -230,12 +240,21 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
   };
 
   useEffect(() => {
-    if (!skillId) return;
+    runAbortRef.current?.abort('canvas_skill_changed'); runAbortRef.current = null;
+    setRunning(false); setRunError(''); setLiveSteps([]); setStopSignal(false);
+    if (!skillId) { setDraft(emptyDraft()); setStage('sketch'); setSaved(false); setLatestRun(null); return; }
     const record = getCanvasSkill(skillId);
     if (!record) return;
     setDraft(record.draft);
+    setLatestRun(record.latest_run?.mode === 'execute' ? record.latest_run : null);
     setStage('structure'); setSaved(true);
   }, [skillId]);
+
+  useEffect(() => {
+    const hide = () => { if (document.hidden) runAbortRef.current?.abort('canvas_hidden'); };
+    document.addEventListener('visibilitychange', hide);
+    return () => { runAbortRef.current?.abort('canvas_unmounted'); runAbortRef.current = null; document.removeEventListener('visibilitychange', hide); };
+  }, []);
 
   useEffect(() => {
     const frame = window.requestAnimationFrame(updateDeckEdges);
@@ -244,6 +263,9 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
   }, [activeFamily]);
 
   const compileResult = useMemo(() => compileSkillDraft(draft), [draft]);
+  const bindingReport = useMemo(() => compileResult.graph
+    ? inspectSkillBindings(compileResult.graph, runtimeRegistry)
+    : { ready: false, missing_capabilities: [] }, [compileResult.graph, runtimeRegistry]);
   const filteredBlocks = activeFamily === '全部' ? BLOCKS : BLOCKS.filter((block) => block.family === activeFamily);
   const selectedBlock = selectedCapability ? blockDefinition(selectedCapability) : null;
   const recommendedAvatar = useMemo(() => recommendSkillAvatar(draft.nodes), [draft.nodes]);
@@ -257,8 +279,14 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
     { label: '包含启动条件', ok: draft.nodes.some((node) => CAPABILITY_DEFINITIONS[node.capability].stage === 'trigger') },
     { label: '包含动作或状态输出', ok: draft.nodes.some((node) => ['act', 'remember'].includes(CAPABILITY_DEFINITIONS[node.capability].stage)) },
   ];
+  const displayedSteps = running ? liveSteps : latestRun?.steps || [];
+  const runStatusLabel = running ? '执行中'
+    : latestRun?.status === 'completed' ? '已完成'
+      : latestRun?.status === 'safe_stopped' ? '安全停止'
+        : latestRun?.status === 'blocked' ? '已阻断'
+          : latestRun?.status === 'failed' ? '失败' : '尚未运行';
   const updateDraft = (next: SkillCanvasDraft) => {
-    setDraft({ ...next, updated_at: new Date().toISOString() }); setSaved(false);
+    setDraft({ ...next, updated_at: new Date().toISOString() }); setSaved(false); setLatestRun(null); setLiveSteps([]); setRunError('');
   };
   const addBlock = (capability: SkillBlockCapability, slotIndex = draft.nodes.length) => {
     sequenceRef.current += 1;
@@ -267,7 +295,7 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
     updateDraft({ ...draft, nodes: nextNodes });
   };
   const loadExecutableTemplate = () => {
-    const capabilities: SkillBlockCapability[] = ['trigger.manual', 'sensor.location', 'model.qwen', 'action.voice', 'store.local'];
+    const capabilities: SkillBlockCapability[] = ['trigger.manual', 'sensor.location', 'model.qwen', 'gate.safety', 'action.voice', 'store.local'];
     updateDraft({
       ...draft,
       title: draft.title || '城市观察伙伴',
@@ -317,9 +345,37 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
     if (!compileResult.ok || !compileResult.graph || !goalReady) return;
     const draftWithAvatar = { ...compileResult.structured, avatar_id: selectedAvatar.id,
       avatar_name: draft.avatar_name ?? selectedAvatar.name, avatar_role: draft.avatar_role ?? selectedAvatar.role };
-    saveCanvasSkill({ ...compileResult.graph, avatar_id: draftWithAvatar.avatar_id,
-      avatar_name: draftWithAvatar.avatar_name, avatar_role: draftWithAvatar.avatar_role }, draftWithAvatar);
-    setDraft(draftWithAvatar); setSaved(true); onSaved?.();
+    try {
+      saveCanvasSkill({ ...compileResult.graph, avatar_id: draftWithAvatar.avatar_id,
+        avatar_name: draftWithAvatar.avatar_name, avatar_role: draftWithAvatar.avatar_role }, draftWithAvatar);
+      setDraft(draftWithAvatar); setSaved(true); setRunError(''); onSaved?.();
+    } catch { setRunError('本机存储写入失败，草稿尚未保存。'); }
+  };
+  const execute = async () => {
+    if (!compileResult.ok || !compileResult.graph || !goalReady || !bindingReport.ready || runAbortRef.current) return;
+    const draftWithAvatar = { ...compileResult.structured, avatar_id: selectedAvatar.id,
+      avatar_name: draft.avatar_name ?? selectedAvatar.name, avatar_role: draft.avatar_role ?? selectedAvatar.role };
+    const graph = { ...compileResult.graph, avatar_id: draftWithAvatar.avatar_id,
+      avatar_name: draftWithAvatar.avatar_name, avatar_role: draftWithAvatar.avatar_role };
+    const controller = new AbortController();
+    runAbortRef.current = controller;
+    setRunError(''); setLiveSteps([]); setLatestRun(null); setRunning(true);
+    try {
+      saveCanvasSkill(graph, draftWithAvatar);
+      setDraft(draftWithAvatar); setSaved(true);
+      const trace = await runSkillGraph(graph, runtimeRegistry, {
+        input: { requested_by: 'user', goal: graph.description, safety_signals: { stop_requested: stopSignal } },
+        authorize: ({ permission, node }) => window.confirm(`即将运行“${node.label}”。\n\n是否允许：${PERMISSION_LABEL[permission] || permission}？`),
+        onStep: (step) => { if (runAbortRef.current === controller) setLiveSteps((current) => [...current, step]); },
+        signal: controller.signal, timeoutMs: 65000,
+      });
+      saveCanvasSkill(graph, draftWithAvatar, trace);
+      if (runAbortRef.current === controller) { setLatestRun(trace); onSaved?.(); }
+    } catch {
+      if (runAbortRef.current === controller) setRunError('本机记录写入失败，未确认保存。请检查浏览器存储后重试。');
+    } finally {
+      if (runAbortRef.current === controller) { runAbortRef.current = null; setRunning(false); }
+    }
   };
 
   return <div data-skill-canvas="editorial-eaffa7f-v1" className="relative flex h-full flex-col overflow-hidden bg-[#efece4]">
@@ -338,7 +394,7 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
             <span><b className="block font-pixel text-[7px]">02 · 能力模块</b><small className="mt-1 block text-[7px] text-black/45">按工程能力分类筛选；拖动模块进入组合区</small></span>
             <span className="rounded-full border-2 border-black bg-[#f8f1e3] px-2 py-1 font-pixel text-[5px]">{BLOCKS.length} 个模块</span>
           </div>
-          {draft.nodes.length === 0 && <button type="button" onClick={loadExecutableTemplate} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#ffd34e] px-3 py-2 text-[8px] font-black"><WandSparkles className="h-4 w-4" />装入“手动 → 位置 → Qwen → 语音 → 证据”组合模板</button>}
+          {draft.nodes.length === 0 && <button type="button" onClick={loadExecutableTemplate} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#ffd34e] px-3 py-2 text-[8px] font-black"><WandSparkles className="h-4 w-4" />装入“手动 → 位置 → Frost 模型 → 安全门 → 语音 → 证据”可执行模板</button>}
           <div className="-mx-3 mt-2 flex gap-1.5 overflow-x-auto px-3 pb-1">{FAMILY_FILTERS.map((family) => <button key={family} type="button" onClick={() => setActiveFamily(family)} className={`shrink-0 rounded-full border-2 border-black px-3 py-1.5 text-[8px] font-black ${activeFamily === family ? 'bg-[#26231f] text-[#f8f1e3]' : 'bg-[#f8f1e3]'}`}>{family}</button>)}</div>
           <div className="relative -mx-3 mt-2">
             <button type="button" aria-label="向左滑动能力卡牌" disabled={deckEdges.left} onClick={() => scrollDeck(-1)} className="absolute left-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border-2 border-black bg-[#f8f1e3] disabled:opacity-20"><ChevronLeft className="h-5 w-5" strokeWidth={3} /></button>
@@ -437,19 +493,30 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
         </div>
         {compileResult.issues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[10px] text-[#8b1c16]">还差一点</b>{compileResult.issues.map((issue) => <p key={`${issue.code}-${issue.node_id || ''}`} className="mt-1 text-[8px] text-[#8b1c16]">· {issue.message}</p>)}</div>}
         <div className="mt-3 border-2 border-black bg-[#fff9e8] p-2.5"><div className="flex items-center justify-between"><span><b className="block font-pixel text-[7px]">权限边界</b><small className="mt-1 block text-[7px] text-black/45">运行到对应步骤时才请求</small></span><ShieldCheck className="h-5 w-5" /></div><div className="mt-2 flex flex-wrap gap-1.5">{compileResult.graph?.permissions.map((permission) => <span key={permission} className="border border-black bg-white px-2 py-1 text-[7px] font-bold">{PERMISSION_LABEL[permission] || permission}</span>) || <span className="text-[7px] text-black/40">修复上方问题后生成权限清单</span>}</div></div>
-        <p role="status" className="mt-3 border-2 border-black bg-[#fff9e8] p-3 text-[10px] leading-relaxed">自定义技能图执行尚未接入当前 Qwen / 健康接口。可以保存草稿；不会读取健康或相机、播放语音，也不会把结构预览冒充运行成功。已安装的 Skill 仍可从 Frost 调用。</p>
+        <div data-skill-taskmaster-runtime="adapter-registry-v1" role="status" className="mt-3 border-2 border-black bg-[#fff9e8] p-3">
+          <div className="flex items-center justify-between gap-2"><span><b className="block font-pixel text-[7px]">SKILL TASKMASTER · 真实执行</b><small className="mt-1 block text-[7px] text-black/45">逐步授权、逐步证据、失败即停</small></span><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${bindingReport.ready ? 'bg-[#a8c99c]' : 'bg-[#ffd9d2]'}`}>{bindingReport.ready ? '已绑定能力' : '缺少绑定'}</span></div>
+          {!bindingReport.ready && <p className="mt-2 text-[8px] font-bold leading-relaxed text-[#8b1c16]">不会伪执行：{bindingReport.missing_capabilities.map((capability) => blockDefinition(capability).label).join('、') || '请先修复技能图'}尚未注册当前页面的真实适配器。</p>}
+          {bindingReport.ready && <p className="mt-2 text-[8px] leading-relaxed">只调用当前组合中的能力。语义决策使用 Frost 服务端模型；包含健康摘要时还需开启健康设置中的云端建议。外部执行面不可用时会阻断，不生成替代结果。</p>}
+          {draft.nodes.some(node => node.capability === 'gate.safety') && <label className="mt-2 flex items-center gap-2 text-[9px]"><input type="checkbox" checked={stopSignal} disabled={running} onChange={event => setStopSignal(event.target.checked)} />我当前有疼痛、眩晕、呼吸不适，或希望停止</label>}
+          <div className="mt-2 flex items-center justify-between border-t border-black/20 pt-2"><b className="text-[8px]">最近运行：{runStatusLabel}</b><small className="font-mono text-[6px] text-black/45">{latestRun?.run_id || (running ? 'running' : 'no run')}</small></div>
+          {displayedSteps.length > 0 && <ol className="mt-2 space-y-1">{displayedSteps.map((step, index) => <li key={`${step.node_id}-${index}`} className="grid grid-cols-[18px_1fr_auto] items-center gap-1.5 border border-black bg-white px-2 py-1.5 text-[7px]"><span className="font-pixel text-[5px]">{String(index + 1).padStart(2, '0')}</span><span className="truncate font-bold">{step.label}</span><span className={step.status === 'completed' ? 'text-[#27643c]' : 'text-[#8b1c16]'}>{step.status}</span></li>)}</ol>}
+          {latestRun && <details className="mt-2 text-[9px]"><summary>查看运行结果与证据</summary><ol className="mt-2 space-y-2">{latestRun.evidence.map(item => <li key={item.evidence_id}><b>{item.summary}</b><pre className="mt-1 max-h-40 overflow-auto whitespace-pre-wrap break-all text-[8px]">{JSON.stringify(latestRun.steps.find(step => step.node_id === item.node_id)?.output || item.data, null, 2)}</pre></li>)}</ol></details>}
+          {latestRun?.error && <p className="mt-2 break-all border-l-2 border-[#b3261e] pl-2 font-mono text-[7px] text-[#8b1c16]">{latestRun.error}</p>}
+        </div>
       </section>}
 
 
     </div>
 
     <div className="shrink-0 border-t-[3px] border-black bg-white p-2.5">
+      {runError && <p role="alert" className="mb-2 text-[10px] text-[#8b1c16]">{runError}</p>}
       {stage === 'sketch' && <button type="button" onClick={showStructure} className="flex w-full items-center justify-center gap-2 border-2 border-black bg-black px-3 py-3 font-pixel text-[7px] text-[#7CFF6B]"><WandSparkles className="h-4 w-4" />编译为技能图 <ArrowRight className="h-4 w-4" /></button>}
-      {stage === 'structure' && <div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" onClick={() => { setCompileAttempted(false); setStage('sketch'); }} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-3 font-pixel text-[6px]"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={saved || !compileResult.ok} onClick={save} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-3 font-pixel text-[7px] disabled:opacity-40">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saved ? '已保存技能草稿' : '保存技能草稿（不执行）'}</button></div>}
+      {stage === 'structure' && <div className="space-y-2"><div className="grid grid-cols-[92px_1fr] gap-2"><button type="button" disabled={running} onClick={() => { setCompileAttempted(false); setStage('sketch'); }} className="flex items-center justify-center gap-1 border-2 border-black bg-white px-2 py-2.5 font-pixel text-[6px] disabled:opacity-40"><ArrowLeft className="h-3.5 w-3.5" />再摆摆</button><button type="button" disabled={saved || !compileResult.ok || running} onClick={save} className="flex items-center justify-center gap-2 border-2 border-black bg-[#00ff88] px-2 py-2.5 font-pixel text-[7px] disabled:opacity-40">{saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}{saved ? '已保存 Skill' : '保存 Skill'}</button></div><button type="button" disabled={!running && (!compileResult.ok || !bindingReport.ready)} onClick={() => { if (running) runAbortRef.current?.abort('user_cancelled'); else void execute(); }} className={`flex w-full items-center justify-center gap-2 border-2 border-black px-3 py-3 font-pixel text-[7px] disabled:bg-black/35 disabled:text-white/60 ${running ? 'bg-[#ffd34e] text-black' : 'bg-black text-[#7CFF6B]'}`}>{running ? <X className="h-4 w-4" /> : <Play className="h-4 w-4" />}{running ? '停止当前运行' : bindingReport.ready ? '授权并运行 SKILL' : '缺少真实适配器，已禁止运行'}</button></div>}
     </div>
     {selectedBlock && <AbilityCardDialog
       key={selectedBlock.capability}
       block={selectedBlock}
+      bound={runtimeRegistry.has(selectedBlock.capability)}
       onClose={() => setSelectedCapability(null)}
       onAdd={() => { addBlock(selectedBlock.capability); setSelectedCapability(null); }}
     />}

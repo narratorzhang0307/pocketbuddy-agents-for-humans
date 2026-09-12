@@ -1,4 +1,5 @@
 import type { SkillPermission } from '../taskmaster/contracts';
+import type { SkillExecutionTrace } from '../skill-taskmaster/contracts';
 
 export const SKILL_GRAPH_PROTOCOL = 'pocket-skill-graph/v1' as const;
 
@@ -105,6 +106,6 @@ export interface SkillRunTrace {
 export interface CanvasSkillRecord {
   graph: CompiledSkillGraph;
   draft: SkillCanvasDraft;
-  latest_run?: SkillRunTrace;
+  latest_run?: SkillRunTrace | SkillExecutionTrace;
   saved_at: string;
 }
