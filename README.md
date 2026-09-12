@@ -229,6 +229,12 @@ Web releases use only the independent process in [deploy/pocketbuddy](deploy/poc
 - Third-party code and models remain subject to their own licenses. A repository snapshot grants no additional redistribution rights.
 - This README describes source and product boundaries; it does not promise completion across every device, account connector, or unattended background state.
 
+## License
+
+Pocket Buddy is licensed under the [MIT License](LICENSE). Copyright (c) 2026 Pocket Buddy contributors.
+
+Third-party code, models, and assets retain their respective licenses and copyright notices. The root license does not replace those terms; existing notices, including the [AgentLink license](hardware/ojbadge-agent-link/LICENSE) and [upstream reference licenses](third_party/upstream/README.md), are preserved.
+
 ## Complete English competition storyboard
 
 The complete 30-slide story remains in the repository without cropping. It is collapsed by default so the main README keeps product explanations and their supporting visuals together.
