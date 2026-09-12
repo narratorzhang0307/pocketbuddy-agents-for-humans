@@ -6,21 +6,28 @@ ARG VITE_AMAP_KEY
 ARG VITE_AMAP_SERVICE_HOST
 ARG VITE_AMAP_SECURITY_JSCODE
 ARG VITE_AMAP_STYLE=amap://styles/dark
+ARG POCKET_BUDDY_PUBLIC_ORIGIN=https://pocketbuddy.throughtheglass.art
 ENV VITE_MAP_PROVIDER=$VITE_MAP_PROVIDER \
     VITE_AMAP_KEY=$VITE_AMAP_KEY \
     VITE_AMAP_SERVICE_HOST=$VITE_AMAP_SERVICE_HOST \
     VITE_AMAP_SECURITY_JSCODE=$VITE_AMAP_SECURITY_JSCODE \
-    VITE_AMAP_STYLE=$VITE_AMAP_STYLE
+    VITE_AMAP_STYLE=$VITE_AMAP_STYLE \
+    POCKET_BUDDY_PUBLIC_ORIGIN=$POCKET_BUDDY_PUBLIC_ORIGIN
 COPY package.json package-lock.json ./
 RUN npm ci
+COPY lianlema-portable/app_project/app/package.json lianlema-portable/app_project/app/package-lock.json ./lianlema-portable/app_project/app/
+RUN npm --prefix lianlema-portable/app_project/app ci
+COPY vendor/her-motion/package.json vendor/her-motion/package-lock.json ./vendor/her-motion/
+RUN npm --prefix vendor/her-motion ci
 COPY . .
-RUN npm run build
+RUN npm run build:web
 
 FROM node:24-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
     PORT=8080 \
     API_HOST=0.0.0.0 \
+    FROST_PET_API_ENABLED=false \
     SPORTS_COACH_PYTHON=/opt/sports-venv/bin/python \
     PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
@@ -39,6 +46,8 @@ COPY --chown=node:node server ./server
 COPY --chown=node:node knowledge ./knowledge
 COPY --chown=node:node vendor/sports-coach ./vendor/sports-coach
 USER node
+# Exercise every selected-action adapter with the dependencies shipped to Cloud Run.
+RUN /opt/sports-venv/bin/python vendor/sports-coach/test_adapter.py
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
   CMD node -e "Promise.all(['/healthz','/api/sports-coach/health'].map(async p=>{const r=await fetch('http://127.0.0.1:8080'+p,{signal:AbortSignal.timeout(4000)});if(!r.ok)throw Error(p);if(p.endsWith('/health')&&(await r.json()).ready!==true)throw Error(p)})).catch(()=>process.exit(1))"

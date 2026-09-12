@@ -27,7 +27,7 @@ The semantic card retains `model.qwen` for compatibility with existing graphs. I
 
 ## Deployment handoff
 
-Canvas does not need a second backend, Firebase, a local Qwen daemon, or a separate database service. Deploy the existing application and configure its Frost model endpoint as described in the [deployment documentation](../technical/POCKETBUDDY-DEPLOY-2026-08-27.md). The browser requests `/api/frost-llm`; model credentials stay on the server. A 503 response such as a missing model key must be resolved before a model-containing graph can complete.
+Canvas does not need a second backend, Firebase, a local Qwen daemon, or a separate database service. Deploy the existing application and configure its Frost model endpoint as described in the [combined Cloud Run deployment guide](../../deploy/cloud-run/README.md), which includes the five added sports coaches. The browser requests `/api/frost-llm`; model credentials stay on the server. A 503 response such as a missing model key must be resolved before a model-containing graph can complete.
 
 Before running, the interface requests permission for the selected data and effects. A graph combining health summary and semantic decision also respects the existing **health settings → cloud advice** opt-in. It does not silently enable sharing. Use HTTPS for browser device permissions. Evidence and Skill usage are local to that browser/device, not synchronized to a cloud account.
 

@@ -1,5 +1,7 @@
 # Sports deployment package / 运动部署交接
 
+技能画布与本运动模块一起更新到 Google Cloud Run，请使用 [综合部署说明](../../../deploy/cloud-run/README.md)。其中包含已有服务更新、模型配置、整包构建与部署后验收；本文保留运动模块的接口与规则细节。
+
 This package was supplied as `运动部署修改/运动部署` on 2026-09-12. Its five rule engines, shared geometry helpers and YAML thresholds now power Pocket Buddy's existing sports API. The original supplied directory was not changed.
 
 ## Deploy the complete app to Google Cloud Run

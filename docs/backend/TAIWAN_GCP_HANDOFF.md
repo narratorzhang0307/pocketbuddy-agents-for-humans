@@ -1,5 +1,7 @@
 # 台湾 Google Cloud 部署交接清单
 
+> 本比赛仓库的技能画布与五项运动更新，请使用新的 [Google Cloud Run 综合部署说明](../../deploy/cloud-run/README.md)，源码来自 `pocketbuddy-agents-for-humans/main`。下文保留原 Google 比赛初始化交接背景；已有服务更新不应重新覆盖模型设置。
+
 交接目标：由台湾团队成员使用自己的 Google Cloud 账号部署正式 `main`，不共享 Google 密码、不传 service-account JSON key、不修改业务代码。默认选择 Cloud Run 与 Firestore 的 `asia-east1`（台湾）区域；Gemini 通过 Vertex AI `global` endpoint 调用。
 
 落实结论：前后端、Google Agent 适配、统一 Prompt Harness、Cloud Run/Firestore 部署、数据边界、架构图和交接脚本都在同一正式仓库；高德地图按中国大陆产品适配保留，并与 Google Cloud Agent 主链明确分层。

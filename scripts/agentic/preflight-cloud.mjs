@@ -12,6 +12,10 @@ function result(name, status, detail, blocking = status === 'fail') {
   return { name, status, detail, blocking }
 }
 
+export function officialCloudRepository(url) {
+  return String(url).match(/^(?:https:\/\/github\.com\/|git@github\.com:)narratorzhang0307\/(pocketbuddy(?:-agents-for-humans)?)(?:\.git)?$/i)?.[1] || ''
+}
+
 export function staticCloudPreflight(env = process.env, options = {}) {
   const checks = []
   const project = String(options.project || env.GOOGLE_CLOUD_PROJECT || '').trim()
@@ -59,9 +63,9 @@ async function main() {
 
   const gitStatus = run('git', ['status', '--porcelain'])
   checks.push(result('Clean Git worktree', gitStatus.ok && (!gitStatus.stdout || allowDirty) ? 'pass' : 'fail', gitStatus.stdout ? (allowDirty ? 'dirty explicitly allowed' : 'uncommitted files present') : 'clean'))
-  const remotes = run('git', ['remote', '-v'])
-  const official = /github\.com[/:]narratorzhang0307\/pocketbuddy(?:\.git)?/i.test(remotes.stdout)
-  checks.push(result('Official GitHub remote', remotes.ok && official ? 'pass' : 'fail', official ? 'narratorzhang0307/pocketbuddy' : 'official remote missing'))
+  const remote = run('git', ['remote', 'get-url', 'origin'])
+  const official = officialCloudRepository(remote.stdout)
+  checks.push(result('Official GitHub remote', remote.ok && official ? 'pass' : 'fail', official ? `narratorzhang0307/${official}` : 'official origin missing'))
   const branch = run('git', ['branch', '--show-current'])
   checks.push(result('Deployment branch', branch.stdout === 'main' ? 'pass' : 'warn', branch.stdout || 'detached', false))
   const upstream = run('git', ['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}'])
@@ -70,11 +74,11 @@ async function main() {
   const upstreamUrl = upstreamRemote ? run('git', ['remote', 'get-url', upstreamRemote]) : { ok: false, stdout: '' }
   const canonicalMain = branch.stdout === 'main'
     && upstreamBranch === 'main'
-    && /github\.com[/:]narratorzhang0307\/pocketbuddy(?:\.git)?$/i.test(upstreamUrl.stdout)
+    && Boolean(official) && officialCloudRepository(upstreamUrl.stdout) === official
   checks.push(result(
     'Canonical main upstream',
     canonicalMain ? 'pass' : branch.stdout === 'main' ? 'fail' : 'warn',
-    canonicalMain ? `${upstreamRemote}/main -> narratorzhang0307/pocketbuddy` : branch.stdout === 'main' ? 'main does not track the official repository' : 'switch to official main before deployment',
+    canonicalMain ? `${upstreamRemote}/main -> narratorzhang0307/${official}` : branch.stdout === 'main' ? 'main does not track the official repository' : 'switch to official main before deployment',
     branch.stdout === 'main',
   ))
 

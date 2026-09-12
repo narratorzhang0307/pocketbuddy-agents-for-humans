@@ -56,7 +56,7 @@ fi
 gcloud builds submit . \
   --config deploy/all-things-agentic/cloudbuild.yaml \
   --project "$GOOGLE_CLOUD_PROJECT" \
-  --substitutions "_IMAGE=${agentic_image},_VITE_AMAP_KEY=${VITE_AMAP_KEY},_VITE_AMAP_SERVICE_HOST=${VITE_AMAP_SERVICE_HOST:-},_VITE_AMAP_SECURITY_JSCODE=${VITE_AMAP_SECURITY_JSCODE:-}"
+  --substitutions "_IMAGE=${agentic_image},_VITE_AMAP_KEY=${VITE_AMAP_KEY},_VITE_AMAP_SERVICE_HOST=${VITE_AMAP_SERVICE_HOST:-},_VITE_AMAP_SECURITY_JSCODE=${VITE_AMAP_SECURITY_JSCODE:-},_POCKET_BUDDY_PUBLIC_ORIGIN=${POCKET_BUDDY_PUBLIC_ORIGIN:-https://pocketbuddy.throughtheglass.art}"
 
 gcloud run deploy "$agentic_service" \
   --image "$agentic_image" \
@@ -66,6 +66,10 @@ gcloud run deploy "$agentic_service" \
   --allow-unauthenticated \
   --memory 2Gi \
   --cpu 2 \
+  --port 8080 \
+  --concurrency 8 \
+  --timeout 300 \
+  --startup-probe 'httpGet.path=/api/sports-coach/health,httpGet.port=8080,timeoutSeconds=10,periodSeconds=10,failureThreshold=12' \
   --min 0 \
   --max 3 \
   --set-env-vars "FROST_AGENT_PROVIDER=gemini,GEMINI_MODEL=gemini-3.5-flash,GOOGLE_GENAI_USE_VERTEXAI=true,GOOGLE_CLOUD_PROJECT=$GOOGLE_CLOUD_PROJECT,GOOGLE_CLOUD_LOCATION=$agentic_location,GOOGLE_CLOUD_REGION=$agentic_region,FROST_FIRESTORE_ENABLED=true,FROST_FIRESTORE_REQUIRED=true,FROST_FIRESTORE_COLLECTION=frost_agent_runs,FROST_PET_API_ENABLED=false,EDGE_BACKEND=stub,HEALTH_SKILL_LOCAL_BRIDGE=false,TRUST_PROXY=true"

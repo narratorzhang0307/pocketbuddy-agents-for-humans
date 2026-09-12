@@ -1,5 +1,7 @@
 # Pocket Buddy
 
+**Competition deployment update:** [技能画布 + 五项运动的 Google Cloud Run 综合部署说明](deploy/cloud-run/README.md). Rebuild and redeploy the latest `main` of [`pocketbuddy-agents-for-humans`](https://github.com/narratorzhang0307/pocketbuddy-agents-for-humans).
+
 **Live experience: [Open Frost Taskmaster on Google Cloud Run](https://frost-taskmaster-agent-1000610846732.asia-east1.run.app)**
 
 > A fitness and health companion that remembers today, understands your goals, and hands the next step to the right Skill.

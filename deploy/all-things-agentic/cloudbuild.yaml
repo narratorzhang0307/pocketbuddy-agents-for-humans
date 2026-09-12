@@ -14,8 +14,14 @@ steps:
       - VITE_AMAP_SECURITY_JSCODE=${_VITE_AMAP_SECURITY_JSCODE}
       - --build-arg
       - VITE_AMAP_STYLE=amap://styles/dark
+      - --build-arg
+      - POCKET_BUDDY_PUBLIC_ORIGIN=${_POCKET_BUDDY_PUBLIC_ORIGIN}
       - .
+substitutions:
+  _POCKET_BUDDY_PUBLIC_ORIGIN: https://pocketbuddy.throughtheglass.art
 images:
   - ${_IMAGE}
 options:
   logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+timeout: 1800s

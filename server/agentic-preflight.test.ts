@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest'
-import { staticCloudPreflight, summarizeCloudPreflight } from '../scripts/agentic/preflight-cloud.mjs'
+import { officialCloudRepository, staticCloudPreflight, summarizeCloudPreflight } from '../scripts/agentic/preflight-cloud.mjs'
 
 describe('Google Cloud handoff preflight', () => {
+  it('accepts both official repositories without accepting lookalike remotes', () => {
+    expect(officialCloudRepository('https://github.com/narratorzhang0307/pocketbuddy-agents-for-humans.git')).toBe('pocketbuddy-agents-for-humans')
+    expect(officialCloudRepository('git@github.com:narratorzhang0307/pocketbuddy.git')).toBe('pocketbuddy')
+    for (const url of ['https://github.com/narratorzhang0307/pocketbuddy-backup.git',
+      'https://github.com/another-user/pocketbuddy.git',
+      'https://example.com/github.com/narratorzhang0307/pocketbuddy.git']) {
+      expect(officialCloudRepository(url)).toBe('')
+    }
+  })
+
   it('accepts a redacted, Taiwan-region deployment configuration', () => {
     const { checks, region, firestoreLocation } = staticCloudPreflight({
       GOOGLE_CLOUD_PROJECT: 'frost-agentic-demo',

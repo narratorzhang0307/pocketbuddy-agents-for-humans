@@ -1,5 +1,7 @@
 # Google Cloud deployment
 
+For this competition repository's Skill Canvas + five-sport update, start with [the combined Cloud Run guide](../cloud-run/README.md). Its update script preserves the existing model and secrets. The initializer below configures Gemini / Vertex AI and Firestore; use it only when that profile is intended. The root Dockerfile rebuilds the main app and both existing coaching pages and includes the five-sport Python runtime.
+
 This deployment keeps AMap as Pocket Buddy's route and map provider. Gemini is the agent decision model; the official Google Gen AI SDK is the agent framework; Cloud Run hosts the application; and Firestore stores privacy-bounded execution evidence.
 
 ## Prerequisites
