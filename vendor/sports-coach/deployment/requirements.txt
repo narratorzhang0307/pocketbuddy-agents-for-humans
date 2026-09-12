@@ -1,0 +1,3 @@
+# 运动分析服务依赖（评审要求：打包 Python、NumPy、PyYAML）
+numpy>=1.24,<3
+PyYAML>=6.0,<7

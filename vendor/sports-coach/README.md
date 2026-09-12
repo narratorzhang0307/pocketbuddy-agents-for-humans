@@ -1,6 +1,6 @@
 # Sports Coaching Skills for Pocket Buddy
 
-Five independent pose-rule engines from the user-provided sports extension projects are integrated with the main Frost Agent and the Skills catalog.
+Five independent pose-rule engines from the user-provided sports extension projects are integrated with the main Frost Agent and the Skills catalog. The active rules now come from the supplied [deployment package](deployment/README.md).
 
 | Skill | Character | Practice actions |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ SPORTS_COACH_PYTHON=/path/to/python3 npm run dev -- --host 127.0.0.1 --port 5187
 
 Open `http://127.0.0.1:5187/` → **Agents** → **Sports Coaching**. Load a Skill if needed, open it, select an action, and click **Allow camera and start**. The camera requires localhost or HTTPS. The first camera start is manual. After successful access, the shared auto-start preference lets future sports-coach visits activate the camera automatically. The page provides an opt-out switch; a denied or revoked camera permission disables auto-start.
 
-The production `server.mjs` serves the same API. Deploy this vendor directory with the application and install the Python dependencies. A static-only host cannot run the rule service. `npm run build` builds the main application; see `docs/development/CURRENT-SOURCE-BUILD.md` when also building the existing yoga and Lianlema child applications.
+The production `server.mjs` serves the same API. The root Dockerfile installs Python, NumPy and PyYAML, and packages this vendor directory. See the [Google Cloud sports deployment handoff](deployment/README.md) for container and endpoint checks. A static-only host cannot run the rule service. `npm run build` builds the main application; see `docs/development/CURRENT-SOURCE-BUILD.md` when also building the existing yoga and Lianlema child applications.
 
 ## Main Agent integration
 
@@ -52,7 +52,7 @@ The five portraits are bundled web assets generated individually with ImageGen. 
 
 ## Source provenance and checks
 
-`source-manifest.json` records the SHA-256 hashes of the 50 imported source files. Each original project's rules, configuration, class labels and math tests are preserved. Original line endings are retained so the import hashes remain reproducible. The source directory itself is untouched. `scripts/make_smoke_data.py` is included only as a synthetic fixture helper for the original math tests; training code, weights and datasets are not included.
+The active runtime loads `deployment/rules_engine` and `deployment/configs` through `assess.py`; English output and the existing input/visibility checks remain at the adapter boundary. `deployment/source-manifest.json` identifies the supplied deployment files. The earlier extension source remains as a reference and test-fixture source: `source-manifest.json` records the SHA-256 hashes of its 50 imported files. Each original project's rules, configuration, class labels and math tests are preserved. Original line endings are retained so the import hashes remain reproducible. The source directory itself is untouched. `scripts/make_smoke_data.py` is included only as a synthetic fixture helper for the original math tests; training code, weights and datasets are not included.
 
 Run the focused checks from the repository root:
 

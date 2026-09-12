@@ -1,0 +1,30 @@
+# 羽毛球规则阈值（打分/纠错全部基于姿态数学偏差）
+rules:
+  conf_gate: 0.35
+  fps: 30
+  contact_height:
+    高远球: {min: -1.15, max: -0.25, ideal: -0.7}
+    扣杀: {min: -1.30, max: -0.45, ideal: -0.85}
+    平抽: {min: -0.45, max: 0.35, ideal: -0.05}
+    挑球: {min: 0.15, max: 1.10, ideal: 0.60}
+    发球: {min: -0.10, max: 0.60, ideal: 0.25}
+  contact_height_tol: 0.18
+  behind_x_th: 0.25
+  elbow_raise_th: -0.15
+  swing_arm_angle:
+    min_ok: 140
+  wrist_flick_th: 2.2
+  twist_th: 18
+  hip_bob_th: 0.22
+  knee_over_toe_th: 0.28
+  lunge_angle_min: 105
+  serve_over_waist_th: -0.05
+  recovery_th: 0.45
+  stance_width: {min: 0.55, max: 1.60}
+  offhand_raise_th: 0.05
+  airborne_drop_th: 0.18
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

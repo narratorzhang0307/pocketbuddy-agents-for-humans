@@ -1,0 +1,26 @@
+# 跳绳规则阈值（周期统计，打分/纠错全部基于姿态数学偏差）
+rules:
+  conf_gate: 0.35
+  fps: 30
+  lean_hunch_th: 0.30
+  head_hunch_th: -0.10
+  hands_high_th: -0.25
+  arm_spread_th: 0.45
+  contact_ratio_min: 0.15
+  airborne_min: 0.10
+  airborne_double_min: 0.28
+  landing_knee_th: 165
+  rhythm_cv_th: 0.30
+  rhythm_tol: 0.10
+  transition_jump_th: 3.0
+  ankle_asym_th: 0.10
+  knee_stiff_th: 165
+  sway_th: 0.25
+  head_down_th: -0.05
+  freq_mismatch_th: 0.4
+  wrist_amp_th: 0.30
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

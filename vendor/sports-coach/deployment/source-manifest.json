@@ -1,0 +1,30 @@
+{
+  "source": "运动部署修改/运动部署",
+  "imported_at": "2026-09-12",
+  "sha256": {
+    "Dockerfile": "6acc8dc1e210064390882a49703d33daa510f337a1af0f0fde0454e91ca4faf0",
+    "README.md": "3459c7622cd92ff731ff7c3f73b546b5277c9602a409ec763c944de16d3d71da",
+    "configs/badminton.yaml": "2333d3b5a7f1a658fdd576ff5486e315aaf08f0fe843df2ba82bb2dfb2636873",
+    "configs/basketball.yaml": "d6968a9cec22134f0e9ae0961fc482bc5468dcd40b11f9682832877b39829d76",
+    "configs/football.yaml": "ad336ca8ab058fd9fac9c4658a41a2f732b7b3466a636088cf2f4480f072e291",
+    "configs/jumprope.yaml": "247f52f7e22278574705107509f29eeefc90fb6069f6d2fcb34c62de06c9b59c",
+    "configs/volleyball.yaml": "7d6d20a79f19c16bef19cfc66d52303d624766eb6f783d5ba73f416405542805",
+    "requirements.txt": "2fbd04c8622663e4ecf5914308585ae9af0a1560696b84f57c32df9df0f48bd6",
+    "rules_engine/__init__.py": "a588bcf53a4a03536391a7a94fa8baf6d19b497d65168e1efb9aab97a549932d",
+    "rules_engine/badminton.py": "00bfd23e82d9b4a849801dfa1cefab4aa4c6fe79c910ea6c59eb898917ae547d",
+    "rules_engine/basketball.py": "5951f6a6795a25a2d65a865faa94289be90f09a43bbc7412dfa54d92df88f13d",
+    "rules_engine/football.py": "28fda8c0c723e567b4695e648ba030a393361cde41cefa7b82da28de1db4b8d5",
+    "rules_engine/jumprope.py": "498d5be128b7db62d51468b92ad9b2467a7318817df97fd21070155bb1f6ca1c",
+    "rules_engine/kmath.py": "bec5b629f8f760c8a6b0c3ccb7d9f0e36408101a2c7dafe8aba025caa416a724",
+    "rules_engine/volleyball.py": "43d71d22751e67b535a7e670557d8677cc313d23102295a3dc8eea0d54ef16c9",
+    "server.py": "0800acc48902d4cdb8bb6ae448d3353f5452ffe3268eb2da58ce636cefe7ddbc",
+    "verify.py": "99b591902d1eedb90557ebfd7f0e10d9f4b2724100db30340125c0b82d0fd3c1"
+  },
+  "adapted_files": [
+    "Dockerfile",
+    "README.md",
+    "requirements.txt",
+    "server.py",
+    "verify.py"
+  ]
+}

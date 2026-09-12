@@ -5,8 +5,7 @@ from pathlib import Path
 import sys
 
 import numpy as np
-import yaml
-
+from deployment.rules_engine import get_engine
 from english import localize_assessment
 
 ROOT = Path(__file__).resolve().parent
@@ -15,13 +14,8 @@ PROTOCOL = "pocket-sports-pose/v1"
 
 
 def load_engine(sport):
-    package_root = str(ROOT / sport["folder"])
-    if package_root not in sys.path:
-        sys.path.insert(0, package_root)
-    rules = importlib.import_module(sport["package"] + ".biomech.rules")
-    coach = importlib.import_module(sport["package"] + ".biomech.coach")
-    cfg = yaml.safe_load((Path(package_root) / "configs/rules.yaml").read_text())["rules"]
-    return getattr(rules, sport["engine"])(cfg), rules, coach
+    rules = importlib.import_module("deployment.rules_engine." + sport["id"])
+    return get_engine(sport["id"]), rules, rules
 
 
 def assess(payload):

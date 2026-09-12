@@ -20,16 +20,26 @@ FROM node:24-bookworm-slim AS runtime
 
 ENV NODE_ENV=production \
     PORT=8080 \
-    API_HOST=0.0.0.0
+    API_HOST=0.0.0.0 \
+    SPORTS_COACH_PYTHON=/opt/sports-venv/bin/python \
+    PYTHONDONTWRITEBYTECODE=1
 WORKDIR /app
+# The same-origin sports endpoint executes the Python rules adapter.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3 python3-venv \
+    && rm -rf /var/lib/apt/lists/* \
+    && python3 -m venv /opt/sports-venv
+COPY vendor/sports-coach/deployment/requirements.txt /tmp/sports-requirements.txt
+RUN /opt/sports-venv/bin/pip install --no-cache-dir -r /tmp/sports-requirements.txt
 COPY deploy/all-things-agentic/runtime/package.json deploy/all-things-agentic/runtime/package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
 COPY --chown=node:node server.mjs ./server.mjs
 COPY --chown=node:node server ./server
 COPY --chown=node:node knowledge ./knowledge
+COPY --chown=node:node vendor/sports-coach ./vendor/sports-coach
 USER node
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
-  CMD node -e "fetch('http://127.0.0.1:8080/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+  CMD node -e "Promise.all(['/healthz','/api/sports-coach/health'].map(async p=>{const r=await fetch('http://127.0.0.1:8080'+p,{signal:AbortSignal.timeout(4000)});if(!r.ok)throw Error(p);if(p.endsWith('/health')&&(await r.json()).ready!==true)throw Error(p)})).catch(()=>process.exit(1))"
 CMD ["node", "server.mjs"]

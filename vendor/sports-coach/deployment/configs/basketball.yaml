@@ -1,0 +1,24 @@
+# 篮球规则阈值（打分/纠错全部基于姿态数学偏差）
+rules:
+  conf_gate: 0.35
+  fps: 30
+  release_height_min: -0.80
+  wrist_follow_deg_s: 90
+  elbow_flare_th: 0.30
+  release_arc_deg_min: 38
+  lean_th: 0.28
+  airborne_min: 0.10
+  knee_bend_th: {投篮: 120, 三步上篮: 125, 传球: 150, 防守姿势: 150, 运球: 150}
+  ankle_asym_th: 0.15
+  dribble_wrist_flick_deg_s: 150
+  dribble_high_th: -0.15
+  head_down_th: -0.05
+  knee_lift_deg_max: 105
+  def_hip_height_max: 1.05
+  stance_width: {min: 0.85, max: 2.20}
+  sway_th: 0.22
+  score:
+    start: 100
+    penalty: {轻: 4, 中: 8, 重: 12}
+    kp_conf_weight: 0.35
+  severity_ratio: {轻: 1.0, 中: 1.6, 重: 2.4}

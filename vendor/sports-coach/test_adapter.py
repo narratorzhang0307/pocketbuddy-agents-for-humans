@@ -30,7 +30,7 @@ class AdapterTests(unittest.TestCase):
     def test_every_action_uses_its_own_rule_engine_and_is_json_serializable(self):
         for sport in CATALOG:
             engine, rules, _ = load_engine(sport)
-            self.assertEqual(engine.__class__.__module__, sport["package"] + ".biomech.rules")
+            self.assertEqual(engine.__class__.__module__, "deployment.rules_engine." + sport["id"])
             for action in sport["actions"]:
                 with self.subTest(sport=sport["id"], action=action["id"]):
                     value = assess(request(sport["id"], action["id"]))
