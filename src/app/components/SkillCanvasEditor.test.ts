@@ -59,7 +59,8 @@ describe('用户确认的技能画布，失败不回退旧版', () => {
     expect(source).not.toContain('/v1/llm/generate');
     const runtime = readFileSync(new URL('../lib/skillTaskmasterRuntime.ts', import.meta.url), 'utf8');
     expect(runtime).toContain('createBrowserSkillRegistry');
-    expect(runtime).not.toContain("capability: 'model.pose'");
+    expect(runtime).toContain("capability: 'model.pose'");
+    expect(source).toContain('captureCanvasPose');
     expect(runtime).not.toContain('/v1/llm/generate');
   });
 });

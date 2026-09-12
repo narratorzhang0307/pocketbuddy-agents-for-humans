@@ -12,6 +12,7 @@ import {
 import { inspectSkillBindings, runSkillGraph, type SkillExecutionTrace } from '../../../frost-agent/skill-taskmaster';
 import { getSkillAvatar, recommendSkillAvatar, SKILL_AVATARS } from '../data/skillAvatarCatalog';
 import { createBrowserSkillRegistry } from '../lib/skillTaskmasterRuntime';
+import { captureCanvasPose } from '../lib/skillCanvasPose';
 
 // Approved visual baseline: GitHub eaffa7f (2026-08-24). Do not restore the removed deck renderer.
 // Runtime stays fail-closed: only explicitly registered adapters may execute a custom graph.
@@ -44,7 +45,7 @@ const STAGE_LABEL = { trigger: '启动条件', sense: '数据输入', think: '�
 
 const PERMISSION_LABEL: Record<string, string> = {
   'read:location': '位置', 'read:health_events': '健康摘要', 'run:model': '将本次技能目标和已读取数据交给 Frost 服务端模型',
-  'capture:camera': '摄像头', 'notify:user': '语音提醒', 'write:health_events': '本机技能使用记录（不记录运动完成）',
+  'capture:camera': '摄像头与本机骨骼识别（原始画面不上传）', 'notify:user': '语音提醒', 'write:health_events': '本机技能使用记录（不记录运动完成）',
 };
 
 const EDITORIAL_ART_BASE = `${import.meta.env.BASE_URL}assets/skill-cards/editorial-line-art-v1/`;
@@ -207,7 +208,17 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
   const sequenceRef = useRef(100);
   const deckScrollRef = useRef<HTMLDivElement>(null);
   const runAbortRef = useRef<AbortController | null>(null);
-  const runtimeRegistry = useMemo(() => createBrowserSkillRegistry(), []);
+  const poseVideoRef = useRef<HTMLVideoElement>(null);
+  const poseCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [poseActive, setPoseActive] = useState(false);
+  const [poseProgress, setPoseProgress] = useState('');
+  const runtimeRegistry = useMemo(() => createBrowserSkillRegistry({ estimatePose: async signal => {
+    const video = poseVideoRef.current, canvas = poseCanvasRef.current;
+    if (!video || !canvas) throw new Error('pose_preview_unavailable');
+    setPoseActive(true); setPoseProgress('准备摄像头…');
+    try { return await captureCanvasPose({ video, canvas, onProgress: setPoseProgress }, signal); }
+    finally { setPoseActive(false); }
+  } }), []);
   const initialRecord = useMemo(() => getCanvasSkill(skillId || ''), [skillId]);
   const [stage, setStage] = useState<Stage>('sketch');
   const [draft, setDraft] = useState<SkillCanvasDraft>(() => initialRecord?.draft || emptyDraft());
@@ -249,6 +260,10 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
     setLatestRun(record.latest_run?.mode === 'execute' ? record.latest_run : null);
     setStage('structure'); setSaved(true);
   }, [skillId]);
+
+  useEffect(() => {
+    if (poseActive) poseVideoRef.current?.scrollIntoView({ block: 'center' });
+  }, [poseActive]);
 
   useEffect(() => {
     const hide = () => { if (document.hidden) runAbortRef.current?.abort('canvas_hidden'); };
@@ -294,12 +309,12 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
     nextNodes.splice(Math.min(slotIndex, nextNodes.length), 0, makeNode(capability, draft.nodes.length + sequenceRef.current));
     updateDraft({ ...draft, nodes: nextNodes });
   };
-  const loadExecutableTemplate = () => {
-    const capabilities: SkillBlockCapability[] = ['trigger.manual', 'sensor.location', 'model.qwen', 'gate.safety', 'action.voice', 'store.local'];
+  const loadExecutableTemplate = (withPose = false) => {
+    const capabilities: SkillBlockCapability[] = withPose ? ['trigger.manual', 'model.pose', 'model.qwen', 'gate.safety', 'action.voice', 'store.local'] : ['trigger.manual', 'sensor.location', 'model.qwen', 'gate.safety', 'action.voice', 'store.local'];
     updateDraft({
       ...draft,
-      title: draft.title || '城市观察伙伴',
-      prompt: draft.prompt || '读取我的当前位置，给出一条安全、简短的城市观察建议，语音播报后保存完成证据。',
+      title: draft.title || (withPose ? '动作观察伙伴' : '城市观察伙伴'),
+      prompt: draft.prompt || (withPose ? '观察我的全身骨骼点，基于观测给出一句简短姿态描述，语音播报并保存证据；不要推断完成了运动。' : '读取我的当前位置，给出一条安全、简短的城市观察建议，语音播报后保存完成证据。'),
       nodes: capabilities.map((capability, index) => makeNode(capability, sequenceRef.current + index)),
       edges: [],
     });
@@ -394,7 +409,8 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
             <span><b className="block font-pixel text-[7px]">02 · 能力模块</b><small className="mt-1 block text-[7px] text-black/45">按工程能力分类筛选；拖动模块进入组合区</small></span>
             <span className="rounded-full border-2 border-black bg-[#f8f1e3] px-2 py-1 font-pixel text-[5px]">{BLOCKS.length} 个模块</span>
           </div>
-          {draft.nodes.length === 0 && <button type="button" onClick={loadExecutableTemplate} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#ffd34e] px-3 py-2 text-[8px] font-black"><WandSparkles className="h-4 w-4" />装入“手动 → 位置 → Frost 模型 → 安全门 → 语音 → 证据”可执行模板</button>}
+          {draft.nodes.length === 0 && <button type="button" onClick={() => loadExecutableTemplate()} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#ffd34e] px-3 py-2 text-[8px] font-black"><WandSparkles className="h-4 w-4" />装入“手动 → 位置 → Frost 模型 → 安全门 → 语音 → 证据”可执行模板</button>}
+          {draft.nodes.length === 0 && <button type="button" onClick={() => loadExecutableTemplate(true)} className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-[10px] border-2 border-black bg-[#a99bc6] px-3 py-2 text-[8px] font-black"><Camera className="h-4 w-4" />装入“骨骼识别 → Frost 建议 → 语音 → 证据”组合</button>}
           <div className="-mx-3 mt-2 flex gap-1.5 overflow-x-auto px-3 pb-1">{FAMILY_FILTERS.map((family) => <button key={family} type="button" onClick={() => setActiveFamily(family)} className={`shrink-0 rounded-full border-2 border-black px-3 py-1.5 text-[8px] font-black ${activeFamily === family ? 'bg-[#26231f] text-[#f8f1e3]' : 'bg-[#f8f1e3]'}`}>{family}</button>)}</div>
           <div className="relative -mx-3 mt-2">
             <button type="button" aria-label="向左滑动能力卡牌" disabled={deckEdges.left} onClick={() => scrollDeck(-1)} className="absolute left-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full border-2 border-black bg-[#f8f1e3] disabled:opacity-20"><ChevronLeft className="h-5 w-5" strokeWidth={3} /></button>
@@ -493,6 +509,11 @@ export default function SkillCanvasEditor({ skillId, onSaved }: Props) {
         </div>
         {compileResult.issues.length > 0 && <div role="alert" className="mt-3 border-2 border-[#b3261e] bg-[#fff0ed] p-2.5"><b className="text-[10px] text-[#8b1c16]">还差一点</b>{compileResult.issues.map((issue) => <p key={`${issue.code}-${issue.node_id || ''}`} className="mt-1 text-[8px] text-[#8b1c16]">· {issue.message}</p>)}</div>}
         <div className="mt-3 border-2 border-black bg-[#fff9e8] p-2.5"><div className="flex items-center justify-between"><span><b className="block font-pixel text-[7px]">权限边界</b><small className="mt-1 block text-[7px] text-black/45">运行到对应步骤时才请求</small></span><ShieldCheck className="h-5 w-5" /></div><div className="mt-2 flex flex-wrap gap-1.5">{compileResult.graph?.permissions.map((permission) => <span key={permission} className="border border-black bg-white px-2 py-1 text-[7px] font-bold">{PERMISSION_LABEL[permission] || permission}</span>) || <span className="text-[7px] text-black/40">修复上方问题后生成权限清单</span>}</div></div>
+        {draft.nodes.some(node => node.capability === 'model.pose') && <section aria-label="画布骨骼识别预览" className={`mt-3 border-2 border-black bg-black text-white ${poseActive ? '' : 'hidden'}`}>
+          <div className="relative"><video ref={poseVideoRef} muted playsInline className="max-h-72 w-full object-contain" /><canvas ref={poseCanvasRef} className="pointer-events-none absolute inset-0 h-full w-full object-contain" /></div>
+          <p className="p-2 text-[10px]" role="status">{poseProgress}</p>
+          <button type="button" className="m-2 border border-white px-3 py-2 text-[10px]" onClick={() => runAbortRef.current?.abort('user_cancelled')}>停止骨骼观测</button>
+        </section>}
         <div data-skill-taskmaster-runtime="adapter-registry-v1" role="status" className="mt-3 border-2 border-black bg-[#fff9e8] p-3">
           <div className="flex items-center justify-between gap-2"><span><b className="block font-pixel text-[7px]">SKILL TASKMASTER · 真实执行</b><small className="mt-1 block text-[7px] text-black/45">逐步授权、逐步证据、失败即停</small></span><span className={`border-2 border-black px-2 py-1 font-pixel text-[5px] ${bindingReport.ready ? 'bg-[#a8c99c]' : 'bg-[#ffd9d2]'}`}>{bindingReport.ready ? '已绑定能力' : '缺少绑定'}</span></div>
           {!bindingReport.ready && <p className="mt-2 text-[8px] font-bold leading-relaxed text-[#8b1c16]">不会伪执行：{bindingReport.missing_capabilities.map((capability) => blockDefinition(capability).label).join('、') || '请先修复技能图'}尚未注册当前页面的真实适配器。</p>}

@@ -18,7 +18,7 @@ export const CAPABILITY_DEFINITIONS: Record<SkillBlockCapability, {
   'sensor.location': { stage: 'sense', permissions: ['read:location'] },
   'sensor.health': { stage: 'sense', permissions: ['read:health_events'] },
   'model.qwen': { stage: 'think', permissions: ['run:model'] },
-  'model.pose': { stage: 'think', permissions: ['capture:camera', 'run:model'] },
+  'model.pose': { stage: 'think', permissions: ['capture:camera'] },
   'gate.safety': { stage: 'guard', permissions: [] },
   'action.voice': { stage: 'act', permissions: ['notify:user'] },
   'store.local': { stage: 'remember', permissions: ['write:health_events'] },
@@ -47,7 +47,9 @@ function uniqueEdges(edges: SkillCanvasEdge[]): SkillCanvasEdge[] {
 export function structureSkillDraft(draft: SkillCanvasDraft): SkillCanvasDraft {
   const ordered = [...draft.nodes].sort((a, b) => {
     const stage = STAGE_ORDER[CAPABILITY_DEFINITIONS[a.capability].stage] - STAGE_ORDER[CAPABILITY_DEFINITIONS[b.capability].stage];
-    return stage || draft.nodes.indexOf(a) - draft.nodes.indexOf(b);
+    // Pose is an observation: semantic decisions must receive its output even when cards were placed in the opposite order.
+    const observation = Number(b.capability === 'model.pose') - Number(a.capability === 'model.pose');
+    return stage || observation || draft.nodes.indexOf(a) - draft.nodes.indexOf(b);
   });
   const edges = ordered.slice(1).map((node, index) => ({ from: ordered[index].id, to: node.id }));
   return {

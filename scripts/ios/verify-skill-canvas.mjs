@@ -7,7 +7,7 @@ export const CANVAS_RELEASE = 'editorial-eaffa7f-v1';
 export const CANVAS_EDITOR = 'src/app/components/SkillCanvasEditor.tsx';
 const sourceFiles = [CANVAS_EDITOR, 'src/app/components/SkillCanvasPage.tsx',
   'src/app/components/PlazaTab.tsx', 'src/app/data/skillAvatarCatalog.ts',
-  'src/app/lib/skillTaskmasterRuntime.ts',
+  'src/app/lib/skillTaskmasterRuntime.ts', 'src/app/lib/skillCanvasPose.ts',
   'frost-agent/skill-canvas/contracts.ts', 'frost-agent/skill-canvas/compiler.ts',
   'frost-agent/skill-canvas/store.ts', 'frost-agent/skill-taskmaster/contracts.ts',
   'frost-agent/skill-taskmaster/runtime.ts', 'scripts/ios/verify-skill-canvas.mjs'];

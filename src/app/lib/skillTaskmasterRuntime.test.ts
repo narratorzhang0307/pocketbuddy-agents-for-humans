@@ -95,4 +95,26 @@ describe('Skill Canvas browser bindings', () => {
     expect(deps.persistCompletion).not.toHaveBeenCalled();
   });
 
+  it('binds pose capture supplied by the Canvas page and passes it to the semantic model first', async () => {
+    const deps = fakes();
+    deps.estimatePose = vi.fn().mockResolvedValue({ protocol: 'pocket-canvas-pose/v1', model: 'test-fixture', frames_observed: 30,
+      landmarks: Array.from({ length: 17 }, () => [0.5, 0.5, 0.9]) });
+    const graph = compiled(['trigger.manual', 'model.qwen', 'model.pose', 'store.local']);
+    expect(graph.nodes.map(node => node.capability)).toEqual(['trigger.manual', 'model.pose', 'model.qwen', 'store.local']);
+    const consent = vi.fn((_request: { permission: string }) => true);
+    const trace = await runSkillGraph(graph, createBrowserSkillRegistry(deps), { authorize: consent });
+    expect(trace.status).toBe('completed');
+    expect(deps.runModel).toHaveBeenCalledWith(expect.stringContaining('pocket-canvas-pose/v1'), expect.any(AbortSignal));
+    expect(consent.mock.calls.map(([request]) => request.permission)).toEqual(['capture:camera', 'run:model', 'write:health_events']);
+  });
+
+  it('does not run the model or completion store after incomplete pose capture', async () => {
+    const deps = fakes(); deps.estimatePose = vi.fn().mockResolvedValue({ frames_observed: 0 });
+    const trace = await runSkillGraph(compiled(['trigger.manual', 'model.pose', 'model.qwen', 'store.local']), createBrowserSkillRegistry(deps), { authorize: () => true });
+    expect(trace.status).toBe('blocked');
+    expect(trace.error).toBe('pose_observation_incomplete');
+    expect(deps.runModel).not.toHaveBeenCalled();
+    expect(deps.persistCompletion).not.toHaveBeenCalled();
+  });
+
 });

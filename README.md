@@ -149,7 +149,7 @@ The historical product baseline used “two Taskmasters” to distinguish goal o
 | Agent Taskmaster | Supervise tasks, subagent delegation, permissions, confirmation, timeouts, and results | Uses only registered capabilities and fixed tools |
 | Skill Taskmaster / Skill subagent | Compile and execute bounded Skill steps or ask domain-specific questions in an isolated task context | Cannot arbitrarily change the goal, spawn unlimited Agents, or directly control a device |
 | Health Fact & Effect Boundary | Validate and idempotently commit facts, events, and side effects | Cannot fabricate a completion record without real evidence |
-| Skill Canvas | Compose, save, and explicitly run a bounded graph with per-step evidence | Seven registered adapters; model configuration and permissions are required. Pose graphs remain blocked until a camera adapter is bound. |
+| Skill Canvas | Compose, save, and explicitly run a bounded graph with per-step evidence | Eight bound capabilities, including local camera pose capture; explicit permissions and a configured Frost model are required. |
 
 The authoring and draft store live in `frost-agent/skill-canvas/`; `frost-agent/skill-taskmaster/` now provides the bounded execution registry and runtime while keeping the older authoring imports compatible. Browser adapters use the existing Frost model endpoint and local health store. See [Skill Canvas setup and verified limits](docs/development/SKILL-CANVAS-RUNTIME.md) and [Frost architecture](frost-agent/ARCHITECTURE.md).
 
